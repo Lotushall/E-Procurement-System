@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer show *)",
+      "Bash(composer dump-autoload *)",
+      "mcp__laravel-boost__search-docs",
+      "Bash(php artisan *)"
+    ]
+  }
+}
