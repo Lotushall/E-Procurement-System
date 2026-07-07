@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(xxd node_modules/next/font/google/index.js)",
+      "Bash(npx next *)",
+      "Bash(npx shadcn@latest add dropdown-menu avatar --yes)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(php artisan *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8000/api/user --max-time 5)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
