@@ -141,3 +141,12 @@
     @apply font-sans;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-\[max-width\] {
+    transition-duration: 0.01ms !important;
+  }
+  .animate-in {
+    animation-duration: 0.01ms !important;
+  }
+}

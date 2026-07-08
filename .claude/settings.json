@@ -9,7 +9,13 @@
       "Skill(run:*)",
       "Bash(php artisan *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8000/api/user --max-time 5)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8000/api/user --max-time 3)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npm run *)",
+      "Bash(tasklist //FI \"PID eq 24664\")",
+      "Bash(npx shadcn@latest add dialog --yes)"
     ]
   }
 }
