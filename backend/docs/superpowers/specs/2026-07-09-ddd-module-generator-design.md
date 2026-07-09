@@ -92,15 +92,22 @@ Presentation, policies ไปอยู่กับ Domain)
     ])->toArray(),
 ```
 
-Signature: `module:make-ddd {module} {entity?} {--force}`
+Signature: `module:make-ddd {module} {entity?}`
 
 Logic:
 
 1. `$module = Str::studly($this->argument('module'))`
 2. `$entity = Str::studly($this->argument('entity') ?? $module)`
 3. ถ้า module ยังไม่มี (`Nwidart\Modules\Facades\Module::has($module)` คืน false) → เรียก
-   `$this->call('module:make', ['name' => [$module]])`
+   `$this->call('module:make', ['name' => [$module]])` แล้วเรียก
+   `Nwidart\Modules\Facades\Module::resetModules()` ทันทีหลังจากนั้น
    (ได้ skeleton + ServiceProvider + default `{Module}Controller` มาจากข้อ 1 โดยอัตโนมัติ)
+
+   > **เหตุผลของ `resetModules()`:** `FileRepository::scan()` แคช module list ไว้ใน static
+   > property และจะไม่ re-scan อีกถ้าไม่ได้รันในบริบทเทสต์ (`runningUnitTests()`) — ถ้าไม่ล้าง
+   > แคช คำสั่งย่อยที่ตามมา (`module:make-model` ฯลฯ) ที่เรียก `findOrFail($module)` จะโยน
+   > `ModuleNotFoundException` เพราะ module ที่เพิ่งสร้างยังไม่อยู่ในแคชเดิม (ตรวจสอบจาก
+   > `vendor/nwidart/laravel-modules/src/FileRepository.php:122-146,498-503`)
 4. ถ้า `$entity !== $module` → เรียก
    `$this->call('module:make-controller', ['controller' => "{$entity}Controller", 'module' => $module])`
    (เคส entity==module ไม่ต้องเรียกซ้ำ เพราะ `module:make` ในข้อ 3 สร้าง controller
@@ -111,7 +118,13 @@ Logic:
    - `module:make-interface {entity}RepositoryInterface {module}`
    - `module:make-request Store{entity}Request {module}`
    - `module:make-request Update{entity}Request {module}`
-6. ส่งต่อ `--force` ไปยังทุกคำสั่งย่อยถ้ามีการส่ง flag มา
+
+> **ตัด `--force` ออกจาก signature:** ตรวจสอบ source แล้วพบว่ามีแค่ `module:make` และ
+> `module:make-repository`/`module:make-interface` ที่รับ `--force` จริง ส่วน
+> `module:make-controller`/`module:make-model`/`module:make-request` ไม่มี option นี้เลย —
+> ส่งต่อแบบไม่เลือกจะทำให้ Symfony Console โยน `InvalidOptionException` ทันทีที่ไปเจอคำสั่งที่
+> ไม่รู้จัก option นี้ จึงตัดออก และปล่อยพฤติกรรม default ของ nwidart ไว้ (ถ้าไฟล์มีอยู่แล้วจะ
+> error แจ้งเตือนแทนการ overwrite เงียบ ๆ ซึ่งปลอดภัยกว่าเป็น default)
 
 Error handling: ถ้า sub-command ใดคืนค่า error ให้หยุดและ return exit code นั้นทันที (ไม่ไล่ต่อ)
 
