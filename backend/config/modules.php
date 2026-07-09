@@ -1,6 +1,8 @@
 <?php
 
+use App\Console\Commands\ModuleMakeCommand;
 use Nwidart\Modules\Activators\FileActivator;
+use Nwidart\Modules\Commands\Make\ModuleMakeCommand as BaseModuleMakeCommand;
 use Nwidart\Modules\Providers\ConsoleServiceProvider;
 
 return [
@@ -38,16 +40,9 @@ return [
         'enabled' => true,
         'path' => base_path('stubs/nwidart-stubs'),
         'files' => [
-            'routes/web' => 'routes/web.php',
-            'routes/api' => 'routes/api.php',
-            'views/index' => 'resources/views/index.blade.php',
-            'views/master' => 'resources/views/components/layouts/master.blade.php',
-            'scaffold/config' => 'config/config.php',
-            'composer' => 'composer.json',
-            'assets/js/app' => 'resources/assets/js/app.js',
-            'assets/sass/app' => 'resources/assets/sass/app.scss',
-            'vite' => 'vite.config.js',
-            'package' => 'package.json',
+            // ไม่ต้องการ config/resources/routes/composer.json/package.json/vite.config.js
+            // ต่อ module อีกต่อไป — ปล่อยว่างไว้ตรงนี้ก็พอ (generateFiles() แค่ loop array
+            // ว่างแล้วไม่ทำอะไร ไม่ error)
         ],
         'replacements' => [
             /**
@@ -142,70 +137,48 @@ return [
         | Setting the generate key to false will not generate that folder
         */
         'generator' => [
-            // Application layer: use-cases/orchestration, DTOs, jobs, listeners
-            'actions' => ['path' => 'Application/Actions', 'generate' => false],
-            'services' => ['path' => 'Application/Services', 'generate' => false],
-            'jobs' => ['path' => 'Application/Jobs', 'generate' => false],
-            'listener' => ['path' => 'Application/Listeners', 'generate' => false],
+            // Domain — framework-agnostic
+            // key ชื่อ 'interfaces' ห้ามเปลี่ยน (nwidart hardcode ชื่อ key นี้ใน InterfaceMakeCommand)
+            // แต่ path/namespace ชี้ไป Domain/Repositories ได้ตาม DDD convention (repository
+            // interface อยู่ฝั่ง Domain, ส่วน implementation จริงอยู่ Infrastructure/Repositories)
+            'interfaces' => ['path' => 'Domain/Repositories', 'namespace' => 'Domain/Repositories', 'generate' => true], // module:make-interface — ต้องมี 'namespace' เอง เพราะ InterfaceMakeCommand ไม่ fallback ไปใช้ 'path' ให้
+            'entities' => ['path' => 'Domain/Entities', 'generate' => true],       // ยังไม่มีคำสั่ง ต้องเขียนเอง (ข้อ 2)
+            'valueobjects' => ['path' => 'Domain/ValueObjects', 'generate' => true], // ยังไม่มีคำสั่ง ต้องเขียนเอง (ข้อ 2)
+            // 'event'      => ['path' => 'Domain/Events', 'generate' => false],
+            // 'enums'      => ['path' => 'Domain/Enums', 'generate' => false],
+            // 'exceptions' => ['path' => 'Domain/Exceptions', 'generate' => false],
+            // 'policies'   => ['path' => 'Domain/Policies', 'generate' => false],
 
-            // Domain layer: framework-agnostic business rules
-            'event' => ['path' => 'Domain/Events', 'generate' => false],
-            'enums' => ['path' => 'Domain/Enums', 'generate' => false],
-            'exceptions' => ['path' => 'Domain/Exceptions', 'generate' => false],
-            'interfaces' => ['path' => 'Domain/Contracts', 'generate' => false],
+            // Application — orchestration
+            'dto' => ['path' => 'Application/DTOs', 'generate' => true],      // ยังไม่มีคำสั่ง ต้องเขียนเอง (ข้อ 2)
+            'usecases' => ['path' => 'Application/UseCases', 'generate' => true],  // ยังไม่มีคำสั่ง ต้องเขียนเอง (ข้อ 2)
 
-            // Infrastructure layer: Eloquent, persistence, external services
-            'casts' => ['path' => 'Infrastructure/Casts', 'generate' => false],
-            'channels' => ['path' => 'Infrastructure/Broadcasting', 'generate' => false],
-            'class' => ['path' => 'Infrastructure/Classes', 'generate' => false],
-            'command' => ['path' => 'Infrastructure/Console', 'generate' => false],
-            'command_replacements' => ['path' => 'Infrastructure/Console/Replacements', 'generate' => false],
-            'component-class' => ['path' => 'Infrastructure/View/Components', 'generate' => false],
-            'emails' => ['path' => 'Infrastructure/Emails', 'generate' => false],
-            'helpers' => ['path' => 'Infrastructure/Helpers', 'generate' => false],
-            'model' => ['path' => 'Infrastructure/Models', 'generate' => false],
-            'notifications' => ['path' => 'Infrastructure/Notifications', 'generate' => false],
-            'observer' => ['path' => 'Infrastructure/Observers', 'generate' => false],
-            'repository' => ['path' => 'Infrastructure/Repositories', 'generate' => false],
-            'scopes' => ['path' => 'Infrastructure/Models/Scopes', 'generate' => false],
-            'traits' => ['path' => 'Infrastructure/Traits', 'generate' => false],
+            // Infrastructure — persistence
+            'model' => ['path' => 'Infrastructure/Models', 'generate' => true],
+            'repository' => ['path' => 'Infrastructure/Repositories', 'namespace' => 'Infrastructure/Repositories', 'generate' => true], // key ถูกต้องคือเอกพจน์ — ต้องมี 'namespace' เอง เหตุผลเดียวกับ interfaces
+            'migration' => ['path' => 'Infrastructure/Database/migrations', 'generate' => false], // ไม่เอา folder Database เปล่า ๆ — path ยังอยู่เผื่อรัน module:make-migration เอง
+            'seeder' => ['path' => 'Infrastructure/Database/seeders', 'generate' => false],
+            'factory' => ['path' => 'Infrastructure/Database/factories', 'generate' => false],
 
-            // Interfaces layer: controllers, requests, resources, policies, rules
-            'policies' => ['path' => 'Interfaces/Policies', 'generate' => false],
-            'resource' => ['path' => 'Interfaces/Http/Resources', 'generate' => false],
-            'rules' => ['path' => 'Interfaces/Rules', 'generate' => false],
-            'controller' => ['path' => 'Interfaces/Http/Controllers', 'generate' => true],
-            'filter' => ['path' => 'Interfaces/Http/Middleware', 'generate' => false],
-            'request' => ['path' => 'Interfaces/Http/Requests', 'generate' => false],
+            // Presentation
+            'controller' => ['path' => 'Presentation/Http/Controllers', 'generate' => true],
+            'request' => ['path' => 'Presentation/Http/Requests', 'generate' => true],
+            'routes' => ['path' => 'Presentation/routes', 'generate' => false],
 
-            // Module-level (shared across layers)
+            // Module-level — จำเป็นต่อการ boot โมดูล ห้าม comment ทิ้ง
             'provider' => ['path' => 'Providers', 'generate' => true],
-            'route-provider' => ['path' => 'Providers', 'generate' => true],
+            // ไม่ generate route-provider/event-provider แล้ว (แก้ scaffold/provider.stub คู่กัน
+            // ไม่ reference RouteServiceProvider::class / EventServiceProvider::class อีกต่อไป —
+            // ถ้าลบแค่ตรงนี้แต่ไม่แก้ stub จะพัง "Class not found" ตอน boot เหมือนเคส route มาก่อน)
+            'route-provider' => ['path' => 'Providers', 'generate' => false],
+            'event-provider' => ['path' => 'Providers', 'generate' => false],
+            'config' => ['path' => 'config', 'generate' => false],
 
-            // config/
-            'config' => ['path' => 'config', 'generate' => true],
-
-            // database/
-            'factory' => ['path' => 'database/factories', 'generate' => true],
-            'migration' => ['path' => 'database/migrations', 'generate' => true],
-            'seeder' => ['path' => 'database/seeders', 'generate' => true],
-
-            // lang/
+            // ต้องมี path เสมอ (ห้ามลบทิ้ง) — ModuleServiceProvider::boot() ของ nwidart
+            // อ่าน key พวกนี้ตรง ๆ แบบไม่มี fallback ทุกครั้งที่ module boot (ไม่ใช่แค่ตอน
+            // module:make) ถ้า path เป็น null จะได้ TypeError จาก module_path() ทันที
             'lang' => ['path' => 'lang', 'generate' => false],
-
-            // resource/
-            'assets' => ['path' => 'resources/assets', 'generate' => true],
-            'component-view' => ['path' => 'resources/views/components', 'generate' => false],
-            'views' => ['path' => 'resources/views', 'generate' => true],
-            'inertia' => ['path' => 'resources/js/Pages', 'generate' => false],
-            'inertia-components' => ['path' => 'resources/js/Components', 'generate' => false],
-
-            // routes/
-            'routes' => ['path' => 'routes', 'generate' => true],
-
-            // tests/
-            'test-feature' => ['path' => 'tests/Feature', 'generate' => true],
-            'test-unit' => ['path' => 'tests/Unit', 'generate' => true],
+            'views' => ['path' => 'resources/views', 'generate' => false],
         ],
     ],
 
@@ -251,8 +224,9 @@ return [
     |
     */
     'commands' => ConsoleServiceProvider::defaultCommands()
+        ->reject(fn (string $command) => $command === BaseModuleMakeCommand::class)
         ->merge([
-            // New commands go here
+            ModuleMakeCommand::class,
         ])->toArray(),
 
     /*

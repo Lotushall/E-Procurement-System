@@ -5,7 +5,32 @@
       "Bash(composer dump-autoload *)",
       "mcp__laravel-boost__search-docs",
       "Bash(php artisan *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(rm -rf app/Modules/ScratchProbe)",
+      "Bash(php -r ' *)",
+      "Bash(grep -n \"App\\\\\\\\\\\\\\\\Modules\" \"d:\\\\E-Procurement-System\\\\backend\\\\composer.json\")",
+      "Bash(ls -la \"/c/Users/JR/.claude/projects/d--E-Procurement-System/memory\")",
+      "Read(//c/Users/JR/.claude/projects/d--E-Procurement-System/**)",
+      "Bash(ls \"/c/Users/JR/.claude/projects/\" 2>&1 | head -50)",
+      "Read(//c/Users/JR/.claude/projects//**)",
+      "Read(//c/Users/JR/.claude/projects/d--E-Procurement-System-backend//**)",
+      "Read(//c/Users/JR/.claude/projects/d--E-Procurement-System-backend/**)",
+      "Bash(ls -la \"/c/Users/JR/.claude/projects/d--E-Procurement-System/\" 2>&1)",
+      "Read(//c/Users/JR/.claude/projects/d--E-Procurement-System//**)",
+      "Bash(git add *)",
+      "Bash(grep -n 'function getModulePath\\\\|function has\\\\|function all\\\\|function scan\\\\|private $modules\\\\|protected $modules' 'd:\\\\E-Procurement-System\\\\backend\\\\vendor\\\\nwidart\\\\laravel-modules\\\\src\\\\FileRepository.php')",
+      "Bash(grep -rn 'forgetCache\\\\|flushCache\\\\|self::$modules\\\\s*=\\\\s*\\\\[\\\\]\\\\|static $modules\\\\|->boot\\\\\\(\\\\\\)\\\\|register\\(' 'd:\\\\E-Procurement-System\\\\backend\\\\vendor\\\\nwidart\\\\laravel-modules\\\\src\\\\LaravelModulesServiceProvider.php')",
+      "Bash(grep -rn 'forgetCache\\\\|self::$modules = \\\\[\\\\]\\\\|function __construct' 'd:\\\\E-Procurement-System\\\\backend\\\\vendor\\\\nwidart\\\\laravel-modules\\\\src\\\\FileRepository.php')",
+      "Bash(git commit -m ' *)",
+      "Bash(rm -rf \"d:\\\\E-Procurement-System\\\\backend\\\\app\\\\Modules\\\\SmokeTest\")",
+      "Bash(grep -n \"SmokeTest\" modules_statuses.json)",
+      "Bash(cat routes/web.php)",
+      "Bash(git stash *)",
+      "Bash(rm -rf app/Modules/DiagTest)",
+      "Bash(awk '{print NR\": \"$0}' config/modules.php)",
+      "Bash(rm -rf app/Modules/SmokeTest)",
+      "Bash(echo \"---exit: $?---\")",
+      "Bash(echo \"---exit:$?---\")"
     ]
   }
 }
