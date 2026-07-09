@@ -15,7 +15,13 @@
       "Bash(git commit -m ' *)",
       "Bash(npm run *)",
       "Bash(tasklist //FI \"PID eq 24664\")",
-      "Bash(npx shadcn@latest add dialog --yes)"
+      "Bash(npx shadcn@latest add dialog --yes)",
+      "Bash(node -e \"console.log\\(require\\('zod/package.json'\\).version\\)\")",
+      "Bash(npx eslint *)",
+      "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
+      "Bash(grep -iE '^\\(tsc|eslint\\)$')",
+      "Bash(node_modules/.bin/tsc --noEmit -p tsconfig.json)",
+      "Bash(node_modules/.bin/eslint \"app/\\(auth\\)/register/page.tsx\")"
     ]
   }
 }

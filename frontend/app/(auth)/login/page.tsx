@@ -6,34 +6,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { routes } from "@/lib/routes";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
-
-const loginSchema = z.object({
-    identifier: z.string().min(1, "กรุณากรอกอีเมลหรือชื่อผู้ใช้"),
-    password: z.string().min(1, "กรุณากรอกรหัสผ่าน"),
-    remember: z.boolean(),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
-
-const InputField = ({ label, error, children }: { label: string; error?: string; children: ReactNode; }) => (
-    <div className="flex flex-col gap-1.5">
-        <div className="flex gap-1">
-            <p className="font-medium tracking-wider">{label}</p>
-            <span className="text-red-600">*</span>
-        </div>
-
-        {children}
-
-        {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
-)
+import { useState } from "react";
+import { Controller } from "react-hook-form";
+import { InputField } from "../_components/input-field";
+import { LoginValues } from "./_schemas/schema";
+import { useLoginForm } from "./_hooks/use-login-form";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
@@ -42,14 +22,7 @@ export default function Login() {
         control,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginValues>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            identifier: "",
-            password: "",
-            remember: false,
-        },
-    });
+    } = useLoginForm();
 
     const onSubmit = (values: LoginValues) => {
         console.log(values);

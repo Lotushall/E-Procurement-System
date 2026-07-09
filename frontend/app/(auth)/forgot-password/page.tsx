@@ -4,31 +4,12 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { routes } from "@/lib/routes";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const forgotPasswordSchema = z.object({
-    email: z.email("กรุณากรอกอีเมลให้ถูกต้อง"),
-});
-
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
-
-const InputField = ({ label, error, children }: { label: string; error?: string; children: ReactNode; }) => (
-    <div className="flex flex-col gap-1.5">
-        <div className="flex gap-1">
-            <p className="font-medium tracking-wider">{label}</p>
-            <span className="text-red-600">*</span>
-        </div>
-
-        {children}
-
-        {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
-)
+import { useState } from "react";
+import { InputField } from "../_components/input-field";
+import { ForgotPasswordValues } from "./_schemas/schema";
+import { useForgotPasswordForm } from "./_hooks/use-forgot-password-form";
 
 export default function ForgotPassword() {
     const [sentTo, setSentTo] = useState<string | null>(null);
@@ -36,10 +17,7 @@ export default function ForgotPassword() {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<ForgotPasswordValues>({
-        resolver: zodResolver(forgotPasswordSchema),
-        defaultValues: { email: "" },
-    });
+    } = useForgotPasswordForm();
 
     const onSubmit = (values: ForgotPasswordValues) => {
         setSentTo(values.email);
