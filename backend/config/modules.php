@@ -144,8 +144,9 @@ return [
             'interfaces' => ['path' => 'Domain/Repositories', 'namespace' => 'Domain/Repositories', 'generate' => true], // module:make-interface — ต้องมี 'namespace' เอง เพราะ InterfaceMakeCommand ไม่ fallback ไปใช้ 'path' ให้
             'entities' => ['path' => 'Domain/Entities', 'generate' => true],       // ยังไม่มีคำสั่ง ต้องเขียนเอง (ข้อ 2)
             'valueobjects' => ['path' => 'Domain/ValueObjects', 'generate' => true], // ยังไม่มีคำสั่ง ต้องเขียนเอง (ข้อ 2)
+            'enums' => ['path' => 'Domain/Enums', 'generate' => true],     // ยังไม่มีคำสั่ง ต้องเขียนเอง
+            'states' => ['path' => 'Domain/States', 'generate' => true],   // ยังไม่มีคำสั่ง ต้องเขียนเอง
             // 'event'      => ['path' => 'Domain/Events', 'generate' => false],
-            // 'enums'      => ['path' => 'Domain/Enums', 'generate' => false],
             // 'exceptions' => ['path' => 'Domain/Exceptions', 'generate' => false],
             // 'policies'   => ['path' => 'Domain/Policies', 'generate' => false],
 
