@@ -2,10 +2,12 @@
 
 namespace App\Modules\Vendor\Infrastructure\Models;
 
+use App\Modules\Vendor\Domain\States\VerificationStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\ModelStates\HasStates;
 
 // use App\Modules\Vendor\Database\Factories\VendorProfilesFactory;
 #[Table('vendor_profiles')]
@@ -18,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class VendorProfiles extends Model
 {
-    use HasFactory;
+    use HasFactory, HasStates;
 
     // protected static function newFactory(): VendorProfilesFactory
     // {
@@ -34,6 +36,7 @@ class VendorProfiles extends Model
     {
         return [
             'verified_at' => 'datetime',
+            'verification_status' => VerificationStatus::class,
         ];
     }
 }

@@ -2,11 +2,13 @@
 
 namespace App\Modules\Vendor\Infrastructure\Models;
 
+use App\Modules\Vendor\Domain\States\DocumentStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\ModelStates\HasStates;
 
 // use App\Modules\Vendor\Database\Factories\VendorDocumentsFactory;
 #[Table('vendor_documents')]
@@ -23,7 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Hidden(['file_path'])]
 class VendorDocuments extends Model
 {
-    use HasFactory;
+    use HasFactory, HasStates;
 
     // protected static function newFactory(): VendorDocumentsFactory
     // {
@@ -39,6 +41,7 @@ class VendorDocuments extends Model
     {
         return [
             'verified_at' => 'datetime',
+            'status' => DocumentStatus::class,
         ];
     }
 }
