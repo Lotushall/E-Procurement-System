@@ -330,20 +330,33 @@ class VendorDocuments extends Model
 
 ## Testing
 
-Pest unit test ใน `tests/Unit/Domain/{Module}/...` (ไม่ extend `TestCase`/ไม่ต้อง boot
-Laravel app เพราะเป็น pure PHP — ตรงกับที่ `tests/Pest.php` ผูก `TestCase` ไว้แค่ `Feature`)
+- **Value Object tests** → `tests/Unit/Domain/{Module}/ValueObjects/` (ไม่ extend
+  `TestCase`/ไม่ต้อง boot Laravel app เพราะเป็น pure PHP validation ล้วนๆ — ตรงกับที่
+  `tests/Pest.php` ผูก `TestCase` ไว้แค่ `Feature`):
+  - `Shared/ValueObjects`: `EmailTest`, `PhoneNumberTest`, `PostalCodeTest` — 1 ไฟล์ต่อ VO,
+    assert ทั้ง valid case และ invalid case (throw `InvalidArgumentException`)
+  - `Vendor/ValueObjects`: `TaxIdTest`, `CitizenIdTest` — เหมือนกัน (13 หลัก / ไม่ใช่ 13 หลัก /
+    มีตัวอักษรปน)
 
-- `Shared/ValueObjects`: `EmailTest`, `PhoneNumberTest`, `PostalCodeTest` — 1 ไฟล์ต่อ VO,
-  assert ทั้ง valid case และ invalid case (throw `InvalidArgumentException`)
-- `Vendor/ValueObjects`: `TaxIdTest`, `CitizenIdTest` — เหมือนกัน (13 หลัก / ไม่ใช่ 13 หลัก /
-  มีตัวอักษรปน)
-- `User/States`: `UserStatusTest` — assert transition graph ที่อนุญาต/ไม่อนุญาตด้วย
-  `canTransitionTo()`
-- `Vendor/States`: `VerificationStatusTest`, `DocumentStatusTest` — เหมือนกัน
-- Feature test (RefreshDatabase, sqlite in-memory ตาม `phpunit.xml`) ยืนยันว่า cast จริง
-  ใช้งานได้กับ enum column เดิม: สร้าง `User`/`VendorProfiles`/`VendorDocuments` row แล้ว
-  assert ว่า `$model->status` เป็น instance ของ default state class (`Pending`/`Active` ตาม
-  default ของแต่ละ field) และ `$model->status->transitionTo(...)` เปลี่ยนค่าใน DB จริง
+- **State transition-graph tests** → `tests/Feature/Domain/{Module}/States/` (**ต้อง**
+  extend `TestCase`/boot Laravel app แม้ไม่แตะ DB เลยก็ตาม เพราะพบว่า
+  `Spatie\ModelStates\State::canTransitionTo()` เรียก global helper `config()` ผ่าน
+  `resolveTransitionClass()` เมื่อ transition นั้น allowed — ถ้าไม่ boot container จะ error
+  "Target class [config] does not exist"; นอกจากนี้ต้องเรียก `->setField('status')` บน
+  instance ที่สร้างเองก่อนเรียก `canTransitionTo()` เสมอ ไม่งั้นจะเจอ
+  "must not be accessed before initialization" เพราะ property `$field` ของ `State` ไม่ได้ถูก
+  set ตอน `new $StateClass(null)` ตรงๆ — ปกติ `StateCaster::get()` จะเรียก `setField()` ให้
+  อัตโนมัติตอน hydrate จาก DB จริง แต่ตอน unit-construct เองต้องเรียกเอง):
+  - `User/States`: `UserStatusTest` — assert transition graph ที่อนุญาต/ไม่อนุญาตด้วย
+    `canTransitionTo()`, assert default state, assert `getMorphClass()` ตรงกับค่า enum เดิม
+  - `Vendor/States`: `VerificationStatusTest`, `DocumentStatusTest` — เหมือนกัน
+
+- **Eloquent cast integration test** → `tests/Feature/...` (RefreshDatabase, sqlite
+  in-memory ตาม `phpunit.xml`) ยืนยันว่า cast จริงใช้งานได้กับ enum column เดิม: สร้าง
+  `User`/`VendorProfiles`/`VendorDocuments` row แล้ว assert ว่า `$model->status` เป็น
+  instance ของ default state class (`Pending` ตาม default ของแต่ละ field) และ
+  `$model->status->transitionTo(...)` เปลี่ยนค่าใน DB จริง
+
 - รัน `vendor/bin/pint --dirty --format agent` หลังแก้ไฟล์ PHP ทั้งหมด
 
 ## Open questions ที่ปิดไปแล้วระหว่าง brainstorm
