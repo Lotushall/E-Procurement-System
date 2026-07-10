@@ -46,7 +46,23 @@
       "Read(//d/E-Procurement-System/frontend/app/\\\\\\(auth\\\\\\)/register/**)",
       "Read(//d/E-Procurement-System/docs/superpowers/plans/**)",
       "mcp__laravel-boost__database-schema",
-      "Bash(awk '/generator.*=>.*\\\\[/,/^        \\\\],$/' config/modules.php)"
+      "Bash(awk '/generator.*=>.*\\\\[/,/^        \\\\],$/' config/modules.php)",
+      "Bash(git commit *)",
+      "Bash(cat \"$\\(git rev-parse --show-toplevel\\)/.superpowers/sdd/progress.md\")",
+      "Bash(ls \"C:/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/\")",
+      "Read(//c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/**)",
+      "Read(//c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/**)",
+      "Read(//d/E-Procurement-System/.superpowers/sdd/**)",
+      "Bash(vendor/bin/pint --test --format agent app/Modules/Shared/Domain/ValueObjects/Email.php app/Modules/Shared/Domain/ValueObjects/PhoneNumber.php app/Modules/Shared/Domain/ValueObjects/PostalCode.php app/Modules/Shared/Providers/SharedServiceProvider.php tests/Unit/Domain/Shared/ValueObjects/EmailTest.php tests/Unit/Domain/Shared/ValueObjects/PhoneNumberTest.php tests/Unit/Domain/Shared/ValueObjects/PostalCodeTest.php)",
+      "Bash(git -C D:/E-Procurement-System/backend rev-parse --show-toplevel)",
+      "Bash(php -l app/Modules/Vendor/Infrastructure/Models/VendorProfiles.php)",
+      "Bash(php -l app/Modules/Vendor/Infrastructure/Models/VendorDocuments.php)",
+      "Read(//c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/requesting-code-review/**)",
+      "Bash(cat >> *)",
+      "Bash(git push *)"
+    ],
+    "additionalDirectories": [
+      "D:\\E-Procurement-System\\.superpowers\\sdd"
     ]
   }
 }
