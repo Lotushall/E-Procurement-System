@@ -17,7 +17,10 @@ Status: Approved
 
 flow "สมัคร Vendor" (`RegisterVendorUseCase`, `RegisterRequest`) อ้างอิงถึง
 `VendorCompanyDetails`, `VendorIndividualDetails`, `VendorProfiles` (Eloquent Model
-ฝั่ง Infrastructure) อยู่แล้ว แต่ไฟล์เหล่านี้ยังไม่ถูกสร้างจริง
+ฝั่ง Infrastructure) — ไฟล์เหล่านี้ (รวมถึง `VendorDocuments`) มีอยู่แล้วจริงตอนนี้ พร้อม
+`'tax_id' => 'encrypted'` cast และ `hashTaxId()`/`hashCitizenId()` static method
+(deterministic lookup hash) แต่ยังไม่มี `HasStates` cast ให้กับ `verification_status`
+(`VendorProfiles`) และ `status` (`VendorDocuments`)
 
 โปรเจกต์มี `spatie/laravel-model-states` (^2.14) ติดตั้งไว้แล้วใน `composer.json` และต้องการนำมา
 ใช้กับ field สถานะที่มีลักษณะ workflow (มี transition ระหว่าง state)
@@ -37,21 +40,25 @@ flow "สมัคร Vendor" (`RegisterVendorUseCase`, `RegisterRequest`) อ�
    `valueobjects`)
 6. Wire `HasStates` เข้ากับ `Infrastructure/Models/User.php` ที่มีอยู่แล้ว (cast
    `status` เป็น `UserStatus::class`)
+7. Wire `HasStates` เข้ากับ `Infrastructure/Models/VendorProfiles.php` (cast
+   `verification_status` เป็น `VerificationStatus::class`) และ
+   `Infrastructure/Models/VendorDocuments.php` (cast `status` เป็น `DocumentStatus::class`)
+   ที่มีอยู่แล้วทั้งคู่
 
 ## Non-goals
 
-- ไม่สร้าง Infrastructure/Models หรือ Repository implementation ของ Vendor
-  (`VendorProfiles`, `VendorCompanyDetails`, `VendorIndividualDetails`, `VendorDocuments`
-  ยังไม่มีอยู่จริง — เกินขอบเขตงานนี้ นับเป็นงานแยกในอนาคต เช่นผ่าน `module:make-ddd`)
-- ไม่ทำ mapping logic ระหว่าง Eloquent Model กับ Domain Entity ใน Repository
-  (Repository ยังเป็น interface เปล่า `{X}RepositoryInterface {}`)
+- ไม่สร้าง Repository implementation หรือ mapping logic ระหว่าง Eloquent Model กับ
+  Domain Entity (Repository ยังเป็น interface/class เปล่า เช่น
+  `VendorRepository implements VendorRepositoryInterface {}`) — นับเป็นงานแยกในอนาคต
+- ไม่แตะ `VendorCompanyDetails.php`/`VendorIndividualDetails.php` เพิ่มเติมนอกจากที่มีอยู่
+  (ไม่มี status field ให้ wire state อยู่แล้ว)
 - ไม่ทำ checksum validation ของเลขบัตรประชาชนไทย (`CitizenId`) — validate แค่ digits:13
-- ไม่เข้ารหัส (encrypt) หรือสร้าง hash ของ `TaxId`/`CitizenId` ใน layer ใดๆ — VO เก็บแค่ค่า
-  plain string ที่ผ่าน validate แล้ว
+- ไม่เข้ารหัส (encrypt) หรือสร้าง hash ของ `TaxId`/`CitizenId` ใน Domain VO — ของเดิม
+  `VendorCompanyDetails`/`VendorIndividualDetails` จัดการ encrypt/hash ที่ Infrastructure
+  layer อยู่แล้ว (`'tax_id' => 'encrypted'` cast, `hashTaxId()`/`hashCitizenId()`) ไม่ต้องแก้
 - ไม่แก้ migration เดิม (native `enum` column ของ `status`/`verification_status` ยังใช้ค่า
   เดิม — แต่ละ State subclass จะประกาศ `protected static ?string $name` ให้ตรงกับค่าใน
   enum เดิมเป๊ะ)
-- ไม่ wire `HasStates` เข้ากับ Vendor เพราะ Eloquent Model ฝั่ง Vendor ยังไม่มี
 
 ## Design
 
@@ -282,6 +289,45 @@ final class VendorDocument
 }
 ```
 
+### 5. Wire `HasStates` เข้ากับ Vendor Model ที่มีอยู่แล้ว
+
+**แก้ `Infrastructure/Models/VendorProfiles.php`** (ไฟล์เดิม):
+```php
+use Spatie\ModelStates\HasStates;
+
+class VendorProfiles extends Model
+{
+    use HasFactory, HasStates;
+
+    protected function casts(): array
+    {
+        return [
+            'verified_at' => 'datetime',
+            'verification_status' => VerificationStatus::class,
+        ];
+    }
+}
+```
+
+**แก้ `Infrastructure/Models/VendorDocuments.php`** (ไฟล์เดิม):
+```php
+use Spatie\ModelStates\HasStates;
+
+class VendorDocuments extends Model
+{
+    use HasFactory, HasStates;
+
+    protected function casts(): array
+    {
+        return [
+            'verified_at' => 'datetime',
+            'status' => DocumentStatus::class,
+        ];
+    }
+}
+```
+(`VendorCompanyDetails`/`VendorIndividualDetails` ไม่มี status field จึงไม่แตะ)
+
 ## Testing
 
 Pest unit test ใน `tests/Unit/Domain/{Module}/...` (ไม่ extend `TestCase`/ไม่ต้อง boot
@@ -294,6 +340,10 @@ Laravel app เพราะเป็น pure PHP — ตรงกับที่
 - `User/States`: `UserStatusTest` — assert transition graph ที่อนุญาต/ไม่อนุญาตด้วย
   `canTransitionTo()`
 - `Vendor/States`: `VerificationStatusTest`, `DocumentStatusTest` — เหมือนกัน
+- Feature test (RefreshDatabase, sqlite in-memory ตาม `phpunit.xml`) ยืนยันว่า cast จริง
+  ใช้งานได้กับ enum column เดิม: สร้าง `User`/`VendorProfiles`/`VendorDocuments` row แล้ว
+  assert ว่า `$model->status` เป็น instance ของ default state class (`Pending`/`Active` ตาม
+  default ของแต่ละ field) และ `$model->status->transitionTo(...)` เปลี่ยนค่าใน DB จริง
 - รัน `vendor/bin/pint --dirty --format agent` หลังแก้ไฟล์ PHP ทั้งหมด
 
 ## Open questions ที่ปิดไปแล้วระหว่าง brainstorm
@@ -310,3 +360,9 @@ Laravel app เพราะเป็น pure PHP — ตรงกับที่
 - Shared VO (`Email`/`PhoneNumber`/`PostalCode`) → แยก module ใหม่ `Shared` แทนการ
   duplicate ต่อ module
 - Transition rules → ใช้ตาม default ที่เสนอในระหว่าง brainstorm (ดูหัวข้อ Design)
+- VO scope เพิ่มเติม (typed ID, wrap ทุก field) → คงตาม scope เดิม ไม่เพิ่ม typed ID/wrap
+  field ทั่วไป
+- ระหว่างเขียน plan พบว่า `VendorProfiles.php`/`VendorCompanyDetails.php`/
+  `VendorIndividualDetails.php`/`VendorDocuments.php` มีอยู่แล้วจริง (ไม่ใช่แค่ referenced) →
+  ขยาย scope ให้ wire `HasStates` เข้ากับ `VendorProfiles.php`/`VendorDocuments.php` ด้วย
+  (ดูหัวข้อ Design ข้อ 5)
