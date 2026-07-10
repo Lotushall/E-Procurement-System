@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Modules\Test\Providers;
+namespace App\Modules\Vendor\Providers;
 
-use Nwidart\Modules\Support\ModuleServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
+use Nwidart\Modules\Support\ModuleServiceProvider;
 
-class TestServiceProvider extends ModuleServiceProvider
+class VendorServiceProvider extends ModuleServiceProvider
 {
     /**
      * The name of the module.
      */
-    protected string $name = 'Test';
+    protected string $name = 'Vendor';
 
     /**
      * The lowercase version of the module name.
      */
-    protected string $nameLower = 'test';
+    protected string $nameLower = 'vendor';
 
     /**
      * Command classes to register.
@@ -33,8 +33,8 @@ class TestServiceProvider extends ModuleServiceProvider
 
     /**
      * Define module schedules.
-     * 
-     * @param $schedule
+     *
+     * @param  $schedule
      */
     // protected function configureSchedules(Schedule $schedule): void
     // {

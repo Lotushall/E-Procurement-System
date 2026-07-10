@@ -30,7 +30,23 @@
       "Bash(awk '{print NR\": \"$0}' config/modules.php)",
       "Bash(rm -rf app/Modules/SmokeTest)",
       "Bash(echo \"---exit: $?---\")",
-      "Bash(echo \"---exit:$?---\")"
+      "Bash(echo \"---exit:$?---\")",
+      "Bash(xargs -I{} sh -c 'echo \"--{}--\"; cat {}')",
+      "Bash(ls ..)",
+      "Bash(find \"d:\\\\E-Procurement-System\" -maxdepth 1 -type d)",
+      "Bash(find \"d:\\\\E-Procurement-System\\\\docs\" -type f 2>/dev/null)",
+      "Read(//d/E-Procurement-System/docs/**)",
+      "Read(//d/E-Procurement-System/docs/superpowers/specs/**)",
+      "Bash(cd \"d:\\\\E-Procurement-System\\\\frontend\" && find . -path ./node_modules -prune -o -type f -iname \"*.ts*\" -print 2>/dev/null | grep -iE \"login|register|auth|schema|validation\" )",
+      "Read(//d/E-Procurement-System/frontend/**)",
+      "Read(//d/E-Procurement-System/frontend/app/\\\\\\(auth\\\\\\)/register/_schemas/**)",
+      "Read(//d/E-Procurement-System/frontend/app/\\\\\\(auth\\\\\\)/login/_schemas/**)",
+      "Read(//d/E-Procurement-System/frontend/lib/auth/**)",
+      "Read(//d/E-Procurement-System/frontend/app/\\\\\\(auth\\\\\\)/register/_hooks/**)",
+      "Read(//d/E-Procurement-System/frontend/app/\\\\\\(auth\\\\\\)/register/**)",
+      "Read(//d/E-Procurement-System/docs/superpowers/plans/**)",
+      "mcp__laravel-boost__database-schema",
+      "Bash(awk '/generator.*=>.*\\\\[/,/^        \\\\],$/' config/modules.php)"
     ]
   }
 }

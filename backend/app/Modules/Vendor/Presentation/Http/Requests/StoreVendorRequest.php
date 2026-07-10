@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Test\Presentation\Http\Requests;
+namespace App\Modules\Vendor\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoretestRequest extends FormRequest
+class StoreVendorRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
