@@ -7,8 +7,10 @@ use App\Modules\Auth\Application\DTOs\RegisterVendorData;
 use App\Modules\Auth\Application\UseCases\RegisterVendorUseCase;
 use App\Modules\Auth\Application\UseCases\ResendVerificationEmailUseCase;
 use App\Modules\Auth\Application\UseCases\VerifyEmailUseCase;
+use App\Modules\Auth\Presentation\Http\Requests\LoginRequest;
 use App\Modules\Auth\Presentation\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
+use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 
@@ -54,6 +56,10 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function Login(LoginRequest $request) {}
+
+    public function ResetPassword(ResetPasswordRequest $request) {}
 
     public function verifyEmail(int $id, string $hash): JsonResponse
     {
