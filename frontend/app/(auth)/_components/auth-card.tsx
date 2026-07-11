@@ -14,7 +14,7 @@ export function AuthCard({ children }: Readonly<{ children: React.ReactNode }>) 
             <Card
                 className={cn(
                     "w-full py-6 px-5 transition-[max-width] duration-150",
-                    isRegister ? "max-w-160 gap-0 px-9" : "max-w-103"
+                    isRegister ? "max-w-160 gap-0 px-9 scale-90" : "max-w-103"
                 )}
             >
                 {children}

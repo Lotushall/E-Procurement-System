@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
     'business_registration_no',
     'tax_id',
     'tax_id_hash',
+    'branch_no',
+    'business_type',
     'address',
     'country',
     'province',

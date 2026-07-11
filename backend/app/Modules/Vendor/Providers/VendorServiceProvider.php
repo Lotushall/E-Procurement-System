@@ -2,6 +2,8 @@
 
 namespace App\Modules\Vendor\Providers;
 
+use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
+use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Console\Scheduling\Schedule;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
@@ -30,6 +32,13 @@ class VendorServiceProvider extends ModuleServiceProvider
      * @var string[]
      */
     protected array $providers = [];
+
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
+    }
 
     /**
      * Define module schedules.

@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { routes } from "@/lib/routes";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -123,8 +123,15 @@ export default function Login() {
                             ลงทะเบียนที่นี่
                         </Link>
                     </div>
+
+                    <Link href={routes.home} className="flex items-center justify-center text-red-700 gap-1 mt-2 hover:underline">
+                        <ArrowLeft size={18} />
+                        กลับหน้าแรก
+                    </Link>
                 </CardFooter>
             </form>
+
+
         </>
     )
 }

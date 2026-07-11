@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { login, register, logout } from "@/lib/auth/api";
+import { login, register, logout, verifyEmail, resendVerificationEmail } from "@/lib/auth/api";
 import { useAuthStore } from "@/lib/auth/store";
-import type { LoginPayload, RegisterPayload } from "@/lib/auth/types";
+import type { LoginPayload, RegisterVendorPayload, VerifyEmailParams } from "@/lib/auth/types";
 
 export function useLogin() {
   const fetchUser = useAuthStore((state) => state.fetchUser);
@@ -12,10 +12,8 @@ export function useLogin() {
 }
 
 export function useRegister() {
-  const fetchUser = useAuthStore((state) => state.fetchUser);
   return useMutation({
-    mutationFn: (payload: RegisterPayload) => register(payload),
-    onSuccess: () => fetchUser(),
+    mutationFn: (payload: RegisterVendorPayload) => register(payload),
   });
 }
 
@@ -24,5 +22,17 @@ export function useLogout() {
   return useMutation({
     mutationFn: () => logout(),
     onSuccess: () => setUser(null),
+  });
+}
+
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: (params: VerifyEmailParams) => verifyEmail(params),
+  });
+}
+
+export function useResendVerificationEmail() {
+  return useMutation({
+    mutationFn: (email: string) => resendVerificationEmail(email),
   });
 }

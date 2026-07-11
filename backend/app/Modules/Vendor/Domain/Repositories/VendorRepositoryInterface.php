@@ -2,4 +2,15 @@
 
 namespace App\Modules\Vendor\Domain\Repositories;
 
-interface VendorRepositoryInterface {}
+use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
+use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
+use App\Modules\Vendor\Domain\Entities\VendorProfile;
+
+interface VendorRepositoryInterface
+{
+    public function saveProfile(VendorProfile $profile): VendorProfile;
+
+    public function saveCompanyDetail(VendorCompanyDetail $detail): VendorCompanyDetail;
+
+    public function saveIndividualDetail(VendorIndividualDetail $detail): VendorIndividualDetail;
+}

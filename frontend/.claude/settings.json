@@ -1,0 +1,49 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/E-Procurement-System/backend/routes/api/v1/**)",
+      "Read(//d/E-Procurement-System/backend/routes/**)",
+      "Read(//d/E-Procurement-System/backend/app/Modules/Auth/Application/UseCases/**)",
+      "Read(//d/E-Procurement-System/backend/**)",
+      "Read(//d/E-Procurement-System/backend/app/Modules/Auth/Presentation/Http/Requests/**)",
+      "Read(//d/E-Procurement-System/backend/app/Modules/Auth/Application/DTOs/**)",
+      "Read(//d/E-Procurement-System/backend/app/Modules/Auth/Presentation/Http/Controllers/**)",
+      "Bash(cat \"d:/E-Procurement-System/backend/bootstrap/app.php\")",
+      "Read(//d/E-Procurement-System/backend/bootstrap/**)",
+      "Bash(npx eslint *)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Read(//d/E-Procurement-System/.git/**)",
+      "Read(//d/E-Procurement-System/.claude/**)",
+      "Read(//d/E-Procurement-System/backend/.claude/skills/**)",
+      "Bash(command -v chromium-cli)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8000/sanctum/csrf-cookie --max-time 2)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000 --max-time 2)",
+      "Bash(npx --no-install playwright --version)",
+      "Bash(cd /tmp)",
+      "Bash(rm -f cookies.txt)",
+      "Bash(curl -s -c cookies.txt -b cookies.txt -H \"Origin: http://localhost:3000\" -H \"Referer: http://localhost:3000/register\" http://localhost:8000/sanctum/csrf-cookie -o /dev/null -w \"csrf-cookie status: %{http_code}\\\\n\")",
+      "Read(//d/E-Procurement-System/backend/app/**)",
+      "Read(//d/E-Procurement-System/backend/app/Modules/User/Infrastructure/Models/**)",
+      "Bash(php -l app/Modules/Auth/Providers/AuthServiceProvider.php)",
+      "Bash(php -l config/app.php)",
+      "Bash(npm run *)",
+      "Bash(cd \"d:/E-Procurement-System/backend\" && tail -c 2000 storage/logs/laravel.log 2>/dev/null | tail -5)",
+      "Bash(php artisan tinker '--execute= *)",
+      "Bash(composer dump-autoload *)",
+      "Bash(cd \"d:/E-Procurement-System/backend\" && tail -c 3000 storage/logs/laravel.log)",
+      "Bash(cd \"d:/E-Procurement-System/backend\" && grep -n \"Registration failed\" storage/logs/laravel.log | tail -3)",
+      "Bash(grep -n \"'auth'\" -A 6 \"d:/E-Procurement-System/backend/config/logging.php\")",
+      "Read(//d/E-Procurement-System/backend/config/**)",
+      "Read(//d/E-Procurement-System/backend/storage/logs/activity/Auth/**)",
+      "Bash(grep -n \"Registration failed\\\\|Register successful\" \"d:/E-Procurement-System/backend/storage/logs/activity/Auth/Auth-2026-07-11.log\" | tail -10)",
+      "Bash(php -l routes/api/v1/auth.php)",
+      "Bash(php -l app/Modules/Auth/Presentation/Http/Controllers/AuthController.php)",
+      "Bash(php -l app/Modules/Auth/Application/UseCases/ResendVerificationEmailUseCase.php)",
+      "Bash(php artisan *)"
+    ],
+    "additionalDirectories": [
+      "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers"
+    ]
+  }
+}

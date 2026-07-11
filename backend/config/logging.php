@@ -73,6 +73,22 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'auth' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/activity/Auth/Auth.log'),
+            'level' => env('LOG_AUTH_LEVEL', 'info'),
+            'days' => env('LOG_AUTH_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
+        'user' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/activity/User/User.log'),
+            'level' => env('LOG_USER_LEVEL', 'info'),
+            'days' => env('LOG_USER_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

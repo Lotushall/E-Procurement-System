@@ -2,9 +2,10 @@
 
 namespace App\Modules\User\Infrastructure\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['username', 'email', 'password', 'user_type', 'status'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, HasStates, Notifiable;
@@ -40,6 +41,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'user_type' => UserType::class,
             'status' => UserStatus::class,
         ];
     }

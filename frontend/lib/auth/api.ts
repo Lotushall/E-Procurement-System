@@ -1,6 +1,6 @@
 import { isAxiosError } from "axios";
 import { api, ensureCsrfCookie } from "@/lib/api";
-import type { LoginPayload, RegisterPayload, User } from "@/lib/auth/types";
+import type { LoginPayload, RegisterVendorPayload, User, VerifyEmailParams } from "@/lib/auth/types";
 
 export async function fetchCurrentUser(): Promise<User | null> {
   try {
@@ -19,11 +19,22 @@ export async function login(payload: LoginPayload): Promise<void> {
   await api.post("/login", payload);
 }
 
-export async function register(payload: RegisterPayload): Promise<void> {
+export async function register(payload: RegisterVendorPayload): Promise<void> {
   await ensureCsrfCookie();
-  await api.post("/register", payload);
+  await api.post("/api/v1/auth/register", payload);
 }
 
 export async function logout(): Promise<void> {
   await api.post("/logout");
+}
+
+export async function verifyEmail({ id, hash, expires, signature }: VerifyEmailParams): Promise<void> {
+  await api.get(`/api/v1/auth/email/verify/${id}/${hash}`, {
+    params: { expires, signature },
+  });
+}
+
+export async function resendVerificationEmail(email: string): Promise<void> {
+  await ensureCsrfCookie();
+  await api.post("/api/v1/auth/email/resend", { email });
 }

@@ -18,7 +18,7 @@ import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { InputField } from "../_components/input-field";
 import { MaskedInput } from "./_components/masked-input";
-import { formatCitizenId, formatPhone, RegisterValues } from "./_schemas/schema";
+import { formatCitizenId, formatPhone } from "./_schemas/schema";
 import { useRegisterForm } from "./_hooks/use-register-form";
 
 export default function Register() {
@@ -28,16 +28,61 @@ export default function Register() {
     const {
         register,
         control,
-        handleSubmit,
         setValue,
         formState: { errors },
         vendorType,
         termsAccepted,
+        onSubmit,
+        isSubmitting,
+        registeredEmail,
+        onResend,
+        isResending,
+        resendCooldown,
     } = useRegisterForm();
 
-    const onSubmit = (values: RegisterValues) => {
-        console.log(values);
-    };
+    if (registeredEmail) {
+        return (
+            <>
+                <CardHeader className="flex flex-col items-center justify-center gap-0 animate-in duration-200">
+                    <div className="mb-3">
+                        <Image
+                            src="/images/icon/lotushall_logo.png"
+                            alt="Lotushall Logo"
+                            width={80}
+                            height={80}
+                            priority
+                        />
+                    </div>
+
+                    <CardTitle className="text-xl font-bold">กรุณายืนยันอีเมลของคุณ</CardTitle>
+                    <CardDescription className="text-sm tracking-wide text-center">
+                        เราได้ส่งลิงก์ยืนยันไปที่ <span className="font-semibold text-foreground">{registeredEmail}</span> กรุณาตรวจสอบกล่องจดหมายของคุณเพื่อยืนยันอีเมลก่อนเข้าสู่ระบบ
+                    </CardDescription>
+                </CardHeader>
+
+                <CardFooter className="flex flex-col bg-white border-none pb-6 pt-4">
+                    <Link href={routes.login} className="w-full">
+                        <Button className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
+                            ไปหน้าเข้าสู่ระบบ
+                        </Button>
+                    </Link>
+
+                    <button
+                        type="button"
+                        onClick={onResend}
+                        disabled={isResending || resendCooldown > 0}
+                        className="mt-4.5 text-sm font-semibold text-red-700 tracking-wide cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {resendCooldown > 0
+                            ? `ส่งอีกครั้งได้ใน ${resendCooldown} วินาที`
+                            : isResending
+                                ? "กำลังส่ง..."
+                                : "ไม่ได้รับอีเมล? ส่งอีกครั้ง"}
+                    </button>
+                </CardFooter>
+            </>
+        );
+    }
 
     return (
         <>
@@ -56,7 +101,7 @@ export default function Register() {
                 <CardDescription className="text-sm tracking-wide animate-in duration-200">สร้างบัญชีเพื่อเข้าร่วมการเสนอราคา</CardDescription>
             </CardHeader>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form onSubmit={onSubmit} noValidate>
                 <CardContent className="p-0">
                     <h3 className="mb-1.5 mt-2.5 md:mt-0 font-semibold tracking-wide">
                         ประเภทผู้ค้า <span className="text-red-700">*</span>
@@ -347,11 +392,11 @@ export default function Register() {
 
                 <CardFooter className="flex flex-col bg-white border-none pt-0 px-0 animate-in duration-200">
                     <Button
-                        disabled={!termsAccepted}
+                        disabled={!termsAccepted || isSubmitting}
                         type="submit"
                         className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600"
                     >
-                        สร้างบัญชีผู้ค้า
+                        {isSubmitting ? "กำลังสร้างบัญชี..." : "สร้างบัญชีผู้ค้า"}
                     </Button>
 
                     <div className="flex gap-1 text-sm tracking-wider mt-4.5">
