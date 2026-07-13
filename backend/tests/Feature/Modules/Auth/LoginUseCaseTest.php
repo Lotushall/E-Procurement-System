@@ -16,7 +16,7 @@ function loginUseCase(): LoginUseCase
 }
 
 test('login succeeds with a verified active user identified by email', function () {
-    UserModel::factory()->active()->create([
+    UserModel::factory()->create([
         'email' => 'jdoe@example.com',
         'username' => 'jdoe',
         'password' => Hash::make('secret123'),
@@ -33,7 +33,7 @@ test('login succeeds with a verified active user identified by email', function 
 });
 
 test('login succeeds with a verified active user identified by username', function () {
-    UserModel::factory()->active()->create([
+    UserModel::factory()->create([
         'email' => 'jdoe@example.com',
         'username' => 'jdoe',
         'password' => Hash::make('secret123'),
@@ -50,9 +50,10 @@ test('login succeeds with a verified active user identified by username', functi
 });
 
 test('login succeeds when status is pending but the email is verified', function () {
-    UserModel::factory()->pending()->create([
+    UserModel::factory()->create([
         'email' => 'jdoe@example.com',
         'password' => Hash::make('secret123'),
+        'status' => 'pending',
     ]);
 
     $user = loginUseCase()->execute(new LoginData(
