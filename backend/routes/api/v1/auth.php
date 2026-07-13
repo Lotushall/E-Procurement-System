@@ -14,6 +14,10 @@ Route::prefix('auth')->group(function () {
         ->middleware('auth:sanctum')
         ->name('auth.logout');
 
+    Route::get('user', [AuthController::class, 'user'])
+        ->middleware('auth:sanctum')
+        ->name('auth.user');
+
     Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
         ->middleware('signed')
         ->name('verification.verify');

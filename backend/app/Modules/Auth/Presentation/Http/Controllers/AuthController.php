@@ -15,6 +15,7 @@ use App\Modules\Auth\Presentation\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
 
@@ -90,6 +91,22 @@ class AuthController extends Controller
         $this->logout->execute();
 
         return response()->json(['message' => 'ออกจากระบบสำเร็จ']);
+    }
+
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'data' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'userType' => $user->user_type->value,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+            ],
+        ]);
     }
 
     public function ResetPassword(ResetPasswordRequest $request) {}
