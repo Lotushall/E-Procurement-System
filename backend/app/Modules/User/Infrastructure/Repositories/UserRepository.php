@@ -41,6 +41,13 @@ class UserRepository implements UserRepositoryInterface
         return $model !== null ? $this->toDomain($model) : null;
     }
 
+    public function findByUsername(string $username): ?User
+    {
+        $model = UserModel::where('username', $username)->first();
+
+        return $model !== null ? $this->toDomain($model) : null;
+    }
+
     private function toDomain(UserModel $model): User
     {
         return User::reconstitute(

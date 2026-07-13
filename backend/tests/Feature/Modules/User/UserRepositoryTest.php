@@ -46,3 +46,21 @@ test('save persists changes to an already-saved user', function () {
         'status' => 'active',
     ]);
 });
+
+test('findByUsername returns the domain user matching the given username', function () {
+    $repository = new UserRepository;
+    $user = User::register('jdoe', Email::fromString('jdoe@example.com'), 'hashed-password', UserType::Internal);
+    $repository->save($user);
+
+    $found = $repository->findByUsername('jdoe');
+
+    expect($found)->not->toBeNull()
+        ->and($found->username())->toBe('jdoe')
+        ->and($found->email()->value)->toBe('jdoe@example.com');
+});
+
+test('findByUsername returns null when no user matches', function () {
+    $repository = new UserRepository;
+
+    expect($repository->findByUsername('missing'))->toBeNull();
+});
