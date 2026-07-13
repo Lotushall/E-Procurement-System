@@ -12,7 +12,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { InputField } from "../_components/input-field";
-import { LoginValues } from "./_schemas/schema";
 import { useLoginForm } from "./_hooks/use-login-form";
 
 export default function Login() {
@@ -20,13 +19,10 @@ export default function Login() {
     const {
         register,
         control,
-        handleSubmit,
+        onSubmit,
+        isSubmitting,
         formState: { errors },
     } = useLoginForm();
-
-    const onSubmit = (values: LoginValues) => {
-        console.log(values);
-    };
 
     return (
         <>
@@ -46,7 +42,7 @@ export default function Login() {
                 <CardDescription className="text-sm tracking-wide">กรุณาลงชื่อเข้าใช้เพื่อดำเนินการต่อ</CardDescription>
             </CardHeader>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form onSubmit={onSubmit} noValidate>
                 <CardContent className="flex flex-col gap-4 animate-in duration-200">
                     <InputField label="อีเมล / ชื่อผู้ใช้" error={errors.identifier?.message}>
                         <Input
@@ -110,8 +106,12 @@ export default function Login() {
                 </CardContent>
 
                 <CardFooter className="flex flex-col bg-white border-none pb-6 pt-0 animate-in duration-200">
-                    <Button type="submit" className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
-                        เข้าสู่ระบบ
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600"
+                    >
+                        {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
                     </Button>
 
                     <div className="flex gap-1 text-sm tracking-wider mt-4.5">

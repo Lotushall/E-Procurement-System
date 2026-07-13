@@ -2,12 +2,14 @@
 
 namespace App\Modules\Vendor\Infrastructure\Models;
 
+use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\States\DocumentStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\ModelStates\HasStates;
 
 // use App\Modules\Vendor\Database\Factories\VendorDocumentsFactory;
@@ -43,5 +45,16 @@ class VendorDocuments extends Model
             'verified_at' => 'datetime',
             'status' => DocumentStatus::class,
         ];
+    }
+
+    // Relations
+    public function VendorDocumentsVendorProfile(): BelongsTo
+    {
+        return $this->belongsTo(VendorProfiles::class, 'vendor_profile_id', 'id');
+    }
+
+    public function VendorDocumentsVerifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 // use App\Modules\Vendor\Database\Factories\VendorCompanyDetailsFactory;
 
@@ -59,5 +60,11 @@ class VendorCompanyDetails extends Model
     public static function hashTaxId(string $taxId): string
     {
         return hash('sha256', $taxId);
+    }
+
+    // Relations
+    public function VendorDocumentsVendorProfile(): BelongsTo
+    {
+        return $this->belongsTo(VendorProfiles::class,'vendor_profile_id','id');
     }
 }

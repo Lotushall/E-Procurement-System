@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { useRegister, useResendVerificationEmail } from "@/lib/auth/mutations";
-import type { RegisterVendorPayload } from "@/lib/auth/types";
+import type { RegisterVendorPayload } from "@/lib/vendor/types";
 import { RegisterSchema, RegisterValues } from "../_schemas/schema";
 
 const RESEND_COOLDOWN_SECONDS = 60;

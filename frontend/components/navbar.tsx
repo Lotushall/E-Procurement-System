@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOutIcon, Menu, UserIcon, X } from "lucide-react";
+import { Bell, ChevronDown, LogOutIcon, Menu, UserIcon, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
@@ -15,7 +15,7 @@ import {
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/lib/auth/store";
+import { useUser } from "@/lib/auth/useUser";
 import { useLogout } from "@/lib/auth/mutations";
 import { routes } from "@/lib/routes";
 
@@ -44,16 +44,29 @@ function getInitials(name: string) {
         .toUpperCase();
 }
 
-function AuthControl({ onNavigate }: { onNavigate?: () => void }) {
+function AuthControl({
+    onNavigate,
+    variant = "desktop",
+}: {
+    onNavigate?: () => void;
+    variant?: "desktop" | "mobile";
+}) {
     const router = useRouter();
-    const { user, isAuthenticated } = useAuthStore();
+    const { data: user, isLoading } = useUser();
     const logout = useLogout();
 
-    // if (isLoading) {
-    //     return <div className="h-10 w-28 animate-pulse rounded-md bg-muted" />;
-    // }
+    console.log(user);
 
-    if (!isAuthenticated || !user) {
+
+    if (isLoading) {
+        return variant === "desktop" ? (
+            <div className="h-10 w-32 animate-pulse rounded-full bg-gray-300" />
+        ) : (
+            <div className="h-10 w-10 animate-pulse rounded-full bg-gray-300" />
+        );
+    }
+
+    if (!user) {
         return (
             <div className="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -85,38 +98,86 @@ function AuthControl({ onNavigate }: { onNavigate?: () => void }) {
         );
     }
 
+    const initials = getInitials(user.username);
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger
-                render={
-                    <button className="flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer hover:bg-muted transition-colors">
-                        <Avatar>
-                            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm font-medium">{user.name}</span>
-                    </button>
-                }
-            />
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem render={<Link href="" onClick={onNavigate} />}>
-                    <UserIcon />
-                    โปรไฟล์
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => {
-                        onNavigate?.();
-                        logout.mutate(undefined, {
-                            onSuccess: () => router.push("/"),
-                        });
-                    }}
+        <div className="flex gap-2 items-center">
+            <button
+                type="button"
+                aria-label="การแจ้งเตือน"
+                className="flex items-center justify-center rounded-full p-2 text-muted-foreground cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+                <Bell className="size-5" />
+            </button>
+            <DropdownMenu>
+                <DropdownMenuTrigger
+                    render={
+                        variant === "desktop" ? (
+                            <button className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 cursor-pointer transition-colors hover:bg-accent/60">
+                                <Avatar>
+                                    <AvatarFallback className="bg-red-700 font-semibold text-white">
+                                        {initials}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span className="max-w-28 truncate text-sm font-medium">{user.username}</span>
+                                <ChevronDown className="size-4 text-muted-foreground" />
+                            </button>
+                        ) : (
+                            <button
+                                aria-label="เมนูผู้ใช้"
+                                className="flex items-center justify-center rounded-full p-1 cursor-pointer transition-colors hover:bg-accent"
+                            >
+                                <Avatar>
+                                    <AvatarFallback className="bg-red-700 font-semibold text-white">
+                                        {initials}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </button>
+                        )
+                    }
+                />
+                <DropdownMenuContent
+                    align="end"
+                    className="w-64 overflow-hidden p-0"
                 >
-                    <LogOutIcon />
-                    ออกจากระบบ
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    <div className="flex items-center gap-3 bg-linear-to-br from-red-700 to-red-900 px-4 py-3.5">
+                        <Avatar
+                            size="lg"
+                            className="border-2 border-white/30"
+                        >
+                            <AvatarFallback className="bg-white font-semibold text-red-700">
+                                {initials}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{user.username}</p>
+                            <p className="truncate text-xs text-red-100">{user.email}</p>
+                        </div>
+                    </div>
+                    <div className="p-1">
+                        <DropdownMenuItem render={<Link href="" onClick={onNavigate} />} className="cursor-pointer">
+                            <UserIcon />
+                            โปรไฟล์
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => {
+                                onNavigate?.();
+                                logout.mutate(undefined, {
+                                    onSuccess: () => router.push("/"),
+                                });
+                            }}
+
+                            className="cursor-pointer"
+                        >
+                            <LogOutIcon />
+                            ออกจากระบบ
+                        </DropdownMenuItem>
+                    </div>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
     );
 }
 
@@ -183,7 +244,7 @@ export default function Navbar() {
                 </div>
 
                 <div className="hidden md:block">
-                    <AuthControl />
+                    <AuthControl variant="desktop" />
                 </div>
 
                 <button
@@ -202,7 +263,10 @@ export default function Navbar() {
                     <div className="flex flex-col gap-3">
                         <NavLinks onNavigate={() => setMobileOpen(false)} />
                     </div>
-                    <AuthControl onNavigate={() => setMobileOpen(false)} />
+                    <AuthControl
+                        variant="mobile"
+                        onNavigate={() => setMobileOpen(false)}
+                    />
                 </div>
             )}
         </div>

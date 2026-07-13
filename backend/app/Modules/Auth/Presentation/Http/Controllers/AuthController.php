@@ -14,6 +14,7 @@ use App\Modules\Auth\Presentation\Http\Requests\LoginRequest;
 use App\Modules\Auth\Presentation\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
+use App\Modules\User\Presentation\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -95,17 +96,8 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        $user = $request->user();
-
         return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email,
-                'userType' => $user->user_type->value,
-                'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-            ],
+            'data' => new UserResource($request->user()),
         ]);
     }
 

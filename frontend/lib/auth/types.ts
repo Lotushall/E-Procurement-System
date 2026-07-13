@@ -1,12 +1,14 @@
-export interface User {
-  id: number;
-  name: string;
-  email: string;
+export interface LoginPayload {
+  identifier: string;
+  password: string;
+  remember: boolean;
 }
 
-export interface LoginPayload {
-  email: string;
-  password: string;
+export interface VerifyEmailParams {
+  id: string;
+  hash: string;
+  expires: string;
+  signature: string;
 }
 
 export interface RegisterVendorPayload {
@@ -24,11 +26,4 @@ export interface RegisterVendorPayload {
   // backend looks for `password_confirmation` specifically.
   password_confirmation: string;
   terms: boolean;
-}
-
-export interface VerifyEmailParams {
-  id: string;
-  hash: string;
-  expires: string;
-  signature: string;
 }

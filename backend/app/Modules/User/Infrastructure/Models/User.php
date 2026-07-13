@@ -4,11 +4,13 @@ namespace App\Modules\User\Infrastructure\Models;
 
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus;
+use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -67,5 +69,16 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->attributeCastCache = [];
 
         return parent::setRawAttributes($attributes, $sync);
+    }
+
+    // Relations
+    public function UserVendorProfile(): HasOne
+    {
+        return $this->hasOne(VendorProfiles::class);
+    }
+
+    public function UserInternalProfile(): HasOne
+    {
+        return $this->hasOne(InternalProfiles::class);
     }
 }
