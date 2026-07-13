@@ -3,7 +3,9 @@
 namespace App\Modules\Auth\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Auth\Application\DTOs\LoginData;
 use App\Modules\Auth\Application\DTOs\RegisterVendorData;
+use App\Modules\Auth\Application\UseCases\LoginUseCase;
 use App\Modules\Auth\Application\UseCases\RegisterVendorUseCase;
 use App\Modules\Auth\Application\UseCases\ResendVerificationEmailUseCase;
 use App\Modules\Auth\Application\UseCases\VerifyEmailUseCase;
@@ -12,12 +14,14 @@ use App\Modules\Auth\Presentation\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
 
 class AuthController extends Controller
 {
     public function __construct(
         private readonly RegisterVendorUseCase $registerVendor,
+        private readonly LoginUseCase $login,
         private readonly VerifyEmailUseCase $verifyEmail,
         private readonly ResendVerificationEmailUseCase $resendVerificationEmail,
     ) {}
@@ -57,7 +61,27 @@ class AuthController extends Controller
         }
     }
 
-    public function Login(LoginRequest $request) {}
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $user = $this->login->execute(LoginData::from([
+            ...$request->validated(),
+            'identifierField' => $request->identifierField(),
+            'remember' => $request->boolean('remember'),
+        ]));
+
+        Auth::guard('web')->loginUsingId($user->id(), remember: $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return response()->json([
+            'message' => 'Login successful.',
+            'data' => [
+                'id' => $user->id(),
+                'username' => $user->username(),
+                'email' => (string) $user->email(),
+                'userType' => $user->userType()->value,
+            ],
+        ]);
+    }
 
     public function ResetPassword(ResetPasswordRequest $request) {}
 
