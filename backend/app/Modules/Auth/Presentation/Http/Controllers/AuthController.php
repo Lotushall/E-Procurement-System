@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Auth\Application\DTOs\LoginData;
 use App\Modules\Auth\Application\DTOs\RegisterVendorData;
 use App\Modules\Auth\Application\UseCases\LoginUseCase;
+use App\Modules\Auth\Application\UseCases\LogoutUseCase;
 use App\Modules\Auth\Application\UseCases\RegisterVendorUseCase;
 use App\Modules\Auth\Application\UseCases\ResendVerificationEmailUseCase;
 use App\Modules\Auth\Application\UseCases\VerifyEmailUseCase;
@@ -22,6 +23,7 @@ class AuthController extends Controller
     public function __construct(
         private readonly RegisterVendorUseCase $registerVendor,
         private readonly LoginUseCase $login,
+        private readonly LogoutUseCase $logout,
         private readonly VerifyEmailUseCase $verifyEmail,
         private readonly ResendVerificationEmailUseCase $resendVerificationEmail,
     ) {}
@@ -81,6 +83,13 @@ class AuthController extends Controller
                 'userType' => $user->userType()->value,
             ],
         ]);
+    }
+
+    public function logout(): JsonResponse
+    {
+        $this->logout->execute();
+
+        return response()->json(['message' => 'Logout successful.']);
     }
 
     public function ResetPassword(ResetPasswordRequest $request) {}

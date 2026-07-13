@@ -10,6 +10,10 @@ Route::prefix('auth')->group(function () {
         ->middleware('throttle:5,1')
         ->name('auth.login');
 
+    Route::post('logout', [AuthController::class, 'logout'])
+        ->middleware('auth:sanctum')
+        ->name('auth.logout');
+
     Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
         ->middleware('signed')
         ->name('verification.verify');
