@@ -4,7 +4,7 @@ namespace App\Modules\User\Infrastructure\Models;
 
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus;
-use Database\Factories\UserFactory;
+use Database\Factories\Modules\User\Infrastructure\Models\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
