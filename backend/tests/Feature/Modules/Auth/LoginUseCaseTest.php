@@ -78,7 +78,7 @@ test('login fails when the identifier does not exist', function () {
         ));
     } catch (ValidationException $e) {
         $threw = true;
-        expect($e->errors()['identifier'][0])->toBe('These credentials do not match our records.');
+        expect($e->errors()['identifier'][0])->toBe('ข้อมูลเข้าสู่ระบบไม่ถูกต้อง');
     }
 
     expect($threw)->toBeTrue();
@@ -101,7 +101,7 @@ test('login fails when the password is wrong', function () {
         ));
     } catch (ValidationException $e) {
         $threw = true;
-        expect($e->errors()['identifier'][0])->toBe('These credentials do not match our records.');
+        expect($e->errors()['identifier'][0])->toBe('ข้อมูลเข้าสู่ระบบไม่ถูกต้อง');
     }
 
     expect($threw)->toBeTrue();
@@ -124,7 +124,7 @@ test('login fails when the email is not verified', function () {
         ));
     } catch (ValidationException $e) {
         $threw = true;
-        expect($e->errors()['identifier'][0])->toBe('Please verify your email before logging in.');
+        expect($e->errors()['identifier'][0])->toBe('กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ');
     }
 
     expect($threw)->toBeTrue();
@@ -148,7 +148,7 @@ test('login fails when the account is suspended', function () {
         ));
     } catch (ValidationException $e) {
         $threw = true;
-        expect($e->errors()['identifier'][0])->toBe('Your account has been suspended.');
+        expect($e->errors()['identifier'][0])->toBe('บัญชีของคุณถูกระงับการใช้งาน');
     }
 
     expect($threw)->toBeTrue();
@@ -172,7 +172,7 @@ test('login fails when the account is inactive', function () {
         ));
     } catch (ValidationException $e) {
         $threw = true;
-        expect($e->errors()['identifier'][0])->toBe('Your account is inactive.');
+        expect($e->errors()['identifier'][0])->toBe('บัญชีของคุณถูกปิดใช้งาน');
     }
 
     expect($threw)->toBeTrue();

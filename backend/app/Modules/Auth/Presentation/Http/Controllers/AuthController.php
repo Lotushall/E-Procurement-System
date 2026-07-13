@@ -43,7 +43,7 @@ class AuthController extends Controller
             ], 'error', 'auth');
 
             return response()->json([
-                'message' => 'Registration successful.',
+                'message' => 'สมัครสมาชิกสำเร็จ',
                 'data' => [
                     'id' => $user->id(),
                     'username' => $user->username(),
@@ -58,7 +58,7 @@ class AuthController extends Controller
             ], 'error', 'auth');
 
             return response()->json([
-                'message' => 'Registration failed.',
+                'message' => 'สมัครสมาชิกไม่สำเร็จ',
             ], 500);
         }
     }
@@ -75,7 +75,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return response()->json([
-            'message' => 'Login successful.',
+            'message' => 'เข้าสู่ระบบสำเร็จ',
             'data' => [
                 'id' => $user->id(),
                 'username' => $user->username(),
@@ -89,7 +89,7 @@ class AuthController extends Controller
     {
         $this->logout->execute();
 
-        return response()->json(['message' => 'Logout successful.']);
+        return response()->json(['message' => 'ออกจากระบบสำเร็จ']);
     }
 
     public function ResetPassword(ResetPasswordRequest $request) {}
@@ -100,7 +100,7 @@ class AuthController extends Controller
             $user = $this->verifyEmail->execute($id, $hash);
 
             return response()->json([
-                'message' => 'Email verified successfully.',
+                'message' => 'ยืนยันอีเมลสำเร็จ',
                 'data' => [
                     'id' => $user->id(),
                     'email' => (string) $user->email(),
@@ -110,11 +110,11 @@ class AuthController extends Controller
         } catch (InvalidArgumentException $e) {
             app_log('Email verification failed.', ['error' => $e], 'warning', 'auth');
 
-            return response()->json(['message' => 'Invalid or expired verification link.'], 403);
+            return response()->json(['message' => 'ลิงก์ยืนยันไม่ถูกต้องหรือหมดอายุ'], 403);
         } catch (\Throwable $th) {
             app_log('Email verification failed.', ['error' => $th], 'error', 'auth');
 
-            return response()->json(['message' => 'Email verification failed.'], 500);
+            return response()->json(['message' => 'ยืนยันอีเมลไม่สำเร็จ'], 500);
         }
     }
 
@@ -125,11 +125,11 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             app_log('Resend verification email failed.', ['error' => $th], 'error', 'auth');
 
-            return response()->json(['message' => 'Unable to resend verification email.'], 500);
+            return response()->json(['message' => 'ไม่สามารถส่งอีเมลยืนยันซ้ำได้'], 500);
         }
 
         return response()->json([
-            'message' => 'If an account with that email exists and is not yet verified, a new verification link has been sent.',
+            'message' => 'หากมีบัญชีที่ใช้อีเมลนี้อยู่และยังไม่ได้ยืนยัน ระบบได้ส่งลิงก์ยืนยันใหม่ให้แล้ว',
         ]);
     }
 }

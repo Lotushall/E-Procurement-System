@@ -23,7 +23,7 @@ test('a verified active user can login with email and password', function () {
     ]);
 
     $response->assertOk()
-        ->assertJson(['message' => 'Login successful.'])
+        ->assertJson(['message' => 'เข้าสู่ระบบสำเร็จ'])
         ->assertJsonPath('data.email', 'jdoe@example.com');
 
     $this->assertAuthenticated('web');
@@ -74,7 +74,7 @@ test('login fails with 422 when the email is not verified', function () {
     ]);
 
     $response->assertStatus(422)
-        ->assertJsonFragment(['identifier' => ['Please verify your email before logging in.']]);
+        ->assertJsonFragment(['identifier' => ['กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ']]);
 });
 
 test('login fails with 422 when the account is suspended', function () {
@@ -90,7 +90,7 @@ test('login fails with 422 when the account is suspended', function () {
     ]);
 
     $response->assertStatus(422)
-        ->assertJsonFragment(['identifier' => ['Your account has been suspended.']]);
+        ->assertJsonFragment(['identifier' => ['บัญชีของคุณถูกระงับการใช้งาน']]);
 });
 
 test('login validation requires identifier and password', function () {

@@ -24,25 +24,25 @@ final class LoginUseCase
 
         if ($user === null || ! Hash::check($data->password, $user->passwordHash())) {
             throw ValidationException::withMessages([
-                'identifier' => 'These credentials do not match our records.',
+                'identifier' => 'ข้อมูลเข้าสู่ระบบไม่ถูกต้อง',
             ]);
         }
 
         if (! $user->isVerified()) {
             throw ValidationException::withMessages([
-                'identifier' => 'Please verify your email before logging in.',
+                'identifier' => 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ',
             ]);
         }
 
         if ($user->status() instanceof Suspended) {
             throw ValidationException::withMessages([
-                'identifier' => 'Your account has been suspended.',
+                'identifier' => 'บัญชีของคุณถูกระงับการใช้งาน',
             ]);
         }
 
         if ($user->status() instanceof Inactive) {
             throw ValidationException::withMessages([
-                'identifier' => 'Your account is inactive.',
+                'identifier' => 'บัญชีของคุณถูกปิดใช้งาน',
             ]);
         }
 

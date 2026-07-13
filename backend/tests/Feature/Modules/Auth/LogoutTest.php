@@ -12,7 +12,7 @@ test('an authenticated user can logout', function () {
     $response = $this->postJson('/api/v1/auth/logout');
 
     $response->assertOk()
-        ->assertJson(['message' => 'Logout successful.']);
+        ->assertJson(['message' => 'ออกจากระบบสำเร็จ']);
 
     $this->assertGuest('web');
 });

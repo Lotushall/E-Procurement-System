@@ -17,7 +17,7 @@ final class VerifyEmailUseCase
         $user = $this->users->findById($userId);
 
         if ($user === null || ! hash_equals($hash, sha1($user->email()->value))) {
-            throw new InvalidArgumentException('Invalid verification link.');
+            throw new InvalidArgumentException('ลิงก์ยืนยันไม่ถูกต้อง');
         }
 
         if ($user->isVerified()) {
