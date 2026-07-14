@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { useRegister, useResendVerificationEmail } from "@/lib/auth/mutations";
-import type { RegisterVendorPayload } from "@/lib/vendor/types";
+import type { RegisterVendorPayload } from "@/lib/auth/types";
 import { RegisterSchema, RegisterValues } from "../_schemas/schema";
 
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -14,7 +14,7 @@ function toRegisterPayload(values: RegisterValues): RegisterVendorPayload {
     vendorType: values.vendorType,
     ...(values.vendorType === "company"
       ? { companyName: values.companyName, taxId: values.taxId }
-      : { fullName: values.fullName, idCard: values.idCard }),
+      : { fullName: values.fullName, idCard: values.idCard, storeName: values.storeName }),
     phone: values.phone,
     username: values.username,
     email: values.email,
@@ -48,6 +48,7 @@ export function useRegisterForm() {
       taxId: "",
       fullName: "",
       idCard: "",
+      storeName: "",
       phone: "",
       username: "",
       email: "",
