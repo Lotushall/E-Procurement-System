@@ -230,6 +230,15 @@ export default function Register() {
                                     className="h-10.5 rounded-md"
                                 />
                             </InputField>
+                       
+                            <InputField label="ชื่อร้านค้า" labelClassName="font-semibold tracking-wider" error={errors.storeName?.message}>
+                                <Input
+                                    {...register("storeName")}
+                                    aria-invalid={!!errors.storeName}
+                                    placeholder="เช่น ร้านสมชายวัสดุก่อสร้าง"
+                                    className="h-10.5 rounded-md"
+                                />
+                            </InputField>
 
                             <InputField label="เลขบัตรประชาชน" labelClassName="font-semibold tracking-wider" error={errors.idCard?.message}>
                                 <MaskedInput
