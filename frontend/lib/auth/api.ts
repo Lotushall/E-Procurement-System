@@ -1,11 +1,10 @@
 import { isAxiosError } from "axios";
 import { api, ensureCsrfCookie } from "@/lib/api";
-import type { LoginPayload, RegisterVendorPayload, VerifyEmailParams } from "@/lib/auth/types";
-import type { User } from "@/lib/user/types";
+import type { CurrentUser, LoginPayload, RegisterVendorPayload, ResetPasswordPayload, VerifyEmailParams } from "@/lib/auth/types";
 
-export async function fetchCurrentUser(): Promise<User | null> {
+export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   try {
-    const { data } = await api.get<{ data: User }>("/api/v1/auth/user");
+    const { data } = await api.get<{ data: CurrentUser }>("/api/v1/auth/user");
     return data.data;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 401) {
@@ -38,4 +37,14 @@ export async function verifyEmail({ id, hash, expires, signature }: VerifyEmailP
 export async function resendVerificationEmail(email: string): Promise<void> {
   await ensureCsrfCookie();
   await api.post("/api/v1/auth/email/resend", { email });
+}
+
+export async function forgotPassword(email: string): Promise<void> {
+  await ensureCsrfCookie();
+  await api.post("/api/v1/auth/password/forgot", { email });
+}
+
+export async function resetPassword(payload: ResetPasswordPayload): Promise<void> {
+  await ensureCsrfCookie();
+  await api.post("/api/v1/auth/password/reset", payload);
 }

@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Table('vendor_individual_details')]
 #[Fillable([
     'vendor_profile_id',
+    'store_name',
     'prefix',
     'firstname',
     'lastname',
     'citizen_id',
     'citizen_id_hash',
-    'shop_name',
     'business_type',
     'tax_id',
     'tax_id_hash',
@@ -75,6 +75,6 @@ class VendorIndividualDetails extends Model
     // Relations
     public function VendorIndividualDetailsVendorProfile(): BelongsTo
     {
-        return $this->belongsTo(VendorProfiles::class,'vendor_profile_id','id');
+        return $this->belongsTo(VendorProfiles::class, 'vendor_profile_id', 'id');
     }
 }

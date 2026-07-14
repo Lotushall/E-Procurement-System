@@ -24,24 +24,16 @@ export function useLoginForm() {
         loginMutation.mutate(values, {
             onSuccess: () => router.push(routes.home),
             onError: (error) => {
-                if (isAxiosError(error) && error.response?.status === 422) {
-                    const fieldErrors = (
-                        error.response.data as { errors?: Record<string, string[]> }
-                    ).errors;
-                    if (fieldErrors) {
-                        Object.entries(fieldErrors).forEach(([field, messages]) => {
-                            form.setError(field as keyof LoginValues, {
-                                type: "server",
-                                message: messages[0],
-                            });
-                        });
-                        return;
-                    }
-                }
-
-                const message = isAxiosError(error)
-                    ? (error.response?.data as { message?: string } | undefined)?.message
+                const fieldErrors = isAxiosError(error) && error.response?.status === 422
+                    ? (error.response.data as { errors?: Record<string, string[]> }).errors
                     : undefined;
+
+                const message = fieldErrors
+                    ? Object.values(fieldErrors)[0]?.[0]
+                    : isAxiosError(error)
+                        ? (error.response?.data as { message?: string } | undefined)?.message
+                        : undefined;
+
                 toast.error(message ?? "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
             },
         });

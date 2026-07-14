@@ -36,8 +36,11 @@ final class RegisterVendorUseCase
                 userType: UserType::from($data->vendorType),
             ));
 
-            // Verification email must succeed before the rest of the registration
-            // is committed; a failure here rolls back the whole transaction.
+            // The notification is queued (config/queue.php: after_commit is
+            // false), so this durably enqueues the job as part of this same
+            // transaction — if that enqueue fails, the whole registration
+            // rolls back with it. Actual delivery happens later, off a
+            // worker, and no longer blocks or can fail this transaction.
             $this->verificationSender->sendVerificationEmail($user->id());
 
             $profile = $this->vendors->saveProfile(VendorProfile::create(userId: $user->id()));
@@ -66,11 +69,11 @@ final class RegisterVendorUseCase
 
                 $this->vendors->saveIndividualDetail(VendorIndividualDetail::create(
                     vendorProfileId: $profile->id(),
+                    storeName: $data->storeName,
                     prefix: null,
                     firstname: $firstname,
                     lastname: $lastname,
                     citizenId: CitizenId::fromString($data->idCard),
-                    shopName: null,
                     businessType: null,
                     taxId: null,
                     email: Email::fromString($data->email),

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { login, register, logout, verifyEmail, resendVerificationEmail } from "@/lib/auth/api";
+import { login, register, logout, verifyEmail, resendVerificationEmail, forgotPassword, resetPassword } from "@/lib/auth/api";
 import { AUTH_USER_QUERY_KEY } from "@/lib/auth/useUser";
-import type { LoginPayload, RegisterVendorPayload, VerifyEmailParams } from "@/lib/auth/types";
+import type { LoginPayload, RegisterVendorPayload, ResetPasswordPayload, VerifyEmailParams } from "@/lib/auth/types";
 
 export function useLogin() {
   const queryClient = useQueryClient();
@@ -34,5 +34,17 @@ export function useVerifyEmail() {
 export function useResendVerificationEmail() {
   return useMutation({
     mutationFn: (email: string) => resendVerificationEmail(email),
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => forgotPassword(email),
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (payload: ResetPasswordPayload) => resetPassword(payload),
   });
 }

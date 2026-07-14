@@ -98,11 +98,11 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
 
     $detail = VendorIndividualDetail::create(
         vendorProfileId: $vendorProfile->id(),
+        storeName: "John's Store",
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
         citizenId: CitizenId::fromString('1234567890123'),
-        shopName: "John's Shop",
         businessType: 'Retail',
         taxId: TaxId::fromString('9876543210123'),
         email: Email::fromString('individual@example.com'),
@@ -119,12 +119,14 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
     $saved = $repository->saveIndividualDetail($detail);
 
     expect($saved->id())->not->toBeNull()
+        ->and($saved->storeName())->toBe("John's Store")
         ->and($saved->citizenId()->value)->toBe('1234567890123')
         ->and($saved->taxId()->value)->toBe('9876543210123')
         ->and($saved->email()->value)->toBe('individual@example.com');
 
     $this->assertDatabaseHas('vendor_individual_details', [
         'vendor_profile_id' => $vendorProfile->id(),
+        'store_name' => "John's Store",
         'firstname' => 'John',
         'citizen_id_hash' => hash('sha256', '1234567890123'),
         'tax_id_hash' => hash('sha256', '9876543210123'),

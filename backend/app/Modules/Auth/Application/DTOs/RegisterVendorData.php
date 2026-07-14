@@ -12,6 +12,7 @@ final class RegisterVendorData extends Data
         public readonly ?string $taxId,
         public readonly ?string $fullName,
         public readonly ?string $idCard,
+        public readonly ?string $storeName,
         public readonly string $phone,
         public readonly string $username,
         public readonly string $email,

@@ -25,4 +25,12 @@ Route::prefix('auth')->group(function () {
     Route::post('email/resend', [AuthController::class, 'resendVerificationEmail'])
         ->middleware('throttle:3,1')
         ->name('verification.resend');
+
+    Route::post('password/forgot', [AuthController::class, 'forgotPassword'])
+        ->middleware('throttle:3,1')
+        ->name('password.forgot');
+
+    Route::post('password/reset', [AuthController::class, 'resetPassword'])
+        ->middleware('throttle:5,1')
+        ->name('password.reset');
 });

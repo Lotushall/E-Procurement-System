@@ -6,8 +6,10 @@ use App\Modules\User\Domain\Enums\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class AuthenticatedUserResource extends JsonResource
 {
+    public static $wrap = false;
+
     /**
      * Transform the resource into an array.
      *
@@ -17,11 +19,11 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'username' => $this->username,
-            'userType' => $this->user_type->value,
-            'profiles' => $this->profileData(),
-            'roles' => $this->getRoleNames(),
-            'permissions' => $this->getAllPermissions()->pluck('name'),
+            'username' => $this->whenNotNull($this->username),
+            'userType' => $this->whenNotNull($this->user_type->value),
+            'profiles' => $this->whenNotNull($this->profileData()),
+            'roles' => $this->whenNotNull($this->getRoleNames()),
+            'permissions' => $this->whenNotNull($this->getAllPermissions()->pluck('name')),
         ];
     }
 
@@ -38,6 +40,7 @@ class UserResource extends JsonResource
 
         return [
             'companyName' => $profile->company_name ?? null,
+            'shopName' => $profile->store_name ?? null,
             'firstname' => $profile->firstname ?? null,
             'lastname' => $profile->lastname ?? null,
         ];

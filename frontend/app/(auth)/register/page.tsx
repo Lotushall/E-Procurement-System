@@ -222,7 +222,7 @@ export default function Register() {
                         {/* บุคคลธรรมดา */}
                         <TabsContent value="individual" className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-3.5">
 
-                            <InputField label="ชื่อ – นามสกุล" labelClassName="font-semibold tracking-wider" full error={errors.fullName?.message}>
+                            <InputField label="ชื่อ – นามสกุล" labelClassName="font-semibold tracking-wider" error={errors.fullName?.message}>
                                 <Input
                                     {...register("fullName")}
                                     aria-invalid={!!errors.fullName}

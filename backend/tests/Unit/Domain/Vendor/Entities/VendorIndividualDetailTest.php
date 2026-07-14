@@ -11,11 +11,11 @@ function makeVendorIndividualDetail(): VendorIndividualDetail
 {
     return VendorIndividualDetail::create(
         vendorProfileId: 10,
+        storeName: "John's Store",
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
         citizenId: CitizenId::fromString('1234567890123'),
-        shopName: "John's Shop",
         businessType: 'Retail',
         taxId: TaxId::fromString('9876543210123'),
         email: Email::fromString('individual@example.com'),
@@ -39,7 +39,7 @@ test('create builds a new detail with no id', function () {
         ->and($detail->firstname())->toBe('John')
         ->and($detail->lastname())->toBe('Doe')
         ->and($detail->citizenId()->value)->toBe('1234567890123')
-        ->and($detail->shopName())->toBe("John's Shop")
+        ->and($detail->storeName())->toBe("John's Store")
         ->and($detail->businessType())->toBe('Retail')
         ->and($detail->taxId()->value)->toBe('9876543210123')
         ->and($detail->email()->value)->toBe('individual@example.com')
@@ -59,11 +59,11 @@ test('reconstitute rebuilds a detail from persisted values', function () {
     $detail = VendorIndividualDetail::reconstitute(
         id: 1,
         vendorProfileId: 10,
+        storeName: "John's Store",
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
         citizenId: $citizenId,
-        shopName: "John's Shop",
         businessType: 'Retail',
         taxId: TaxId::fromString('9876543210123'),
         email: Email::fromString('individual@example.com'),
@@ -90,10 +90,10 @@ test('update replaces the editable detail fields but not the citizen id', functi
     $newPostalCode = PostalCode::fromString('20000');
 
     $detail->update(
+        storeName: "Jane's Store",
         prefix: 'Dr.',
         firstname: 'Jane',
         lastname: 'Smith',
-        shopName: "Jane's Shop",
         businessType: 'Wholesale',
         taxId: $newTaxId,
         email: $newEmail,
@@ -111,7 +111,7 @@ test('update replaces the editable detail fields but not the citizen id', functi
         ->and($detail->prefix())->toBe('Dr.')
         ->and($detail->firstname())->toBe('Jane')
         ->and($detail->lastname())->toBe('Smith')
-        ->and($detail->shopName())->toBe("Jane's Shop")
+        ->and($detail->storeName())->toBe("Jane's Store")
         ->and($detail->businessType())->toBe('Wholesale')
         ->and($detail->taxId())->toBe($newTaxId)
         ->and($detail->email())->toBe($newEmail)

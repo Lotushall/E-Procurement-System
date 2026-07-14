@@ -136,7 +136,10 @@
       "Bash(git checkout *)",
       "Bash(vendor/bin/pint --format agent)",
       "Bash(grep -rln \"HasRoles\\\\|Spatie\\\\\\\\\\\\\\\\Permission\\\\|assignRole\\\\|givePermissionTo\" app --include=*.php)",
-      "mcp__laravel-boost__database-query"
+      "mcp__laravel-boost__database-query",
+      "Bash(php -r '$a = [x: 1, y: 2]; var_dump\\($a\\);')",
+      "Bash(php -l app/Modules/Auth/Application/UseCases/ResetPasswordUseCase.php)",
+      "Bash(php -l app/Modules/Auth/Application/DTOs/ResetpasswordData.php)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

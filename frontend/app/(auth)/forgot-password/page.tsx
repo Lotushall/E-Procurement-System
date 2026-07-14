@@ -6,22 +6,20 @@ import { Input } from "@/components/ui/input";
 import { routes } from "@/lib/routes";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { InputField } from "../_components/input-field";
-import { ForgotPasswordValues } from "./_schemas/schema";
 import { useForgotPasswordForm } from "./_hooks/use-forgot-password-form";
 
 export default function ForgotPassword() {
-    const [sentTo, setSentTo] = useState<string | null>(null);
     const {
         register,
-        handleSubmit,
         formState: { errors },
+        onSubmit,
+        isSubmitting,
+        sentTo,
+        onResend,
+        isResending,
+        resendCooldown,
     } = useForgotPasswordForm();
-
-    const onSubmit = (values: ForgotPasswordValues) => {
-        setSentTo(values.email);
-    };
 
     if (sentTo) {
         return (
@@ -53,10 +51,15 @@ export default function ForgotPassword() {
 
                     <button
                         type="button"
-                        onClick={() => setSentTo(null)}
-                        className="mt-4.5 text-sm font-semibold text-red-700 tracking-wide cursor-pointer"
+                        onClick={onResend}
+                        disabled={isResending || resendCooldown > 0}
+                        className="mt-4.5 text-sm font-semibold text-red-700 tracking-wide cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        ไม่ได้รับอีเมล? ลองอีกครั้ง
+                        {resendCooldown > 0
+                            ? `ลองอีกครั้งได้ใน ${resendCooldown} วินาที`
+                            : isResending
+                                ? "กำลังส่ง..."
+                                : "ไม่ได้รับอีเมล? ลองอีกครั้ง"}
                     </button>
                 </CardFooter>
             </>
@@ -82,7 +85,7 @@ export default function ForgotPassword() {
                 </CardDescription>
             </CardHeader>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form onSubmit={onSubmit} noValidate>
                 <CardContent className="flex flex-col gap-4 animate-in duration-200">
                     <InputField label="อีเมล" error={errors.email?.message}>
                         <Input
@@ -96,8 +99,12 @@ export default function ForgotPassword() {
                 </CardContent>
 
                 <CardFooter className="flex flex-col bg-white border-none pb-6 pt-4">
-                    <Button type="submit" className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
-                        ส่งลิงก์รีเซ็ตรหัสผ่าน
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600"
+                    >
+                        {isSubmitting ? "กำลังส่ง..." : "ส่งลิงก์รีเซ็ตรหัสผ่าน"}
                     </Button>
 
                     <div className="flex gap-1 text-sm tracking-wider mt-4.5">

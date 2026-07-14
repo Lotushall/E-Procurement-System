@@ -13,6 +13,15 @@ export interface VerifyEmailParams {
   signature: string;
 }
 
+export interface ResetPasswordPayload {
+  token: string;
+  email: string;
+  password: string;
+  // Duplicated from password: Laravel's `confirmed` rule on the backend
+  // looks for `password_confirmation` specifically.
+  password_confirmation: string;
+}
+
 export interface RegisterVendorPayload {
   vendorType: "company" | "individual";
   companyName?: string;
@@ -37,6 +46,7 @@ export type CurrentUser = Pick<
 > & {
   profiles: {
     companyName: string | null;
+    shopName: string | null;
     firstname: string | null;
     lastname: string | null;
   };

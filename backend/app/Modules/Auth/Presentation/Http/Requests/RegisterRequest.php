@@ -2,12 +2,9 @@
 
 namespace App\Modules\Auth\Presentation\Http\Requests;
 
-use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
-use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\Validator;
 
 class RegisterRequest extends FormRequest
 {
@@ -52,6 +49,7 @@ class RegisterRequest extends FormRequest
             'taxId' => ['required_if:vendorType,company', 'nullable', 'digits:13'],
             'fullName' => ['required_if:vendorType,individual', 'nullable', 'string', 'max:255'],
             'idCard' => ['required_if:vendorType,individual', 'nullable', 'digits:13'],
+            'storeName' => ['required_if:vendorType,individual', 'nullable', 'string', 'max:255'],
             'phone' => ['required', 'digits_between:9,10'],
             'username' => ['required', 'string', 'min:3', 'max:255', 'alpha_dash', Rule::unique('users', 'username')],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],

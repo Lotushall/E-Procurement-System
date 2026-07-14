@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@/lib/auth/useUser";
 import { useLogout } from "@/lib/auth/mutations";
 import { routes } from "@/lib/routes";
+import { CurrentUser } from "@/lib/auth/types";
 
 const menus = [
     {
@@ -54,9 +55,6 @@ function AuthControl({
     const router = useRouter();
     const { data: user, isLoading } = useUser();
     const logout = useLogout();
-
-    console.log(user);
-
 
     if (isLoading) {
         return variant === "desktop" ? (
@@ -100,6 +98,16 @@ function AuthControl({
 
     const initials = getInitials(user.username);
 
+    const profile_name = user.profiles.companyName || user.profiles.shopName || `${user.profiles.firstname} ${user.profiles.lastname}`
+
+    const USER_TYPE_LABEL: Record<CurrentUser["userType"], string> = {
+        internal: "พนักงานภายใน",
+        company: "นิติบุคคล",
+        individual: "ร้านค้า",
+    };
+
+    console.log(user);
+
     return (
         <div className="flex gap-2 items-center">
             <button
@@ -119,7 +127,9 @@ function AuthControl({
                                         {initials}
                                     </AvatarFallback>
                                 </Avatar>
-                                <span className="max-w-28 truncate text-sm font-medium">{user.username}</span>
+                                <span className="max-w-28 truncate text-sm font-medium capitalize">
+                                    {profile_name}
+                                </span>
                                 <ChevronDown className="size-4 text-muted-foreground" />
                             </button>
                         ) : (
@@ -150,8 +160,8 @@ function AuthControl({
                             </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">{user.username}</p>
-                            <p className="truncate text-xs text-red-100">{user.email}</p>
+                            <p className="truncate tracking-wider text-sm font-semibold text-white capitalize">{profile_name}</p>
+                            <p className="truncate tracking-wider text-xs text-red-100"> {USER_TYPE_LABEL[user.userType]}</p>
                         </div>
                     </div>
                     <div className="p-1">

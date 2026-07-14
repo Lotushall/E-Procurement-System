@@ -71,12 +71,12 @@ return new class extends Migration
         Schema::create('vendor_individual_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vendor_profile_id')->unique()->constrained()->cascadeOnDelete();
+            $table->string('store_name');
             $table->string('prefix')->nullable();
             $table->string('firstname');
             $table->string('lastname');
             $table->text('citizen_id');
             $table->string('citizen_id_hash', 64)->unique();
-            $table->string('shop_name')->nullable();
             $table->string('business_type')->nullable();
             $table->text('tax_id')->nullable();
             $table->string('tax_id_hash', 64)->nullable()->unique();

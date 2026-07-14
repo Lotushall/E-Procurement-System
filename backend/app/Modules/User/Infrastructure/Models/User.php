@@ -4,6 +4,8 @@ namespace App\Modules\User\Infrastructure\Models;
 
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus;
+use App\Modules\User\Infrastructure\Notifications\QueuedResetPassword;
+use App\Modules\User\Infrastructure\Notifications\QueuedVerifyEmail;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -51,6 +53,24 @@ class User extends Authenticatable implements MustVerifyEmail
     protected static function newFactory(): UserFactory
     {
         return UserFactory::new();
+    }
+
+    /**
+     * Send the email verification notification, queued rather than the
+     * synchronous default from the MustVerifyEmail trait.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new QueuedVerifyEmail);
+    }
+
+    /**
+     * Send the password reset notification, queued rather than the
+     * synchronous default from the CanResetPassword trait.
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new QueuedResetPassword($token));
     }
 
     /**

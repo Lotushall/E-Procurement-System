@@ -5,16 +5,20 @@ namespace App\Modules\Auth\Presentation\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Auth\Application\DTOs\LoginData;
 use App\Modules\Auth\Application\DTOs\RegisterVendorData;
+use App\Modules\Auth\Application\DTOs\ResetpasswordData;
+use App\Modules\Auth\Application\UseCases\ForgotPasswordUseCase;
 use App\Modules\Auth\Application\UseCases\LoginUseCase;
 use App\Modules\Auth\Application\UseCases\LogoutUseCase;
 use App\Modules\Auth\Application\UseCases\RegisterVendorUseCase;
 use App\Modules\Auth\Application\UseCases\ResendVerificationEmailUseCase;
+use App\Modules\Auth\Application\UseCases\ResetPasswordUseCase;
 use App\Modules\Auth\Application\UseCases\VerifyEmailUseCase;
+use App\Modules\Auth\Presentation\Http\Requests\ForgotPasswordRequest;
 use App\Modules\Auth\Presentation\Http\Requests\LoginRequest;
 use App\Modules\Auth\Presentation\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
-use App\Modules\User\Presentation\Http\Resources\UserResource;
+use App\Modules\User\Presentation\Http\Resources\AuthenticatedUserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +32,8 @@ class AuthController extends Controller
         private readonly LogoutUseCase $logout,
         private readonly VerifyEmailUseCase $verifyEmail,
         private readonly ResendVerificationEmailUseCase $resendVerificationEmail,
+        private readonly ForgotPasswordUseCase $forgotPassword,
+        private readonly ResetPasswordUseCase $resetPassword,
     ) {}
 
     public function registerVendor(RegisterRequest $request): JsonResponse
@@ -97,11 +103,31 @@ class AuthController extends Controller
     public function user(Request $request): JsonResponse
     {
         return response()->json([
-            'data' => new UserResource($request->user()),
+            'data' => new AuthenticatedUserResource($request->user()),
         ]);
     }
 
-    public function ResetPassword(ResetPasswordRequest $request) {}
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        try {
+            $this->resetPassword->execute(ResetpasswordData::from([
+                ...$request->validated(),
+                'encryptedEmail' => $request->string('email')->toString(),
+                'token' => $request->string('token')->toString(),
+                'password' => $request->string('password')->toString(),
+            ]));
+        } catch (InvalidArgumentException $e) {
+            app_log('Reset password failed.', ['error' => $e], 'warning', 'auth');
+
+            return response()->json(['message' => 'ลิงก์ตั้งรหัสผ่านใหม่ไม่ถูกต้องหรือหมดอายุ'], 403);
+        } catch (\Throwable $th) {
+            app_log('Reset password failed.', ['error' => $th], 'error', 'auth');
+
+            return response()->json(['message' => 'ตั้งรหัสผ่านใหม่ไม่สำเร็จ'], 500);
+        }
+
+        return response()->json(['message' => 'ตั้งรหัสผ่านใหม่สำเร็จ']);
+    }
 
     public function verifyEmail(int $id, string $hash): JsonResponse
     {
@@ -139,6 +165,21 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'หากมีบัญชีที่ใช้อีเมลนี้อยู่และยังไม่ได้ยืนยัน ระบบได้ส่งลิงก์ยืนยันใหม่ให้แล้ว',
+        ]);
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        try {
+            $this->forgotPassword->execute($request->string('email')->toString());
+        } catch (\Throwable $th) {
+            app_log('Forgot password failed.', ['error' => $th], 'error', 'auth');
+
+            return response()->json(['message' => 'ไม่สามารถส่งลิงก์ตั้งรหัสผ่านใหม่ได้'], 500);
+        }
+
+        return response()->json([
+            'message' => 'หากมีบัญชีที่ใช้อีเมลนี้อยู่ในระบบ เราได้ส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ให้แล้ว',
         ]);
     }
 }

@@ -94,12 +94,12 @@ class VendorRepository implements VendorRepositoryInterface
             : new VendorIndividualDetails;
 
         $model->vendor_profile_id = $detail->vendorProfileId();
+        $model->store_name = $detail->storeName();
         $model->prefix = $detail->prefix();
         $model->firstname = $detail->firstname();
         $model->lastname = $detail->lastname();
         $model->citizen_id = $detail->citizenId()->value;
         $model->citizen_id_hash = VendorIndividualDetails::hashCitizenId($detail->citizenId()->value);
-        $model->shop_name = $detail->shopName();
         $model->business_type = $detail->businessType();
         $model->tax_id = $detail->taxId()?->value;
         $model->tax_id_hash = $detail->taxId() !== null
@@ -119,11 +119,11 @@ class VendorRepository implements VendorRepositoryInterface
         return VendorIndividualDetail::reconstitute(
             id: $model->id,
             vendorProfileId: $model->vendor_profile_id,
+            storeName: $model->store_name,
             prefix: $model->prefix,
             firstname: $model->firstname,
             lastname: $model->lastname,
             citizenId: CitizenId::fromString($model->citizen_id),
-            shopName: $model->shop_name,
             businessType: $model->business_type,
             taxId: $model->tax_id !== null ? TaxId::fromString($model->tax_id) : null,
             email: $model->email !== null ? Email::fromString($model->email) : null,

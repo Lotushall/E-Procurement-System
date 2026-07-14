@@ -13,11 +13,11 @@ final class VendorIndividualDetail
     private function __construct(
         private readonly ?int $id,
         private readonly int $vendorProfileId,
+        private string $storeName,
         private ?string $prefix,
         private string $firstname,
         private string $lastname,
         private readonly CitizenId $citizenId,
-        private ?string $shopName,
         private ?string $businessType,
         private ?TaxId $taxId,
         private ?Email $email,
@@ -33,11 +33,11 @@ final class VendorIndividualDetail
 
     public static function create(
         int $vendorProfileId,
+        string $storeName,
         ?string $prefix,
         string $firstname,
         string $lastname,
         CitizenId $citizenId,
-        ?string $shopName,
         ?string $businessType,
         ?TaxId $taxId,
         ?Email $email,
@@ -53,11 +53,11 @@ final class VendorIndividualDetail
         return new self(
             id: null,
             vendorProfileId: $vendorProfileId,
+            storeName: $storeName,
             prefix: $prefix,
             firstname: $firstname,
             lastname: $lastname,
             citizenId: $citizenId,
-            shopName: $shopName,
             businessType: $businessType,
             taxId: $taxId,
             email: $email,
@@ -75,11 +75,11 @@ final class VendorIndividualDetail
     public static function reconstitute(
         int $id,
         int $vendorProfileId,
+        string $storeName,
         ?string $prefix,
         string $firstname,
         string $lastname,
         CitizenId $citizenId,
-        ?string $shopName,
         ?string $businessType,
         ?TaxId $taxId,
         ?Email $email,
@@ -95,11 +95,11 @@ final class VendorIndividualDetail
         return new self(
             id: $id,
             vendorProfileId: $vendorProfileId,
+            storeName: $storeName,
             prefix: $prefix,
             firstname: $firstname,
             lastname: $lastname,
             citizenId: $citizenId,
-            shopName: $shopName,
             businessType: $businessType,
             taxId: $taxId,
             email: $email,
@@ -115,10 +115,10 @@ final class VendorIndividualDetail
     }
 
     public function update(
+        string $storeName,
         ?string $prefix,
         string $firstname,
         string $lastname,
-        ?string $shopName,
         ?string $businessType,
         ?TaxId $taxId,
         ?Email $email,
@@ -131,10 +131,10 @@ final class VendorIndividualDetail
         ?string $lineId,
         ?string $otherContact,
     ): void {
+        $this->storeName = $storeName;
         $this->prefix = $prefix;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
-        $this->shopName = $shopName;
         $this->businessType = $businessType;
         $this->taxId = $taxId;
         $this->email = $email;
@@ -161,6 +161,11 @@ final class VendorIndividualDetail
         return $this->vendorProfileId;
     }
 
+    public function storeName(): string
+    {
+        return $this->storeName;
+    }
+
     public function prefix(): ?string
     {
         return $this->prefix;
@@ -179,11 +184,6 @@ final class VendorIndividualDetail
     public function citizenId(): CitizenId
     {
         return $this->citizenId;
-    }
-
-    public function shopName(): ?string
-    {
-        return $this->shopName;
     }
 
     public function businessType(): ?string

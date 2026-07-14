@@ -2,8 +2,10 @@
 
 namespace App\Modules\Auth\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\URL;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
@@ -44,6 +46,22 @@ class AuthServiceProvider extends ModuleServiceProvider
                 $notifiable->getKey(),
                 sha1($notifiable->getEmailForVerification()),
                 parse_url($backendUrl, PHP_URL_QUERY)
+            );
+        });
+
+        // Unlike email verification, resetting a password has no backend GET
+        // step to sign a link for — the token itself (validated later against
+        // password_reset_tokens when the new password is submitted) is the
+        // credential, so the link goes straight to the frontend form. The
+        // email is encrypted (rather than left plain like the verify-email
+        // link) purely to keep it out of browser history / access logs —
+        // ResetPasswordUseCase decrypts it before calling Password::reset().
+        ResetPassword::createUrlUsing(function ($notifiable, string $token) {
+            return sprintf(
+                '%s/reset-password?email=%s&token=%s',
+                rtrim(Config::get('app.frontend_url'), '/'),
+                urlencode(Crypt::encryptString($notifiable->getEmailForPasswordReset())),
+                $token
             );
         });
     }
