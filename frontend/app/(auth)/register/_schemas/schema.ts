@@ -29,6 +29,7 @@ export const RegisterSchema = z
         taxId: z.string().optional(),
         fullName: z.string().optional(),
         idCard: z.string().optional(),
+        storeName: z.string().optional(),
         phone: z.string().min(1, "กรุณากรอกเบอร์ติดต่อ"),
         username: z.string().min(3, "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร"),
         email: z.email("อีเมลไม่ถูกต้อง").min(1, "กรุณากรอกอีเมล"),
@@ -47,6 +48,9 @@ export const RegisterSchema = z
         } else {
             if (!data.fullName?.trim()) {
                 ctx.addIssue({ code: "custom", message: "กรุณากรอกชื่อ – นามสกุล", path: ["fullName"] });
+            }
+            if (!data.storeName?.trim()) {
+                ctx.addIssue({ code: "custom", message: "กรุณากรอกชื่อร้านค้า", path: ["storeName"] });
             }
             if (digitsOnly(data.idCard ?? "").length !== 13) {
                 ctx.addIssue({ code: "custom", message: "เลขบัตรประชาชนต้องมี 13 หลัก", path: ["idCard"] });
