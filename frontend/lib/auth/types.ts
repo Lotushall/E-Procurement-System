@@ -1,3 +1,5 @@
+import { User } from "../user/types";
+
 export interface LoginPayload {
   identifier: string;
   password: string;
@@ -17,6 +19,7 @@ export interface RegisterVendorPayload {
   taxId?: string;
   fullName?: string;
   idCard?: string;
+  storeName?: string;
   phone: string;
   username: string;
   email: string;
@@ -27,3 +30,14 @@ export interface RegisterVendorPayload {
   password_confirmation: string;
   terms: boolean;
 }
+
+export type CurrentUser = Pick<
+  User,
+  "id" | "username" | "userType" | "roles" | "permissions"
+> & {
+  profiles: {
+    companyName: string | null;
+    firstname: string | null;
+    lastname: string | null;
+  };
+};
