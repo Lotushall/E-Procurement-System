@@ -10,12 +10,6 @@ interface VendorCompanyProfileDetail {
   country: string;
   province: string;
   postalCode: string;
-  contactName: string;
-  contactPosition: string;
-  contactPhone: string;
-  contactEmail: string;
-  lineId: string;
-  otherContact: string | null;
 }
 
 interface VendorIndividualProfileDetail {
@@ -31,9 +25,6 @@ interface VendorIndividualProfileDetail {
   country: string;
   province: string;
   postalCode: string;
-  contactName: string;
-  lineId: string;
-  otherContact: string | null;
 }
 
 export type VendorProfileDetail = VendorCompanyProfileDetail | VendorIndividualProfileDetail;

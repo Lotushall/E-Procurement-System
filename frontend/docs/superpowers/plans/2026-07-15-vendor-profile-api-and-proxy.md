@@ -2,19 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a frontend API client (types, fetch function, react-query hook) for the existing `GET /api/v1/vendor/profile` backend endpoint, and add a Next.js `proxy.ts` that redirects logged-in users away from the auth pages and redirects guests away from `/profiles`.
+**Goal:** Add a frontend API client (types, fetch function, react-query hook) for the existing `GET /api/v1/vendor/profile` backend endpoint, and add client-side route guards that redirect logged-in users away from the auth pages and redirect guests away from `/profiles`.
 
-**Architecture:** Two independent, additive pieces sharing no code with each other. The API client follows the exact three-file pattern already used for auth (`lib/auth/types.ts` → `lib/auth/api.ts` → `lib/auth/useUser.ts`). The proxy is a single root-level `proxy.ts` that reads cookie presence only (no session decryption) and redirects via `NextResponse.redirect`.
+**Architecture:** Two independent, additive pieces sharing no code with each other. The API client follows the exact three-file pattern already used for auth (`lib/auth/types.ts` → `lib/auth/api.ts` → `lib/auth/useUser.ts`). Route protection is implemented as client components (`GuestGuard`, `AuthGuard`) backed by hooks (`useRequireGuest`, `useRequireAuth`) that read the current user from the existing `useUser()` react-query hook and redirect via `useRouter().replace(...)` once the query settles — no cookie reading, no server-side proxy/middleware.
 
-**Tech Stack:** Next.js 16.2.10 (App Router, Proxy file convention — NOT `middleware.ts`), TypeScript (strict), axios, @tanstack/react-query v5.
+**Tech Stack:** Next.js 16.2.10 (App Router; `next.config.ts` sets `output: "export"`, which unconditionally disables Middleware/Proxy — see Task 4's revision note), TypeScript (strict), axios, @tanstack/react-query v5.
 
 ## Global Constraints
 
-- Next.js 16: the file must be named `proxy.ts` (project root, no `src/` dir exists) exporting `proxy` — `middleware.ts`/`export function middleware` is deprecated and will not run.
-- `export const config = { matcher: [...] }` in `proxy.ts` must contain literal strings only — referencing imported constants there is not statically analyzable and will be ignored by Next.js.
+- Next.js 16 with `output: "export"` (set in `next.config.ts` since the repo's first commit) unconditionally disables Middleware/Proxy — route protection must be implemented client-side with React hooks and `useRouter().replace(...)`, not `proxy.ts`/`middleware.ts`.
 - Backend resource (`VendorProfileResource::toArray`) uses `whenNotNull()` for `verifiedAt` and `remark` — these keys are **absent** from the JSON when null, not `null`. Model them as optional properties (`verifiedAt?: string`), not `| null`.
-- Session cookie name is `e-procurement-system-session` (derived from `APP_NAME="E-Procurement System"` via Laravel's `Str::slug(...).'-session'` default in `backend/config/session.php`).
-- No test runner exists in this frontend (no vitest/jest/playwright in `package.json`, no `*.test.ts` files). Do not add one as part of this plan — verify via `npx tsc --noEmit`, `npm run lint`, and (for the proxy) manual `curl` checks against the dev server.
+- No test runner exists in this frontend (no vitest/jest/playwright in `package.json`, no `*.test.ts` files). Do not add one as part of this plan — verify via `npx tsc --noEmit`, `npm run lint`, and (for the route guards) manual sanity checks against the dev server.
 - Path alias `@/*` maps to the frontend project root (see `tsconfig.json`).
 
 ---

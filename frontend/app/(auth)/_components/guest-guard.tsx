@@ -3,11 +3,11 @@
 import { useRequireGuest } from "@/lib/auth/useRequireGuest";
 
 export function GuestGuard({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { isChecking } = useRequireGuest();
+    const { isChecking } = useRequireGuest();
 
-  if (isChecking) {
-    return null;
-  }
+    if (isChecking) {
+        return null;
+    }
 
-  return <>{children}</>;
+    return <>{children}</>;
 }

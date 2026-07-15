@@ -3,11 +3,11 @@
 import { useRequireAuth } from "@/lib/auth/useRequireAuth";
 
 export function AuthGuard({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { isChecking } = useRequireAuth();
+    const { isChecking } = useRequireAuth();
 
-  if (isChecking) {
-    return null;
-  }
+    if (isChecking) {
+        return null;
+    }
 
-  return <>{children}</>;
+    return <>{children}</>;
 }
