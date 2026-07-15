@@ -1,4 +1,5 @@
 import { AuthCard } from "./_components/auth-card";
+import { GuestGuard } from "./_components/guest-guard";
 
 export const metadata = {
     title: {
@@ -13,5 +14,9 @@ export default function AuthLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    return <AuthCard>{children}</AuthCard>;
+    return (
+        <GuestGuard>
+            <AuthCard>{children}</AuthCard>
+        </GuestGuard>
+    );
 }
