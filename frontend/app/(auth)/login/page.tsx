@@ -97,7 +97,7 @@ export default function Login() {
                         </Field>
 
                         <Link
-                            href={routes.forgotpassword}
+                            href={routes.auth.forgotpassword}
                             className="text-red-700 font-semibold tracking-wide"
                         >
                             ลืมรหัสผ่าน?
@@ -117,7 +117,7 @@ export default function Login() {
                     <div className="flex gap-1 text-sm tracking-wider mt-4.5">
                         <p className="font-light">ยังไม่มีบัญชี?</p>
                         <Link
-                            href={routes.register}
+                            href={routes.auth.register}
                             className="font-bold text-red-700"
                         >
                             ลงทะเบียนที่นี่

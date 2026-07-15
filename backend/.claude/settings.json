@@ -139,7 +139,11 @@
       "mcp__laravel-boost__database-query",
       "Bash(php -r '$a = [x: 1, y: 2]; var_dump\\($a\\);')",
       "Bash(php -l app/Modules/Auth/Application/UseCases/ResetPasswordUseCase.php)",
-      "Bash(php -l app/Modules/Auth/Application/DTOs/ResetpasswordData.php)"
+      "Bash(php -l app/Modules/Auth/Application/DTOs/ResetpasswordData.php)",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)",
+      "Bash(base64 -w0 public/images/lotushall_logo.png)",
+      "Read(//tmp/**)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

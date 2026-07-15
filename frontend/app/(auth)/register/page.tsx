@@ -61,7 +61,7 @@ export default function Register() {
                 </CardHeader>
 
                 <CardFooter className="flex flex-col bg-white border-none pb-6 pt-4">
-                    <Link href={routes.login} className="w-full">
+                    <Link href={routes.auth.login} className="w-full">
                         <Button className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
                             ไปหน้าเข้าสู่ระบบ
                         </Button>
@@ -411,7 +411,7 @@ export default function Register() {
                     <div className="flex gap-1 text-sm tracking-wider mt-4.5">
                         <p className="font-light">มีบัญชีอยู่แล้ว?</p>
                         <Link
-                            href={routes.login}
+                            href={routes.auth.login}
                             className="font-bold text-red-700"
                         >
                             เข้าสู่ระบบ

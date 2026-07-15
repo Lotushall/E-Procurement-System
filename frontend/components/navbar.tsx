@@ -68,7 +68,7 @@ function AuthControl({
         return (
             <div className="flex flex-col sm:flex-row gap-2">
                 <Button
-                    render={<Link href={routes.login} />}
+                    render={<Link href={routes.auth.login} />}
                     nativeButton={false}
                     onClick={onNavigate}
                     size={"lg"}
@@ -81,7 +81,7 @@ function AuthControl({
                 </Button>
 
                 <Button
-                    render={<Link href={routes.register} />}
+                    render={<Link href={routes.auth.register} />}
                     nativeButton={false}
                     onClick={onNavigate}
                     size={"lg"}
@@ -105,8 +105,6 @@ function AuthControl({
         company: "นิติบุคคล",
         individual: "ร้านค้า",
     };
-
-    console.log(user);
 
     return (
         <div className="flex gap-2 items-center">
@@ -165,7 +163,7 @@ function AuthControl({
                         </div>
                     </div>
                     <div className="p-1">
-                        <DropdownMenuItem render={<Link href="" onClick={onNavigate} />} className="cursor-pointer">
+                        <DropdownMenuItem render={<Link href={user.userType == "internal" ? routes.dashboards.dashboard : routes.profiles.profile} onClick={onNavigate} />} className="cursor-pointer">
                             <UserIcon />
                             โปรไฟล์
                         </DropdownMenuItem>

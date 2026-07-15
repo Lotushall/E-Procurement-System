@@ -27,7 +27,7 @@ export function useForgotPasswordForm() {
         defaultValues: { email: "" },
     });
 
-    const handleError = (error: unknown) => {
+    const getErrorMessage = (error: unknown) => {
         const fieldErrors = isAxiosError(error) && error.response?.status === 422
             ? (error.response.data as { errors?: Record<string, string[]> }).errors
             : undefined;
@@ -38,7 +38,7 @@ export function useForgotPasswordForm() {
                 ? (error.response?.data as { message?: string } | undefined)?.message
                 : undefined;
 
-        toast.error(message ?? "ส่งลิงก์ตั้งรหัสผ่านใหม่ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        return message ?? "ส่งลิงก์ตั้งรหัสผ่านใหม่ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
     };
 
     const onSubmit = form.handleSubmit((values) => {
@@ -47,19 +47,20 @@ export function useForgotPasswordForm() {
                 setSentTo(values.email);
                 setResendCooldown(RESEND_COOLDOWN_SECONDS);
             },
-            onError: handleError,
+            onError: (error) => toast.error(getErrorMessage(error)),
         });
     });
 
     const onResend = () => {
         if (!sentTo || resendCooldown > 0) return;
 
-        forgotPasswordMutation.mutate(sentTo, {
-            onSuccess: () => {
-                toast.success("ส่งลิงก์ตั้งรหัสผ่านใหม่อีกครั้งแล้ว กรุณาตรวจสอบกล่องจดหมาย");
+        toast.promise(forgotPasswordMutation.mutateAsync(sentTo), {
+            loading: "กำลังส่งอีเมล...",
+            success: () => {
                 setResendCooldown(RESEND_COOLDOWN_SECONDS);
+                return "ส่งลิงก์ตั้งรหัสผ่านใหม่อีกครั้งแล้ว กรุณาตรวจสอบกล่องจดหมาย";
             },
-            onError: handleError,
+            error: getErrorMessage,
         });
     };
 

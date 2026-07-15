@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 export function AuthCard({ children }: Readonly<{ children: React.ReactNode }>) {
     const pathname = usePathname();
-    const isRegister = pathname === routes.register;
+    const isRegister = pathname === routes.auth.register;
 
     return (
         <div className="flex justify-center items-start sm:items-center bg-background min-h-dvh p-8">
