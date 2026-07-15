@@ -115,73 +115,120 @@ export function useVendorProfile() {
 }
 ```
 
-## Part 2: Route Proxy
+## Part 2: Client-Side Route Guards (revised — see below)
 
-Next.js in this project is v16.2.10, where the `middleware.ts` file convention is deprecated in favor of `proxy.ts` (confirmed via `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`). No `src/` directory exists, so `proxy.ts` goes at the frontend project root, alongside `app/`.
+**Revision note:** the original design for this section specified a Next.js `proxy.ts` (the renamed `middleware.ts` convention). During implementation, Task 4's implementer discovered `next.config.ts` sets `output: "export"` (static export), which has set since the repo's first commit. Next.js unconditionally refuses to run Middleware/Proxy under static export — confirmed both by the dev-server error log and by the check in `node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js:403-406`. A static-exported app has no Node.js/Edge server process at all in production to host a proxy. This was missed during brainstorming (only `package.json`/`tsconfig.json` were checked, not `next.config.ts`).
 
-Auth in this project is a Laravel session cookie (`e-procurement-system-session`, httpOnly, set by Sanctum SPA auth), not a JWT. Per Next.js's authentication guide, Proxy can only read the cookie's presence for an "optimistic check" — it cannot decrypt or validate the session. The backend's `auth` middleware remains the real authorization boundary; this proxy only improves UX by avoiding an unnecessary round trip to already-known-outcome pages.
+The user confirmed the project stays statically exported and route protection should be done client-side (CSR) instead. Revised design:
+
+Auth in this project is a Laravel session cookie, checked via the existing `useUser()` hook (`lib/auth/useUser.ts`), which calls the real backend (`GET /api/v1/auth/user`) rather than only checking cookie presence — an improvement over the original optimistic-cookie-check design, at the cost of an extra round trip and a brief loading state before the guard can decide.
 
 ### Behavior
 
-- If the session cookie **is present** and the request path is one of the guest-only auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`) → redirect to `/`.
-- If the session cookie **is absent** and the request path starts with `/profiles` → redirect to `/login`.
-- Otherwise, pass through.
+- `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email` (the `(auth)` route group): while `useUser()` is resolving, render nothing. Once resolved, if a user is present, redirect to `/`. Otherwise render the page.
+- `/profiles` and its sub-routes (`/profiles/contract`, `/profiles/document`): while `useUser()` is resolving, render nothing. Once resolved, if no user is present, redirect to `/login`. Otherwise render the page.
 
 ### Implementation
 
+Two new hooks in `lib/auth/`:
+
 ```ts
-// proxy.ts
-import { NextRequest, NextResponse } from "next/server";
+// lib/auth/useRequireGuest.ts
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/auth/useUser";
 import { routes } from "@/lib/routes";
 
-const SESSION_COOKIE_NAME = "e-procurement-system-session";
+export function useRequireGuest() {
+  const router = useRouter();
+  const { data: user, isPending } = useUser();
 
-const guestOnlyRoutes: string[] = [
-  routes.auth.login,
-  routes.auth.register,
-  routes.auth.forgotpassword,
-  routes.auth.resetPassword,
-  routes.auth.verifyEmail,
-];
+  useEffect(() => {
+    if (!isPending && user) {
+      router.replace(routes.home);
+    }
+  }, [isPending, user, router]);
 
-export function proxy(request: NextRequest) {
-  const hasSession = request.cookies.has(SESSION_COOKIE_NAME);
-  const { pathname } = request.nextUrl;
-
-  if (hasSession && guestOnlyRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL(routes.home, request.url));
-  }
-
-  if (!hasSession && pathname.startsWith(routes.profiles.profile)) {
-    return NextResponse.redirect(new URL(routes.auth.login, request.url));
-  }
-
-  return NextResponse.next();
+  return { isChecking: isPending || Boolean(user) };
 }
-
-export const config = {
-  matcher: [
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/reset-password",
-    "/verify-email",
-    "/profiles/:path*",
-  ],
-};
 ```
 
-`config.matcher` must be literal strings (Next.js statically analyzes it at build time — referencing `routes.*` there would silently fail to match), so the matcher paths are hardcoded even though the runtime logic imports `routes` normally.
+```ts
+// lib/auth/useRequireAuth.ts
+"use client";
 
-### Why cookie-presence works across the frontend/backend origins
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/auth/useUser";
+import { routes } from "@/lib/routes";
 
-`SESSION_DOMAIN` is unset in the backend `.env`, so Laravel issues a host-only cookie for whatever host served the request. In local dev both frontend (`localhost:3000`) and backend (`localhost:8000`) share the hostname `localhost` (cookie scoping ignores port), so the browser attaches the cookie to requests reaching the Next.js server too. In production, Sanctum SPA auth already requires the frontend and backend to share a top-level domain (via `SESSION_DOMAIN=.example.com`) for cookie-based auth to work at all — so the same assumption holds there.
+export function useRequireAuth() {
+  const router = useRouter();
+  const { data: user, isPending } = useUser();
+
+  useEffect(() => {
+    if (!isPending && !user) {
+      router.replace(routes.auth.login);
+    }
+  }, [isPending, user, router]);
+
+  return { isChecking: isPending || !user };
+}
+```
+
+Two new guard components, each the client-component boundary their route group's server `layout.tsx` renders through (both existing layouts export `metadata`, which a Client Component cannot do, so the guard has to live one level below the layout, not replace it):
+
+```tsx
+// app/(auth)/_components/guest-guard.tsx
+"use client";
+
+import { useRequireGuest } from "@/lib/auth/useRequireGuest";
+
+export function GuestGuard({ children }: Readonly<{ children: React.ReactNode }>) {
+  const { isChecking } = useRequireGuest();
+
+  if (isChecking) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+```
+
+```tsx
+// app/(public)/profiles/_components/auth-guard.tsx
+"use client";
+
+import { useRequireAuth } from "@/lib/auth/useRequireAuth";
+
+export function AuthGuard({ children }: Readonly<{ children: React.ReactNode }>) {
+  const { isChecking } = useRequireAuth();
+
+  if (isChecking) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+```
+
+`app/(auth)/layout.tsx` wraps its existing `<AuthCard>` with `<GuestGuard>`; `app/(public)/profiles/layout.tsx` wraps its existing `<Navbar>`/`<Sidebar>`/content block with `<AuthGuard>`. Both layouts keep their `metadata` export unchanged — only the returned JSX changes.
+
+### Trade-offs of this approach (accepted)
+
+- No server-side protection at all: with `output: "export"`, every route ships as static HTML/JS to whatever serves it, and the guard only runs after the browser hydrates. Anyone can view page source or briefly see a flash of nothing (never protected content, since guards render `null` while checking — but also never a hard 404/redirect at the HTTP level).
+- Slightly slower perceived protection than a proxy: an extra `GET /api/v1/auth/user` round trip must resolve before the guard can decide, versus a proxy's synchronous cookie check.
+- The backend's `auth` Sanctum middleware remains the real authorization boundary for actual data (e.g. `GET /api/v1/vendor/profile` itself is still protected server-side) — these guards are UX-only, same as the originally-designed proxy would have been.
 
 ## Error Handling
 
 - `fetchVendorProfile`: 404 → `null`; anything else propagates to the caller (react-query surfaces it as `error`).
-- Proxy: no error handling needed — it only reads a cookie and redirects; it never calls the backend.
+- `useRequireGuest`/`useRequireAuth`: rely on `useUser()`'s existing error handling (401 → `null`, per `lib/auth/api.ts`'s `fetchCurrentUser`); no additional error handling needed in the guards themselves.
 
 ## Testing
 
-The frontend has no test runner configured (no vitest/jest/playwright in `package.json`, no existing `*.test.ts` files). No tests are added for either part, consistent with current frontend conventions. Backend coverage for the endpoint itself already exists (`VendorProfileTest.php`).
+The frontend has no test runner configured (no vitest/jest/playwright in `package.json`, no existing `*.test.ts` files). No automated tests are added for either part, consistent with current frontend conventions. Backend coverage for the vendor endpoint itself already exists (`VendorProfileTest.php`).
+
+The guard components' actual redirect behavior cannot be verified via `curl` (it runs after client-side hydration, invisible to a plain HTTP response) — verification is limited to typecheck/lint plus manual code review of the hook logic, with a real browser check recommended as a follow-up before merge.
