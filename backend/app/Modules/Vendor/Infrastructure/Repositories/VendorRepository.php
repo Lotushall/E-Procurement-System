@@ -31,14 +31,7 @@ class VendorRepository implements VendorRepositoryInterface
         $model->remark = $profile->remark();
         $model->save();
 
-        return VendorProfile::reconstitute(
-            id: $model->id,
-            userId: $model->user_id,
-            status: $model->verification_status,
-            verifiedAt: $model->verified_at !== null ? CarbonImmutable::instance($model->verified_at) : null,
-            verifiedBy: $model->verified_by,
-            remark: $model->remark,
-        );
+        return $this->mapProfileToEntity($model);
     }
 
     public function saveCompanyDetail(VendorCompanyDetail $detail): VendorCompanyDetail
@@ -66,25 +59,7 @@ class VendorRepository implements VendorRepositoryInterface
         $model->other_contact = $detail->otherContact();
         $model->save();
 
-        return VendorCompanyDetail::reconstitute(
-            id: $model->id,
-            vendorProfileId: $model->vendor_profile_id,
-            companyName: $model->company_name,
-            businessRegistrationNo: $model->business_registration_no,
-            taxId: TaxId::fromString($model->tax_id),
-            branchNo: $model->branch_no,
-            businessType: $model->business_type,
-            address: $model->address,
-            country: $model->country,
-            province: $model->province,
-            postalCode: $model->postal_code !== null ? PostalCode::fromString($model->postal_code) : null,
-            contactName: $model->contact_name,
-            contactPosition: $model->contact_position,
-            contactPhone: PhoneNumber::fromString($model->contact_phone),
-            contactEmail: Email::fromString($model->contact_email),
-            lineId: $model->line_id,
-            otherContact: $model->other_contact,
-        );
+        return $this->mapCompanyDetailToEntity($model);
     }
 
     public function saveIndividualDetail(VendorIndividualDetail $detail): VendorIndividualDetail
@@ -116,6 +91,46 @@ class VendorRepository implements VendorRepositoryInterface
         $model->other_contact = $detail->otherContact();
         $model->save();
 
+        return $this->mapIndividualDetailToEntity($model);
+    }
+
+    private function mapProfileToEntity(VendorProfiles $model): VendorProfile
+    {
+        return VendorProfile::reconstitute(
+            id: $model->id,
+            userId: $model->user_id,
+            status: $model->verification_status,
+            verifiedAt: $model->verified_at !== null ? CarbonImmutable::instance($model->verified_at) : null,
+            verifiedBy: $model->verified_by,
+            remark: $model->remark,
+        );
+    }
+
+    private function mapCompanyDetailToEntity(VendorCompanyDetails $model): VendorCompanyDetail
+    {
+        return VendorCompanyDetail::reconstitute(
+            id: $model->id,
+            vendorProfileId: $model->vendor_profile_id,
+            companyName: $model->company_name,
+            businessRegistrationNo: $model->business_registration_no,
+            taxId: TaxId::fromString($model->tax_id),
+            branchNo: $model->branch_no,
+            businessType: $model->business_type,
+            address: $model->address,
+            country: $model->country,
+            province: $model->province,
+            postalCode: $model->postal_code !== null ? PostalCode::fromString($model->postal_code) : null,
+            contactName: $model->contact_name,
+            contactPosition: $model->contact_position,
+            contactPhone: PhoneNumber::fromString($model->contact_phone),
+            contactEmail: Email::fromString($model->contact_email),
+            lineId: $model->line_id,
+            otherContact: $model->other_contact,
+        );
+    }
+
+    private function mapIndividualDetailToEntity(VendorIndividualDetails $model): VendorIndividualDetail
+    {
         return VendorIndividualDetail::reconstitute(
             id: $model->id,
             vendorProfileId: $model->vendor_profile_id,

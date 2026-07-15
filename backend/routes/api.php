@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(
-    __DIR__.'/api/v1/auth.php'
-);
+Route::prefix('v1')->group(function () {
+
+    Route::middleware('auth')->group(function () {
+        require __DIR__.'/api/v1/vendor.php';
+    });
+
+    require __DIR__.'/api/v1/auth.php';
+});

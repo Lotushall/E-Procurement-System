@@ -1,7 +1,37 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { routes } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+
+const StatusBadge = () => {
+
+    const { data: vendor, isLoading } = useVendorProfile()
+
+    if (isLoading) {
+        return (
+            <>
+                asdw
+            </>
+        )
+    }
+
+    return (
+        <Badge
+            variant="secondary"
+            className={cn(
+                "flex items-center gap-1.75 text-sm text-green-800 tracking-wide font-bold px-3.5 py-3 h-8 bg-green-700/15",
+                
+            )}
+        >
+            <span className={cn("bg-green-800 w-1.75 h-1.75 rounded-full")} />
+            {vendor?.verificationStatus}
+        </Badge>
+    )
+}
 
 export default function Navbar() {
     return (
@@ -14,13 +44,7 @@ export default function Navbar() {
             <div className="flex flex-col">
                 <div className="flex justify-between items-center">
                     <h1 className="text-[26px] font-bold">ข้อมูลผู้ค้า</h1>
-                    <Badge
-                        variant="secondary"
-                        className="flex items-center gap-1.75 text-sm text-green-800 tracking-wide font-bold px-3.5 py-3 h-8 bg-green-700/15"
-                    >
-                        <span className="bg-green-800 w-1.75 h-1.75 rounded-full" />
-                        ขึ้นทะเบียนแล้ว
-                    </Badge>
+                    <StatusBadge />
                 </div>
 
                 <p className="text-sm tracking-wide text-gray-600">จัดการข้อมูลบริษัท ผู้ติดต่อ และเอกสารประกอบสำหรับการขึ้นทะเบียน</p>
