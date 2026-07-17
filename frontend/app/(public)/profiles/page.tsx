@@ -117,7 +117,7 @@ export default function Profile() {
                     defaultValue={formatThaiId(vendor.detail.businessRegistrationNo ?? "")}
                     onChange={handleThaiIdChange}
                     inputMode="numeric"
-                    maxLength={13}
+                    maxLength={17}
                     placeholder="X-XXXX-XXXXX-XX-X"
                     className="h-11 rounded-sm"
                   />

@@ -87,7 +87,25 @@
       "Bash(echo \"grep exit:$?\")",
       "Bash(bash \"C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package\" eefaa0f 0d6a418)",
       "Bash(echo \"grep-exit:$?\")",
-      "Bash(grep -o \"\\\\.sm\\\\\\\\\\\\\\\\:col-span-[0-9]\" .next/static/chunks/3krieskgiam36.css)"
+      "Bash(grep -o \"\\\\.sm\\\\\\\\\\\\\\\\:col-span-[0-9]\" .next/static/chunks/3krieskgiam36.css)",
+      "Bash(bash 'C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\task-brief' \"docs/superpowers/plans/2026-07-17-vendor-contact-add-dialog.md\" 1)",
+      "Bash(tee /tmp/lint-output.txt)",
+      "Bash(bash 'C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package' 06bcb3c bf89d89)",
+      "Bash(tee lint-output.txt)",
+      "Bash(bash 'C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package' bf89d89 6bc9a82)",
+      "Bash(bash 'C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package' 6bc9a82 892583f)",
+      "Bash(curl -s -o /dev/null -w \"HTTP Status: %{http_code}\\\\n\" http://localhost:3000/profiles/contract)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(bash 'C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package' 892583f 10b4ea6)",
+      "Bash(echo \"---exit:$?---\")",
+      "Bash(timeout 100 npx tsc --noEmit)",
+      "Bash(timeout 100 npm run lint)",
+      "Bash(cat /tmp/lint_out.txt | head -100)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/profiles/contract\" --max-time 15)",
+      "Bash(bash 'C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts\\\\review-package' 06bcb3c 10b4ea6)",
+      "Bash(powershell -NoProfile -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique\")",
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 25808 -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 500; Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue\")",
+      "Bash(powershell -NoProfile -Command \"try { Get-Process -Id 25808 -ErrorAction Stop; Write-Output 'still running' } catch { Write-Output 'stopped' }\")"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers"

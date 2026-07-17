@@ -12,6 +12,7 @@ export function useAddContactForm(onSubmitted: () => void) {
       contactEmail: "",
       lineId: "",
       otherContact: "",
+      isMainContact: false,
     },
   });
 
