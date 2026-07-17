@@ -5,6 +5,7 @@ use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
+use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\States\VerificationStatus\Approved;
@@ -64,15 +65,8 @@ test('saveCompanyDetail persists and round-trips through the encrypted tax id', 
         branchNo: '00000',
         businessType: 'Trading',
         address: '123 Main St.',
-        country: 'Thailand',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
-        contactName: 'Jane Doe',
-        contactPosition: 'Manager',
-        contactPhone: PhoneNumber::fromString('0812345678'),
-        contactEmail: Email::fromString('contact@company.com'),
-        lineId: 'acme-co',
-        otherContact: null,
     );
 
     $saved = $repository->saveCompanyDetail($detail);
@@ -105,15 +99,9 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
         citizenId: CitizenId::fromString('1234567890123'),
         businessType: 'Retail',
         taxId: TaxId::fromString('9876543210123'),
-        email: Email::fromString('individual@example.com'),
-        phone: PhoneNumber::fromString('0812345678'),
         address: '456 Side St.',
-        country: 'Thailand',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
-        contactName: 'John Doe',
-        lineId: 'john-doe',
-        otherContact: null,
     );
 
     $saved = $repository->saveIndividualDetail($detail);
@@ -121,8 +109,7 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
     expect($saved->id())->not->toBeNull()
         ->and($saved->storeName())->toBe("John's Store")
         ->and($saved->citizenId()->value)->toBe('1234567890123')
-        ->and($saved->taxId()->value)->toBe('9876543210123')
-        ->and($saved->email()->value)->toBe('individual@example.com');
+        ->and($saved->taxId()->value)->toBe('9876543210123');
 
     $this->assertDatabaseHas('vendor_individual_details', [
         'vendor_profile_id' => $vendorProfile->id(),
@@ -131,4 +118,86 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
         'citizen_id_hash' => hash('sha256', '1234567890123'),
         'tax_id_hash' => hash('sha256', '9876543210123'),
     ]);
+});
+
+test('saveContact persists a new vendor contact and returns it reconstituted with an id', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $contact = VendorContact::create(
+        vendorProfileId: $vendorProfile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    );
+
+    $saved = $repository->saveContact($contact);
+
+    expect($saved->id())->not->toBeNull()
+        ->and($saved->contactName())->toBe('Jane Doe')
+        ->and($saved->contactPhone()->value)->toBe('0812345678')
+        ->and($saved->contactEmail()->value)->toBe('contact@company.com')
+        ->and($saved->isMainContact())->toBeTrue();
+
+    $this->assertDatabaseHas('vendor_contact', [
+        'vendor_profile_id' => $vendorProfile->id(),
+        'contact_name' => 'Jane Doe',
+        'contact_position' => 'Manager',
+        'is_main_contact' => true,
+    ]);
+});
+
+test('saveContact allows a contact without phone or email', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $saved = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $vendorProfile->id(),
+        contactName: 'John Doe',
+        contactPosition: null,
+        contactPhone: null,
+        contactEmail: null,
+        lineId: null,
+        otherContact: null,
+    ));
+
+    expect($saved->contactPhone())->toBeNull()
+        ->and($saved->contactEmail())->toBeNull()
+        ->and($saved->isMainContact())->toBeFalse();
+});
+
+test('findContactByVendorProfileId returns the reconstituted contact', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $repository->saveContact(VendorContact::create(
+        vendorProfileId: $vendorProfile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+    ));
+
+    $found = $repository->findContactByVendorProfileId($vendorProfile->id());
+
+    expect($found)->not->toBeNull()
+        ->and($found->contactName())->toBe('Jane Doe')
+        ->and($found->contactEmail()->value)->toBe('contact@company.com');
+});
+
+test('findContactByVendorProfileId returns null when no contact exists', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    expect($repository->findContactByVendorProfileId($vendorProfile->id()))->toBeNull();
 });

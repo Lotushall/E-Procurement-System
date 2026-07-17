@@ -29,6 +29,13 @@ test('registering an individual vendor saves the store name on the vendor indivi
         'store_name' => "John's Store",
     ]);
 
+    $this->assertDatabaseHas('vendor_contact', [
+        'contact_name' => "John's Store",
+        'contact_phone' => '0812345678',
+        'contact_email' => 'john@example.com',
+        'is_main_contact' => true,
+    ]);
+
     expect($user->userType()->value)->toBe('individual');
 });
 
@@ -48,6 +55,13 @@ test('registering a company vendor does not require a store name', function () {
 
     $this->assertDatabaseHas('vendor_company_details', [
         'company_name' => 'Acme Co., Ltd.',
+    ]);
+
+    $this->assertDatabaseHas('vendor_contact', [
+        'contact_name' => 'Acme Co., Ltd.',
+        'contact_phone' => '0812345678',
+        'contact_email' => 'acme@example.com',
+        'is_main_contact' => true,
     ]);
 
     expect($user->userType()->value)->toBe('company');

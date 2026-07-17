@@ -6,12 +6,14 @@ use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
+use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
+use App\Modules\Vendor\Infrastructure\Models\VendorContact as VendorContactModel;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Carbon\CarbonImmutable;
@@ -48,15 +50,8 @@ class VendorRepository implements VendorRepositoryInterface
         $model->branch_no = $detail->branchNo();
         $model->business_type = $detail->businessType();
         $model->address = $detail->address();
-        $model->country = $detail->country();
         $model->province = $detail->province();
         $model->postal_code = $detail->postalCode()?->value;
-        $model->contact_name = $detail->contactName();
-        $model->contact_position = $detail->contactPosition();
-        $model->contact_phone = $detail->contactPhone()->value;
-        $model->contact_email = $detail->contactEmail()->value;
-        $model->line_id = $detail->lineId();
-        $model->other_contact = $detail->otherContact();
         $model->save();
 
         return $this->mapCompanyDetailToEntity($model);
@@ -80,18 +75,38 @@ class VendorRepository implements VendorRepositoryInterface
         $model->tax_id_hash = $detail->taxId() !== null
             ? VendorIndividualDetails::hashTaxId($detail->taxId()->value)
             : null;
-        $model->email = $detail->email()?->value;
-        $model->phone = $detail->phone()->value;
         $model->address = $detail->address();
-        $model->country = $detail->country();
         $model->province = $detail->province();
         $model->postal_code = $detail->postalCode()?->value;
-        $model->contact_name = $detail->contactName();
-        $model->line_id = $detail->lineId();
-        $model->other_contact = $detail->otherContact();
         $model->save();
 
         return $this->mapIndividualDetailToEntity($model);
+    }
+
+    public function saveContact(VendorContact $contact): VendorContact
+    {
+        $model = $contact->id() !== null
+            ? VendorContactModel::findOrFail($contact->id())
+            : new VendorContactModel;
+
+        $model->vendor_profile_id = $contact->vendorProfileId();
+        $model->contact_name = $contact->contactName();
+        $model->contact_position = $contact->contactPosition();
+        $model->contact_phone = $contact->contactPhone()?->value;
+        $model->contact_email = $contact->contactEmail()?->value;
+        $model->line_id = $contact->lineId();
+        $model->other_contact = $contact->otherContact();
+        $model->is_main_contact = $contact->isMainContact();
+        $model->save();
+
+        return $this->mapContactToEntity($model);
+    }
+
+    public function findContactByVendorProfileId(int $vendorProfileId): ?VendorContact
+    {
+        $model = VendorContactModel::where('vendor_profile_id', $vendorProfileId)->first();
+
+        return $model !== null ? $this->mapContactToEntity($model) : null;
     }
 
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile
@@ -117,15 +132,8 @@ class VendorRepository implements VendorRepositoryInterface
             branchNo: $model->branch_no,
             businessType: $model->business_type,
             address: $model->address,
-            country: $model->country,
             province: $model->province,
             postalCode: $model->postal_code !== null ? PostalCode::fromString($model->postal_code) : null,
-            contactName: $model->contact_name,
-            contactPosition: $model->contact_position,
-            contactPhone: PhoneNumber::fromString($model->contact_phone),
-            contactEmail: Email::fromString($model->contact_email),
-            lineId: $model->line_id,
-            otherContact: $model->other_contact,
         );
     }
 
@@ -141,15 +149,24 @@ class VendorRepository implements VendorRepositoryInterface
             citizenId: CitizenId::fromString($model->citizen_id),
             businessType: $model->business_type,
             taxId: $model->tax_id !== null ? TaxId::fromString($model->tax_id) : null,
-            email: $model->email !== null ? Email::fromString($model->email) : null,
-            phone: PhoneNumber::fromString($model->phone),
             address: $model->address,
-            country: $model->country,
             province: $model->province,
             postalCode: $model->postal_code !== null ? PostalCode::fromString($model->postal_code) : null,
+        );
+    }
+
+    private function mapContactToEntity(VendorContactModel $model): VendorContact
+    {
+        return VendorContact::reconstitute(
+            id: $model->id,
+            vendorProfileId: $model->vendor_profile_id,
             contactName: $model->contact_name,
+            contactPosition: $model->contact_position,
+            contactPhone: $model->contact_phone !== null ? PhoneNumber::fromString($model->contact_phone) : null,
+            contactEmail: $model->contact_email !== null ? Email::fromString($model->contact_email) : null,
             lineId: $model->line_id,
             otherContact: $model->other_contact,
+            isMainContact: $model->is_main_contact,
         );
     }
 }

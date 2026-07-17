@@ -1,9 +1,12 @@
+import { User } from "../user/types";
+
 export type VendorVerificationStatus = "pending" | "approved" | "rejected";
 
 interface VendorCompanyProfileDetail {
   type: "company";
   companyName: string;
   businessRegistrationNo: string;
+  taxId: string;
   branchNo: string;
   businessType: string;
   address: string;
@@ -18,6 +21,8 @@ interface VendorIndividualProfileDetail {
   prefix: string;
   firstname: string;
   lastname: string;
+  citizenId: string;
+  taxId: string;
   businessType: string;
   email: string;
   phone: string;
@@ -27,7 +32,28 @@ interface VendorIndividualProfileDetail {
   postalCode: string;
 }
 
-export type VendorProfileDetail = VendorCompanyProfileDetail | VendorIndividualProfileDetail;
+interface VendorDocument {
+  documentType: string;
+  fileName: string;
+  filePath: string;
+  status: string;
+  verifiedBy: User;
+  verifiedAt: string;
+  remark: string;
+}
+interface VendorContact {
+  contactName: string;
+  contactPosition: string;
+  contactPhone: string;
+  contactEmail: string;
+  lineId: string;
+  otherContact: string;
+  isMainContact: string;
+}
+
+export type VendorProfileDetail =
+  | VendorCompanyProfileDetail
+  | VendorIndividualProfileDetail;
 
 export interface VendorProfile {
   id: number;
@@ -35,4 +61,6 @@ export interface VendorProfile {
   verifiedAt?: string;
   remark?: string;
   detail: VendorProfileDetail;
+  contact: VendorContact;
+  document: VendorDocument;
 }

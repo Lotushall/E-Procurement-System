@@ -21,15 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'branch_no',
     'business_type',
     'address',
-    'country',
     'province',
     'postal_code',
-    'contact_name',
-    'contact_position',
-    'contact_phone',
-    'contact_email',
-    'line_id',
-    'other_contact',
 ])]
 #[Hidden(['tax_id', 'tax_id_hash'])]
 class VendorCompanyDetails extends Model
@@ -65,6 +58,6 @@ class VendorCompanyDetails extends Model
     // Relations
     public function VendorDocumentsVendorProfile(): BelongsTo
     {
-        return $this->belongsTo(VendorProfiles::class,'vendor_profile_id','id');
+        return $this->belongsTo(VendorProfiles::class, 'vendor_profile_id', 'id');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Modules\Vendor\Domain\Repositories;
 
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
+use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 
@@ -13,4 +14,8 @@ interface VendorRepositoryInterface
     public function saveCompanyDetail(VendorCompanyDetail $detail): VendorCompanyDetail;
 
     public function saveIndividualDetail(VendorIndividualDetail $detail): VendorIndividualDetail;
+
+    public function saveContact(VendorContact $contact): VendorContact;
+
+    public function findContactByVendorProfileId(int $vendorProfileId): ?VendorContact;
 }

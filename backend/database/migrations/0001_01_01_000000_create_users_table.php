@@ -56,15 +56,8 @@ return new class extends Migration
             $table->string('branch_no')->nullable();
             $table->string('business_type')->nullable();
             $table->text('address')->nullable();
-            $table->string('country')->nullable();
             $table->string('province')->nullable();
             $table->string('postal_code', 10)->nullable();
-            $table->string('contact_name')->nullable();
-            $table->string('contact_position')->nullable();
-            $table->string('contact_phone');
-            $table->string('contact_email');
-            $table->string('line_id')->nullable();
-            $table->text('other_contact')->nullable();
             $table->timestamps();
         });
 
@@ -80,15 +73,9 @@ return new class extends Migration
             $table->string('business_type')->nullable();
             $table->text('tax_id')->nullable();
             $table->string('tax_id_hash', 64)->nullable()->unique();
-            $table->string('email')->nullable();
-            $table->string('phone');
             $table->text('address')->nullable();
-            $table->string('country')->nullable();
             $table->string('province')->nullable();
             $table->string('postal_code', 10)->nullable();
-            $table->string('contact_name')->nullable();
-            $table->string('line_id')->nullable();
-            $table->text('other_contact')->nullable();
             $table->timestamps();
         });
 

@@ -10,6 +10,7 @@ use App\Modules\User\Domain\Entities\User;
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
+use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
@@ -54,15 +55,8 @@ final class RegisterVendorUseCase
                     branchNo: null,
                     businessType: null,
                     address: null,
-                    country: null,
                     province: null,
                     postalCode: null,
-                    contactName: null,
-                    contactPosition: null,
-                    contactPhone: PhoneNumber::fromString($data->phone),
-                    contactEmail: Email::fromString($data->email),
-                    lineId: null,
-                    otherContact: null,
                 ));
             } else {
                 [$firstname, $lastname] = $this->splitFullName($data->fullName);
@@ -76,17 +70,22 @@ final class RegisterVendorUseCase
                     citizenId: CitizenId::fromString($data->idCard),
                     businessType: null,
                     taxId: null,
-                    email: Email::fromString($data->email),
-                    phone: PhoneNumber::fromString($data->phone),
                     address: null,
-                    country: null,
                     province: null,
                     postalCode: null,
-                    contactName: null,
-                    lineId: null,
-                    otherContact: null,
                 ));
             }
+
+            $this->vendors->saveContact(VendorContact::create(
+                vendorProfileId: $profile->id(),
+                contactName: $data->isCompany() ? $data->companyName : $data->storeName,
+                contactPosition: null,
+                contactPhone: PhoneNumber::fromString($data->phone),
+                contactEmail: Email::fromString($data->email),
+                lineId: null,
+                otherContact: null,
+                isMainContact: true,
+            ));
 
             return $user;
         });

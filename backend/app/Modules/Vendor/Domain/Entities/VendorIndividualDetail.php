@@ -2,8 +2,6 @@
 
 namespace App\Modules\Vendor\Domain\Entities;
 
-use App\Modules\Shared\Domain\ValueObjects\Email;
-use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
@@ -20,15 +18,9 @@ final class VendorIndividualDetail
         private readonly CitizenId $citizenId,
         private ?string $businessType,
         private ?TaxId $taxId,
-        private ?Email $email,
-        private PhoneNumber $phone,
         private ?string $address,
-        private ?string $country,
         private ?string $province,
         private ?PostalCode $postalCode,
-        private ?string $contactName,
-        private ?string $lineId,
-        private ?string $otherContact,
     ) {}
 
     public static function create(
@@ -40,15 +32,9 @@ final class VendorIndividualDetail
         CitizenId $citizenId,
         ?string $businessType,
         ?TaxId $taxId,
-        ?Email $email,
-        PhoneNumber $phone,
         ?string $address,
-        ?string $country,
         ?string $province,
         ?PostalCode $postalCode,
-        ?string $contactName,
-        ?string $lineId,
-        ?string $otherContact,
     ): self {
         return new self(
             id: null,
@@ -60,15 +46,9 @@ final class VendorIndividualDetail
             citizenId: $citizenId,
             businessType: $businessType,
             taxId: $taxId,
-            email: $email,
-            phone: $phone,
             address: $address,
-            country: $country,
             province: $province,
             postalCode: $postalCode,
-            contactName: $contactName,
-            lineId: $lineId,
-            otherContact: $otherContact,
         );
     }
 
@@ -82,15 +62,9 @@ final class VendorIndividualDetail
         CitizenId $citizenId,
         ?string $businessType,
         ?TaxId $taxId,
-        ?Email $email,
-        PhoneNumber $phone,
         ?string $address,
-        ?string $country,
         ?string $province,
         ?PostalCode $postalCode,
-        ?string $contactName,
-        ?string $lineId,
-        ?string $otherContact,
     ): self {
         return new self(
             id: $id,
@@ -102,15 +76,9 @@ final class VendorIndividualDetail
             citizenId: $citizenId,
             businessType: $businessType,
             taxId: $taxId,
-            email: $email,
-            phone: $phone,
             address: $address,
-            country: $country,
             province: $province,
             postalCode: $postalCode,
-            contactName: $contactName,
-            lineId: $lineId,
-            otherContact: $otherContact,
         );
     }
 
@@ -121,15 +89,9 @@ final class VendorIndividualDetail
         string $lastname,
         ?string $businessType,
         ?TaxId $taxId,
-        ?Email $email,
-        PhoneNumber $phone,
         ?string $address,
-        ?string $country,
         ?string $province,
         ?PostalCode $postalCode,
-        ?string $contactName,
-        ?string $lineId,
-        ?string $otherContact,
     ): void {
         $this->storeName = $storeName;
         $this->prefix = $prefix;
@@ -137,15 +99,9 @@ final class VendorIndividualDetail
         $this->lastname = $lastname;
         $this->businessType = $businessType;
         $this->taxId = $taxId;
-        $this->email = $email;
-        $this->phone = $phone;
         $this->address = $address;
-        $this->country = $country;
         $this->province = $province;
         $this->postalCode = $postalCode;
-        $this->contactName = $contactName;
-        $this->lineId = $lineId;
-        $this->otherContact = $otherContact;
     }
 
     // -----------------------------
@@ -196,24 +152,9 @@ final class VendorIndividualDetail
         return $this->taxId;
     }
 
-    public function email(): ?Email
-    {
-        return $this->email;
-    }
-
-    public function phone(): PhoneNumber
-    {
-        return $this->phone;
-    }
-
     public function address(): ?string
     {
         return $this->address;
-    }
-
-    public function country(): ?string
-    {
-        return $this->country;
     }
 
     public function province(): ?string
@@ -224,20 +165,5 @@ final class VendorIndividualDetail
     public function postalCode(): ?PostalCode
     {
         return $this->postalCode;
-    }
-
-    public function contactName(): ?string
-    {
-        return $this->contactName;
-    }
-
-    public function lineId(): ?string
-    {
-        return $this->lineId;
-    }
-
-    public function otherContact(): ?string
-    {
-        return $this->otherContact;
     }
 }

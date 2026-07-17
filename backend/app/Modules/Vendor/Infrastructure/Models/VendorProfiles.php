@@ -69,4 +69,9 @@ class VendorProfiles extends Model
     {
         return $this->hasMany(VendorDocuments::class, 'vendor_profile_id', 'id');
     }
+
+    public function VendorProfilesContact(): HasOne
+    {
+        return $this->hasOne(VendorContact::class, 'vendor_profile_id', 'id');
+    }
 }

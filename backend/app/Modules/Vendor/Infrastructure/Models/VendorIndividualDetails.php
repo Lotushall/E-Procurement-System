@@ -22,15 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'business_type',
     'tax_id',
     'tax_id_hash',
-    'email',
-    'phone',
     'address',
-    'country',
     'province',
     'postal_code',
-    'contact_name',
-    'line_id',
-    'other_contact',
 ])]
 #[Hidden(['citizen_id', 'citizen_id_hash', 'tax_id', 'tax_id_hash'])]
 class VendorIndividualDetails extends Model

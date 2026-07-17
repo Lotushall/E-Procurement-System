@@ -9,7 +9,7 @@ final class GetVendorProfileQuery
     public function execute(int $userId): VendorProfiles
     {
         return VendorProfiles::where('user_id', $userId)
-            ->with(['VendorProfilesCompanyDetail', 'VendorProfilesIndividualDetail'])
+            ->with(['VendorProfilesCompanyDetail', 'VendorProfilesIndividualDetail', 'VendorProfilesContact', 'VendorProfilesDocuments'])
             ->firstOrFail();
     }
 }
