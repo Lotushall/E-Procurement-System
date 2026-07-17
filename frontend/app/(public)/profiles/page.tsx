@@ -37,7 +37,7 @@ export default function Profile() {
                 </InputField>
 
                 <InputField label="ประเภทธุรกิจ">
-                  <Combobox items={BUSINESS_TYPES} defaultInputValue={vendor.detail.businessType}>
+                  <Combobox items={BUSINESS_TYPES} defaultValue={vendor.detail.businessType}>
                     <ComboboxInput className="h-11 rounded-sm" />
                     <ComboboxContent>
                       <ComboboxEmpty>ไม่พบตัวเลือกที่ตรงกัน</ComboboxEmpty>
@@ -75,7 +75,7 @@ export default function Profile() {
                 </InputField>
 
                 <InputField label="ประเภทธุรกิจ">
-                  <Combobox items={BUSINESS_TYPES} defaultInputValue={vendor.detail.businessType}>
+                  <Combobox items={BUSINESS_TYPES} defaultValue={vendor.detail.businessType}>
                     <ComboboxInput className="h-11 rounded-sm" />
                     <ComboboxContent>
                       <ComboboxEmpty>ไม่พบตัวเลือกที่ตรงกัน</ComboboxEmpty>

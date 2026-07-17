@@ -1,12 +1,26 @@
 "use client"
 
 import * as React from "react"
-import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox"
+import { Autocomplete as ComboboxPrimitive } from "@base-ui/react/autocomplete"
 
 import { cn } from "@/lib/utils"
-import { ChevronDownIcon, CheckIcon } from "lucide-react"
+import { ChevronDownIcon } from "lucide-react"
 
-const Combobox = ComboboxPrimitive.Root
+type ComboboxProps<ItemValue> = Omit<
+  ComboboxPrimitive.Root.Props<ItemValue>,
+  "items"
+> & {
+  items?: readonly ItemValue[] | undefined
+}
+
+function Combobox<ItemValue>({
+  openOnInputClick = true,
+  ...props
+}: ComboboxProps<ItemValue>) {
+  return (
+    <ComboboxPrimitive.Root openOnInputClick={openOnInputClick} {...props} />
+  )
+}
 
 function ComboboxInput({
   className,
@@ -96,15 +110,12 @@ function ComboboxItem({
     <ComboboxPrimitive.Item
       data-slot="combobox-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-2 pl-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
         className
       )}
       {...props}
     >
       {children}
-      <ComboboxPrimitive.ItemIndicator className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-        <CheckIcon className="size-4" />
-      </ComboboxPrimitive.ItemIndicator>
     </ComboboxPrimitive.Item>
   )
 }
