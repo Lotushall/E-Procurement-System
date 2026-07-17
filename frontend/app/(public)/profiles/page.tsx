@@ -2,7 +2,7 @@
 
 import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
 import { InputField } from "./_components/input-field";
-import { BUSINESS_TYPES } from "./_components/business-types";
+import { BUSINESS_TYPES } from "./data/business-types";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
