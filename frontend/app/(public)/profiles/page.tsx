@@ -11,6 +11,7 @@ import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import SectionTitle from "./_components/section-title";
 
 function formatThaiId(value: string): string {
   const chars = value
@@ -40,14 +41,9 @@ export default function Profile() {
     (type) => type.toLowerCase() === businessTypeQuery.trim().toLowerCase()
   );
 
-  console.log(vendor);
-
   return (
     <div className="flex flex-col">
-      <div className="mb-5">
-        <h4 className="font-bold text-lg">ข้อมูลบริษัท / นิติบุคคล</h4>
-        <p className="font-light text-sm text-gray-600 tracking-wider">ข้อมูลนี้จะปรากฏในเอกสารการเสนอราคาและสัญญา</p>
-      </div>
+      <SectionTitle title="ข้อมูลบริษัท / นิติบุคคล" desc="ข้อมูลนี้จะปรากฏในเอกสารการเสนอราคาและสัญญา" />
 
       {vendor && !isLoading ? (
         <form noValidate className="flex flex-col">
