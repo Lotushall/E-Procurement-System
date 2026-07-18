@@ -1,26 +1,5 @@
 import { z } from "zod";
-
-const digitsOnly = (value: string) => value.replace(/\D/g, "");
-
-const formatWithGroups = (digits: string, groups: number[]) => {
-    const parts: string[] = [];
-    let index = 0;
-    for (const size of groups) {
-        if (index >= digits.length) break;
-        parts.push(digits.slice(index, index + size));
-        index += size;
-    }
-    return parts.join("-");
-};
-
-// เลขประจำตัวผู้เสียภาษี / เลขบัตรประชาชน: X-XXXX-XXXXX-XX-X (13 หลัก)
-export const formatCitizenId = (value: string) => formatWithGroups(digitsOnly(value).slice(0, 13), [1, 4, 5, 2, 1]);
-
-// เบอร์ติดต่อ: 0X-XXX-XXXX (9 หลัก) หรือ 0XX-XXX-XXXX (10 หลัก)
-export const formatPhone = (value: string) => {
-    const digits = digitsOnly(value).slice(0, 10);
-    return formatWithGroups(digits, digits.length > 9 ? [3, 3, 4] : [2, 3, 4]);
-};
+import { digitsOnly } from "@/lib/utils";
 
 export const RegisterSchema = z
     .object({

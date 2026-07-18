@@ -14,7 +14,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { useUser } from "@/lib/auth/useUser";
 import { useLogout } from "@/lib/auth/mutations";
 import { routes } from "@/lib/routes";
@@ -34,16 +34,6 @@ const menus = [
         href: "",
     },
 ];
-
-function getInitials(name: string) {
-    return name
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((part) => part[0])
-        .join("")
-        .toUpperCase();
-}
 
 function AuthControl({
     onNavigate,

@@ -61,6 +61,6 @@ export interface VendorProfile {
   verifiedAt?: string;
   remark?: string;
   detail: VendorProfileDetail;
-  contact: VendorContact;
-  document: VendorDocument;
+  contact: VendorContact[];
+  document: VendorDocument[];
 }

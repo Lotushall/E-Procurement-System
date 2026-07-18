@@ -26,9 +26,10 @@ export default function Sidebar() {
         (
             !vendor ||
             !vendor.contact ||
-            !vendor.contact.contactName ||
-            !vendor.contact.contactPhone ||
-            !vendor.contact.contactEmail
+            vendor.contact.length === 0 ||
+            !vendor.contact?.[0]?.contactName ||
+            !vendor.contact?.[0]?.contactEmail ||
+            !vendor.contact?.[0]?.contactPhone
         );
 
     const hasIncompleteDocument =
@@ -36,7 +37,7 @@ export default function Sidebar() {
         (
             !vendor ||
             !vendor.document ||
-            !vendor.document.fileName
+            vendor.document.length === 0
         );
 
     const menus = [
