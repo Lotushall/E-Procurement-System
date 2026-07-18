@@ -3,6 +3,7 @@
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
+import { REQUIRED_DOCUMENTS } from "../data/document-types";
 import { Building2, FileText, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,8 +37,9 @@ export default function Sidebar() {
         !isPending &&
         (
             !vendor ||
-            !vendor.document ||
-            vendor.document.length === 0
+            REQUIRED_DOCUMENTS[vendor.detail.type]
+                .filter((doc) => doc.required)
+                .some((doc) => !vendor.document?.some((d) => d.documentType === doc.key))
         );
 
     const menus = [
