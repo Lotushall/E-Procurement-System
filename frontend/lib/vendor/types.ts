@@ -32,7 +32,7 @@ interface VendorIndividualProfileDetail {
   postalCode: string;
 }
 
-interface VendorDocument {
+export interface VendorDocument {
   documentType: string;
   fileName: string;
   filePath: string;
