@@ -14,7 +14,7 @@ export default function AccountInfoSection() {
       <SectionTitle title="ข้อมูลบัญชี" desc="ชื่อผู้ใช้และอีเมลสำหรับเข้าสู่ระบบ" />
 
       <form onSubmit={onSubmit} noValidate className="flex flex-col">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <InputField label="ชื่อผู้ใช้" error={errors.username?.message}>
             <Input {...register("username")} aria-invalid={!!errors.username} className="h-11 rounded-sm" />
           </InputField>
@@ -25,7 +25,7 @@ export default function AccountInfoSection() {
         </div>
 
         <div className="flex justify-end mt-5">
-          <Button type="submit" className="text-white bg-red-700 w-28 h-11 hover:bg-red-600">
+          <Button type="submit" className="text-white bg-red-700 md:w-28 h-11 hover:bg-red-600">
             บันทึกข้อมูล
           </Button>
         </div>

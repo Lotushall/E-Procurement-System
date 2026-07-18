@@ -69,7 +69,7 @@ export default function Sidebar() {
     ];
 
     return (
-        <div className="flex flex-col gap-0.5 bg-white border border-gray-200 shadow rounded-md p-2 max-w-58 w-full h-fit">
+        <div className="flex flex-row flex-wrap md:flex-nowrap lg:flex-col gap-0.5 bg-white border border-gray-200 shadow rounded-md p-2 lg:max-w-58 w-fit lg:w-full h-fit">
             {menus.map((menu, index) => {
                 const isActive = pathname === menu.href;
                 return (

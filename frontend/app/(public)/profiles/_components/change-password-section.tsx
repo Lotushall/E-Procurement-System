@@ -15,11 +15,11 @@ export default function ChangePasswordSection() {
   const { register, onSubmit, formState: { errors } } = useChangePasswordForm();
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col mt-3 md:mt-0">
       <SectionTitle title="เปลี่ยนรหัสผ่าน" desc="ตั้งรหัสผ่านใหม่สำหรับเข้าสู่ระบบ" />
 
       <form onSubmit={onSubmit} noValidate className="flex flex-col">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <InputField label="รหัสผ่านปัจจุบัน" cols={2} error={errors.currentPassword?.message}>
             <div className="relative">
               <Input
@@ -81,7 +81,7 @@ export default function ChangePasswordSection() {
         </div>
 
         <div className="flex justify-end mt-5">
-          <Button type="submit" className="text-white bg-red-700 w-40 h-11 hover:bg-red-600">
+          <Button type="submit" className="text-white bg-red-700 md:w-40 h-11 hover:bg-red-600">
             เปลี่ยนรหัสผ่าน
           </Button>
         </div>

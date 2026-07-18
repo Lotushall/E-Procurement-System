@@ -18,9 +18,9 @@ export default function ProfileLayout({
 }>) {
     return (
         <AuthGuard>
-            <div className="max-w-290 mx-auto px-6.2 pt-5.5 pb-25">
+            <div className="max-w-290 mx-4 md:mx-8 lg:mx-14 xl:mx-auto px-6.2 pt-5.5 pb-25">
                 <Navbar />
-                <main className="flex gap-5 mt-5">
+                <main className="flex flex-col lg:flex-row gap-5 mt-5">
                     <Sidebar />
 
                     <div className="bg-white border border-gray-200 shadow rounded-md p-6 w-full">

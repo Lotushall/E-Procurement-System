@@ -48,7 +48,7 @@ export default function VendorInfo() {
       {vendor && !isLoading ? (
         <form noValidate className="flex flex-col">
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-4 gap-4 mt-2 md:mt-0">
             {vendor.detail.type === "company" ? (
               <>
                 <InputField label="ชื่อบริษัท / นิติบุคคล" cols={3} warning={!vendor.detail.companyName}>
@@ -65,9 +65,11 @@ export default function VendorInfo() {
                       render={
                         <Button
                           variant="outline"
-                          className="justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
+                          className="w-full justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
                         >
-                          <ComboboxValue placeholder="เลือกประเภทธุรกิจ" />
+                          <span className="min-w-0 truncate">
+                            <ComboboxValue placeholder="เลือกประเภทธุรกิจ" />
+                          </span>
                           <ChevronDown />
                         </Button>
                       }
@@ -134,7 +136,7 @@ export default function VendorInfo() {
                   />
                 </InputField>
 
-                <div />
+                <div className="hidden md:block" />
 
                 <InputField label="ที่อยู่" cols={4} warning={!vendor.detail.address}>
                   <Input defaultValue={vendor.detail.address} className="h-11 rounded-sm" />
@@ -164,9 +166,11 @@ export default function VendorInfo() {
                       render={
                         <Button
                           variant="outline"
-                          className="justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
+                          className="w-full justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
                         >
-                          <ComboboxValue placeholder="เลือกประเภทธุรกิจ" />
+                          <span className="min-w-0 truncate">
+                            <ComboboxValue placeholder="เลือกประเภทธุรกิจ" />
+                          </span>
                           <ChevronDown />
                         </Button>
                       }
@@ -230,7 +234,7 @@ export default function VendorInfo() {
                   <Input defaultValue={vendor.detail.lastname} className="h-11 rounded-sm" />
                 </InputField>
 
-                <div />
+                <div className="hidden md:block" />
 
                 <InputField label="เลขบัตรประชาชน" cols={2} warning={!vendor.detail.citizenId}>
                   <Input
@@ -254,7 +258,7 @@ export default function VendorInfo() {
                   />
                 </InputField>
 
-                <div />
+                <div className="hidden md:block" />
 
                 <InputField label="ที่อยู่" cols={4} warning={!vendor.detail.address}>
                   <Input defaultValue={vendor.detail.address} className="h-11 rounded-sm" />
