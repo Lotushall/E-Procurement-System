@@ -42,7 +42,7 @@ export interface RegisterVendorPayload {
 
 export type CurrentUser = Pick<
   User,
-  "id" | "username" | "userType" | "roles" | "permissions"
+  "id" | "username" | "email" | "userType" | "roles" | "permissions"
 > & {
   profiles: {
     companyName: string | null;

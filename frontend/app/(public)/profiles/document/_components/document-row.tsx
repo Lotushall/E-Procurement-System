@@ -5,13 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
-import { FileText, Paperclip } from "lucide-react";
+import { FileText, Paperclip, Trash2 } from "lucide-react";
 
 const STATUS_STYLE: Record<string, { label: string; badge: string; dot: string }> = {
   pending: { label: "รอตรวจสอบ", badge: "text-yellow-600 bg-yellow-400/15", dot: "bg-yellow-600" },
   approved: { label: "อนุมัติแล้ว", badge: "text-green-800 bg-green-700/15", dot: "bg-green-800" },
   rejected: { label: "ถูกปฏิเสธ", badge: "text-red-600 bg-red-400/15", dot: "bg-red-600" },
 };
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex++;
+  }
+  return `${value.toFixed(1)} ${units[unitIndex]}`;
+}
 
 export default function DocumentRow({
   documentType,
@@ -35,7 +47,13 @@ export default function DocumentRow({
     e.target.value = "";
   };
 
+  const handleDelete = () => {
+    console.log({ action: "delete", documentType, existingDocument });
+    setSelectedFile(null);
+  };
+
   const fileName = selectedFile?.name ?? existingDocument?.fileName;
+  const fileSize = selectedFile ? formatFileSize(selectedFile.size) : undefined;
   const status = selectedFile ? STATUS_STYLE.pending : (existingDocument && STATUS_STYLE[existingDocument.status]);
 
   return (
@@ -57,8 +75,15 @@ export default function DocumentRow({
             </Badge>
           )}
         </div>
-        <p className="text-sm text-gray-600 font-thin tracking-wide truncate">
-          {fileName ?? "ยังไม่มีเอกสาร"}
+        <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide truncate">
+          {fileName ? (
+            <>
+              {fileName}
+              {fileSize && ` · ${fileSize}`}
+            </>
+          ) : (
+            "ยังไม่มีเอกสาร"
+          )}
         </p>
       </div>
 
@@ -78,6 +103,19 @@ export default function DocumentRow({
         <Paperclip />
         {fileName ? "เปลี่ยนไฟล์" : "แนบไฟล์"}
       </Button>
+
+      {fileName && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="ลบไฟล์"
+          onClick={handleDelete}
+          className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 />
+        </Button>
+      )}
     </div>
   );
 }

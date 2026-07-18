@@ -1,11 +1,13 @@
 "use client";
 
-import SectionTitle from "./_components/section-title";
+import AccountInfoSection from "./_components/account-info-section";
+import ChangePasswordSection from "./_components/change-password-section";
 
 export default function Account() {
   return (
     <div className="flex flex-col">
-      <SectionTitle title="บัญชี" desc="ข้อมูลบัญชีผู้ใช้งานสำหรับเข้าสู่ระบบ" />
+      <AccountInfoSection />
+      <ChangePasswordSection />
     </div>
   )
 }

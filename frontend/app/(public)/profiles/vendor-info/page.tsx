@@ -274,7 +274,7 @@ export default function VendorInfo() {
           <div className="flex justify-end mt-5">
             <Button
               type="submit"
-              className="text-white bg-red-700 w-28 h-11"
+              className="text-white bg-red-700 w-28 h-11 hover:bg-red-600"
             >
               บันทึกข้อมูล
             </Button>
