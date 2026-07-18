@@ -62,5 +62,5 @@ export interface VendorProfile {
   remark?: string;
   detail: VendorProfileDetail;
   contact: VendorContact[];
-  document: VendorDocument[];
+  document?: VendorDocument[];
 }
