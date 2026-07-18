@@ -102,11 +102,15 @@ class VendorRepository implements VendorRepositoryInterface
         return $this->mapContactToEntity($model);
     }
 
-    public function findContactByVendorProfileId(int $vendorProfileId): ?VendorContact
+    /**
+     * @return array<int, VendorContact>
+     */
+    public function findContactsByVendorProfileId(int $vendorProfileId): array
     {
-        $model = VendorContactModel::where('vendor_profile_id', $vendorProfileId)->first();
-
-        return $model !== null ? $this->mapContactToEntity($model) : null;
+        return VendorContactModel::where('vendor_profile_id', $vendorProfileId)
+            ->get()
+            ->map(fn (VendorContactModel $model): VendorContact => $this->mapContactToEntity($model))
+            ->all();
     }
 
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile

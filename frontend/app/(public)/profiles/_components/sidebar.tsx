@@ -4,7 +4,7 @@ import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
 import { REQUIRED_DOCUMENTS } from "../data/document-types";
-import { Building2, FileText, Users } from "lucide-react";
+import { Building2, CircleUserRound, FileText, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -44,9 +44,14 @@ export default function Sidebar() {
 
     const menus = [
         {
+            icon: <CircleUserRound size={18} />,
+            label: "บัญชี",
+            href: routes.profiles.profile,
+        },
+        {
             icon: <Building2 size={18} />,
             label: "ข้อมูลบริษัท",
-            href: routes.profiles.profile,
+            href: routes.profiles.vendorInfo,
             hasWarning: hasIncompleteAddress,
         },
         {

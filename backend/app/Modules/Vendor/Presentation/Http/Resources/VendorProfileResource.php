@@ -24,9 +24,8 @@ class VendorProfileResource extends JsonResource
             'detail' => $this->VendorProfilesCompanyDetail !== null
                 ? new VendorCompanyDetailResource($this->VendorProfilesCompanyDetail)
                 : new VendorIndividualDetailResource($this->VendorProfilesIndividualDetail),
-            'contact' => $this->whenNotNull(
-                $this->VendorProfilesContact !== null ? new VendorContactResource($this->VendorProfilesContact) : null,
-            ),
+            'contact' => $this->whenLoaded('VendorProfilesContact', fn() => VendorContactResource::collection($this->VendorProfilesContact)),
+            'document' => $this->whenLoaded('VendorProfilesContact', fn() => VendorDocumentResource::collection($this->VendorProfilesDocuments)),
         ];
     }
 }

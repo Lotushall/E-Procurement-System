@@ -2,6 +2,7 @@ export const routes = {
   home: "/",
   profiles: {
     profile: "/profiles",
+    vendorInfo: "/profiles/vendor-info",
     contract: "/profiles/contract",
     document: "/profiles/document",
   },

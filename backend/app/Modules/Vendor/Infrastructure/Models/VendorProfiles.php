@@ -70,8 +70,8 @@ class VendorProfiles extends Model
         return $this->hasMany(VendorDocuments::class, 'vendor_profile_id', 'id');
     }
 
-    public function VendorProfilesContact(): HasOne
+    public function VendorProfilesContact(): HasMany
     {
-        return $this->hasOne(VendorContact::class, 'vendor_profile_id', 'id');
+        return $this->hasMany(VendorContact::class, 'vendor_profile_id', 'id');
     }
 }

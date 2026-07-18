@@ -41,7 +41,7 @@ export interface VendorDocument {
   verifiedAt: string;
   remark: string;
 }
-interface VendorContact {
+export interface VendorContact {
   contactName: string;
   contactPosition: string;
   contactPhone: string;

@@ -77,7 +77,7 @@ test('an individual vendor can fetch their own profile', function () {
         ->assertJsonPath('data.detail.taxId', 'xxxxxxxxx0123');
 });
 
-test('a vendor profile includes the main contact when one exists', function () {
+test('a vendor profile includes all contacts when they exist', function () {
     $user = User::factory()->create(['user_type' => 'company']);
     $repository = new VendorRepository;
     $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
@@ -105,17 +105,29 @@ test('a vendor profile includes the main contact when one exists', function () {
         isMainContact: true,
     ));
 
+    $repository->saveContact(VendorContact::create(
+        vendorProfileId: $vendorProfile->id(),
+        contactName: 'John Smith',
+        contactPosition: 'Sales',
+        contactPhone: null,
+        contactEmail: null,
+        lineId: null,
+        otherContact: null,
+    ));
+
     $this->actingAs($user, 'web');
 
     $response = $this->getJson('/api/v1/vendor/profile');
 
     $response->assertOk()
-        ->assertJsonPath('data.contact.contactName', 'Jane Doe')
-        ->assertJsonPath('data.contact.contactEmail', 'contact@company.com')
-        ->assertJsonPath('data.contact.isMainContact', true);
+        ->assertJsonCount(2, 'data.contact')
+        ->assertJsonPath('data.contact.0.contactName', 'Jane Doe')
+        ->assertJsonPath('data.contact.0.contactEmail', 'contact@company.com')
+        ->assertJsonPath('data.contact.0.isMainContact', true)
+        ->assertJsonPath('data.contact.1.contactName', 'John Smith');
 });
 
-test('a vendor profile omits the contact key when no contact exists', function () {
+test('a vendor profile returns an empty contacts array when no contact exists', function () {
     $user = User::factory()->create(['user_type' => 'company']);
     $repository = new VendorRepository;
     $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
@@ -136,7 +148,7 @@ test('a vendor profile omits the contact key when no contact exists', function (
 
     $response = $this->getJson('/api/v1/vendor/profile');
 
-    $response->assertOk()->assertJsonMissingPath('data.contact');
+    $response->assertOk()->assertJsonCount(0, 'data.contact');
 });
 
 test('fetching the vendor profile requires authentication', function () {

@@ -2,10 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { AddContactSchema, AddContactValues } from "../_schemas/schema";
 
-export function useAddContactForm(onSubmitted: () => void) {
+export function useAddContactForm(onSubmitted: () => void, initialValues?: AddContactValues) {
   const form = useForm<AddContactValues>({
     resolver: zodResolver(AddContactSchema),
-    defaultValues: {
+    defaultValues: initialValues ?? {
       contactName: "",
       contactPosition: "",
       contactPhone: "",

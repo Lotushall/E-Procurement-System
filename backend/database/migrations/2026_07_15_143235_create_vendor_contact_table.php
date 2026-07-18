@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vendor_contact', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vendor_profile_id')->unique()->constrained('vendor_profiles')->cascadeOnDelete();
+            $table->foreignId('vendor_profile_id')->constrained('vendor_profiles')->cascadeOnDelete();
             $table->string('contact_name')->nullable();
             $table->string('contact_position')->nullable();
             $table->string('contact_phone')->nullable();

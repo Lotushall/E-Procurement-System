@@ -17,5 +17,8 @@ interface VendorRepositoryInterface
 
     public function saveContact(VendorContact $contact): VendorContact;
 
-    public function findContactByVendorProfileId(int $vendorProfileId): ?VendorContact;
+    /**
+     * @return array<int, VendorContact>
+     */
+    public function findContactsByVendorProfileId(int $vendorProfileId): array;
 }

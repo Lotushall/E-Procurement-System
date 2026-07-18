@@ -172,7 +172,7 @@ test('saveContact allows a contact without phone or email', function () {
         ->and($saved->isMainContact())->toBeFalse();
 });
 
-test('findContactByVendorProfileId returns the reconstituted contact', function () {
+test('findContactsByVendorProfileId returns all reconstituted contacts', function () {
     $user = User::factory()->create();
     $repository = new VendorRepository;
     $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
@@ -185,19 +185,31 @@ test('findContactByVendorProfileId returns the reconstituted contact', function 
         contactEmail: Email::fromString('contact@company.com'),
         lineId: 'acme-co',
         otherContact: null,
+        isMainContact: true,
     ));
 
-    $found = $repository->findContactByVendorProfileId($vendorProfile->id());
+    $repository->saveContact(VendorContact::create(
+        vendorProfileId: $vendorProfile->id(),
+        contactName: 'John Smith',
+        contactPosition: 'Sales',
+        contactPhone: null,
+        contactEmail: null,
+        lineId: null,
+        otherContact: null,
+    ));
 
-    expect($found)->not->toBeNull()
-        ->and($found->contactName())->toBe('Jane Doe')
-        ->and($found->contactEmail()->value)->toBe('contact@company.com');
+    $found = $repository->findContactsByVendorProfileId($vendorProfile->id());
+
+    expect($found)->toHaveCount(2)
+        ->and($found[0]->contactName())->toBe('Jane Doe')
+        ->and($found[0]->contactEmail()->value)->toBe('contact@company.com')
+        ->and($found[1]->contactName())->toBe('John Smith');
 });
 
-test('findContactByVendorProfileId returns null when no contact exists', function () {
+test('findContactsByVendorProfileId returns an empty array when no contact exists', function () {
     $user = User::factory()->create();
     $repository = new VendorRepository;
     $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    expect($repository->findContactByVendorProfileId($vendorProfile->id()))->toBeNull();
+    expect($repository->findContactsByVendorProfileId($vendorProfile->id()))->toBe([]);
 });
