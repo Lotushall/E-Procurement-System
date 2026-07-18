@@ -21,7 +21,7 @@ export default function Document() {
                             documentType={doc.key}
                             label={doc.label}
                             required={doc.required}
-                            existingDocument={vendor.document.find((d) => d.documentType === doc.key)}
+                            existingDocument={vendor.document?.find((d) => d.documentType === doc.key)}
                         />
                     ))}
                 </div>
