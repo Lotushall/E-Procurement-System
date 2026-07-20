@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, ChevronDown, LogOutIcon, Menu, UserIcon, X } from "lucide-react";
+import { Bell, LogOutIcon, Menu, UserIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
@@ -14,6 +14,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "./ui/sheet";
 import { cn, getInitials } from "@/lib/utils";
 import { useUser } from "@/lib/auth/useUser";
 import { useLogout } from "@/lib/auth/mutations";
@@ -42,51 +49,62 @@ function AuthControl({
     onNavigate?: () => void;
     variant?: "desktop" | "mobile";
 }) {
+    const { data: user, isLoading } = useUser();
+
+    if (isLoading) {
+        return variant === "desktop" ? (
+            <div className="h-10 w-40 animate-pulse rounded-full bg-gray-300" />
+        ) : (
+            <div className="h-11 w-full animate-pulse rounded-md bg-gray-300" />
+        );
+    }
+
+    if (user) {
+        return null;
+    }
+
+    return (
+        <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+                render={<Link href={routes.auth.login} />}
+                nativeButton={false}
+                onClick={onNavigate}
+                size={"lg"}
+                className={cn(
+                    "bg-transparent text-black px-6 cursor-pointer h-10 rounded-md w-full sm:w-auto",
+                    "hover:bg-transparent",
+                )}
+            >
+                เข้าสู่ระบบ
+            </Button>
+
+            <Button
+                render={<Link href={routes.auth.register} />}
+                nativeButton={false}
+                onClick={onNavigate}
+                size={"lg"}
+                className={cn(
+                    "bg-red-700 px-6 cursor-pointer h-10 rounded-md w-full sm:w-auto",
+                    "hover:bg-transparent hover:text-black hover:border hover:border-red-700 transition-colors duration-100",
+                )}
+            >
+                สมัครสมาชิก
+            </Button>
+        </div>
+    );
+}
+
+function ProfileMenu() {
     const router = useRouter();
     const { data: user, isLoading } = useUser();
     const logout = useLogout();
 
-    console.log(user);
-
-
     if (isLoading) {
-        return variant === "desktop" ? (
-            <div className="h-10 w-32 animate-pulse rounded-full bg-gray-300" />
-        ) : (
-            <div className="h-10 w-10 animate-pulse rounded-full bg-gray-300" />
-        );
+        return <div className="size-8 animate-pulse rounded-full bg-gray-300" />;
     }
 
     if (!user) {
-        return (
-            <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                    render={<Link href={routes.auth.login} />}
-                    nativeButton={false}
-                    onClick={onNavigate}
-                    size={"lg"}
-                    className={cn(
-                        "bg-transparent text-black px-6 cursor-pointer h-10 rounded-md w-full sm:w-auto",
-                        "hover:bg-transparent",
-                    )}
-                >
-                    เข้าสู่ระบบ
-                </Button>
-
-                <Button
-                    render={<Link href={routes.auth.register} />}
-                    nativeButton={false}
-                    onClick={onNavigate}
-                    size={"lg"}
-                    className={cn(
-                        "bg-red-700 px-6 cursor-pointer h-10 rounded-md w-full sm:w-auto",
-                        "hover:bg-transparent hover:text-black hover:border hover:border-red-700 transition-colors duration-100",
-                    )}
-                >
-                    สมัครสมาชิก
-                </Button>
-            </div>
-        );
+        return null;
     }
 
     const initials = getInitials(user.username);
@@ -100,85 +118,72 @@ function AuthControl({
     };
 
     return (
-        <div className="flex gap-2 items-center">
-            <button
-                type="button"
-                aria-label="การแจ้งเตือน"
-                className="flex items-center justify-center rounded-full p-2 text-muted-foreground cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-                <Bell className="size-5" />
-            </button>
-            <DropdownMenu>
-                <DropdownMenuTrigger
-                    render={
-                        variant === "desktop" ? (
-                            <button className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 cursor-pointer transition-colors hover:bg-accent/60">
-                                <Avatar>
-                                    <AvatarFallback className="bg-red-700 font-semibold text-white">
-                                        {initials}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <span className="max-w-28 truncate text-sm font-medium capitalize">
-                                    {profile_name}
-                                </span>
-                                <ChevronDown className="size-4 text-muted-foreground" />
-                            </button>
-                        ) : (
-                            <button
-                                aria-label="เมนูผู้ใช้"
-                                className="flex items-center justify-center rounded-full p-1 cursor-pointer transition-colors hover:bg-accent"
-                            >
-                                <Avatar>
-                                    <AvatarFallback className="bg-red-700 font-semibold text-white">
-                                        {initials}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </button>
-                        )
-                    }
-                />
-                <DropdownMenuContent
-                    align="end"
-                    className="w-64 overflow-hidden p-0"
-                >
-                    <div className="flex items-center gap-3 bg-linear-to-br from-red-700 to-red-900 px-4 py-3.5">
-                        <Avatar
-                            size="lg"
-                            className="border-2 border-white/30"
-                        >
-                            <AvatarFallback className="bg-white font-semibold text-red-700">
+        <DropdownMenu>
+            <DropdownMenuTrigger
+                render={
+                    <button
+                        aria-label="เมนูผู้ใช้"
+                        className="flex items-center justify-center rounded-full p-1 cursor-pointer transition-colors hover:bg-accent"
+                    >
+                        <Avatar>
+                            <AvatarFallback className="bg-red-700 font-semibold text-white">
                                 {initials}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="min-w-0">
-                            <p className="truncate tracking-wider text-sm font-semibold text-white capitalize">{profile_name}</p>
-                            <p className="truncate tracking-wider text-xs text-red-100"> {USER_TYPE_LABEL[user.userType]}</p>
-                        </div>
+                    </button>
+                }
+            />
+            <DropdownMenuContent
+                align="end"
+                className="w-64 overflow-hidden p-0"
+            >
+                <div className="flex items-center gap-3 bg-linear-to-br from-red-700 to-red-900 px-4 py-3.5">
+                    <Avatar
+                        size="lg"
+                        className="border-2 border-white/30"
+                    >
+                        <AvatarFallback className="bg-white font-semibold text-red-700">
+                            {initials}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                        <p className="truncate tracking-wider text-sm font-semibold text-white capitalize">{profile_name}</p>
+                        <p className="truncate tracking-wider text-xs text-red-100"> {USER_TYPE_LABEL[user.userType]}</p>
                     </div>
-                    <div className="p-1">
-                        <DropdownMenuItem render={<Link href={user.userType == "internal" ? routes.dashboards.dashboard : routes.profiles.profile} onClick={onNavigate} />} className="cursor-pointer">
-                            <UserIcon />
-                            โปรไฟล์
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => {
-                                onNavigate?.();
-                                logout.mutate(undefined, {
-                                    onSuccess: () => router.push("/"),
-                                });
-                            }}
+                </div>
+                <div className="p-1">
+                    <DropdownMenuItem render={<Link href={user.userType == "internal" ? routes.dashboards.dashboard : routes.profiles.profile} />} className="cursor-pointer">
+                        <UserIcon />
+                        โปรไฟล์
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => {
+                            logout.mutate(undefined, {
+                                onSuccess: () => router.push("/"),
+                            });
+                        }}
+                        className="cursor-pointer"
+                    >
+                        <LogOutIcon />
+                        ออกจากระบบ
+                    </DropdownMenuItem>
+                </div>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
 
-                            className="cursor-pointer"
-                        >
-                            <LogOutIcon />
-                            ออกจากระบบ
-                        </DropdownMenuItem>
-                    </div>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+function NotificationButton() {
+    return (
+        <button
+            type="button"
+            aria-label="การแจ้งเตือน"
+            className="flex items-center justify-center rounded-full p-2 text-muted-foreground cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+            <Bell className="size-5" />
+        </button>
     );
 }
 
@@ -219,6 +224,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
+    const { data: user } = useUser();
 
     return (
         <div className="border-b-4 border-red-700">
@@ -244,32 +250,45 @@ export default function Navbar() {
                     <NavLinks />
                 </div>
 
-                <div className="hidden md:block">
-                    <AuthControl variant="desktop" />
-                </div>
+                <div className="flex items-center gap-1">
+                    {user && <NotificationButton />}
+                    <ProfileMenu />
 
-                <button
-                    type="button"
-                    className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors"
-                    aria-label={mobileOpen ? "ปิดเมนู" : "เปิดเมนู"}
-                    aria-expanded={mobileOpen}
-                    onClick={() => setMobileOpen((open) => !open)}
-                >
-                    {mobileOpen ? <X /> : <Menu />}
-                </button>
-            </div>
-
-            {mobileOpen && (
-                <div className="md:hidden flex flex-col gap-4 border-t border-border px-5 py-4">
-                    <div className="flex flex-col gap-3">
-                        <NavLinks onNavigate={() => setMobileOpen(false)} />
+                    <div className="hidden md:block">
+                        <AuthControl variant="desktop" />
                     </div>
-                    <AuthControl
-                        variant="mobile"
-                        onNavigate={() => setMobileOpen(false)}
-                    />
+
+                    <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                        <SheetTrigger
+                            render={
+                                <button
+                                    type="button"
+                                    className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors"
+                                    aria-label="เปิดเมนู"
+                                />
+                            }
+                        >
+                            <Menu />
+                        </SheetTrigger>
+
+                        <SheetContent side="right" className="md:hidden">
+                            <SheetHeader>
+                                <SheetTitle>เมนู</SheetTitle>
+                            </SheetHeader>
+
+                            <div className="flex flex-1 flex-col gap-4 px-4 pb-4 overflow-y-auto">
+                                <div className="flex flex-col gap-3">
+                                    <NavLinks onNavigate={() => setMobileOpen(false)} />
+                                </div>
+                                <AuthControl
+                                    variant="mobile"
+                                    onNavigate={() => setMobileOpen(false)}
+                                />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
-            )}
+            </div>
         </div>
     )
 }

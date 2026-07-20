@@ -22,4 +22,12 @@ class VendorController extends Controller
             'data' => new VendorProfileResource($vendorProfile),
         ]);
     }
+
+    public function updateAccount() {}
+
+    public function updateVendorInfo() {}
+
+    public function updateVendorContact() {}
+
+    public function updateVendorDocument() {}
 }

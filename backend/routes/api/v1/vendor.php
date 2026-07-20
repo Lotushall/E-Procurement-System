@@ -5,4 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('vendor')->group(function () {
     Route::get('profile', [VendorController::class, 'profile'])->name('vendor.profile');
+
+    
 });

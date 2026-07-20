@@ -57,34 +57,39 @@ export default function DocumentRow({
   const status = selectedFile ? STATUS_STYLE.pending : (existingDocument && STATUS_STYLE[existingDocument.status]);
 
   return (
-    <div className="flex items-center gap-3.5 p-4 border rounded-md">
-      <div className="flex items-center justify-center w-11 h-11 rounded-md bg-gray-200 text-gray-600">
-        <FileText size={20} />
-      </div>
-
-      <div className="flex flex-col flex-1 min-w-0">
-        <div className="flex items-center gap-2.5">
-          <p className="font-bold tracking-wide">{label}</p>
-          {!required && (
-            <Badge className="bg-gray-100 text-gray-600 tracking-wider">ไม่บังคับ</Badge>
-          )}
-          {status && (
-            <Badge className={cn("tracking-wider", status.badge)}>
-              <span className={cn("w-1.75 h-1.75 rounded-full", status.dot)} />
-              {status.label}
-            </Badge>
-          )}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border rounded-md">
+      <div className="flex items-center gap-2 md:gap-3.5 min-w-0 flex-1">
+        <div className="flex items-center justify-center shrink-0 w-11 h-11 rounded-md bg-gray-200 text-gray-600">
+          <FileText size={20} />
         </div>
-        <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide truncate">
-          {fileName ? (
-            <>
-              {fileName}
-              {fileSize && ` · ${fileSize}`}
-            </>
-          ) : (
-            "ยังไม่มีเอกสาร"
-          )}
-        </p>
+
+        <div className="flex flex-col flex-1 min-w-0">
+          <div className="flex flex-col-reverse md:flex-row md:items-center gap-1 md:gap-2.5">
+            <p className="font-bold tracking-wide">{label}</p>
+
+            <div className="flex flex-row justify-start items-center md:flex-row gap-1">
+              {!required && (
+                <Badge className="bg-gray-100 text-gray-600 tracking-wider">ไม่บังคับ</Badge>
+              )}
+              {status && (
+                <Badge className={cn("tracking-wider", status.badge)}>
+                  <span className={cn("w-1.75 h-1.75 rounded-full", status.dot)} />
+                  {status.label}
+                </Badge>
+              )}
+            </div>
+          </div>
+          <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal">
+            {fileName ? (
+              <>
+                {fileName}
+                {fileSize && ` · ${fileSize}`}
+              </>
+            ) : (
+              "ยังไม่มีเอกสาร"
+            )}
+          </p>
+        </div>
       </div>
 
       <input
@@ -94,28 +99,30 @@ export default function DocumentRow({
         className="hidden"
         onChange={handleChange}
       />
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => inputRef.current?.click()}
-        className="shrink-0"
-      >
-        <Paperclip />
-        {fileName ? "เปลี่ยนไฟล์" : "แนบไฟล์"}
-      </Button>
-
-      {fileName && (
+      <div className="flex items-center justify-end gap-2 sm:shrink-0">
         <Button
           type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="ลบไฟล์"
-          onClick={handleDelete}
-          className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          variant="outline"
+          onClick={() => inputRef.current?.click()}
+          className="flex-1 shrink h-11"
         >
-          <Trash2 />
+          <Paperclip />
+          {fileName ? "เปลี่ยนไฟล์" : "แนบไฟล์"}
         </Button>
-      )}
+
+        {fileName && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="ลบไฟล์"
+            onClick={handleDelete}
+            className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
