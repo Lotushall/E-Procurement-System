@@ -39,8 +39,8 @@ export default function AddContactDialog() {
           <ContactFormFields register={register} control={control} errors={errors} />
 
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="outline" />}>ยกเลิก</DialogClose>
-            <Button type="submit" className="bg-red-700 text-white hover:bg-red-600">บันทึก</Button>
+            <DialogClose render={<Button type="button" variant="outline" className="h-11 md:w-20" />}>ยกเลิก</DialogClose>
+            <Button type="submit" className="bg-red-700 text-white hover:bg-red-600 h-11 md:w-20">บันทึก</Button>
           </DialogFooter>
         </form>
       </DialogContent>

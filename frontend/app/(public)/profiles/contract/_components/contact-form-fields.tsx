@@ -21,7 +21,7 @@ export function ContactFormFields({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         <InputField label="ชื่อผู้ติดต่อ" error={errors.contactName?.message}>
           <Input {...register("contactName")} aria-invalid={!!errors.contactName} className="h-11 rounded-sm" />
         </InputField>
@@ -31,7 +31,7 @@ export function ContactFormFields({
         </InputField>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         <InputField label="เบอร์โทร" error={errors.contactPhone?.message}>
           <Input {...register("contactPhone")} inputMode="numeric" aria-invalid={!!errors.contactPhone} className="h-11 rounded-sm" />
         </InputField>
@@ -40,7 +40,7 @@ export function ContactFormFields({
         </InputField>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         <InputField label="LINE ID" error={errors.lineId?.message}>
           <Input {...register("lineId")} className="h-11 rounded-sm" />
         </InputField>

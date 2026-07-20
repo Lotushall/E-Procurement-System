@@ -46,8 +46,8 @@ export default function EditContactDialog({ contact }: { contact: VendorContact 
           <ContactFormFields register={register} control={control} errors={errors} />
 
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="outline" />}>ยกเลิก</DialogClose>
-            <Button type="submit" className="bg-red-700 text-white hover:bg-red-600">บันทึกการแก้ไข</Button>
+            <DialogClose render={<Button type="button" variant="outline" className="h-11 md:w-20" />}>ยกเลิก</DialogClose>
+            <Button type="submit" className="bg-red-700 text-white hover:bg-red-600 h-11 md:w-20">บันทึกการแก้ไข</Button>
           </DialogFooter>
         </form>
       </DialogContent>

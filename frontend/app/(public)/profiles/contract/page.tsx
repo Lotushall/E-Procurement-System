@@ -5,6 +5,7 @@ import SectionTitle from "../_components/section-title";
 import AddContactDialog from "./_components/add-contact-dialog";
 import EditContactDialog from "./_components/edit-contact-dialog";
 import DeleteContactDialog from "./_components/delete-contact-dialog";
+import ViewContactDialog from "./_components/view-contact-dialog";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
@@ -23,14 +24,14 @@ export default function Contract() {
                     {[...(vendor?.contact ?? [])]
                         .sort((a, b) => (b.isMainContact ? 1 : 0) - (a.isMainContact ? 1 : 0))
                         .map((contact, index) => (
-                            <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border rounded-md">
-                                <div className="flex items-center gap-3.5 min-w-0">
+                            <div key={index} className="flex justify-between gap-3 p-4 border rounded-md">
+                                <div className="flex md:items-center gap-2 md:gap-3.5 min-w-0">
                                     <div className={cn("flex items-center justify-center shrink-0 font-bold text-white w-11 h-11 rounded-md", contact.isMainContact ? "bg-red-700" : "bg-gray-200")}>
                                         {getInitials(contact.contactName)}
                                     </div>
 
                                     <div className="flex flex-col min-w-0">
-                                        <div className="flex items-center gap-2.5 flex-wrap">
+                                        <div className="flex flex-col-reverse md:flex-row md:items-center gap-1 md:gap-2.5">
                                             <p className="font-bold tracking-wide capitalize">{contact.contactName}</p>
 
                                             {contact.isMainContact && (
@@ -40,7 +41,7 @@ export default function Contract() {
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-1 flex-wrap text-sm text-gray-600 font-thin tracking-wide">
+                                        <div className="hidden md:flex items-center gap-1 flex-wrap text-sm text-gray-600 font-thin tracking-wide">
                                             <p className="capitalize">{contact.contactPosition || contact.contactName}</p>
                                             {contact.contactPhone && (
                                                 <p> · {formatPhone(contact.contactPhone)}</p>
@@ -61,7 +62,8 @@ export default function Contract() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-end gap-1">
+                                <div className="flex items-center justify-end md:gap-1">
+                                    <ViewContactDialog contact={contact} />
                                     <EditContactDialog contact={contact} />
                                     <DeleteContactDialog contact={contact} disabled={(vendor?.contact?.length ?? 0) <= 1} />
                                 </div>
