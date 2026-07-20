@@ -4,6 +4,7 @@ namespace App\Modules\Vendor\Domain\Repositories;
 
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
+use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 
@@ -21,4 +22,11 @@ interface VendorRepositoryInterface
      * @return array<int, VendorContact>
      */
     public function findContactsByVendorProfileId(int $vendorProfileId): array;
+
+    public function saveDocument(VendorDocument $document): VendorDocument;
+
+    /**
+     * @return array<int, VendorDocument>
+     */
+    public function findDocumentsByVendorProfileId(int $vendorProfileId): array;
 }

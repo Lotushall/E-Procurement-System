@@ -3,21 +3,27 @@
 namespace App\Modules\Auth\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Auth\Application\DTOs\ChangePasswordData;
 use App\Modules\Auth\Application\DTOs\LoginData;
 use App\Modules\Auth\Application\DTOs\RegisterVendorData;
 use App\Modules\Auth\Application\DTOs\ResetpasswordData;
+use App\Modules\Auth\Application\DTOs\UpdateAccountData;
+use App\Modules\Auth\Application\UseCases\ChangePasswordUseCase;
 use App\Modules\Auth\Application\UseCases\ForgotPasswordUseCase;
 use App\Modules\Auth\Application\UseCases\LoginUseCase;
 use App\Modules\Auth\Application\UseCases\LogoutUseCase;
 use App\Modules\Auth\Application\UseCases\RegisterVendorUseCase;
 use App\Modules\Auth\Application\UseCases\ResendVerificationEmailUseCase;
 use App\Modules\Auth\Application\UseCases\ResetPasswordUseCase;
+use App\Modules\Auth\Application\UseCases\UpdateAccountUseCase;
 use App\Modules\Auth\Application\UseCases\VerifyEmailUseCase;
+use App\Modules\Auth\Presentation\Http\Requests\ChangePasswordRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ForgotPasswordRequest;
 use App\Modules\Auth\Presentation\Http\Requests\LoginRequest;
 use App\Modules\Auth\Presentation\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
+use App\Modules\Auth\Presentation\Http\Requests\UpdateAccountRequest;
 use App\Modules\User\Presentation\Http\Resources\AuthenticatedUserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,6 +40,8 @@ class AuthController extends Controller
         private readonly ResendVerificationEmailUseCase $resendVerificationEmail,
         private readonly ForgotPasswordUseCase $forgotPassword,
         private readonly ResetPasswordUseCase $resetPassword,
+        private readonly UpdateAccountUseCase $updateAccount,
+        private readonly ChangePasswordUseCase $changePassword,
     ) {}
 
     public function registerVendor(RegisterRequest $request): JsonResponse
@@ -105,6 +113,32 @@ class AuthController extends Controller
         return response()->json([
             'data' => new AuthenticatedUserResource($request->user()),
         ]);
+    }
+
+    public function updateAccount(UpdateAccountRequest $request): JsonResponse
+    {
+        $user = $this->updateAccount->execute(UpdateAccountData::from([
+            ...$request->validated(),
+            'userId' => $request->user()->id,
+        ]));
+
+        return response()->json([
+            'data' => [
+                'id' => $user->id(),
+                'username' => $user->username(),
+                'email' => (string) $user->email(),
+            ],
+        ]);
+    }
+
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+        $this->changePassword->execute(ChangePasswordData::from([
+            ...$request->validated(),
+            'userId' => $request->user()->id,
+        ]));
+
+        return response()->json(['message' => 'เปลี่ยนรหัสผ่านสำเร็จ']);
     }
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse

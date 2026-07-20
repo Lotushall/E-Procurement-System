@@ -109,6 +109,16 @@ final class User
         $this->touch();
     }
 
+    public function changeUsername(string $username): void
+    {
+        if ($this->username === $username) {
+            return;
+        }
+
+        $this->username = $username;
+        $this->touch();
+    }
+
     public function changeEmail(Email $email): void
     {
         if ($this->email->equals($email)) {

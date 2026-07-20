@@ -33,4 +33,12 @@ Route::prefix('auth')->group(function () {
     Route::post('password/reset', [AuthController::class, 'resetPassword'])
         ->middleware('throttle:5,1')
         ->name('password.reset');
+
+    Route::post('account', [AuthController::class, 'updateAccount'])
+        ->middleware('auth:sanctum')
+        ->name('auth.account.update');
+
+    Route::post('password/change', [AuthController::class, 'changePassword'])
+        ->middleware('auth:sanctum')
+        ->name('auth.password.change');
 });

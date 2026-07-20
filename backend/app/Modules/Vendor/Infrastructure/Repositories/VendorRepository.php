@@ -7,6 +7,7 @@ use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
+use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
@@ -14,6 +15,7 @@ use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorContact as VendorContactModel;
+use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Carbon\CarbonImmutable;
@@ -113,6 +115,36 @@ class VendorRepository implements VendorRepositoryInterface
             ->all();
     }
 
+    public function saveDocument(VendorDocument $document): VendorDocument
+    {
+        $model = $document->id() !== null
+            ? VendorDocuments::findOrFail($document->id())
+            : new VendorDocuments;
+
+        $model->vendor_profile_id = $document->vendorProfileId();
+        $model->document_type = $document->documentType();
+        $model->file_name = $document->fileName();
+        $model->file_path = $document->filePath();
+        $model->status = $document->status();
+        $model->verified_by = $document->verifiedBy();
+        $model->verified_at = $document->verifiedAt();
+        $model->remark = $document->remark();
+        $model->save();
+
+        return $this->mapDocumentToEntity($model);
+    }
+
+    /**
+     * @return array<int, VendorDocument>
+     */
+    public function findDocumentsByVendorProfileId(int $vendorProfileId): array
+    {
+        return VendorDocuments::where('vendor_profile_id', $vendorProfileId)
+            ->get()
+            ->map(fn (VendorDocuments $model): VendorDocument => $this->mapDocumentToEntity($model))
+            ->all();
+    }
+
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile
     {
         return VendorProfile::reconstitute(
@@ -171,6 +203,21 @@ class VendorRepository implements VendorRepositoryInterface
             lineId: $model->line_id,
             otherContact: $model->other_contact,
             isMainContact: $model->is_main_contact,
+        );
+    }
+
+    private function mapDocumentToEntity(VendorDocuments $model): VendorDocument
+    {
+        return VendorDocument::reconstitute(
+            id: $model->id,
+            vendorProfileId: $model->vendor_profile_id,
+            documentType: $model->document_type,
+            fileName: $model->file_name,
+            filePath: $model->file_path,
+            status: $model->status,
+            verifiedBy: $model->verified_by,
+            verifiedAt: $model->verified_at !== null ? CarbonImmutable::instance($model->verified_at) : null,
+            remark: $model->remark,
         );
     }
 }

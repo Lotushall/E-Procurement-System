@@ -23,8 +23,6 @@ class VendorController extends Controller
         ]);
     }
 
-    public function updateAccount() {}
-
     public function updateVendorInfo() {}
 
     public function updateVendorContact() {}

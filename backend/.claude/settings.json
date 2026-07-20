@@ -143,7 +143,8 @@
       "Skill(artifact-design)",
       "Skill(artifact-design:*)",
       "Bash(base64 -w0 public/images/lotushall_logo.png)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(grep -rn 'class Pending\\\\|::$name\\\\|protected static $name\\\\|function $id\\\\|name = ' app/Modules/Vendor/Domain/States/DocumentStatus.php app/Modules/Vendor/Domain/States/DocumentStatus/Pending.php)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

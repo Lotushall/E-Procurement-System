@@ -130,6 +130,14 @@ test('changeEmail is a no-op when given the same email', function () {
     expect($user->isVerified())->toBeTrue();
 });
 
+test('changeUsername replaces the username', function () {
+    $user = User::register('jdoe', Email::fromString('user@example.com'), 'hashed-password', UserType::Internal);
+
+    $user->changeUsername('jdoe2');
+
+    expect($user->username())->toBe('jdoe2');
+});
+
 test('changePassword replaces the stored password hash', function () {
     $user = User::register('jdoe', Email::fromString('user@example.com'), 'hashed-password', UserType::Internal);
 

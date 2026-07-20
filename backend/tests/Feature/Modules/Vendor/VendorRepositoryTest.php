@@ -6,6 +6,7 @@ use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
+use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\States\VerificationStatus\Approved;
@@ -212,4 +213,65 @@ test('findContactsByVendorProfileId returns an empty array when no contact exist
     $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
     expect($repository->findContactsByVendorProfileId($vendorProfile->id()))->toBe([]);
+});
+
+test('saveDocument persists a new vendor document and returns it reconstituted with an id', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $document = VendorDocument::create(
+        vendorProfileId: $vendorProfile->id(),
+        documentType: 'company_registration',
+        fileName: 'registration.pdf',
+        filePath: 'vendor-documents/registration.pdf',
+    );
+
+    $saved = $repository->saveDocument($document);
+
+    expect($saved->id())->not->toBeNull()
+        ->and($saved->documentType())->toBe('company_registration')
+        ->and($saved->fileName())->toBe('registration.pdf')
+        ->and($saved->isPending())->toBeTrue();
+
+    $this->assertDatabaseHas('vendor_documents', [
+        'vendor_profile_id' => $vendorProfile->id(),
+        'document_type' => 'company_registration',
+        'file_name' => 'registration.pdf',
+        'status' => 'pending',
+    ]);
+});
+
+test('findDocumentsByVendorProfileId returns all reconstituted documents', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $vendorProfile->id(),
+        documentType: 'company_registration',
+        fileName: 'registration.pdf',
+        filePath: 'vendor-documents/registration.pdf',
+    ));
+
+    $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $vendorProfile->id(),
+        documentType: 'tax_certificate',
+        fileName: 'tax.pdf',
+        filePath: 'vendor-documents/tax.pdf',
+    ));
+
+    $found = $repository->findDocumentsByVendorProfileId($vendorProfile->id());
+
+    expect($found)->toHaveCount(2)
+        ->and($found[0]->documentType())->toBe('company_registration')
+        ->and($found[1]->documentType())->toBe('tax_certificate');
+});
+
+test('findDocumentsByVendorProfileId returns an empty array when no document exists', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    expect($repository->findDocumentsByVendorProfileId($vendorProfile->id()))->toBe([]);
 });
