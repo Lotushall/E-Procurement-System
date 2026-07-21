@@ -41,7 +41,7 @@ export function useVerifyEmailPage() {
     useEffect(() => {
         if (status !== "success") return;
 
-        const timer = setTimeout(() => router.replace(routes.login), SUCCESS_REDIRECT_DELAY_MS);
+        const timer = setTimeout(() => router.replace(routes.auth.login), SUCCESS_REDIRECT_DELAY_MS);
         return () => clearTimeout(timer);
     }, [status, router]);
 

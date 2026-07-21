@@ -12,7 +12,7 @@ export default function ChangePasswordSection() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { register, onSubmit, formState: { errors } } = useChangePasswordForm();
+  const { register, onSubmit, formState: { errors }, isSubmitting } = useChangePasswordForm();
 
   return (
     <div className="flex flex-col mt-3 md:mt-0">
@@ -81,8 +81,8 @@ export default function ChangePasswordSection() {
         </div>
 
         <div className="flex justify-end mt-5">
-          <Button type="submit" className="text-white bg-red-700 md:w-40 h-11 hover:bg-red-600">
-            เปลี่ยนรหัสผ่าน
+          <Button type="submit" disabled={isSubmitting} className="text-white bg-red-700 md:w-40 h-11 hover:bg-red-600">
+            {isSubmitting ? "กำลังเปลี่ยนรหัสผ่าน..." : "เปลี่ยนรหัสผ่าน"}
           </Button>
         </div>
       </form>

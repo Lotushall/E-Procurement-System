@@ -57,7 +57,7 @@ export function VerifyEmailView() {
 
             {(status === "error" || status === "invalid") && (
                 <CardFooter className="flex flex-col bg-white border-none pb-6 pt-4">
-                    <Link href={routes.login} className="w-full">
+                    <Link href={routes.auth.login} className="w-full">
                         <Button className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
                             ไปหน้าเข้าสู่ระบบ
                         </Button>

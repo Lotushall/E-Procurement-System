@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputField } from "./input-field";
@@ -7,7 +8,7 @@ import SectionTitle from "./section-title";
 import { useAccountInfoForm } from "../_hooks/use-account-info-form";
 
 export default function AccountInfoSection() {
-  const { register, onSubmit, formState: { errors } } = useAccountInfoForm();
+  const { register, onSubmit, formState: { errors }, isSubmitting, isEmailVerified } = useAccountInfoForm();
 
   return (
     <div className="flex flex-col">
@@ -19,14 +20,22 @@ export default function AccountInfoSection() {
             <Input {...register("username")} aria-invalid={!!errors.username} className="h-11 rounded-sm" />
           </InputField>
 
-          <InputField label="อีเมล" error={errors.email?.message}>
+          <InputField
+            label="อีเมล"
+            error={errors.email?.message}
+            badge={!isEmailVerified && (
+              <Badge className="tracking-wider text-yellow-600 bg-yellow-400/15">
+                ยังไม่ยืนยัน
+              </Badge>
+            )}
+          >
             <Input {...register("email")} type="email" aria-invalid={!!errors.email} className="h-11 rounded-sm" />
           </InputField>
         </div>
 
         <div className="flex justify-end mt-5">
-          <Button type="submit" className="text-white bg-red-700 md:w-28 h-11 hover:bg-red-600">
-            บันทึกข้อมูล
+          <Button type="submit" disabled={isSubmitting} className="text-white bg-red-700 md:w-28 h-11 hover:bg-red-600">
+            {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
           </Button>
         </div>
       </form>

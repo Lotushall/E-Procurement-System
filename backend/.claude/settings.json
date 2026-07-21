@@ -144,11 +144,33 @@
       "Skill(artifact-design:*)",
       "Bash(base64 -w0 public/images/lotushall_logo.png)",
       "Read(//tmp/**)",
-      "Bash(grep -rn 'class Pending\\\\|::$name\\\\|protected static $name\\\\|function $id\\\\|name = ' app/Modules/Vendor/Domain/States/DocumentStatus.php app/Modules/Vendor/Domain/States/DocumentStatus/Pending.php)"
+      "Bash(grep -rn 'class Pending\\\\|::$name\\\\|protected static $name\\\\|function $id\\\\|name = ' app/Modules/Vendor/Domain/States/DocumentStatus.php app/Modules/Vendor/Domain/States/DocumentStatus/Pending.php)",
+      "mcp__laravel-boost__read-log-entries",
+      "mcp__laravel-boost__last-error",
+      "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='php.exe'\\\\\" | Select-Object ProcessId, CommandLine\")",
+      "Bash(wmic process *)",
+      "Bash(curl -s -i \"http://localhost:8000/api/v1/auth/email/verify/2/82cc3638eaf20242132527ac6b25a31aa2e49043?expires=1784620728&signature=daa2787fb2f3b82ac706cb2116cd975ba35fa0a7df18a1dd0ece56dcfb2c0694\")",
+      "Bash(curl -s -i \"http://localhost:8000/api/v1/auth/email/verify/2/82cc3638eaf20242132527ac6b25a31aa2e49043?expires=1784620436&signature=d2323ba13ff9651ae0a0f9b2355734d36a2e7eaa8791c6cdbd2d0d698626e032\")",
+      "mcp__laravel-boost__browser-logs",
+      "Bash(git -C \"D:/E-Procurement-System/frontend\" status --porcelain -- \"app/\\(auth\\)/verify-email\")",
+      "Bash(rm -rf \"D:/E-Procurement-System/frontend/app/\\(auth\\)/verify-email\")",
+      "Bash(git -C \"D:/E-Procurement-System/frontend\" status --porcelain -- \"app/\\(auth\\)/verify-email\" \"app/\\(verify\\)\")",
+      "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Select-Object ProcessId, CommandLine\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/verify-email?id=2&hash=test&expires=1&signature=test\")",
+      "Bash(curl -s \"http://localhost:3000/verify-email?id=2&hash=test&expires=1&signature=test\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/login\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/verify-email\")",
+      "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Select-Object ProcessId, CreationDate, CommandLine\")",
+      "Bash(powershell -Command \"taskkill /PID 10496 /T /F\")",
+      "Bash(curl -s -o /dev/null -w \"login: %{http_code}\\\\n\" \"http://localhost:3000/login\")"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",
-      "D:\\E-Procurement-System\\frontend\\public\\images\\icon"
+      "D:\\E-Procurement-System\\frontend\\public\\images\\icon",
+      "D:\\E-Procurement-System\\frontend\\app\\(verify)",
+      "D:\\E-Procurement-System\\frontend\\app\\(auth)\\verify-email",
+      "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_components",
+      "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_hooks"
     ]
   }
 }

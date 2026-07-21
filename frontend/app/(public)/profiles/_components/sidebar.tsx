@@ -7,10 +7,19 @@ import { REQUIRED_DOCUMENTS } from "../data/document-types";
 import { Building2, CircleUserRound, FileText, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@/lib/auth/useUser";
 
 export default function Sidebar() {
     const pathname = usePathname();
+
+    const { data: user, isLoading: isUserLoading } = useUser();
     const { data: vendor, isPending } = useVendorProfile();
+
+    const hasVertifyEmail =
+        !isUserLoading &&
+        (
+            !user?.emailVerifiedAt
+        );
 
     const hasIncompleteAddress =
         !isPending &&
@@ -47,6 +56,7 @@ export default function Sidebar() {
             icon: <CircleUserRound size={18} />,
             label: "บัญชี",
             href: routes.profiles.profile,
+            hasWarning: hasVertifyEmail
         },
         {
             icon: <Building2 size={18} />,

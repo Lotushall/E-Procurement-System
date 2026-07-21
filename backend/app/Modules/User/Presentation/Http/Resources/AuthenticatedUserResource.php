@@ -22,6 +22,7 @@ class AuthenticatedUserResource extends JsonResource
             'username' => $this->whenNotNull($this->username),
             'email' => $this->whenNotNull($this->email),
             'userType' => $this->whenNotNull($this->user_type->value),
+            'emailVerifiedAt' => $this->email_verified_at,
             'profiles' => $this->whenNotNull($this->profileData()),
             'roles' => $this->whenNotNull($this->getRoleNames()),
             'permissions' => $this->whenNotNull($this->getAllPermissions()->pluck('name')),

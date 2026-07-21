@@ -160,8 +160,12 @@ function ProfileMenu() {
                     <DropdownMenuItem
                         variant="destructive"
                         onClick={() => {
+                            console.log("[LOGOUT-DEBUG] logout menu item clicked");
                             logout.mutate(undefined, {
-                                onSuccess: () => router.push("/"),
+                                onSuccess: () => {
+                                    console.log("[LOGOUT-DEBUG] call-level onSuccess: pushing to /");
+                                    router.push("/");
+                                },
                             });
                         }}
                         className="cursor-pointer"

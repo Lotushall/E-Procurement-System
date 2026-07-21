@@ -40,10 +40,24 @@ export interface RegisterVendorPayload {
   terms: boolean;
 }
 
+export interface UpdateAccountPayload {
+  username: string;
+  email: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  password: string;
+  // Duplicated from password: Laravel's `confirmed` rule on the backend
+  // looks for `password_confirmation` specifically.
+  password_confirmation: string;
+}
+
 export type CurrentUser = Pick<
   User,
   "id" | "username" | "email" | "userType" | "roles" | "permissions"
 > & {
+  emailVerifiedAt: string | null;
   profiles: {
     companyName: string | null;
     shopName: string | null;
