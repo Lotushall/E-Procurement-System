@@ -4,7 +4,7 @@ namespace App\Modules\Vendor\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreVendorRequest extends FormRequest
+class UpdateVendorDocumentRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.

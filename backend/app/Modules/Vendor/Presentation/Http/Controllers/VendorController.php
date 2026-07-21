@@ -4,6 +4,9 @@ namespace App\Modules\Vendor\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Vendor\Application\Queries\GetVendorProfileQuery;
+use App\Modules\Vendor\Presentation\Http\Requests\UpdateVendorContactRequest;
+use App\Modules\Vendor\Presentation\Http\Requests\UpdateVendorDocumentRequest;
+use App\Modules\Vendor\Presentation\Http\Requests\UpdateVendorInfoRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,9 +26,9 @@ class VendorController extends Controller
         ]);
     }
 
-    public function updateVendorInfo() {}
+    public function updateVendorInfo(UpdateVendorInfoRequest $request) {}
 
-    public function updateVendorContact() {}
+    public function updateVendorContact(UpdateVendorContactRequest $request) {}
 
-    public function updateVendorDocument() {}
+    public function updateVendorDocument(UpdateVendorDocumentRequest $request) {}
 }
