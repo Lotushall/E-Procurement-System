@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import type {
   VendorCompanyInfoValues,
   VendorIndividualInfoValues,
-} from "../../_schemas/schema";
+} from "../_schemas/schema";
 import {
   VendorCompanyInfoSchema,
   VendorIndividualInfoSchema,
-} from "../../_schemas/schema";
+} from "../_schemas/schema";
 
 export function useVendorCompanyInfoForm(detail: VendorCompanyInfoValues) {
   const form = useForm<VendorCompanyInfoValues>({
@@ -26,7 +26,7 @@ export function useVendorCompanyInfoForm(detail: VendorCompanyInfoValues) {
   });
 
   const onSubmit = form.handleSubmit((values) => {
-    console.log(values);
+    console.log({ vendorType: "company", ...values });
   });
 
   return { ...form, onSubmit };
@@ -51,7 +51,7 @@ export function useVendorIndividualInfoForm(detail: VendorIndividualInfoValues) 
   });
 
   const onSubmit = form.handleSubmit((values) => {
-    console.log(values);
+    console.log({ vendorType: "individual", ...values });
   });
 
   return { ...form, onSubmit };

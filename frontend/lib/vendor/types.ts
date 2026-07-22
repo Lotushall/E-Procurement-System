@@ -10,7 +10,6 @@ interface VendorCompanyProfileDetail {
   branchNo: string;
   businessType: string;
   address: string;
-  country: string;
   province: string;
   postalCode: string;
 }
@@ -27,7 +26,6 @@ interface VendorIndividualProfileDetail {
   email: string;
   phone: string;
   address: string;
-  country: string;
   province: string;
   postalCode: string;
 }

@@ -15,7 +15,7 @@ import { ChevronDown } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { formatThaiId } from "../_lib/format-thai-id";
 import { useVendorIndividualInfoForm } from "../_hooks/use-vendor-info-form";
-import type { VendorIndividualInfoValues } from "../../_schemas/schema";
+import type { VendorIndividualInfoValues } from "../_schemas/schema";
 
 export default function IndividualInfoForm({ detail }: { detail: VendorIndividualInfoValues }) {
   const { register, control, onSubmit, formState: { errors } } = useVendorIndividualInfoForm(detail);
