@@ -105,7 +105,7 @@ export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoV
             name="businessRegistrationNo"
             render={({ field: { value, onChange, ...field } }) => (
               <Input
-                value={value}
+                value={formatThaiId(value ?? "")}
                 onChange={handleThaiIdChange(onChange)}
                 inputMode="numeric"
                 maxLength={17}
@@ -124,7 +124,7 @@ export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoV
             name="taxId"
             render={({ field: { value, onChange, ...field } }) => (
               <Input
-                value={value}
+                value={formatThaiId(value ?? "")}
                 onChange={handleThaiIdChange(onChange)}
                 inputMode="numeric"
                 maxLength={17}

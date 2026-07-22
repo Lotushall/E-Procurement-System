@@ -47,7 +47,7 @@ export function useVendorIndividualInfoForm(detail: VendorIndividualInfoValues) 
       province: "",
       postalCode: "",
     },
-    values: detail,
+    values: { ...detail, prefix: detail.prefix || "นาย" },
   });
 
   const onSubmit = form.handleSubmit((values) => {
