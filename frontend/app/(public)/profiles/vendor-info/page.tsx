@@ -9,29 +9,8 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import type { ChangeEvent } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import SectionTitle from "../_components/section-title";
-
-function formatThaiId(value: string): string {
-  const chars = value
-    .toUpperCase()
-    .replace(/[^0-9X]/g, "")
-    .slice(0, 13);
-  return [
-    chars.slice(0, 1),
-    chars.slice(1, 5),
-    chars.slice(5, 10),
-    chars.slice(10, 12),
-    chars.slice(12, 13),
-  ]
-    .filter(Boolean)
-    .join("-");
-}
-
-function handleThaiIdChange(e: ChangeEvent<HTMLInputElement>) {
-  e.target.value = formatThaiId(e.target.value);
-}
 
 export default function VendorInfo() {
   const { data: vendor, isLoading } = useVendorProfile();
