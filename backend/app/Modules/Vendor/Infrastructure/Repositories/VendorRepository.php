@@ -38,6 +38,13 @@ class VendorRepository implements VendorRepositoryInterface
         return $this->mapProfileToEntity($model);
     }
 
+    public function findProfileById(int $id): ?VendorProfile
+    {
+        $model = VendorProfiles::find($id);
+
+        return $model !== null ? $this->mapProfileToEntity($model) : null;
+    }
+
     public function saveCompanyDetail(VendorCompanyDetail $detail): VendorCompanyDetail
     {
         $model = $detail->id() !== null
@@ -57,6 +64,13 @@ class VendorRepository implements VendorRepositoryInterface
         $model->save();
 
         return $this->mapCompanyDetailToEntity($model);
+    }
+
+    public function findCompanyDetailByVendorProfileId(int $vendorProfileId): ?VendorCompanyDetail
+    {
+        $model = VendorCompanyDetails::where('vendor_profile_id', $vendorProfileId)->first();
+
+        return $model !== null ? $this->mapCompanyDetailToEntity($model) : null;
     }
 
     public function saveIndividualDetail(VendorIndividualDetail $detail): VendorIndividualDetail
@@ -83,6 +97,13 @@ class VendorRepository implements VendorRepositoryInterface
         $model->save();
 
         return $this->mapIndividualDetailToEntity($model);
+    }
+
+    public function findIndividualDetailByVendorProfileId(int $vendorProfileId): ?VendorIndividualDetail
+    {
+        $model = VendorIndividualDetails::where('vendor_profile_id', $vendorProfileId)->first();
+
+        return $model !== null ? $this->mapIndividualDetailToEntity($model) : null;
     }
 
     public function saveContact(VendorContact $contact): VendorContact
@@ -143,6 +164,15 @@ class VendorRepository implements VendorRepositoryInterface
             ->get()
             ->map(fn (VendorDocuments $model): VendorDocument => $this->mapDocumentToEntity($model))
             ->all();
+    }
+
+    public function findDocumentByVendorProfileIdAndType(int $vendorProfileId, string $documentType): ?VendorDocument
+    {
+        $model = VendorDocuments::where('vendor_profile_id', $vendorProfileId)
+            ->where('document_type', $documentType)
+            ->first();
+
+        return $model !== null ? $this->mapDocumentToEntity($model) : null;
     }
 
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile

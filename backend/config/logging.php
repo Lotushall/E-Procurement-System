@@ -89,6 +89,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'vendor' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/activity/Vendor/Vendor.log'),
+            'level' => env('LOG_VENDOR_LEVEL', 'info'),
+            'days' => env('LOG_VENDOR_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

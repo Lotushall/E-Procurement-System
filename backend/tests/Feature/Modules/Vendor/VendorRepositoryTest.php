@@ -275,3 +275,113 @@ test('findDocumentsByVendorProfileId returns an empty array when no document exi
 
     expect($repository->findDocumentsByVendorProfileId($vendorProfile->id()))->toBe([]);
 });
+
+test('findProfileById returns the reconstituted profile', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $found = $repository->findProfileById($profile->id());
+
+    expect($found)->not->toBeNull()
+        ->and($found->id())->toBe($profile->id())
+        ->and($found->userId())->toBe($user->id);
+});
+
+test('findProfileById returns null when the profile does not exist', function () {
+    $repository = new VendorRepository;
+
+    expect($repository->findProfileById(999999))->toBeNull();
+});
+
+test('findCompanyDetailByVendorProfileId returns the reconstituted detail', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $vendorProfile->id(),
+        companyName: 'Acme Co., Ltd.',
+        businessRegistrationNo: '0123456789012',
+        taxId: TaxId::fromString('1234567890123'),
+        branchNo: '00000',
+        businessType: 'Trading',
+        address: '123 Main St.',
+        province: 'Bangkok',
+        postalCode: PostalCode::fromString('10110'),
+    ));
+
+    $found = $repository->findCompanyDetailByVendorProfileId($vendorProfile->id());
+
+    expect($found)->not->toBeNull()
+        ->and($found->companyName())->toBe('Acme Co., Ltd.')
+        ->and($found->taxId()->value)->toBe('1234567890123');
+});
+
+test('findCompanyDetailByVendorProfileId returns null when no detail exists', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    expect($repository->findCompanyDetailByVendorProfileId($vendorProfile->id()))->toBeNull();
+});
+
+test('findIndividualDetailByVendorProfileId returns the reconstituted detail', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $vendorProfile->id(),
+        storeName: "John's Store",
+        prefix: 'Mr.',
+        firstname: 'John',
+        lastname: 'Doe',
+        citizenId: CitizenId::fromString('1234567890123'),
+        businessType: 'Retail',
+        taxId: TaxId::fromString('9876543210123'),
+        address: '456 Side St.',
+        province: 'Bangkok',
+        postalCode: PostalCode::fromString('10110'),
+    ));
+
+    $found = $repository->findIndividualDetailByVendorProfileId($vendorProfile->id());
+
+    expect($found)->not->toBeNull()
+        ->and($found->storeName())->toBe("John's Store")
+        ->and($found->citizenId()->value)->toBe('1234567890123');
+});
+
+test('findIndividualDetailByVendorProfileId returns null when no detail exists', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    expect($repository->findIndividualDetailByVendorProfileId($vendorProfile->id()))->toBeNull();
+});
+
+test('findDocumentByVendorProfileIdAndType returns the matching document', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $vendorProfile->id(),
+        documentType: 'company_registration',
+        fileName: 'registration.pdf',
+        filePath: 'vendor-documents/registration.pdf',
+    ));
+
+    $found = $repository->findDocumentByVendorProfileIdAndType($vendorProfile->id(), 'company_registration');
+
+    expect($found)->not->toBeNull()
+        ->and($found->fileName())->toBe('registration.pdf');
+});
+
+test('findDocumentByVendorProfileIdAndType returns null when no document of that type exists', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    expect($repository->findDocumentByVendorProfileIdAndType($vendorProfile->id(), 'company_registration'))->toBeNull();
+});

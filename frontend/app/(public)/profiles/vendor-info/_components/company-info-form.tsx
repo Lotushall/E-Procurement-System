@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { InputField } from "../../_components/input-field";
 import { BUSINESS_TYPES } from "../../data/business-types";
+import { PROVINCES } from "../../data/provinces";
 import { Input } from "@/components/ui/input";
 import {
   Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput,
@@ -15,9 +16,10 @@ import type { ChangeEvent } from "react";
 import { formatThaiId } from "../_lib/format-thai-id";
 import { useVendorCompanyInfoForm } from "../_hooks/use-vendor-info-form";
 import type { VendorCompanyInfoValues } from "../_schemas/schema";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoValues }) {
-  const { register, control, onSubmit, formState: { errors } } = useVendorCompanyInfoForm(detail);
+  const { register, control, onSubmit, reset, formState: { errors }, isSubmitting } = useVendorCompanyInfoForm(detail);
   const [businessTypeQuery, setBusinessTypeQuery] = useState("");
 
   const canAddBusinessType = businessTypeQuery.trim().length > 0 && !BUSINESS_TYPES.some(
@@ -144,7 +146,47 @@ export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoV
         </InputField>
 
         <InputField label="จังหวัด" cols={2} warning={!detail.province} error={errors.province?.message}>
-          <Input {...register("province")} aria-invalid={!!errors.province} className="h-11 rounded-sm" />
+          <Controller
+            control={control}
+            name="province"
+            render={({ field: { value, onChange, ...field } }) => (
+              <Combobox items={PROVINCES} value={value} onValueChange={onChange} {...field}>
+                <ComboboxTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
+                    >
+                      <span className="min-w-0 truncate">
+                        <ComboboxValue placeholder="เลือกจังหวัด" />
+                      </span>
+                      <ChevronDown />
+                    </Button>
+                  }
+                  className="h-11 rounded-sm bg-transparent"
+                />
+                <ComboboxContent>
+                  <ComboboxInput
+                    showTrigger={false}
+                    placeholder="ค้นหาจังหวัด"
+                    className="
+                    bg-transparent! border-0 border-b! border-gray-300! rounded-none ring-0 shadow-none focus-visible:outline-none focus-visible:ring-0
+                    has-[[data-slot=input-group-control]:focus-visible]:border-transparent
+                    has-[[data-slot=input-group-control]:focus-visible]:ring-0
+                    "
+                  />
+                  <ComboboxEmpty>ไม่พบจังหวัดที่ค้นหา</ComboboxEmpty>
+                  <ComboboxList>
+                    {(item: string) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            )}
+          />
         </InputField>
 
         <InputField label="รหัสไปรษณีย์" cols={2} warning={!detail.postalCode} error={errors.postalCode?.message}>
@@ -152,9 +194,23 @@ export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoV
         </InputField>
       </div>
 
-      <div className="flex justify-end mt-5">
-        <Button type="submit" className="text-white bg-red-700 w-28 h-11 hover:bg-red-600">
+      <div className="flex justify-end gap-3 mt-5">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={isSubmitting}
+          className="w-28 h-11"
+          onClick={() => reset()}
+        >
+          รีเช็ต
+        </Button>
+        <Button
+          disabled={isSubmitting || Object.keys(errors).length > 0}
+          type="submit"
+          className="text-white bg-red-700 w-28 h-11 hover:bg-red-600"
+        >
           บันทึกข้อมูล
+          {isSubmitting && (<Spinner />)}
         </Button>
       </div>
     </form>

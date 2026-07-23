@@ -14,7 +14,11 @@ function toRegisterPayload(values: RegisterValues): RegisterVendorPayload {
     vendorType: values.vendorType,
     ...(values.vendorType === "company"
       ? { companyName: values.companyName, taxId: values.taxId }
-      : { fullName: values.fullName, idCard: values.idCard, storeName: values.storeName }),
+      : {
+          fullName: values.fullName,
+          idCard: values.idCard,
+          storeName: values.storeName,
+        }),
     phone: values.phone,
     username: values.username,
     email: values.email,
@@ -41,6 +45,7 @@ export function useRegisterForm() {
   }, [resendCooldown]);
 
   const form = useForm<RegisterValues>({
+    mode: "onBlur",
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       vendorType: "company",

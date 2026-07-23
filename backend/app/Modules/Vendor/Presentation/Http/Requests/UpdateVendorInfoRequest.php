@@ -67,7 +67,7 @@ class UpdateVendorInfoRequest extends FormRequest
              |---------------------------------
              */
             'companyName' => ['required_if:vendorType,company', 'string', 'max:255'],
-            'businessRegistrationNo' => ['required_if:vendorType,company', 'digits:13'],
+            'businessRegistrationNo' => ['nullable', 'required_if:vendorType,company', 'min:13'],
             'branchNo' => ['nullable', 'string', 'max:255'],
 
             /*
@@ -79,7 +79,7 @@ class UpdateVendorInfoRequest extends FormRequest
             'prefix' => ['nullable', 'string', 'max:255'],
             'firstname' => ['required_if:vendorType,individual', 'string', 'max:255'],
             'lastname' => ['required_if:vendorType,individual', 'string', 'max:255'],
-            'citizenId' => ['required_if:vendorType,individual', 'digits:13'],
+            'citizenId' => ['nullable', 'required_if:vendorType,individual', 'min:13'],
 
             /*
              |---------------------------------
@@ -87,7 +87,7 @@ class UpdateVendorInfoRequest extends FormRequest
              |---------------------------------
              */
             'businessType' => ['required', 'string', 'max:255'],
-            'taxId' => ['nullable', 'digits:13'],
+            'taxId' => ['nullable', 'min:13'],
             'address' => ['required', 'string'],
             'province' => ['required', 'string', 'max:255'],
             'postalCode' => ['required', 'digits:5'],

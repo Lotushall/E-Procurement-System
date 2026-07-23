@@ -12,9 +12,15 @@ interface VendorRepositoryInterface
 {
     public function saveProfile(VendorProfile $profile): VendorProfile;
 
+    public function findProfileById(int $id): ?VendorProfile;
+
     public function saveCompanyDetail(VendorCompanyDetail $detail): VendorCompanyDetail;
 
+    public function findCompanyDetailByVendorProfileId(int $vendorProfileId): ?VendorCompanyDetail;
+
     public function saveIndividualDetail(VendorIndividualDetail $detail): VendorIndividualDetail;
+
+    public function findIndividualDetailByVendorProfileId(int $vendorProfileId): ?VendorIndividualDetail;
 
     public function saveContact(VendorContact $contact): VendorContact;
 
@@ -29,4 +35,6 @@ interface VendorRepositoryInterface
      * @return array<int, VendorDocument>
      */
     public function findDocumentsByVendorProfileId(int $vendorProfileId): array;
+
+    public function findDocumentByVendorProfileIdAndType(int $vendorProfileId, string $documentType): ?VendorDocument;
 }

@@ -26,7 +26,6 @@ export default function Sidebar() {
         (
             !vendor ||
             !vendor.detail.address ||
-            !vendor.detail.country ||
             !vendor.detail.province ||
             !vendor.detail.postalCode
         );
