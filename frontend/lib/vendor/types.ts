@@ -63,6 +63,21 @@ export interface VendorProfile {
   document?: VendorDocument[];
 }
 
+export interface UpdateVendorContactPayload {
+  contactName: string;
+  contactPosition?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  lineId?: string;
+  otherContact?: string;
+  isMainContact: boolean;
+}
+
+export interface UpdateVendorDocumentPayload {
+  documentType: string;
+  file: File;
+}
+
 export interface UpdateVendorInfoPayload {
   vendorType: "company" | "individual";
   companyName?: string;

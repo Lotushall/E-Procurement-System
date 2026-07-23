@@ -13,14 +13,14 @@ import { Pencil } from "lucide-react";
 
 export default function EditContactDialog({ contact }: { contact: VendorContact }) {
   const [open, setOpen] = useState(false);
-  const { register, control, onSubmit, reset, formState: { errors } } =
+  const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } =
     useAddContactForm(() => setOpen(false), {
-      contactName: contact.contactName,
-      contactPosition: contact.contactPosition,
-      contactPhone: contact.contactPhone,
-      contactEmail: contact.contactEmail,
-      lineId: contact.lineId,
-      otherContact: contact.otherContact,
+      contactName: contact.contactName ?? "",
+      contactPosition: contact.contactPosition ?? "",
+      contactPhone: contact.contactPhone ?? "",
+      contactEmail: contact.contactEmail ?? "",
+      lineId: contact.lineId ?? "",
+      otherContact: contact.otherContact ?? "",
       isMainContact: Boolean(contact.isMainContact),
     });
 
@@ -47,7 +47,7 @@ export default function EditContactDialog({ contact }: { contact: VendorContact 
 
           <DialogFooter>
             <DialogClose render={<Button type="button" variant="outline" className="h-11 md:w-20" />}>ยกเลิก</DialogClose>
-            <Button type="submit" className="bg-red-700 text-white hover:bg-red-600 h-11 md:w-20">บันทึกการแก้ไข</Button>
+            <Button type="submit" disabled={isSubmitting} className="bg-red-700 text-white hover:bg-red-600 h-11 ">บันทึกการแก้ไข</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,11 +1,21 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
+import { isAxiosError } from "axios";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
+import { useUpdateVendorDocument } from "@/lib/vendor/mutations";
 import { FileText, Paperclip, Trash2 } from "lucide-react";
+
+function getErrorMessage(error: unknown): string {
+  const message = isAxiosError(error)
+    ? (error.response?.data as { message?: string } | undefined)?.message
+    : undefined;
+  return message ?? "อัปโหลดเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+}
 
 const STATUS_STYLE: Record<string, { label: string; badge: string; dot: string }> = {
   pending: { label: "รอตรวจสอบ", badge: "text-yellow-600 bg-yellow-400/15", dot: "bg-yellow-600" },
@@ -38,13 +48,26 @@ export default function DocumentRow({
 }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const updateVendorDocumentMutation = useUpdateVendorDocument();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    console.log({ documentType, file });
-    setSelectedFile(file);
     e.target.value = "";
+    if (!file) return;
+
+    setSelectedFile(file);
+
+    toast.promise(updateVendorDocumentMutation.mutateAsync({ documentType, file }), {
+      loading: "กำลังอัปโหลดเอกสาร...",
+      success: () => {
+        setSelectedFile(null);
+        return "อัปโหลดเอกสารสำเร็จ";
+      },
+      error: (error) => {
+        setSelectedFile(null);
+        return getErrorMessage(error);
+      },
+    });
   };
 
   const handleDelete = () => {
@@ -103,6 +126,7 @@ export default function DocumentRow({
         <Button
           type="button"
           variant="outline"
+          disabled={updateVendorDocumentMutation.isPending}
           onClick={() => inputRef.current?.click()}
           className="flex-1 shrink h-11"
         >

@@ -15,7 +15,7 @@ final class VendorIndividualDetail
         private ?string $prefix,
         private string $firstname,
         private string $lastname,
-        private readonly CitizenId $citizenId,
+        private CitizenId $citizenId,
         private ?string $businessType,
         private ?TaxId $taxId,
         private ?string $address,
@@ -87,6 +87,7 @@ final class VendorIndividualDetail
         ?string $prefix,
         string $firstname,
         string $lastname,
+        CitizenId $citizenId,
         ?string $businessType,
         ?TaxId $taxId,
         ?string $address,
@@ -97,6 +98,7 @@ final class VendorIndividualDetail
         $this->prefix = $prefix;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
+        $this->citizenId = $citizenId;
         $this->businessType = $businessType;
         $this->taxId = $taxId;
         $this->address = $address;

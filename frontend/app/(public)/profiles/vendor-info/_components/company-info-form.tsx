@@ -16,7 +16,6 @@ import type { ChangeEvent } from "react";
 import { formatThaiId } from "../_lib/format-thai-id";
 import { useVendorCompanyInfoForm } from "../_hooks/use-vendor-info-form";
 import type { VendorCompanyInfoValues } from "../_schemas/schema";
-import { Spinner } from "@/components/ui/spinner";
 
 export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoValues }) {
   const { register, control, onSubmit, reset, formState: { errors }, isSubmitting } = useVendorCompanyInfoForm(detail);
@@ -209,8 +208,7 @@ export default function CompanyInfoForm({ detail }: { detail: VendorCompanyInfoV
           type="submit"
           className="text-white bg-red-700 w-28 h-11 hover:bg-red-600"
         >
-          บันทึกข้อมูล
-          {isSubmitting && (<Spinner />)}
+          {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
         </Button>
       </div>
     </form>

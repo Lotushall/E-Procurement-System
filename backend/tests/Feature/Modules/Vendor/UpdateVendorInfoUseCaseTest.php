@@ -157,10 +157,11 @@ test('execute updates an existing individual detail', function () {
         'vendor_profile_id' => $profile->id(),
         'store_name' => "John's New Store",
         'firstname' => 'Johnny',
+        'citizen_id_hash' => hash('sha256', '9876543210123'),
     ]);
 });
 
-test('execute does not change the citizen id once it has been set, even if a different value is submitted', function () {
+test('execute updates the citizen id when a new value is submitted', function () {
     $user = User::factory()->create(['user_type' => 'individual']);
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
@@ -183,8 +184,7 @@ test('execute does not change the citizen id once it has been set, even if a dif
 
     $this->assertDatabaseHas('vendor_individual_details', [
         'vendor_profile_id' => $profile->id(),
-        'store_name' => "John's New Store",
-        'citizen_id_hash' => hash('sha256', '1234567890123'),
+        'citizen_id_hash' => hash('sha256', '9876543210123'),
     ]);
 });
 

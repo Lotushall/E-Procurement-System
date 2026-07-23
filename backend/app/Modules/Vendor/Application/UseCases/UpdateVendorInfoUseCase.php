@@ -9,12 +9,14 @@ use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
+use App\Shared\Support\ChangeLogger;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateVendorInfoUseCase
 {
     public function __construct(
         private readonly VendorRepositoryInterface $vendors,
+        private readonly ChangeLogger $changeLogger,
     ) {}
 
     public function execute(int $vendorProfileId, UpdateVendorInfoData $data): void
@@ -85,22 +87,32 @@ final class UpdateVendorInfoUseCase
 
         $this->vendors->saveCompanyDetail($existing);
 
-        $this->logChanges($vendorProfileId, 'company detail', $before, [
-            'companyName' => $data->companyName,
-            'businessRegistrationNo' => $businessRegistrationNo,
-            'taxId' => $taxId->value,
-            'branchNo' => $data->branchNo,
-            'businessType' => $data->businessType,
-            'address' => $data->address,
-            'province' => $data->province,
-            'postalCode' => $postalCode->value,
-        ]);
+        $this->changeLogger->log(
+            message: 'Vendor company detail updated',
+            before: $before,
+            after: [
+                'companyName' => $data->companyName,
+                'businessRegistrationNo' => $businessRegistrationNo,
+                'taxId' => $taxId->value,
+                'branchNo' => $data->branchNo,
+                'businessType' => $data->businessType,
+                'address' => $data->address,
+                'province' => $data->province,
+                'postalCode' => $postalCode->value,
+            ],
+            context: ['vendor_profile_id' => $vendorProfileId],
+            sensitiveFields: ['taxId', 'businessRegistrationNo'],
+            channel: 'vendor',
+        );
     }
 
     private function updateIndividualDetail(int $vendorProfileId, UpdateVendorInfoData $data): void
     {
         $existing = $this->vendors->findIndividualDetailByVendorProfileId($vendorProfileId);
 
+        $citizenId = CitizenId::fromString(
+            $this->resolveMaskedValue($data->citizenId, $existing?->citizenId()->value)
+        );
         $taxIdValue = $this->resolveMaskedValue($data->taxId, $existing?->taxId()?->value);
         $taxId = $taxIdValue !== null ? TaxId::fromString($taxIdValue) : null;
         $postalCode = PostalCode::fromString($data->postalCode);
@@ -112,7 +124,7 @@ final class UpdateVendorInfoUseCase
                 prefix: $data->prefix,
                 firstname: $data->firstname,
                 lastname: $data->lastname,
-                citizenId: CitizenId::fromString($this->resolveMaskedValue($data->citizenId, null)),
+                citizenId: $citizenId,
                 businessType: $data->businessType,
                 taxId: $taxId,
                 address: $data->address,
@@ -132,6 +144,7 @@ final class UpdateVendorInfoUseCase
             'prefix' => $existing->prefix(),
             'firstname' => $existing->firstname(),
             'lastname' => $existing->lastname(),
+            'citizenId' => $existing->citizenId()->value,
             'businessType' => $existing->businessType(),
             'taxId' => $existing->taxId()?->value,
             'address' => $existing->address(),
@@ -139,13 +152,12 @@ final class UpdateVendorInfoUseCase
             'postalCode' => $existing->postalCode()?->value,
         ];
 
-        // VendorIndividualDetail::update() has no citizenId parameter — the
-        // citizen ID is immutable once the detail is created.
         $existing->update(
             storeName: $data->storeName,
             prefix: $data->prefix,
             firstname: $data->firstname,
             lastname: $data->lastname,
+            citizenId: $citizenId,
             businessType: $data->businessType,
             taxId: $taxId,
             address: $data->address,
@@ -155,17 +167,25 @@ final class UpdateVendorInfoUseCase
 
         $this->vendors->saveIndividualDetail($existing);
 
-        $this->logChanges($vendorProfileId, 'individual detail', $before, [
-            'storeName' => $data->storeName,
-            'prefix' => $data->prefix,
-            'firstname' => $data->firstname,
-            'lastname' => $data->lastname,
-            'businessType' => $data->businessType,
-            'taxId' => $taxId?->value,
-            'address' => $data->address,
-            'province' => $data->province,
-            'postalCode' => $postalCode->value,
-        ]);
+        $this->changeLogger->log(
+            message: 'Vendor individual detail updated',
+            before: $before,
+            after: [
+                'storeName' => $data->storeName,
+                'prefix' => $data->prefix,
+                'firstname' => $data->firstname,
+                'lastname' => $data->lastname,
+                'citizenId' => $citizenId->value,
+                'businessType' => $data->businessType,
+                'taxId' => $taxId?->value,
+                'address' => $data->address,
+                'province' => $data->province,
+                'postalCode' => $postalCode->value,
+            ],
+            context: ['vendor_profile_id' => $vendorProfileId],
+            sensitiveFields: ['taxId', 'citizenId'],
+            channel: 'vendor',
+        );
     }
 
     /**
@@ -185,29 +205,5 @@ final class UpdateVendorInfoUseCase
         }
 
         return $incoming;
-    }
-
-    /**
-     * @param  array<string, mixed>  $before
-     * @param  array<string, mixed>  $after
-     */
-    private function logChanges(int $vendorProfileId, string $entity, array $before, array $after): void
-    {
-        $changedFields = [];
-
-        foreach ($after as $field => $value) {
-            if (($before[$field] ?? null) !== $value) {
-                $changedFields[] = $field;
-            }
-        }
-
-        if ($changedFields === []) {
-            return;
-        }
-
-        app_log("Vendor {$entity} updated", [
-            'vendor_profile_id' => $vendorProfileId,
-            'changed_fields' => $changedFields,
-        ], 'info', 'vendor');
     }
 }

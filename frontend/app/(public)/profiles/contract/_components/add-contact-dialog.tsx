@@ -13,7 +13,7 @@ import { Plus } from "lucide-react";
 
 export default function AddContactDialog() {
   const [open, setOpen] = useState(false);
-  const { register, control, onSubmit, reset, formState: { errors } } =
+  const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } =
     useAddContactForm(() => setOpen(false));
 
   return (
@@ -40,7 +40,7 @@ export default function AddContactDialog() {
 
           <DialogFooter>
             <DialogClose render={<Button type="button" variant="outline" className="h-11 md:w-20" />}>ยกเลิก</DialogClose>
-            <Button type="submit" className="bg-red-700 text-white hover:bg-red-600 h-11 md:w-20">บันทึก</Button>
+            <Button type="submit" disabled={isSubmitting} className="bg-red-700 text-white hover:bg-red-600 h-11 md:w-20">บันทึก</Button>
           </DialogFooter>
         </form>
       </DialogContent>

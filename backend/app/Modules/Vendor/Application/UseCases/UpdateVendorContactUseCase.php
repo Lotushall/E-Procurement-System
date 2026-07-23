@@ -7,12 +7,14 @@ use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
+use App\Shared\Support\ChangeLogger;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateVendorContactUseCase
 {
     public function __construct(
         private readonly VendorRepositoryInterface $vendors,
+        private readonly ChangeLogger $changeLogger,
     ) {}
 
     public function execute(int $vendorProfileId, UpdateVendorContactData $data): void
@@ -64,39 +66,21 @@ final class UpdateVendorContactUseCase
 
             $this->vendors->saveContact($existing);
 
-            $this->logChanges($vendorProfileId, $before, [
-                'contactName' => $data->contactName,
-                'contactPosition' => $data->contactPosition,
-                'contactPhone' => $contactPhone?->value,
-                'contactEmail' => $contactEmail?->value,
-                'lineId' => $data->lineId,
-                'otherContact' => $data->otherContact,
-                'isMainContact' => $data->isMainContact,
-            ]);
+            $this->changeLogger->log(
+                message: 'Vendor contact updated',
+                before: $before,
+                after: [
+                    'contactName' => $data->contactName,
+                    'contactPosition' => $data->contactPosition,
+                    'contactPhone' => $contactPhone?->value,
+                    'contactEmail' => $contactEmail?->value,
+                    'lineId' => $data->lineId,
+                    'otherContact' => $data->otherContact,
+                    'isMainContact' => $data->isMainContact,
+                ],
+                context: ['vendor_profile_id' => $vendorProfileId],
+                channel: 'vendor',
+            );
         });
-    }
-
-    /**
-     * @param  array<string, mixed>  $before
-     * @param  array<string, mixed>  $after
-     */
-    private function logChanges(int $vendorProfileId, array $before, array $after): void
-    {
-        $changedFields = [];
-
-        foreach ($after as $field => $value) {
-            if (($before[$field] ?? null) !== $value) {
-                $changedFields[] = $field;
-            }
-        }
-
-        if ($changedFields === []) {
-            return;
-        }
-
-        app_log('Vendor contact updated', [
-            'vendor_profile_id' => $vendorProfileId,
-            'changed_fields' => $changedFields,
-        ], 'info', 'vendor');
     }
 }

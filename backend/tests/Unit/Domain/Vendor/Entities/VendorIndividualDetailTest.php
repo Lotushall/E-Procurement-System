@@ -61,9 +61,9 @@ test('reconstitute rebuilds a detail from persisted values', function () {
         ->and($detail->citizenId())->toBe($citizenId);
 });
 
-test('update replaces the editable detail fields but not the citizen id', function () {
+test('update replaces the editable detail fields including the citizen id', function () {
     $detail = makeVendorIndividualDetail();
-    $originalCitizenId = $detail->citizenId();
+    $newCitizenId = CitizenId::fromString('9998887776665');
     $newTaxId = TaxId::fromString('1112223334445');
     $newPostalCode = PostalCode::fromString('20000');
 
@@ -72,6 +72,7 @@ test('update replaces the editable detail fields but not the citizen id', functi
         prefix: 'Dr.',
         firstname: 'Jane',
         lastname: 'Smith',
+        citizenId: $newCitizenId,
         businessType: 'Wholesale',
         taxId: $newTaxId,
         address: '789 New St.',
@@ -79,7 +80,7 @@ test('update replaces the editable detail fields but not the citizen id', functi
         postalCode: $newPostalCode,
     );
 
-    expect($detail->citizenId())->toBe($originalCitizenId)
+    expect($detail->citizenId())->toBe($newCitizenId)
         ->and($detail->prefix())->toBe('Dr.')
         ->and($detail->firstname())->toBe('Jane')
         ->and($detail->lastname())->toBe('Smith')

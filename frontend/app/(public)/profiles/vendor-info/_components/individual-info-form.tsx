@@ -17,7 +17,6 @@ import type { ChangeEvent } from "react";
 import { formatThaiId } from "../_lib/format-thai-id";
 import { useVendorIndividualInfoForm } from "../_hooks/use-vendor-info-form";
 import type { VendorIndividualInfoValues } from "../_schemas/schema";
-import { Spinner } from "@/components/ui/spinner";
 
 export default function IndividualInfoForm({ detail }: { detail: VendorIndividualInfoValues }) {
   const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } = useVendorIndividualInfoForm(detail);
@@ -239,8 +238,7 @@ export default function IndividualInfoForm({ detail }: { detail: VendorIndividua
             type="submit"
             className="text-white bg-red-700 w-28 h-11 hover:bg-red-600"
           >
-            บันทึกข้อมูล
-            {isSubmitting && (<Spinner />)}
+            {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
           </Button>
         </div>
       </form>
