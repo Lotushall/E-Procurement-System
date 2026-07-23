@@ -14,5 +14,6 @@ final class UpdateVendorContactData extends Data
         public readonly ?string $lineId,
         public readonly ?string $otherContact,
         public readonly bool $isMainContact,
+        public readonly ?int $id = null,
     ) {}
 }

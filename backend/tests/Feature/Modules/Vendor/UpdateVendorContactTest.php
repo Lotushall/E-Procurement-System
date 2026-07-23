@@ -69,3 +69,14 @@ test('contact name is required when updating vendor contact', function () {
 
     $response->assertStatus(422)->assertJsonValidationErrors('contactName');
 });
+
+test('id must be an integer when updating vendor contact', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $repository->saveProfile(VendorProfile::create(userId: $user->id));
+    $this->actingAs($user, 'web');
+
+    $response = $this->postJson('/api/v1/vendor/contact', contactPayload(['id' => 'not-a-number']));
+
+    $response->assertStatus(422)->assertJsonValidationErrors('id');
+});

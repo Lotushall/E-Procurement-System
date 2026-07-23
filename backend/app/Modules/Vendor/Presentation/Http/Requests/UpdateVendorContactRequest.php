@@ -20,6 +20,7 @@ class UpdateVendorContactRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => ['nullable', 'integer'],
             'contactName' => ['required', 'string', 'max:255'],
             'contactPosition' => ['nullable', 'string', 'max:255'],
             'contactPhone' => ['nullable', 'digits_between:9,10'],
