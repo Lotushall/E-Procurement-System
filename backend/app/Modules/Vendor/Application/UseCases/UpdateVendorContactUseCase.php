@@ -8,6 +8,7 @@ use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Shared\Support\ChangeLogger;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateVendorContactUseCase
@@ -23,9 +24,7 @@ final class UpdateVendorContactUseCase
             $contactPhone = $data->contactPhone !== null ? PhoneNumber::fromString($data->contactPhone) : null;
             $contactEmail = $data->contactEmail !== null ? Email::fromString($data->contactEmail) : null;
 
-            $existing = $this->vendors->findContactsByVendorProfileId($vendorProfileId)[0] ?? null;
-
-            if ($existing === null) {
+            if ($data->id === null) {
                 $this->vendors->saveContact(VendorContact::create(
                     vendorProfileId: $vendorProfileId,
                     contactName: $data->contactName,
@@ -42,6 +41,14 @@ final class UpdateVendorContactUseCase
                 ], 'info', 'vendor');
 
                 return;
+            }
+
+            $existing = $this->findOwnedContact($vendorProfileId, $data->id);
+
+            if ($existing === null) {
+                throw new ModelNotFoundException(
+                    "Vendor contact {$data->id} not found for vendor profile {$vendorProfileId}."
+                );
             }
 
             $before = [
@@ -78,9 +85,20 @@ final class UpdateVendorContactUseCase
                     'otherContact' => $data->otherContact,
                     'isMainContact' => $data->isMainContact,
                 ],
-                context: ['vendor_profile_id' => $vendorProfileId],
+                context: ['vendor_profile_id' => $vendorProfileId, 'contact_id' => $existing->id()],
                 channel: 'vendor',
             );
         });
+    }
+
+    private function findOwnedContact(int $vendorProfileId, int $contactId): ?VendorContact
+    {
+        foreach ($this->vendors->findContactsByVendorProfileId($vendorProfileId) as $contact) {
+            if ($contact->id() === $contactId) {
+                return $contact;
+            }
+        }
+
+        return null;
     }
 }

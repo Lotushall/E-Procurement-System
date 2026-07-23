@@ -28,7 +28,7 @@ test('a vendor can update their contact info', function () {
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    $repository->saveContact(VendorContact::create(
+    $contact = $repository->saveContact(VendorContact::create(
         vendorProfileId: $profile->id(),
         contactName: 'Jane Doe',
         contactPosition: 'Manager',
@@ -41,7 +41,7 @@ test('a vendor can update their contact info', function () {
 
     $this->actingAs($user, 'web');
 
-    $response = $this->postJson('/api/v1/vendor/contact', contactPayload());
+    $response = $this->postJson('/api/v1/vendor/contact', contactPayload(['id' => $contact->id()]));
 
     $response->assertOk()
         ->assertJsonPath('data.contact.0.contactName', 'Jane Smith');
