@@ -17,6 +17,7 @@ class VendorDocumentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'documentType' => $this->document_type,
             'fileName' => $this->file_name,
             'filePath' => $this->file_path,

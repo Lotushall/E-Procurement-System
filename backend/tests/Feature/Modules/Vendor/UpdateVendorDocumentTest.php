@@ -55,3 +55,23 @@ test('the uploaded file must be a supported document type', function () {
 
     $response->assertStatus(422)->assertJsonValidationErrors('file');
 });
+
+test('vendor document response includes the document id', function () {
+    Storage::fake('local');
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->post('/api/v1/vendor/document', [
+        'documentType' => 'company_registration',
+        'file' => UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf'),
+    ]);
+
+    $response->assertOk();
+
+    $document = $repository->findDocumentByVendorProfileIdAndType($profile->id(), 'company_registration');
+
+    $response->assertJsonPath('data.document.0.id', $document->id());
+});
