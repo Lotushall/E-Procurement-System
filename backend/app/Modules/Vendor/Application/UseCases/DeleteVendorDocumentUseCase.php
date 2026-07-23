@@ -20,7 +20,7 @@ final class DeleteVendorDocumentUseCase
 
     public function execute(int $vendorProfileId, int $documentId): void
     {
-        DB::transaction(function () use ($vendorProfileId, $documentId): void {
+        $filePath = DB::transaction(function () use ($vendorProfileId, $documentId): string {
             $document = $this->findOwnedDocument($vendorProfileId, $documentId);
 
             if ($document === null) {
@@ -33,15 +33,17 @@ final class DeleteVendorDocumentUseCase
 
             $this->vendors->deleteDocument($document);
 
-            Storage::disk(self::DISK)->delete($filePath);
-
             app_log('Vendor document deleted', [
                 'vendor_profile_id' => $vendorProfileId,
                 'document_type' => $document->documentType(),
             ], 'info', 'vendor');
 
             ($this->resubmitter)($vendorProfileId);
+
+            return $filePath;
         });
+
+        Storage::disk(self::DISK)->delete($filePath);
     }
 
     private function findOwnedDocument(int $vendorProfileId, int $documentId): ?VendorDocument
