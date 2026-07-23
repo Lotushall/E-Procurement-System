@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const AddContactSchema = z.object({
+  id: z.number().optional(),
   contactName: z.string().min(1, "กรุณากรอกชื่อผู้ติดต่อ"),
   contactPosition: z.string().optional(),
   contactPhone: z.string().optional(),

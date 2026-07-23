@@ -15,6 +15,7 @@ export default function EditContactDialog({ contact }: { contact: VendorContact 
   const [open, setOpen] = useState(false);
   const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } =
     useAddContactForm(() => setOpen(false), {
+      id: contact.id,
       contactName: contact.contactName ?? "",
       contactPosition: contact.contactPosition ?? "",
       contactPhone: contact.contactPhone ?? "",

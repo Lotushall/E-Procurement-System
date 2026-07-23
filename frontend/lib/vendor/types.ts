@@ -40,6 +40,7 @@ export interface VendorDocument {
   remark: string;
 }
 export interface VendorContact {
+  id: number;
   contactName: string;
   contactPosition: string;
   contactPhone: string;
@@ -64,6 +65,7 @@ export interface VendorProfile {
 }
 
 export interface UpdateVendorContactPayload {
+  id?: number;
   contactName: string;
   contactPosition?: string;
   contactPhone?: string;
