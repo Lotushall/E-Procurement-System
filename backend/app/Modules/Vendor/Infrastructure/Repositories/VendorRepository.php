@@ -175,6 +175,11 @@ class VendorRepository implements VendorRepositoryInterface
         return $model !== null ? $this->mapDocumentToEntity($model) : null;
     }
 
+    public function deleteDocument(VendorDocument $document): void
+    {
+        VendorDocuments::findOrFail($document->id())->delete();
+    }
+
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile
     {
         return VendorProfile::reconstitute(
