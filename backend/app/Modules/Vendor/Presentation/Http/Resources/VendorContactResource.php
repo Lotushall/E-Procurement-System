@@ -17,6 +17,7 @@ class VendorContactResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'contactName' => $this->contact_name,
             'contactPosition' => $this->contact_position,
             'contactPhone' => $this->contact_phone,

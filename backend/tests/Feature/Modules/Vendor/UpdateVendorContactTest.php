@@ -80,3 +80,26 @@ test('id must be an integer when updating vendor contact', function () {
 
     $response->assertStatus(422)->assertJsonValidationErrors('id');
 });
+
+test('vendor contact response includes the contact id', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $contact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->postJson('/api/v1/vendor/contact', contactPayload(['id' => $contact->id()]));
+
+    $response->assertOk()->assertJsonPath('data.contact.0.id', $contact->id());
+});
