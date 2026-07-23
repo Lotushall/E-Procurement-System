@@ -103,3 +103,36 @@ test('vendor contact response includes the contact id', function () {
 
     $response->assertOk()->assertJsonPath('data.contact.0.id', $contact->id());
 });
+
+test('vendor contact update creates a new contact when id is omitted from the payload', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $contact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->postJson('/api/v1/vendor/contact', contactPayload());
+
+    $response->assertOk();
+
+    $this->assertDatabaseCount('vendor_contact', 2);
+    $this->assertDatabaseHas('vendor_contact', [
+        'vendor_profile_id' => $profile->id(),
+        'contact_name' => 'Jane Doe',
+    ]);
+    $this->assertDatabaseHas('vendor_contact', [
+        'vendor_profile_id' => $profile->id(),
+        'contact_name' => 'Jane Smith',
+    ]);
+});
