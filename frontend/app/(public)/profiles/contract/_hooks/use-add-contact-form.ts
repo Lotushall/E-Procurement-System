@@ -2,13 +2,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useUpdateVendorContact } from "@/lib/vendor/mutations";
 import { AddContactSchema, AddContactValues } from "../_schemas/schema";
+import { useSaveVendorContact } from "@/lib/vendor/mutations";
 
 function getErrorMessage(error: unknown): string {
-  const fieldErrors = isAxiosError(error) && error.response?.status === 422
-    ? (error.response.data as { errors?: Record<string, string[]> }).errors
-    : undefined;
+  const fieldErrors =
+    isAxiosError(error) && error.response?.status === 422
+      ? (error.response.data as { errors?: Record<string, string[]> }).errors
+      : undefined;
 
   const message = fieldErrors
     ? Object.values(fieldErrors)[0]?.[0]
@@ -19,8 +20,11 @@ function getErrorMessage(error: unknown): string {
   return message ?? "บันทึกข้อมูลผู้ติดต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
 
-export function useAddContactForm(onSubmitted: () => void, initialValues?: AddContactValues) {
-  const updateVendorContactMutation = useUpdateVendorContact();
+export function useAddContactForm(
+  onSubmitted: () => void,
+  initialValues?: AddContactValues,
+) {
+  const updateVendorContactMutation = useSaveVendorContact();
 
   const form = useForm<AddContactValues>({
     resolver: zodResolver(AddContactSchema),
@@ -33,6 +37,7 @@ export function useAddContactForm(onSubmitted: () => void, initialValues?: AddCo
       otherContact: "",
       isMainContact: false,
     },
+    values: initialValues,
   });
 
   const onSubmit = form.handleSubmit((values) => {
@@ -47,5 +52,9 @@ export function useAddContactForm(onSubmitted: () => void, initialValues?: AddCo
     });
   });
 
-  return { ...form, onSubmit, isSubmitting: updateVendorContactMutation.isPending };
+  return {
+    ...form,
+    onSubmit,
+    isSubmitting: updateVendorContactMutation.isPending,
+  };
 }

@@ -15,6 +15,19 @@ class UpdateVendorContactRequest extends FormRequest
     }
 
     /**
+     * Strip formatting characters from contactPhone before validation, since
+     * the frontend sends it live-formatted (e.g. "081-234-5678").
+     */
+    protected function prepareForValidation(): void
+    {
+        $phone = $this->input('contactPhone');
+
+        if ($phone !== null && $phone !== '') {
+            $this->merge(['contactPhone' => preg_replace('/\D/', '', (string) $phone)]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array

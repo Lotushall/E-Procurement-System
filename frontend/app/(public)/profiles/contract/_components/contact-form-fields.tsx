@@ -1,11 +1,12 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ChangeEvent } from "react";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputField } from "../../_components/input-field";
+import { formatPhone } from "@/lib/utils";
 import type { AddContactValues } from "../_schemas/schema";
 
 export function ContactFormFields({
@@ -18,6 +19,10 @@ export function ContactFormFields({
   errors: FieldErrors<AddContactValues>;
 }) {
   const isMainContactId = useId();
+
+  function handlePhoneChange(onChange: (value: string) => void) {
+    return (e: ChangeEvent<HTMLInputElement>) => onChange(formatPhone(e.target.value));
+  }
 
   return (
     <>
@@ -33,7 +38,22 @@ export function ContactFormFields({
 
       <div className="grid md:grid-cols-2 gap-4">
         <InputField label="เบอร์โทร" error={errors.contactPhone?.message}>
-          <Input {...register("contactPhone")} inputMode="numeric" aria-invalid={!!errors.contactPhone} className="h-11 rounded-sm" />
+          <Controller
+            control={control}
+            name="contactPhone"
+            render={({ field: { value, onChange, ...field } }) => (
+              <Input
+                value={formatPhone(value ?? "")}
+                onChange={handlePhoneChange(onChange)}
+                inputMode="numeric"
+                maxLength={12}
+                placeholder="0XX-XXX-XXXX"
+                aria-invalid={!!errors.contactPhone}
+                className="h-11 rounded-sm"
+                {...field}
+              />
+            )}
+          />
         </InputField>
         <InputField label="อีเมล" error={errors.contactEmail?.message}>
           <Input {...register("contactEmail")} type="email" aria-invalid={!!errors.contactEmail} className="h-11 rounded-sm" />

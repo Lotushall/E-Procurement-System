@@ -64,7 +64,7 @@ export interface VendorProfile {
   document?: VendorDocument[];
 }
 
-export interface UpdateVendorContactPayload {
+export interface SaveVendorContactPayload {
   id?: number;
   contactName: string;
   contactPosition?: string;

@@ -11,7 +11,7 @@ use App\Shared\Support\ChangeLogger;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
-final class UpdateVendorContactUseCase
+final class SaveVendorContactUseCase
 {
     public function __construct(
         private readonly VendorRepositoryInterface $vendors,

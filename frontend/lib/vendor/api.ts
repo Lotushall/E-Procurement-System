@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import { api } from "@/lib/api";
 import type {
-  UpdateVendorContactPayload,
+  SaveVendorContactPayload,
   UpdateVendorDocumentPayload,
   UpdateVendorInfoPayload,
   VendorProfile,
@@ -27,8 +27,8 @@ export async function updateVendorInfo(
   await api.post("/api/v1/vendor/info", payload);
 }
 
-export async function updateVendorContact(
-  payload: UpdateVendorContactPayload,
+export async function saveVendorContact(
+  payload: SaveVendorContactPayload,
 ): Promise<void> {
   await api.post("/api/v1/vendor/contact", payload);
 }

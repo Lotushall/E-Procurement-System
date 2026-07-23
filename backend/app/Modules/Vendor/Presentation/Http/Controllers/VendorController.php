@@ -7,7 +7,7 @@ use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorDocumentData;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorInfoData;
 use App\Modules\Vendor\Application\Queries\GetVendorProfileQuery;
-use App\Modules\Vendor\Application\UseCases\UpdateVendorContactUseCase;
+use App\Modules\Vendor\Application\UseCases\SaveVendorContactUseCase;
 use App\Modules\Vendor\Application\UseCases\UpdateVendorDocumentUseCase;
 use App\Modules\Vendor\Application\UseCases\UpdateVendorInfoUseCase;
 use App\Modules\Vendor\Presentation\Http\Requests\UpdateVendorContactRequest;
@@ -23,7 +23,7 @@ class VendorController extends Controller
     public function __construct(
         private readonly GetVendorProfileQuery $getVendorProfile,
         private readonly UpdateVendorInfoUseCase $updateVendorInfo,
-        private readonly UpdateVendorContactUseCase $updateVendorContact,
+        private readonly SaveVendorContactUseCase $saveVendorContact,
         private readonly UpdateVendorDocumentUseCase $updateVendorDocument,
     ) {}
 
@@ -57,12 +57,12 @@ class VendorController extends Controller
         ]);
     }
 
-    public function updateVendorContact(UpdateVendorContactRequest $request): JsonResponse
+    public function saveVendorContact(UpdateVendorContactRequest $request): JsonResponse
     {
         $vendorProfile = $this->getVendorProfile->execute($request->user()->id);
 
         try {
-            $this->updateVendorContact->execute(
+            $this->saveVendorContact->execute(
                 $vendorProfile->id,
                 UpdateVendorContactData::from($request->validated())
             );

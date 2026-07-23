@@ -8,7 +8,7 @@ Route::prefix('vendor')->group(function () {
 
     Route::post('info', [VendorController::class, 'updateVendorInfo'])->name('vendor.info.update');
 
-    Route::post('contact', [VendorController::class, 'updateVendorContact'])->name('vendor.contact.update');
+    Route::post('contact', [VendorController::class, 'saveVendorContact'])->name('vendor.contact.save');
 
     Route::post('document', [VendorController::class, 'updateVendorDocument'])->name('vendor.document.update');
 });
