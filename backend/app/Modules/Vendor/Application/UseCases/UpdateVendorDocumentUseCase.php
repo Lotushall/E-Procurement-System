@@ -3,6 +3,7 @@
 namespace App\Modules\Vendor\Application\UseCases;
 
 use App\Modules\Vendor\Application\DTOs\UpdateVendorDocumentData;
+use App\Modules\Vendor\Application\Services\ResubmitVendorProfileOnChange;
 use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ final class UpdateVendorDocumentUseCase
 
     public function __construct(
         private readonly VendorRepositoryInterface $vendors,
+        private readonly ResubmitVendorProfileOnChange $resubmitter,
     ) {}
 
     public function execute(int $vendorProfileId, UpdateVendorDocumentData $data): void
@@ -50,23 +52,7 @@ final class UpdateVendorDocumentUseCase
                 ], 'info', 'vendor');
             }
 
-            $this->resubmitProfileIfNeeded($vendorProfileId);
+            ($this->resubmitter)($vendorProfileId);
         });
-    }
-
-    private function resubmitProfileIfNeeded(int $vendorProfileId): void
-    {
-        $profile = $this->vendors->findProfileById($vendorProfileId);
-
-        if ($profile === null || $profile->isPending()) {
-            return;
-        }
-
-        $profile->resubmit();
-        $this->vendors->saveProfile($profile);
-
-        app_log('Vendor profile resubmitted for review after document change', [
-            'vendor_profile_id' => $vendorProfileId,
-        ], 'info', 'vendor');
     }
 }
