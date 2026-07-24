@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import {
   saveVendorContact,
-  updateVendorDocument,
+  saveVendorDocument,
   updateVendorInfo,
 } from "@/lib/vendor/api";
 import { VENDOR_PROFILE_QUERY_KEY } from "@/lib/vendor/useVendorProfile";
@@ -50,11 +50,11 @@ export function useSaveVendorContact() {
   });
 }
 
-export function useUpdateVendorDocument() {
+export function useSaveVendorDocument() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: UpdateVendorDocumentPayload) =>
-      updateVendorDocument(payload),
+      saveVendorDocument(payload),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: VENDOR_PROFILE_QUERY_KEY }),
   });

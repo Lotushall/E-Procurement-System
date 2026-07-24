@@ -4,7 +4,7 @@ namespace App\Modules\Vendor\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateVendorDocumentRequest extends FormRequest
+class SaveVendorDocumentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

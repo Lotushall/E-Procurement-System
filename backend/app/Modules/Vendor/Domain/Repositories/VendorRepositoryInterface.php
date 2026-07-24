@@ -29,6 +29,10 @@ interface VendorRepositoryInterface
      */
     public function findContactsByVendorProfileId(int $vendorProfileId): array;
 
+    public function findContactByVendorProfileIdAndId(int $vendorProfileId, int $contactId): ?VendorContact;
+
+    public function deleteContact(VendorContact $contact): void;
+
     public function saveDocument(VendorDocument $document): VendorDocument;
 
     /**
@@ -37,6 +41,8 @@ interface VendorRepositoryInterface
     public function findDocumentsByVendorProfileId(int $vendorProfileId): array;
 
     public function findDocumentByVendorProfileIdAndType(int $vendorProfileId, string $documentType): ?VendorDocument;
+
+    public function findDocumentByVendorProfileIdAndId(int $vendorProfileId, int $documentId): ?VendorDocument;
 
     public function deleteDocument(VendorDocument $document): void;
 }

@@ -4,7 +4,7 @@ use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
-use App\Modules\Vendor\Application\UseCases\UpdateVendorContactUseCase;
+use App\Modules\Vendor\Application\UseCases\SaveVendorContactUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
@@ -13,9 +13,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-function updateVendorContactUseCase(): UpdateVendorContactUseCase
+function saveVendorContactUseCase(): SaveVendorContactUseCase
 {
-    return app(UpdateVendorContactUseCase::class);
+    return app(SaveVendorContactUseCase::class);
 }
 
 function contactData(array $overrides = []): UpdateVendorContactData
@@ -48,7 +48,7 @@ test('execute updates the contact matching the given id', function () {
         isMainContact: true,
     ));
 
-    updateVendorContactUseCase()->execute($profile->id(), contactData(['id' => $contact->id()]));
+    saveVendorContactUseCase()->execute($profile->id(), contactData(['id' => $contact->id()]));
 
     $this->assertDatabaseHas('vendor_contact', [
         'id' => $contact->id(),
@@ -89,7 +89,7 @@ test('execute updates only the contact matching the given id, not other contacts
         isMainContact: false,
     ));
 
-    updateVendorContactUseCase()->execute($profile->id(), contactData([
+    saveVendorContactUseCase()->execute($profile->id(), contactData([
         'id' => $second->id(),
         'contactName' => 'Second Contact Updated',
     ]));
@@ -112,7 +112,7 @@ test('execute creates a contact when no id is given', function () {
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    updateVendorContactUseCase()->execute($profile->id(), contactData());
+    saveVendorContactUseCase()->execute($profile->id(), contactData());
 
     $this->assertDatabaseHas('vendor_contact', [
         'vendor_profile_id' => $profile->id(),
@@ -138,7 +138,7 @@ test('execute creates a new contact when id is omitted even if one already exist
         isMainContact: true,
     ));
 
-    updateVendorContactUseCase()->execute($profile->id(), contactData(['isMainContact' => false]));
+    saveVendorContactUseCase()->execute($profile->id(), contactData(['isMainContact' => false]));
 
     $this->assertDatabaseHas('vendor_contact', ['contact_name' => 'Existing Contact']);
     $this->assertDatabaseHas('vendor_contact', ['contact_name' => 'Jane Smith']);
@@ -161,7 +161,7 @@ test('execute allows clearing the optional phone and email', function () {
         isMainContact: true,
     ));
 
-    updateVendorContactUseCase()->execute($profile->id(), contactData([
+    saveVendorContactUseCase()->execute($profile->id(), contactData([
         'id' => $contact->id(),
         'contactPhone' => null,
         'contactEmail' => null,
@@ -192,7 +192,7 @@ test('execute throws when the given id does not belong to the vendor profile', f
         isMainContact: true,
     ));
 
-    expect(fn () => updateVendorContactUseCase()->execute(
+    expect(fn () => saveVendorContactUseCase()->execute(
         $ownerProfile->id(),
         contactData(['id' => $otherContact->id()]),
     ))->toThrow(ModelNotFoundException::class);

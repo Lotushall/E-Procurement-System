@@ -136,6 +136,20 @@ class VendorRepository implements VendorRepositoryInterface
             ->all();
     }
 
+    public function findContactByVendorProfileIdAndId(int $vendorProfileId, int $contactId): ?VendorContact
+    {
+        $model = VendorContactModel::where('vendor_profile_id', $vendorProfileId)
+            ->where('id', $contactId)
+            ->first();
+
+        return $model !== null ? $this->mapContactToEntity($model) : null;
+    }
+
+    public function deleteContact(VendorContact $contact): void
+    {
+        VendorContactModel::findOrFail($contact->id())->delete();
+    }
+
     public function saveDocument(VendorDocument $document): VendorDocument
     {
         $model = $document->id() !== null
@@ -170,6 +184,15 @@ class VendorRepository implements VendorRepositoryInterface
     {
         $model = VendorDocuments::where('vendor_profile_id', $vendorProfileId)
             ->where('document_type', $documentType)
+            ->first();
+
+        return $model !== null ? $this->mapDocumentToEntity($model) : null;
+    }
+
+    public function findDocumentByVendorProfileIdAndId(int $vendorProfileId, int $documentId): ?VendorDocument
+    {
+        $model = VendorDocuments::where('vendor_profile_id', $vendorProfileId)
+            ->where('id', $documentId)
             ->first();
 
         return $model !== null ? $this->mapDocumentToEntity($model) : null;

@@ -2,7 +2,7 @@
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorDocumentData;
-use App\Modules\Vendor\Application\UseCases\UpdateVendorDocumentUseCase;
+use App\Modules\Vendor\Application\UseCases\SaveVendorDocumentUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-function updateVendorDocumentUseCase(): UpdateVendorDocumentUseCase
+function saveVendorDocumentUseCase(): SaveVendorDocumentUseCase
 {
-    return app(UpdateVendorDocumentUseCase::class);
+    return app(SaveVendorDocumentUseCase::class);
 }
 
 test('execute stores a new document as pending', function () {
@@ -23,7 +23,7 @@ test('execute stores a new document as pending', function () {
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    updateVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
+    saveVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
         'documentType' => 'company_registration',
         'file' => UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf'),
     ]));
@@ -55,7 +55,7 @@ test('execute reuploads and replaces an existing document of the same type', fun
         filePath: $originalPath,
     ));
 
-    updateVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
+    saveVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
         'documentType' => 'company_registration',
         'file' => UploadedFile::fake()->create('registration-v2.pdf', 100, 'application/pdf'),
     ]));
@@ -80,7 +80,7 @@ test('execute resubmits an approved vendor profile back to pending after a docum
     $profile->approve(verifiedBy: $user->id);
     $repository->saveProfile($profile);
 
-    updateVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
+    saveVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
         'documentType' => 'company_registration',
         'file' => UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf'),
     ]));
@@ -97,7 +97,7 @@ test('execute does not error when the vendor profile is already pending', functi
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    updateVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
+    saveVendorDocumentUseCase()->execute($profile->id(), UpdateVendorDocumentData::from([
         'documentType' => 'company_registration',
         'file' => UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf'),
     ]));

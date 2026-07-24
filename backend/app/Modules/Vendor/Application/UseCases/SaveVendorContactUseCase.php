@@ -25,25 +25,12 @@ final class SaveVendorContactUseCase
             $contactEmail = $data->contactEmail !== null ? Email::fromString($data->contactEmail) : null;
 
             if ($data->id === null) {
-                $this->vendors->saveContact(VendorContact::create(
-                    vendorProfileId: $vendorProfileId,
-                    contactName: $data->contactName,
-                    contactPosition: $data->contactPosition,
-                    contactPhone: $contactPhone,
-                    contactEmail: $contactEmail,
-                    lineId: $data->lineId,
-                    otherContact: $data->otherContact,
-                    isMainContact: $data->isMainContact,
-                ));
-
-                app_log('Vendor contact created via contact update', [
-                    'vendor_profile_id' => $vendorProfileId,
-                ], 'info', 'vendor');
+                $this->createContact($vendorProfileId, $data, $contactPhone, $contactEmail);
 
                 return;
             }
 
-            $existing = $this->findOwnedContact($vendorProfileId, $data->id);
+            $existing = $this->vendors->findContactByVendorProfileIdAndId($vendorProfileId, $data->id);
 
             if ($existing === null) {
                 throw new ModelNotFoundException(
@@ -51,54 +38,95 @@ final class SaveVendorContactUseCase
                 );
             }
 
-            $before = [
-                'contactName' => $existing->contactName(),
-                'contactPosition' => $existing->contactPosition(),
-                'contactPhone' => $existing->contactPhone()?->value,
-                'contactEmail' => $existing->contactEmail()?->value,
-                'lineId' => $existing->lineId(),
-                'otherContact' => $existing->otherContact(),
-                'isMainContact' => $existing->isMainContact(),
-            ];
-
-            $existing->update(
-                contactName: $data->contactName,
-                contactPosition: $data->contactPosition,
-                contactPhone: $contactPhone,
-                contactEmail: $contactEmail,
-                lineId: $data->lineId,
-                otherContact: $data->otherContact,
-                isMainContact: $data->isMainContact,
-            );
-
-            $this->vendors->saveContact($existing);
-
-            $this->changeLogger->log(
-                message: 'Vendor contact updated',
-                before: $before,
-                after: [
-                    'contactName' => $data->contactName,
-                    'contactPosition' => $data->contactPosition,
-                    'contactPhone' => $contactPhone?->value,
-                    'contactEmail' => $contactEmail?->value,
-                    'lineId' => $data->lineId,
-                    'otherContact' => $data->otherContact,
-                    'isMainContact' => $data->isMainContact,
-                ],
-                context: ['vendor_profile_id' => $vendorProfileId, 'contact_id' => $existing->id()],
-                channel: 'vendor',
-            );
+            $this->updateContact($vendorProfileId, $existing, $data, $contactPhone, $contactEmail);
         });
     }
 
-    private function findOwnedContact(int $vendorProfileId, int $contactId): ?VendorContact
-    {
-        foreach ($this->vendors->findContactsByVendorProfileId($vendorProfileId) as $contact) {
-            if ($contact->id() === $contactId) {
-                return $contact;
-            }
+    private function createContact(
+        int $vendorProfileId,
+        UpdateVendorContactData $data,
+        ?PhoneNumber $contactPhone,
+        ?Email $contactEmail,
+    ): void {
+        $created = $this->vendors->saveContact(VendorContact::create(
+            vendorProfileId: $vendorProfileId,
+            contactName: $data->contactName,
+            contactPosition: $data->contactPosition,
+            contactPhone: $contactPhone,
+            contactEmail: $contactEmail,
+            lineId: $data->lineId,
+            otherContact: $data->otherContact,
+            isMainContact: $data->isMainContact,
+        ));
+
+        if ($data->isMainContact) {
+            $this->demoteOtherMainContacts($vendorProfileId, $created->id());
         }
 
-        return null;
+        app_log('Vendor contact created via contact update', [
+            'vendor_profile_id' => $vendorProfileId,
+        ], 'info', 'vendor');
+    }
+
+    private function updateContact(
+        int $vendorProfileId,
+        VendorContact $existing,
+        UpdateVendorContactData $data,
+        ?PhoneNumber $contactPhone,
+        ?Email $contactEmail,
+    ): void {
+        $before = [
+            'contactName' => $existing->contactName(),
+            'contactPosition' => $existing->contactPosition(),
+            'contactPhone' => $existing->contactPhone()?->value,
+            'contactEmail' => $existing->contactEmail()?->value,
+            'lineId' => $existing->lineId(),
+            'otherContact' => $existing->otherContact(),
+            'isMainContact' => $existing->isMainContact(),
+        ];
+
+        $existing->update(
+            contactName: $data->contactName,
+            contactPosition: $data->contactPosition,
+            contactPhone: $contactPhone,
+            contactEmail: $contactEmail,
+            lineId: $data->lineId,
+            otherContact: $data->otherContact,
+            isMainContact: $data->isMainContact,
+        );
+
+        $this->vendors->saveContact($existing);
+
+        if ($data->isMainContact) {
+            $this->demoteOtherMainContacts($vendorProfileId, $existing->id());
+        }
+
+        $this->changeLogger->log(
+            message: 'Vendor contact updated',
+            before: $before,
+            after: [
+                'contactName' => $data->contactName,
+                'contactPosition' => $data->contactPosition,
+                'contactPhone' => $contactPhone?->value,
+                'contactEmail' => $contactEmail?->value,
+                'lineId' => $data->lineId,
+                'otherContact' => $data->otherContact,
+                'isMainContact' => $data->isMainContact,
+            ],
+            context: ['vendor_profile_id' => $vendorProfileId, 'contact_id' => $existing->id()],
+            channel: 'vendor',
+        );
+    }
+
+    private function demoteOtherMainContacts(int $vendorProfileId, int $exceptContactId): void
+    {
+        foreach ($this->vendors->findContactsByVendorProfileId($vendorProfileId) as $contact) {
+            if ($contact->id() === $exceptContactId || ! $contact->isMainContact()) {
+                continue;
+            }
+
+            $contact->unmarkAsMainContact();
+            $this->vendors->saveContact($contact);
+        }
     }
 }

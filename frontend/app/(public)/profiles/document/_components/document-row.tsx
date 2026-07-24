@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
-import { useUpdateVendorDocument } from "@/lib/vendor/mutations";
 import { FileText, Paperclip, Trash2 } from "lucide-react";
+import { useSaveVendorDocument } from "@/lib/vendor/mutations";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -48,7 +48,7 @@ export default function DocumentRow({
 }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const updateVendorDocumentMutation = useUpdateVendorDocument();
+  const updateVendorDocumentMutation = useSaveVendorDocument();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

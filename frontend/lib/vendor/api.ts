@@ -33,7 +33,7 @@ export async function saveVendorContact(
   await api.post("/api/v1/vendor/contact", payload);
 }
 
-export async function updateVendorDocument(
+export async function saveVendorDocument(
   payload: UpdateVendorDocumentPayload,
 ): Promise<void> {
   const formData = new FormData();

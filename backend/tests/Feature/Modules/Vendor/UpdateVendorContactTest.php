@@ -136,3 +136,82 @@ test('vendor contact update creates a new contact when id is omitted from the pa
         'contact_name' => 'Jane Smith',
     ]);
 });
+
+test('setting a new contact as main contact unmarks the existing main contact', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $existingMainContact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->postJson('/api/v1/vendor/contact', contactPayload(['isMainContact' => true]));
+
+    $response->assertOk();
+
+    $this->assertDatabaseHas('vendor_contact', [
+        'id' => $existingMainContact->id(),
+        'is_main_contact' => false,
+    ]);
+    $this->assertDatabaseHas('vendor_contact', [
+        'vendor_profile_id' => $profile->id(),
+        'contact_name' => 'Jane Smith',
+        'is_main_contact' => true,
+    ]);
+});
+
+test('updating a contact to be the main contact unmarks the other main contact', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $existingMainContact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $otherContact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'John Smith',
+        contactPosition: 'Staff',
+        contactPhone: PhoneNumber::fromString('0898765432'),
+        contactEmail: Email::fromString('john@company.com'),
+        lineId: null,
+        otherContact: null,
+        isMainContact: false,
+    ));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->postJson('/api/v1/vendor/contact', contactPayload([
+        'id' => $otherContact->id(),
+        'isMainContact' => true,
+    ]));
+
+    $response->assertOk();
+
+    $this->assertDatabaseHas('vendor_contact', [
+        'id' => $existingMainContact->id(),
+        'is_main_contact' => false,
+    ]);
+    $this->assertDatabaseHas('vendor_contact', [
+        'id' => $otherContact->id(),
+        'is_main_contact' => true,
+    ]);
+});

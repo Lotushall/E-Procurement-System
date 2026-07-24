@@ -131,4 +131,9 @@ final class VendorContact
     {
         return $this->isMainContact;
     }
+
+    public function unmarkAsMainContact(): void
+    {
+        $this->isMainContact = false;
+    }
 }

@@ -3,7 +3,6 @@
 namespace App\Modules\Vendor\Application\UseCases;
 
 use App\Modules\Vendor\Application\Services\ResubmitVendorProfileOnChange;
-use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +20,7 @@ final class DeleteVendorDocumentUseCase
     public function execute(int $vendorProfileId, int $documentId): void
     {
         $filePath = DB::transaction(function () use ($vendorProfileId, $documentId): string {
-            $document = $this->findOwnedDocument($vendorProfileId, $documentId);
+            $document = $this->vendors->findDocumentByVendorProfileIdAndId($vendorProfileId, $documentId);
 
             if ($document === null) {
                 throw new ModelNotFoundException(
@@ -44,16 +43,5 @@ final class DeleteVendorDocumentUseCase
         });
 
         Storage::disk(self::DISK)->delete($filePath);
-    }
-
-    private function findOwnedDocument(int $vendorProfileId, int $documentId): ?VendorDocument
-    {
-        foreach ($this->vendors->findDocumentsByVendorProfileId($vendorProfileId) as $document) {
-            if ($document->id() === $documentId) {
-                return $document;
-            }
-        }
-
-        return null;
     }
 }

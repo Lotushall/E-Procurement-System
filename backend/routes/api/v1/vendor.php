@@ -10,5 +10,9 @@ Route::prefix('vendor')->group(function () {
 
     Route::post('contact', [VendorController::class, 'saveVendorContact'])->name('vendor.contact.save');
 
-    Route::post('document', [VendorController::class, 'updateVendorDocument'])->name('vendor.document.update');
+    Route::delete('contact/{contact}', [VendorController::class, 'deleteVendorContact'])->name('vendor.contact.delete');
+
+    Route::post('document', [VendorController::class, 'saveVendorDocument'])->name('vendor.document.update');
+
+    Route::delete('document/{document}', [VendorController::class, 'deleteVendorDocument'])->name('vendor.document.delete');
 });

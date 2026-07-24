@@ -9,7 +9,7 @@ use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-final class UpdateVendorDocumentUseCase
+final class SaveVendorDocumentUseCase
 {
     private const DISK = 'local';
 
