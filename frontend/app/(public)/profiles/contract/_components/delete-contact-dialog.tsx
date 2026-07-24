@@ -8,6 +8,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { VendorContact } from "@/lib/vendor/types";
 import { useDeleteVendorContact } from "@/lib/vendor/mutations";
 import { Trash2 } from "lucide-react";
@@ -21,10 +22,10 @@ function getErrorMessage(error: unknown): string {
 
 export default function DeleteContactDialog({
   contact,
-  disabled,
+  disabledReason,
 }: {
   contact: VendorContact;
-  disabled: boolean;
+  disabledReason?: string;
 }) {
   const [open, setOpen] = useState(false);
   const deleteVendorContactMutation = useDeleteVendorContact();
@@ -40,21 +41,34 @@ export default function DeleteContactDialog({
     });
   };
 
+  const trigger = (
+    <AlertDialogTrigger
+      render={
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="ลบผู้ติดต่อ"
+          disabled={!!disabledReason}
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed"
+        />
+      }
+    >
+      <Trash2 />
+    </AlertDialogTrigger>
+  );
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="ลบผู้ติดต่อ"
-            disabled={disabled}
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed"
-          />
-        }
-      >
-        <Trash2 />
-      </AlertDialogTrigger>
+      {disabledReason ? (
+        <Tooltip>
+          <TooltipTrigger render={<span className="inline-flex" />}>
+            {trigger}
+          </TooltipTrigger>
+          <TooltipContent>{disabledReason}</TooltipContent>
+        </Tooltip>
+      ) : (
+        trigger
+      )}
 
       <AlertDialogContent>
         <AlertDialogHeader>

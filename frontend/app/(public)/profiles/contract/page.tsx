@@ -23,55 +23,64 @@ export default function Contract() {
                 <>
                     {[...(vendor?.contact ?? [])]
                         .sort((a, b) => (b.isMainContact ? 1 : 0) - (a.isMainContact ? 1 : 0))
-                        .map((contact, index) => (
-                            <div key={index} className="flex justify-between gap-3 p-4 border rounded-md">
-                                <div className="flex md:items-center gap-2 md:gap-3.5 min-w-0">
-                                    <div className={cn(
-                                        "flex items-center justify-center shrink-0 font-bold text-white w-11 h-11 rounded-md",
-                                        contact.isMainContact ? "bg-red-700" : "bg-gray-200 text-gray-500"
-                                    )}>
-                                        {getInitials(contact.contactName)}
-                                    </div>
+                        .map((contact, index) => {
+                            const isLastContact = (vendor?.contact?.length ?? 0) <= 1;
+                            const deleteDisabledReason = contact.isMainContact
+                                ? "ไม่สามารถลบผู้ติดต่อหลักได้"
+                                : isLastContact
+                                ? "ต้องมีผู้ติดต่ออย่างน้อย 1 คน"
+                                : undefined;
 
-                                    <div className="flex flex-col min-w-0">
-                                        <div className="flex flex-col-reverse md:flex-row md:items-center gap-1 md:gap-2.5">
-                                            <p className="font-bold tracking-wide capitalize">{contact.contactName}</p>
-
-                                            {contact.isMainContact && (
-                                                <Badge className="bg-red-100 text-red-800 tracking-wider">
-                                                    ผู้ติดต่อหลัก
-                                                </Badge>
-                                            )}
+                            return (
+                                <div key={index} className="flex justify-between gap-3 p-4 border rounded-md">
+                                    <div className="flex md:items-center gap-2 md:gap-3.5 min-w-0">
+                                        <div className={cn(
+                                            "flex items-center justify-center shrink-0 font-bold text-white w-11 h-11 rounded-md",
+                                            contact.isMainContact ? "bg-red-700" : "bg-gray-200 text-gray-500"
+                                        )}>
+                                            {getInitials(contact.contactName)}
                                         </div>
 
-                                        <div className="hidden md:flex items-center gap-1 flex-wrap text-sm text-gray-600 font-thin tracking-wide">
-                                            <p className="capitalize">{contact.contactPosition || contact.contactName}</p>
-                                            {contact.contactPhone && (
-                                                <p> · {formatPhone(contact.contactPhone)}</p>
-                                            )}
+                                        <div className="flex flex-col min-w-0">
+                                            <div className="flex flex-col-reverse md:flex-row md:items-center gap-1 md:gap-2.5">
+                                                <p className="font-bold tracking-wide capitalize">{contact.contactName}</p>
 
-                                            {contact.contactEmail && (
-                                                <p className="break-all"> · {contact.contactEmail}</p>
-                                            )}
+                                                {contact.isMainContact && (
+                                                    <Badge className="bg-red-100 text-red-800 tracking-wider">
+                                                        ผู้ติดต่อหลัก
+                                                    </Badge>
+                                                )}
+                                            </div>
 
-                                            {contact.lineId && (
-                                                <p> · {contact.lineId}</p>
-                                            )}
+                                            <div className="hidden md:flex items-center gap-1 flex-wrap text-sm text-gray-600 font-thin tracking-wide">
+                                                <p className="capitalize">{contact.contactPosition || contact.contactName}</p>
+                                                {contact.contactPhone && (
+                                                    <p> · {formatPhone(contact.contactPhone)}</p>
+                                                )}
 
-                                            {contact.otherContact && (
-                                                <p> · {contact.otherContact}</p>
-                                            )}
+                                                {contact.contactEmail && (
+                                                    <p className="break-all"> · {contact.contactEmail}</p>
+                                                )}
+
+                                                {contact.lineId && (
+                                                    <p> · {contact.lineId}</p>
+                                                )}
+
+                                                {contact.otherContact && (
+                                                    <p> · {contact.otherContact}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center justify-end md:gap-1">
-                                    <ViewContactDialog contact={contact} />
-                                    <EditContactDialog contact={contact} />
-                                    <DeleteContactDialog contact={contact} disabled={(vendor?.contact?.length ?? 0) <= 1} />
+                                    <div className="flex items-center justify-end md:gap-1">
+                                        <ViewContactDialog contact={contact} />
+                                        <EditContactDialog contact={contact} />
+                                        <DeleteContactDialog contact={contact} disabledReason={deleteDisabledReason} />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                 </>
             ) : (
                 <div className="flex justify-center items-center h-70">
