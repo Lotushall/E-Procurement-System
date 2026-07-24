@@ -23,7 +23,7 @@ test('a vendor can delete their contact', function () {
         contactEmail: Email::fromString('contact@company.com'),
         lineId: 'acme-co',
         otherContact: null,
-        isMainContact: true,
+        isMainContact: false,
     ));
 
     $this->actingAs($user, 'web');
@@ -33,6 +33,31 @@ test('a vendor can delete their contact', function () {
     $response->assertOk()->assertJsonPath('data.contact', []);
 
     $this->assertDatabaseMissing('vendor_contact', ['id' => $contact->id()]);
+});
+
+test('a vendor cannot delete their main contact', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $mainContact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->deleteJson("/api/v1/vendor/contact/{$mainContact->id()}");
+
+    $response->assertStatus(500);
+
+    $this->assertDatabaseHas('vendor_contact', ['id' => $mainContact->id()]);
 });
 
 test('deleting vendor contact requires authentication', function () {

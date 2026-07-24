@@ -30,12 +30,34 @@ test('execute deletes the contact', function () {
         contactEmail: Email::fromString('contact@company.com'),
         lineId: 'acme-co',
         otherContact: null,
-        isMainContact: true,
+        isMainContact: false,
     ));
 
     deleteVendorContactUseCase()->execute($profile->id(), $contact->id());
 
     $this->assertDatabaseMissing('vendor_contact', ['id' => $contact->id()]);
+});
+
+test('execute throws when the contact is the main contact', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $mainContact = $repository->saveContact(VendorContact::create(
+        vendorProfileId: $profile->id(),
+        contactName: 'Jane Doe',
+        contactPosition: 'Manager',
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@company.com'),
+        lineId: 'acme-co',
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    expect(fn () => deleteVendorContactUseCase()->execute($profile->id(), $mainContact->id()))
+        ->toThrow(DomainException::class);
+
+    $this->assertDatabaseHas('vendor_contact', ['id' => $mainContact->id()]);
 });
 
 test('execute throws when the contact does not belong to the vendor profile', function () {
@@ -86,7 +108,7 @@ test('execute resubmits an approved vendor profile back to pending after a conta
         contactEmail: Email::fromString('contact@company.com'),
         lineId: 'acme-co',
         otherContact: null,
-        isMainContact: true,
+        isMainContact: false,
     ));
 
     deleteVendorContactUseCase()->execute($profile->id(), $contact->id());
@@ -110,7 +132,7 @@ test('execute does not error when the vendor profile is already pending', functi
         contactEmail: Email::fromString('contact@company.com'),
         lineId: 'acme-co',
         otherContact: null,
-        isMainContact: true,
+        isMainContact: false,
     ));
 
     deleteVendorContactUseCase()->execute($profile->id(), $contact->id());

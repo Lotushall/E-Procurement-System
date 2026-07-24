@@ -4,6 +4,7 @@ namespace App\Modules\Vendor\Application\UseCases;
 
 use App\Modules\Vendor\Application\Services\ResubmitVendorProfileOnChange;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
+use DomainException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
@@ -22,6 +23,12 @@ final class DeleteVendorContactUseCase
             if ($contact === null) {
                 throw new ModelNotFoundException(
                     "Vendor contact {$contactId} not found for vendor profile {$vendorProfileId}."
+                );
+            }
+
+            if ($contact->isMainContact()) {
+                throw new DomainException(
+                    "Vendor contact {$contactId} is the main contact for vendor profile {$vendorProfileId} and cannot be deleted."
                 );
             }
 
