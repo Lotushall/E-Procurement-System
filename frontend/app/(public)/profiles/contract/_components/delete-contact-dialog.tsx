@@ -34,7 +34,7 @@ export default function DeleteContactDialog({
       loading: "กำลังลบผู้ติดต่อ...",
       success: () => {
         setOpen(false);
-        return "ลบผู้ติดต่อสำเร็จ";
+        return "ลบข้อมูลผู้ติดต่อสำเร็จ";
       },
       error: getErrorMessage,
     });
