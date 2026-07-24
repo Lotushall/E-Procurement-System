@@ -61,7 +61,7 @@ export default function DeleteContactDialog({
     <AlertDialog open={open} onOpenChange={setOpen}>
       {disabledReason ? (
         <Tooltip>
-          <TooltipTrigger render={<span className="inline-flex" />}>
+          <TooltipTrigger render={<span className="inline-flex" tabIndex={0} />}>
             {trigger}
           </TooltipTrigger>
           <TooltipContent>{disabledReason}</TooltipContent>
