@@ -21,6 +21,7 @@ export default function Document() {
                             documentType={doc.key}
                             label={doc.label}
                             required={doc.required}
+                            fileKind={doc.fileKind}
                             existingDocument={vendor.document?.find((d) => d.documentType === doc.key)}
                         />
                     ))}

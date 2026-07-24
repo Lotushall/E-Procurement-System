@@ -10,6 +10,7 @@ import type { VendorDocument } from "@/lib/vendor/types";
 import { FileText, Paperclip } from "lucide-react";
 import { useSaveVendorDocument } from "@/lib/vendor/mutations";
 import DeleteDocumentDialog from "./delete-document-dialog";
+import { FILE_KIND_CONFIG, type FileKind } from "../../data/document-types";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -40,11 +41,13 @@ export default function DocumentRow({
   documentType,
   label,
   required,
+  fileKind,
   existingDocument,
 }: {
   documentType: string;
   label: string;
   required: boolean;
+  fileKind: FileKind;
   existingDocument?: VendorDocument;
 }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -55,6 +58,15 @@ export default function DocumentRow({
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+
+    const kindConfig = FILE_KIND_CONFIG[fileKind];
+    const hasAllowedExtension = kindConfig.extensions.some((ext) =>
+      file.name.toLowerCase().endsWith(ext),
+    );
+    if (!hasAllowedExtension) {
+      toast.error(kindConfig.errorMessage);
+      return;
+    }
 
     setSelectedFile(file);
 
@@ -114,7 +126,7 @@ export default function DocumentRow({
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,.jpg,.jpeg,.png"
+        accept={FILE_KIND_CONFIG[fileKind].accept}
         className="hidden"
         onChange={handleChange}
       />
