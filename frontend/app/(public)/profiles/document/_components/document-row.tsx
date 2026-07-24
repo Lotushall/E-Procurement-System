@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
-import { FileText, Paperclip, Trash2 } from "lucide-react";
+import { FileText, Paperclip } from "lucide-react";
 import { useSaveVendorDocument } from "@/lib/vendor/mutations";
+import DeleteDocumentDialog from "./delete-document-dialog";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -70,11 +71,6 @@ export default function DocumentRow({
     });
   };
 
-  const handleDelete = () => {
-    console.log({ action: "delete", documentType, existingDocument });
-    setSelectedFile(null);
-  };
-
   const fileName = selectedFile?.name ?? existingDocument?.fileName;
   const fileSize = selectedFile ? formatFileSize(selectedFile.size) : undefined;
   const status = selectedFile ? STATUS_STYLE.pending : (existingDocument && STATUS_STYLE[existingDocument.status]);
@@ -134,17 +130,8 @@ export default function DocumentRow({
           {fileName ? "เปลี่ยนไฟล์" : "แนบไฟล์"}
         </Button>
 
-        {fileName && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label="ลบไฟล์"
-            onClick={handleDelete}
-            className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          >
-            <Trash2 />
-          </Button>
+        {existingDocument && !updateVendorDocumentMutation.isPending && (
+          <DeleteDocumentDialog document={existingDocument} />
         )}
       </div>
     </div>
