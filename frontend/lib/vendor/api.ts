@@ -33,6 +33,10 @@ export async function saveVendorContact(
   await api.post("/api/v1/vendor/contact", payload);
 }
 
+export async function deleteVendorContact(id: number): Promise<void> {
+  await api.delete(`/api/v1/vendor/contact/${id}`);
+}
+
 export async function saveVendorDocument(
   payload: UpdateVendorDocumentPayload,
 ): Promise<void> {
@@ -40,4 +44,8 @@ export async function saveVendorDocument(
   formData.append("documentType", payload.documentType);
   formData.append("file", payload.file);
   await api.post("/api/v1/vendor/document", formData);
+}
+
+export async function deleteVendorDocument(id: number): Promise<void> {
+  await api.delete(`/api/v1/vendor/document/${id}`);
 }

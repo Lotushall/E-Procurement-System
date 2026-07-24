@@ -31,6 +31,7 @@ interface VendorIndividualProfileDetail {
 }
 
 export interface VendorDocument {
+  id: number;
   documentType: string;
   fileName: string;
   filePath: string;
