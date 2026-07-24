@@ -4,6 +4,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  deleteVendorContact,
+  deleteVendorDocument,
   saveVendorContact,
   saveVendorDocument,
   updateVendorInfo,
@@ -55,6 +57,24 @@ export function useSaveVendorDocument() {
   return useMutation({
     mutationFn: (payload: UpdateVendorDocumentPayload) =>
       saveVendorDocument(payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: VENDOR_PROFILE_QUERY_KEY }),
+  });
+}
+
+export function useDeleteVendorContact() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteVendorContact(id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: VENDOR_PROFILE_QUERY_KEY }),
+  });
+}
+
+export function useDeleteVendorDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteVendorDocument(id),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: VENDOR_PROFILE_QUERY_KEY }),
   });
