@@ -340,7 +340,7 @@ export default function DeleteContactDialog({
       loading: "กำลังลบผู้ติดต่อ...",
       success: () => {
         setOpen(false);
-        return "ลบผู้ติดต่อสำเร็จ";
+        return "ลบข้อมูลผู้ติดต่อสำเร็จ";
       },
       error: getErrorMessage,
     });
@@ -399,7 +399,7 @@ Expected: no new errors/warnings from this file.
 - [ ] **Step 4: Manual verification**
 
 Run (from `frontend/`): `npm run dev`, log in as a vendor with 2+ contacts, go to the "ผู้ติดต่อ" tab (`/profiles/contract`).
-- Click the trash icon on a non-last contact → dialog opens with "ต้องการลบผู้ติดต่อ "<name>" ใช่หรือไม่?" → click "ลบผู้ติดต่อ" → toast shows "กำลังลบผู้ติดต่อ..." then "ลบผู้ติดต่อสำเร็จ" → dialog closes → contact row disappears from the list.
+- Click the trash icon on a non-last contact → dialog opens with "ต้องการลบผู้ติดต่อ "<name>" ใช่หรือไม่?" → click "ลบผู้ติดต่อ" → toast shows "กำลังลบผู้ติดต่อ..." then "ลบข้อมูลผู้ติดต่อสำเร็จ" → dialog closes → contact row disappears from the list.
 - With only 1 contact left, confirm the trash icon is still disabled (pre-existing `disabled` prop from `contract/page.tsx`, unaffected by this change).
 
 - [ ] **Step 5: Commit**
