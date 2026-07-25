@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, LogOutIcon, Menu, UserIcon } from "lucide-react";
+import { Bell, ChevronDown, LogOutIcon, Menu, UserIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
@@ -123,13 +123,17 @@ function ProfileMenu() {
                 render={
                     <button
                         aria-label="เมนูผู้ใช้"
-                        className="flex items-center justify-center rounded-full p-1 cursor-pointer transition-colors hover:bg-accent"
+                        className="flex items-center justify-center gap-2 rounded-full p-1 cursor-pointer transition-colors hover:bg-accent md:justify-start md:border md:border-border md:bg-background md:py-1 md:pl-1 md:pr-3 md:hover:bg-accent/60"
                     >
                         <Avatar>
                             <AvatarFallback className="bg-red-700 font-semibold text-white">
                                 {initials}
                             </AvatarFallback>
                         </Avatar>
+                        <span className="hidden max-w-28 truncate text-sm font-medium capitalize md:inline">
+                            {profile_name}
+                        </span>
+                        <ChevronDown className="hidden size-4 text-muted-foreground md:block" />
                     </button>
                 }
             />

@@ -9,8 +9,10 @@ import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
 import { FileText, Paperclip } from "lucide-react";
 import { useSaveVendorDocument } from "@/lib/vendor/mutations";
+import { getVendorDocumentViewUrl } from "@/lib/vendor/api";
 import DeleteDocumentDialog from "./delete-document-dialog";
 import { FILE_KIND_CONFIG, type FileKind } from "../../data/document-types";
+import Link from "next/link";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -85,18 +87,60 @@ export default function DocumentRow({
 
   const fileName = selectedFile?.name ?? existingDocument?.fileName;
   const fileSize = selectedFile ? formatFileSize(selectedFile.size) : undefined;
+  const fileExtension = fileName?.split(".").pop()?.toUpperCase();
   const status = selectedFile ? STATUS_STYLE.pending : (existingDocument && STATUS_STYLE[existingDocument.status]);
+  const viewUrl =
+    existingDocument && !updateVendorDocumentMutation.isPending
+      ? getVendorDocumentViewUrl(existingDocument.id)
+      : undefined;
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border rounded-md">
       <div className="flex items-center gap-2 md:gap-3.5 min-w-0 flex-1">
-        <div className="flex items-center justify-center shrink-0 w-11 h-11 rounded-md bg-gray-200 text-gray-600">
-          <FileText size={20} />
-        </div>
+        {viewUrl ? (
+          <Link
+            href={viewUrl}
+            target="_blank"
+            rel="noopener"
+            aria-label={`ดูไฟล์ ${fileName}`}
+            className="flex items-center justify-center shrink-0 w-11 h-11 rounded-md bg-red-700 text-white text-xs font-bold hover:bg-red-800 transition-colors"
+          >
+            {fileExtension}
+          </Link>
+        ) : fileName ? (
+          <div className="flex items-center justify-center shrink-0 w-11 h-11 rounded-md bg-red-700 text-white text-xs font-bold">
+            {fileExtension}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center shrink-0 w-11 h-11 rounded-md bg-gray-200 text-gray-600">
+            <FileText size={20} />
+          </div>
+        )}
 
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex flex-col-reverse md:flex-row md:items-center gap-1 md:gap-2.5">
-            <p className="font-bold tracking-wide">{label}</p>
+            <div className="flex items-center gap-1.5">
+              {viewUrl ? (
+                <Link
+                  href={viewUrl}
+                  target="_blank"
+                  rel="noopener"
+                  className="font-bold tracking-wide hover:underline"
+                >
+                  {label}
+                </Link>
+              ) : (
+                <p className="font-bold tracking-wide">{label}</p>
+              )}
+              {required && !fileName && (
+                <span
+                  className="w-1.75 h-1.75 shrink-0 rounded-full bg-red-600"
+                  role="img"
+                  aria-label="เอกสารบังคับ"
+                  title="เอกสารบังคับ"
+                />
+              )}
+            </div>
 
             <div className="flex flex-row justify-start items-center md:flex-row gap-1">
               {!required && (
@@ -110,16 +154,21 @@ export default function DocumentRow({
               )}
             </div>
           </div>
-          <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal">
-            {fileName ? (
-              <>
-                {fileName}
-                {fileSize && ` · ${fileSize}`}
-              </>
-            ) : (
-              "ยังไม่มีเอกสาร"
-            )}
-          </p>
+          {viewUrl ? (
+            <Link
+              href={viewUrl}
+              target="_blank"
+              rel="noopener"
+              className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal hover:underline"
+            >
+              {fileName}
+              {fileSize && ` · ${fileSize}`}
+            </Link>
+          ) : (
+            <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal">
+              {fileName ?? "ยังไม่มีเอกสาร"}
+            </p>
+          )}
         </div>
       </div>
 

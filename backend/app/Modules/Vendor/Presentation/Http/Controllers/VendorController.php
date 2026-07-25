@@ -12,12 +12,15 @@ use App\Modules\Vendor\Application\UseCases\DeleteVendorDocumentUseCase;
 use App\Modules\Vendor\Application\UseCases\SaveVendorContactUseCase;
 use App\Modules\Vendor\Application\UseCases\SaveVendorDocumentUseCase;
 use App\Modules\Vendor\Application\UseCases\UpdateVendorInfoUseCase;
+use App\Modules\Vendor\Application\UseCases\ViewVendorDocumentUseCase;
 use App\Modules\Vendor\Presentation\Http\Requests\SaveVendorContactRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\SaveVendorDocumentRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\UpdateVendorInfoRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class VendorController extends Controller
@@ -29,6 +32,7 @@ class VendorController extends Controller
         private readonly DeleteVendorContactUseCase $deleteVendorContact,
         private readonly SaveVendorDocumentUseCase $saveVendorDocument,
         private readonly DeleteVendorDocumentUseCase $deleteVendorDocument,
+        private readonly ViewVendorDocumentUseCase $viewVendorDocument,
     ) {}
 
     public function profile(Request $request): JsonResponse
@@ -137,5 +141,20 @@ class VendorController extends Controller
             'message' => 'ลบเอกสารสำเร็จ',
             'data' => new VendorProfileResource($this->getVendorProfile->execute($request->user()->id)),
         ]);
+    }
+
+    public function viewVendorDocument(Request $request, int $document): StreamedResponse|JsonResponse
+    {
+        $vendorProfile = $this->getVendorProfile->execute($request->user()->id);
+
+        try {
+            $document = $this->viewVendorDocument->execute($vendorProfile->id, $document);
+        } catch (Throwable $th) {
+            app_log('Vendor document view failed.', ['error' => $th], 'error', 'vendor');
+
+            return response()->json(['message' => 'ไม่พบเอกสาร'], 500);
+        }
+
+        return Storage::disk('local')->response($document->filePath(), $document->fileName());
     }
 }

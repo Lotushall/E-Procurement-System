@@ -49,3 +49,7 @@ export async function saveVendorDocument(
 export async function deleteVendorDocument(id: number): Promise<void> {
   await api.delete(`/api/v1/vendor/document/${id}`);
 }
+
+export function getVendorDocumentViewUrl(id: number): string {
+  return `${process.env.NEXT_PUBLIC_API_URL}/api/v1/vendor/document/${id}/view`;
+}

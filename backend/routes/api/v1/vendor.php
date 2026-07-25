@@ -15,4 +15,8 @@ Route::prefix('vendor')->group(function () {
     Route::post('document', [VendorController::class, 'saveVendorDocument'])->name('vendor.document.update');
 
     Route::delete('document/{document}', [VendorController::class, 'deleteVendorDocument'])->name('vendor.document.delete');
+
+    Route::get('document/{document}/view', [VendorController::class, 'viewVendorDocument'])
+        ->whereNumber('document')
+        ->name('vendor.document.view');
 });
