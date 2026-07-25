@@ -69,3 +69,29 @@ test('execute throws when the document id does not exist', function () {
     expect(fn () => viewVendorDocumentUseCase()->execute($profile->id(), 999999))
         ->toThrow(ModelNotFoundException::class);
 });
+
+test('execute returns any vendor document when no vendor profile id is given', function () {
+    Storage::fake('local');
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $filePath = UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf')
+        ->store("vendor-documents/{$profile->id()}", 'local');
+
+    $document = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'company_registration',
+        fileName: 'registration.pdf',
+        filePath: $filePath,
+    ));
+
+    $result = viewVendorDocumentUseCase()->execute(null, $document->id());
+
+    expect($result->id())->toBe($document->id());
+});
+
+test('execute throws when no vendor profile id is given and the document id does not exist', function () {
+    expect(fn () => viewVendorDocumentUseCase()->execute(null, 999999))
+        ->toThrow(ModelNotFoundException::class);
+});

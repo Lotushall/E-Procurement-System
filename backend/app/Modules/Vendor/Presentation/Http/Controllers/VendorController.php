@@ -3,6 +3,7 @@
 namespace App\Modules\Vendor\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorDocumentData;
 use App\Modules\Vendor\Application\DTOs\UpdateVendorInfoData;
@@ -145,10 +146,12 @@ class VendorController extends Controller
 
     public function viewVendorDocument(Request $request, int $document): StreamedResponse|JsonResponse
     {
-        $vendorProfile = $this->getVendorProfile->execute($request->user()->id);
+        $vendorProfileId = $request->user()->user_type === UserType::Internal
+            ? null
+            : $this->getVendorProfile->execute($request->user()->id)->id;
 
         try {
-            $document = $this->viewVendorDocument->execute($vendorProfile->id, $document);
+            $document = $this->viewVendorDocument->execute($vendorProfileId, $document);
         } catch (Throwable $th) {
             app_log('Vendor document view failed.', ['error' => $th], 'error', 'vendor');
 

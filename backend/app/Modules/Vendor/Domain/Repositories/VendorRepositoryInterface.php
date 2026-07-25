@@ -44,5 +44,7 @@ interface VendorRepositoryInterface
 
     public function findDocumentByVendorProfileIdAndId(int $vendorProfileId, int $documentId): ?VendorDocument;
 
+    public function findDocumentById(int $documentId): ?VendorDocument;
+
     public function deleteDocument(VendorDocument $document): void;
 }

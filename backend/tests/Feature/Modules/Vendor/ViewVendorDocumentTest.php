@@ -41,6 +41,32 @@ test('viewing vendor document requires authentication', function () {
     $response->assertStatus(401);
 });
 
+test('an internal user can view any vendor document', function () {
+    Storage::fake('local');
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+
+    $filePath = UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf')
+        ->store("vendor-documents/{$profile->id()}", 'local');
+
+    $document = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'company_registration',
+        fileName: 'registration.pdf',
+        filePath: $filePath,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->get("/api/v1/vendor/document/{$document->id()}/view");
+
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'application/pdf');
+    expect($response->streamedContent())->toBe(Storage::disk('local')->get($filePath));
+});
+
 test('a vendor cannot view another vendor document', function () {
     Storage::fake('local');
     $ownerUser = User::factory()->create(['user_type' => 'company']);

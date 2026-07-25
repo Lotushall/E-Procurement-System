@@ -198,6 +198,13 @@ class VendorRepository implements VendorRepositoryInterface
         return $model !== null ? $this->mapDocumentToEntity($model) : null;
     }
 
+    public function findDocumentById(int $documentId): ?VendorDocument
+    {
+        $model = VendorDocuments::find($documentId);
+
+        return $model !== null ? $this->mapDocumentToEntity($model) : null;
+    }
+
     public function deleteDocument(VendorDocument $document): void
     {
         VendorDocuments::findOrFail($document->id())->delete();

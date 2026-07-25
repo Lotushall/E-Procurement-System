@@ -12,13 +12,17 @@ final class ViewVendorDocumentUseCase
         private readonly VendorRepositoryInterface $vendors,
     ) {}
 
-    public function execute(int $vendorProfileId, int $documentId): VendorDocument
+    public function execute(?int $vendorProfileId, int $documentId): VendorDocument
     {
-        $document = $this->vendors->findDocumentByVendorProfileIdAndId($vendorProfileId, $documentId);
+        $document = $vendorProfileId !== null
+            ? $this->vendors->findDocumentByVendorProfileIdAndId($vendorProfileId, $documentId)
+            : $this->vendors->findDocumentById($documentId);
 
         if ($document === null) {
             throw new ModelNotFoundException(
-                "Vendor document {$documentId} not found for vendor profile {$vendorProfileId}."
+                $vendorProfileId !== null
+                    ? "Vendor document {$documentId} not found for vendor profile {$vendorProfileId}."
+                    : "Vendor document {$documentId} not found."
             );
         }
 
