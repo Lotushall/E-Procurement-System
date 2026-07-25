@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
-import { isAxiosError } from "axios";
+import { isAxiosError, isCancel } from "axios";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
-import { FileText, Paperclip } from "lucide-react";
+import { FileText, Paperclip, X } from "lucide-react";
 import { useSaveVendorDocument } from "@/lib/vendor/mutations";
 import { getVendorDocumentViewUrl } from "@/lib/vendor/api";
 import DeleteDocumentDialog from "./delete-document-dialog";
@@ -53,10 +54,12 @@ export default function DocumentRow({
   existingDocument?: VendorDocument;
 }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const updateVendorDocumentMutation = useSaveVendorDocument();
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -71,18 +74,35 @@ export default function DocumentRow({
     }
 
     setSelectedFile(file);
+    setUploadProgress(0);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-    toast.promise(updateVendorDocumentMutation.mutateAsync({ documentType, file }), {
-      loading: "กำลังอัปโหลดเอกสาร...",
-      success: () => {
-        setSelectedFile(null);
-        return "อัปโหลดเอกสารสำเร็จ";
-      },
-      error: (error) => {
-        setSelectedFile(null);
-        return getErrorMessage(error);
-      },
-    });
+    const toastId = toast.loading("กำลังอัปโหลดเอกสาร...");
+
+    try {
+      await updateVendorDocumentMutation.mutateAsync({
+        documentType,
+        file,
+        signal: controller.signal,
+        onUploadProgress: setUploadProgress,
+      });
+      toast.success("อัปโหลดเอกสารสำเร็จ", { id: toastId });
+    } catch (error) {
+      if (isCancel(error)) {
+        toast.message("ยกเลิกการอัปโหลดแล้ว", { id: toastId });
+      } else {
+        toast.error(getErrorMessage(error), { id: toastId });
+      }
+    } finally {
+      setSelectedFile(null);
+      setUploadProgress(null);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleCancelUpload = () => {
+    abortControllerRef.current?.abort();
   };
 
   const fileName = selectedFile?.name ?? existingDocument?.fileName;
@@ -95,7 +115,7 @@ export default function DocumentRow({
       : undefined;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border rounded-md">
+    <div className="relative flex flex-col sm:flex-row sm:items-center gap-3 p-4 border rounded-md overflow-hidden">
       <div className="flex items-center gap-2 md:gap-3.5 min-w-0 flex-1">
         {viewUrl ? (
           <Link
@@ -195,6 +215,25 @@ export default function DocumentRow({
           <DeleteDocumentDialog document={existingDocument} />
         )}
       </div>
+
+      {updateVendorDocumentMutation.isPending && (
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            onClick={handleCancelUpload}
+            aria-label="ยกเลิกการอัปโหลด"
+            className="absolute top-2 right-2 bg-background/80"
+          >
+            <X />
+          </Button>
+          <Progress
+            value={uploadProgress}
+            className="absolute inset-x-0 bottom-0 h-1 w-full rounded-none bg-transparent"
+          />
+        </>
+      )}
     </div>
   );
 }
