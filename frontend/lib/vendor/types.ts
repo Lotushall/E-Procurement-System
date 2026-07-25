@@ -79,6 +79,8 @@ export interface SaveVendorContactPayload {
 export interface UpdateVendorDocumentPayload {
   documentType: string;
   file: File;
+  signal?: AbortSignal;
+  onUploadProgress?: (percent: number) => void;
 }
 
 export interface UpdateVendorInfoPayload {

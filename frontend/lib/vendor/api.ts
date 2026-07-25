@@ -43,7 +43,15 @@ export async function saveVendorDocument(
   const formData = new FormData();
   formData.append("documentType", payload.documentType);
   formData.append("file", payload.file);
-  await api.post("/api/v1/vendor/document", formData);
+  await api.post("/api/v1/vendor/document", formData, {
+    signal: payload.signal,
+    onUploadProgress: payload.onUploadProgress
+      ? (event) => {
+          const total = event.total ?? payload.file.size;
+          payload.onUploadProgress!(Math.round((event.loaded / total) * 100));
+        }
+      : undefined,
+  });
 }
 
 export async function deleteVendorDocument(id: number): Promise<void> {
