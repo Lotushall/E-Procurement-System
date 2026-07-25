@@ -24,45 +24,48 @@ export function getVendorDocumentViewUrl(id: number): string {
 
 ## Part 2: `document-row.tsx`
 
-เพิ่มปุ่ม "ดูไฟล์" (ไอคอน `Eye` จาก lucide-react) ข้าง `DeleteDocumentDialog` เดิม เงื่อนไขแสดงเหมือนกัน
-ทุกประการ (มี `existingDocument` และไม่ได้กำลังอัปโหลดอยู่) — เป็น native `<a>` เปิดแท็บใหม่ ไม่ใช่
-`Button` + `onClick` + `window.open` เพื่อให้ผู้ใช้คลิกขวา "เปิดในแท็บใหม่"/copy link ได้แบบลิงก์ปกติด้วย:
+แทนที่จะเพิ่มปุ่มแยก ให้ตัว label (ชื่อประเภทเอกสาร) กับชื่อไฟล์ที่แสดงอยู่แล้วเป็นลิงก์กดดูไฟล์ได้เลย
+(ตัดสินใจเปลี่ยนจากดราฟต์แรกที่ใช้ปุ่มไอคอน `Eye` แยก) เงื่อนไขแสดงเป็นลิงก์: มี `existingDocument` และ
+ไม่ได้กำลังอัปโหลดอยู่ (`!updateVendorDocumentMutation.isPending`) — เหมือนเงื่อนไขเดิมของปุ่มลบ ไม่งั้น
+render เป็น `<p>` ธรรมดาเหมือนเดิม (ไม่มีอะไรให้ดู):
 
 ```tsx
-{existingDocument && !updateVendorDocumentMutation.isPending && (
-  <Button
-    render={
-      <a
-        href={getVendorDocumentViewUrl(existingDocument.id)}
-        target="_blank"
-        rel="noopener noreferrer"
-      />
-    }
-    nativeButton={false}
-    type="button"
-    variant="ghost"
-    size="icon"
-    aria-label="ดูไฟล์"
-    className="shrink-0"
-  >
-    <Eye />
-  </Button>
+const viewUrl =
+  existingDocument && !updateVendorDocumentMutation.isPending
+    ? getVendorDocumentViewUrl(existingDocument.id)
+    : undefined;
+
+// label:
+{viewUrl ? (
+  <a href={viewUrl} target="_blank" rel="noopener noreferrer" className="font-bold tracking-wide hover:underline">
+    {label}
+  </a>
+) : (
+  <p className="font-bold tracking-wide">{label}</p>
 )}
-{existingDocument && !updateVendorDocumentMutation.isPending && (
-  <DeleteDocumentDialog document={existingDocument} />
+
+// ชื่อไฟล์:
+{viewUrl ? (
+  <a href={viewUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal hover:underline">
+    {fileName}
+    {fileSize && ` · ${fileSize}`}
+  </a>
+) : (
+  <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal">
+    {fileName ?? "ยังไม่มีเอกสาร"}
+  </p>
 )}
 ```
 
-Import เพิ่ม: `Eye` จาก `lucide-react`, `getVendorDocumentViewUrl` จาก `@/lib/vendor/api`
-
-`Button`'s `render` prop pattern (native `<a>`, `nativeButton={false}`) มิเรอร์การใช้งานเดิมใน
-`AuthControl` (`components/navbar.tsx`) ที่ใช้ `render={<Link .../>}` — ต่างกันแค่ใช้ `<a>` เพราะเป็น URL
-ไปยัง backend คนละ origin ไม่ใช่ Next.js internal route ที่ใช้ `Link` ได้
+Import เพิ่มแค่ `getVendorDocumentViewUrl` จาก `@/lib/vendor/api` (ไม่ต้องมี `Eye`/`Button` render-prop
+เพิ่มแล้ว) native `<a>` เปิดแท็บใหม่ (ไม่ใช้ `window.open`) เพื่อให้ผู้ใช้คลิกขวา "เปิดในแท็บใหม่"/copy
+link ได้แบบลิงก์ปกติด้วย
 
 ## Out of scope
 
 - Preview แบบ modal ในหน้าเว็บเอง (เปิดแท็บใหม่พอ ตามที่ตกลงกันไว้)
-- ปุ่มดูไฟล์ตอน `selectedFile` ยังอัปโหลดไม่เสร็จ (ยังไม่มี `id` จาก backend ให้ดู เหมือนเงื่อนไขเดิมของปุ่มลบ)
+- ลิงก์ดูไฟล์ตอน `selectedFile` ยังอัปโหลดไม่เสร็จ (ยังไม่มี `id` จาก backend ให้ดู เหมือนเงื่อนไขเดิมของ
+  ปุ่มลบ) — ตอนนั้น label/ชื่อไฟล์ยัง render เป็น `<p>` ธรรมดา ไม่ใช่ลิงก์
 
 ## Testing
 
