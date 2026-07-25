@@ -38,7 +38,7 @@ final class DeleteVendorContactUseCase
                 'vendor_profile_id' => $vendorProfileId,
             ], 'info', 'vendor');
 
-            ($this->resubmitter)($vendorProfileId);
+            ($this->resubmitter)($vendorProfileId, 'a contact change');
         });
     }
 }

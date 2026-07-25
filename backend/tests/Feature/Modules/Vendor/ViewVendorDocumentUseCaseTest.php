@@ -23,7 +23,7 @@ test('execute returns the document owned by the vendor profile', function () {
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    $filePath = UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf')
+    $filePath = UploadedFile::fake()->createWithContent('registration.pdf', "%PDF-1.4\n")
         ->store("vendor-documents/{$profile->id()}", 'local');
 
     $document = $repository->saveDocument(VendorDocument::create(
@@ -76,7 +76,7 @@ test('execute returns any vendor document when no vendor profile id is given', f
     $repository = new VendorRepository;
     $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
-    $filePath = UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf')
+    $filePath = UploadedFile::fake()->createWithContent('registration.pdf', "%PDF-1.4\n")
         ->store("vendor-documents/{$profile->id()}", 'local');
 
     $document = $repository->saveDocument(VendorDocument::create(
@@ -94,4 +94,24 @@ test('execute returns any vendor document when no vendor profile id is given', f
 test('execute throws when no vendor profile id is given and the document id does not exist', function () {
     expect(fn () => viewVendorDocumentUseCase()->execute(null, 999999))
         ->toThrow(ModelNotFoundException::class);
+});
+
+test('execute throws when the stored file content does not match an allowed type', function () {
+    Storage::fake('local');
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+
+    $filePath = UploadedFile::fake()->createWithContent('registration.pdf', '<html><script>alert(1)</script></html>')
+        ->store("vendor-documents/{$profile->id()}", 'local');
+
+    $document = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'company_registration',
+        fileName: 'registration.pdf',
+        filePath: $filePath,
+    ));
+
+    expect(fn () => viewVendorDocumentUseCase()->execute($profile->id(), $document->id()))
+        ->toThrow(DomainException::class);
 });

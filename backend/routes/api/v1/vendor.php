@@ -17,6 +17,7 @@ Route::prefix('vendor')->group(function () {
     Route::delete('document/{document}', [VendorController::class, 'deleteVendorDocument'])->name('vendor.document.delete');
 
     Route::get('document/{document}/view', [VendorController::class, 'viewVendorDocument'])
+        ->middleware('throttle:30,1')
         ->whereNumber('document')
         ->name('vendor.document.view');
 });

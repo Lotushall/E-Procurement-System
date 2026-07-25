@@ -37,7 +37,7 @@ final class DeleteVendorDocumentUseCase
                 'document_type' => $document->documentType(),
             ], 'info', 'vendor');
 
-            ($this->resubmitter)($vendorProfileId);
+            ($this->resubmitter)($vendorProfileId, 'a document change');
 
             return $filePath;
         });

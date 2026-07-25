@@ -10,7 +10,7 @@ final class ResubmitVendorProfileOnChange
         private readonly VendorRepositoryInterface $vendors,
     ) {}
 
-    public function __invoke(int $vendorProfileId): void
+    public function __invoke(int $vendorProfileId, string $reason = 'a profile change'): void
     {
         $profile = $this->vendors->findProfileById($vendorProfileId);
 
@@ -21,7 +21,7 @@ final class ResubmitVendorProfileOnChange
         $profile->resubmit();
         $this->vendors->saveProfile($profile);
 
-        app_log('Vendor profile resubmitted for review after document change', [
+        app_log("Vendor profile resubmitted for review after {$reason}", [
             'vendor_profile_id' => $vendorProfileId,
         ], 'info', 'vendor');
     }

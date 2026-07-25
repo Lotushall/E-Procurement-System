@@ -127,6 +127,11 @@ final class SaveVendorContactUseCase
 
             $contact->unmarkAsMainContact();
             $this->vendors->saveContact($contact);
+
+            app_log('Vendor contact unmarked as main contact', [
+                'vendor_profile_id' => $vendorProfileId,
+                'contact_id' => $contact->id(),
+            ], 'info', 'vendor');
         }
     }
 }

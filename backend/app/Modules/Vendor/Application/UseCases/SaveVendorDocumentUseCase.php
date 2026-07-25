@@ -52,7 +52,7 @@ final class SaveVendorDocumentUseCase
                 ], 'info', 'vendor');
             }
 
-            ($this->resubmitter)($vendorProfileId);
+            ($this->resubmitter)($vendorProfileId, 'a document change');
         });
     }
 }
