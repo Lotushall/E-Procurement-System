@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, ChevronDown, LogOutIcon, Menu, UserIcon } from "lucide-react";
+import { Bell, Building2, CheckCircle2, ChevronDown, CircleUserRound, FileText, LogOutIcon, Menu, UserIcon, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
@@ -26,6 +26,7 @@ import { useUser } from "@/lib/auth/useUser";
 import { useLogout } from "@/lib/auth/mutations";
 import { routes } from "@/lib/routes";
 import { CurrentUser } from "@/lib/auth/types";
+import { useVendorProfileCompleteness } from "@/lib/vendor/useVendorProfileCompleteness";
 
 const menus = [
     {
@@ -183,15 +184,110 @@ function ProfileMenu() {
     );
 }
 
-function NotificationButton() {
+function NotificationMenu() {
+    const { data: user } = useUser();
+    const {
+        hasVertifyEmail,
+        hasIncompleteAddress,
+        hasIncompleteContact,
+        hasIncompleteDocument,
+    } = useVendorProfileCompleteness();
+
+    const isVendor = user?.userType === "company" || user?.userType === "individual";
+
+    const notifications = isVendor
+        ? [
+            {
+                key: "account",
+                icon: <CircleUserRound className="size-4" />,
+                label: "ยืนยันอีเมลของคุณ",
+                description: "ยืนยันเพื่อใช้งานได้เต็มรูปแบบ",
+                href: routes.profiles.profile,
+                show: hasVertifyEmail,
+            },
+            {
+                key: "vendor-info",
+                icon: <Building2 className="size-4" />,
+                label: "กรอกข้อมูลกิจการให้ครบถ้วน",
+                description: "ที่อยู่ จังหวัด รหัสไปรษณีย์",
+                href: routes.profiles.vendorInfo,
+                show: hasIncompleteAddress,
+            },
+            {
+                key: "contact",
+                icon: <Users className="size-4" />,
+                label: "เพิ่มข้อมูลผู้ติดต่อให้ครบถ้วน",
+                description: "ชื่อ อีเมล และเบอร์โทรผู้ติดต่อหลัก",
+                href: routes.profiles.contract,
+                show: hasIncompleteContact,
+            },
+            {
+                key: "document",
+                icon: <FileText className="size-4" />,
+                label: "แนบเอกสารประกอบให้ครบถ้วน",
+                description: "เอกสารที่จำเป็นสำหรับการขึ้นทะเบียน",
+                href: routes.profiles.document,
+                show: hasIncompleteDocument,
+            },
+        ].filter((notification) => notification.show)
+        : [];
+
     return (
-        <button
-            type="button"
-            aria-label="การแจ้งเตือน"
-            className="flex items-center justify-center rounded-full p-2 text-muted-foreground cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-            <Bell className="size-5" />
-        </button>
+        <DropdownMenu>
+            <DropdownMenuTrigger
+                render={
+                    <button
+                        type="button"
+                        aria-label="การแจ้งเตือน"
+                        className="relative flex items-center justify-center rounded-full p-2 text-muted-foreground cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground"
+                    />
+                }
+            >
+                <Bell className="size-5" />
+                {notifications.length > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-1.75 h-1.75 rounded-full bg-red-600" />
+                )}
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+                align="end"
+                className="w-80 overflow-hidden p-0"
+            >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                    <p className="text-sm font-semibold tracking-wide">การแจ้งเตือน</p>
+                    {notifications.length > 0 && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                            {notifications.length} รายการ
+                        </span>
+                    )}
+                </div>
+
+                {notifications.length === 0 ? (
+                    <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+                        <CheckCircle2 className="size-8 text-green-600" />
+                        <p className="text-sm text-muted-foreground">ไม่มีการแจ้งเตือนใหม่</p>
+                    </div>
+                ) : (
+                    <div className="p-1">
+                        {notifications.map((notification) => (
+                            <DropdownMenuItem
+                                key={notification.key}
+                                render={<Link href={notification.href} />}
+                                className="cursor-pointer items-start gap-3 py-2.5"
+                            >
+                                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">
+                                    {notification.icon}
+                                </span>
+                                <div className="flex min-w-0 flex-col">
+                                    <p className="text-sm font-medium leading-tight">{notification.label}</p>
+                                    <p className="text-xs text-muted-foreground">{notification.description}</p>
+                                </div>
+                            </DropdownMenuItem>
+                        ))}
+                    </div>
+                )}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -259,7 +355,7 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-1">
-                    {user && <NotificationButton />}
+                    {user && <NotificationMenu />}
                     <ProfileMenu />
 
                     <div className="hidden md:block">

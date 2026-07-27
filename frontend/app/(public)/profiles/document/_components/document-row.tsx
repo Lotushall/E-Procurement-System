@@ -219,6 +219,7 @@ export default function DocumentRow({
             type="button"
             variant="destructive"
             onClick={handleCancelUpload}
+            className="flex-1 shrink h-11"
           >
             ยกเลิก
           </Button>

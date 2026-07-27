@@ -14,7 +14,7 @@ final class ViewVendorDocumentUseCase
     private const DISK = 'local';
 
     /** @var list<string> */
-    private const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+    private const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];  
 
     public function __construct(
         private readonly VendorRepositoryInterface $vendors,
