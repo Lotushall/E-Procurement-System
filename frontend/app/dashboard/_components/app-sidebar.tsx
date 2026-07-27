@@ -20,7 +20,7 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
           <Image
@@ -28,8 +28,11 @@ export function AppSidebar() {
             alt="Lotushall Logo"
             width={28}
             height={28}
+            className="shrink-0"
           />
-          <span className="text-sm font-bold">Lotushall Mining</span>
+          <span className="text-sm font-bold group-data-[collapsible=icon]:hidden">
+            Lotushall Mining
+          </span>
         </div>
       </SidebarHeader>
 
@@ -41,6 +44,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   render={<Link href={routes.dashboards.dashboard} />}
                   isActive={pathname === routes.dashboards.dashboard}
+                  tooltip="แดชบอร์ด"
                 >
                   <LayoutDashboard />
                   <span>แดชบอร์ด</span>
