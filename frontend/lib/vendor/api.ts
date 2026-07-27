@@ -47,7 +47,7 @@ export async function saveVendorDocument(
     signal: payload.signal,
     onUploadProgress: payload.onUploadProgress
       ? (event) => {
-          const total = event.total ?? payload.file.size;
+          const total = event.total || payload.file.size || 1;
           payload.onUploadProgress!(Math.round((event.loaded / total) * 100));
         }
       : undefined,

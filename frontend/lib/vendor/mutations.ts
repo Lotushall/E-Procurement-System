@@ -57,7 +57,7 @@ export function useSaveVendorDocument() {
   return useMutation({
     mutationFn: (payload: UpdateVendorDocumentPayload) =>
       saveVendorDocument(payload),
-    onSuccess: () =>
+    onSettled: () =>
       queryClient.invalidateQueries({ queryKey: VENDOR_PROFILE_QUERY_KEY }),
   });
 }

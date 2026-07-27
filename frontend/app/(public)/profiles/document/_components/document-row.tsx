@@ -90,14 +90,17 @@ export default function DocumentRow({
       toast.success("อัปโหลดเอกสารสำเร็จ", { id: toastId });
     } catch (error) {
       if (isCancel(error)) {
-        toast.message("ยกเลิกการอัปโหลดแล้ว", { id: toastId });
+        toast.dismiss(toastId);
+        toast.message("ยกเลิกการอัปโหลดแล้ว");
       } else {
         toast.error(getErrorMessage(error), { id: toastId });
       }
     } finally {
       setSelectedFile(null);
       setUploadProgress(null);
-      abortControllerRef.current = null;
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -229,7 +232,8 @@ export default function DocumentRow({
             <X />
           </Button>
           <Progress
-            value={uploadProgress}
+            value={uploadProgress ?? 0}
+            aria-label="ความคืบหน้าการอัปโหลด"
             className="absolute inset-x-0 bottom-0 h-1 w-full rounded-none bg-transparent"
           />
         </>
