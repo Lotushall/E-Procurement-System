@@ -223,11 +223,11 @@ export default function DocumentRow({
         <>
           <Button
             type="button"
-            variant="ghost"
+            variant="destructive"
             size="icon-xs"
             onClick={handleCancelUpload}
             aria-label="ยกเลิกการอัปโหลด"
-            className="absolute top-2 right-2 bg-background/80"
+            className="absolute top-2 right-2"
           >
             <X />
           </Button>
