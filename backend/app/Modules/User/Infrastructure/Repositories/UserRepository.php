@@ -48,6 +48,11 @@ class UserRepository implements UserRepositoryInterface
         return $model !== null ? $this->toDomain($model) : null;
     }
 
+    public function assignRole(int $userId, string $role): void
+    {
+        UserModel::findOrFail($userId)->assignRole($role);
+    }
+
     private function toDomain(UserModel $model): User
     {
         return User::reconstitute(

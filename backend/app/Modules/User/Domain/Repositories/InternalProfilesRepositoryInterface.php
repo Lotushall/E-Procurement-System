@@ -2,4 +2,9 @@
 
 namespace App\Modules\User\Domain\Repositories;
 
-interface InternalProfilesRepositoryInterface {}
+use App\Modules\User\Domain\Entities\InternalProfile;
+
+interface InternalProfilesRepositoryInterface
+{
+    public function saveProfile(InternalProfile $profile): InternalProfile;
+}
