@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard } from "lucide-react";
+import { Home, LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -48,6 +48,15 @@ export function AppSidebar() {
                 >
                   <LayoutDashboard />
                   <span>แดชบอร์ด</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  render={<Link href={routes.home} />}
+                  tooltip="กลับหน้าหลัก"
+                >
+                  <Home />
+                  <span>หน้าหลัก</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
