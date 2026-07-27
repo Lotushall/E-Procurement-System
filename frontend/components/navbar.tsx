@@ -159,7 +159,7 @@ function ProfileMenu() {
                 <div className="p-1">
                     <DropdownMenuItem render={<Link href={user.userType == "internal" ? routes.dashboards.dashboard : routes.profiles.profile} />} className="cursor-pointer">
                         <UserIcon />
-                        โปรไฟล์
+                        {user.userType === "internal" ? "แดชบอร์ด" : "โปรไฟล์"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -168,7 +168,6 @@ function ProfileMenu() {
                             console.log("[LOGOUT-DEBUG] logout menu item clicked");
                             logout.mutate(undefined, {
                                 onSuccess: () => {
-                                    console.log("[LOGOUT-DEBUG] call-level onSuccess: pushing to /");
                                     router.push("/");
                                 },
                             });
