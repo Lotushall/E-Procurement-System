@@ -95,7 +95,7 @@ function AuthControl({
     );
 }
 
-function ProfileMenu() {
+export function ProfileMenu() {
     const router = useRouter();
     const { data: user, isLoading } = useUser();
     const logout = useLogout();
@@ -183,7 +183,7 @@ function ProfileMenu() {
     );
 }
 
-function NotificationMenu() {
+export function NotificationMenu() {
     const { data: user } = useUser();
     const {
         hasVertifyEmail,
