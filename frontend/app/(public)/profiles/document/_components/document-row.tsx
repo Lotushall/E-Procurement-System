@@ -214,29 +214,29 @@ export default function DocumentRow({
           {fileName ? "เปลี่ยนไฟล์" : "แนบไฟล์"}
         </Button>
 
+        {updateVendorDocumentMutation.isPending && (
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            onClick={handleCancelUpload}
+            aria-label="ยกเลิกการอัปโหลด"
+          >
+            <X />
+          </Button>
+        )}
+
         {existingDocument && !updateVendorDocumentMutation.isPending && (
           <DeleteDocumentDialog document={existingDocument} />
         )}
       </div>
 
       {updateVendorDocumentMutation.isPending && (
-        <>
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon-xs"
-            onClick={handleCancelUpload}
-            aria-label="ยกเลิกการอัปโหลด"
-            className="absolute top-2 right-2"
-          >
-            <X />
-          </Button>
-          <Progress
-            value={uploadProgress ?? 0}
-            aria-label="ความคืบหน้าการอัปโหลด"
-            className="absolute inset-x-0 bottom-0 h-1 w-full rounded-none bg-transparent"
-          />
-        </>
+        <Progress
+          value={uploadProgress ?? 0}
+          aria-label="ความคืบหน้าการอัปโหลด"
+          className="absolute inset-x-0 bottom-0 h-1 w-full rounded-none bg-transparent"
+        />
       )}
     </div>
   );
