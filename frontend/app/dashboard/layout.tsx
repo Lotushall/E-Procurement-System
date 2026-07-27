@@ -3,10 +3,12 @@ import { InternalGuard } from "./_components/internal-guard";
 import { AppSidebar } from "./_components/app-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import Navbar from "@/components/navbar";
 
 export default function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <InternalGuard>
+      <Navbar />
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
