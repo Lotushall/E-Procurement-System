@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard } from "lucide-react";
@@ -9,7 +8,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -21,21 +19,6 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="top-14 h-[calc(100svh-3.5rem)]">
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <Image
-            src="/images/icon/lotushall_logo.png"
-            alt="Lotushall Logo"
-            width={28}
-            height={28}
-            className="shrink-0"
-          />
-          <span className="text-sm font-bold group-data-[collapsible=icon]:hidden">
-            Lotushall Mining
-          </span>
-        </div>
-      </SidebarHeader>
-
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>

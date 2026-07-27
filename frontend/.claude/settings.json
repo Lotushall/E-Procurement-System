@@ -150,7 +150,17 @@
       "Bash(\"/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package\" 706b747 9f24635)",
       "Bash(node -e \"console.log\\('rhf', require\\('react-hook-form/package.json'\\).version\\)\")",
       "Bash(xargs grep -liE \"updateVendorInfo|vendor.*\\(info|contact|document\\)\")",
-      "Bash(php -l \"app/Modules/Vendor/Presentation/Http/Requests/UpdateVendorInfoRequest.php\")"
+      "Bash(php -l \"app/Modules/Vendor/Presentation/Http/Requests/UpdateVendorInfoRequest.php\")",
+      "Bash(tee /tmp/tsc_baseline.txt)",
+      "Bash(tee /tmp/lint_baseline.txt)",
+      "Bash(/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/task-brief d:/E-Procurement-System/frontend/docs/superpowers/plans/2026-07-27-internal-dashboard-and-guard.md 1)",
+      "PowerShell($?)",
+      "Bash(/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 6d4e2ad 534144c)",
+      "Bash(git -C /d/E-Procurement-System status --porcelain -- frontend/hooks frontend/components/ui/sidebar.tsx)",
+      "Bash(/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/task-brief d:/E-Procurement-System/frontend/docs/superpowers/plans/2026-07-27-internal-dashboard-and-guard.md 2)",
+      "Bash(/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 534144c 49ee32d)",
+      "Bash(/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/task-brief d:/E-Procurement-System/frontend/docs/superpowers/plans/2026-07-27-internal-dashboard-and-guard.md 3)",
+      "Bash(/c/Users/JR/.claude/plugins/cache/superpowers-dev/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 49ee32d db7bcdf)"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",
