@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
-import { FileText, Paperclip, X } from "lucide-react";
+import { FileText, Paperclip } from "lucide-react";
 import { useSaveVendorDocument } from "@/lib/vendor/mutations";
 import { getVendorDocumentViewUrl } from "@/lib/vendor/api";
 import DeleteDocumentDialog from "./delete-document-dialog";
@@ -218,11 +218,9 @@ export default function DocumentRow({
           <Button
             type="button"
             variant="destructive"
-            size="icon"
             onClick={handleCancelUpload}
-            aria-label="ยกเลิกการอัปโหลด"
           >
-            <X />
+            ยกเลิก
           </Button>
         )}
 
