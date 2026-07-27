@@ -161,6 +161,12 @@ export function ProfileMenu() {
                         <UserIcon />
                         {user.userType === "internal" ? "แดชบอร์ด" : "โปรไฟล์"}
                     </DropdownMenuItem>
+                    {user.userType === "internal" && (
+                        <DropdownMenuItem render={<Link href={routes.profiles.profile} />} className="cursor-pointer">
+                            <UserIcon />
+                            โปรไฟล์
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         variant="destructive"

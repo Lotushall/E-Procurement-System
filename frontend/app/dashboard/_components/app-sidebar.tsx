@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, UserIcon } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -48,16 +48,6 @@ export function AppSidebar() {
                 >
                   <LayoutDashboard />
                   <span>แดชบอร์ด</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  render={<Link href={routes.profiles.profile} />}
-                  isActive={pathname === routes.profiles.profile}
-                  tooltip="โปรไฟล์"
-                >
-                  <UserIcon />
-                  <span>โปรไฟล์</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
