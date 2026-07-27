@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Building2, CheckCircle2, ChevronDown, CircleUserRound, FileText, LogOutIcon, Menu, UserIcon, Users } from "lucide-react";
+import { Bell, Building2, CheckCircle2, ChevronDown, CircleUserRound, FileText, Home, LogOutIcon, Menu, UserIcon, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
@@ -162,9 +162,9 @@ export function ProfileMenu() {
                         {user.userType === "internal" ? "แดชบอร์ด" : "โปรไฟล์"}
                     </DropdownMenuItem>
                     {user.userType === "internal" && (
-                        <DropdownMenuItem render={<Link href={routes.profiles.profile} />} className="cursor-pointer">
-                            <UserIcon />
-                            โปรไฟล์
+                        <DropdownMenuItem render={<Link href={routes.home} />} className="cursor-pointer">
+                            <Home />
+                            หน้าหลัก
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
