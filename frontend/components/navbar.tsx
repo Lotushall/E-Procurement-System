@@ -97,6 +97,7 @@ function AuthControl({
 
 export function ProfileMenu() {
     const router = useRouter();
+    const pathname = usePathname();
     const { data: user, isLoading } = useUser();
     const logout = useLogout();
 
@@ -157,14 +158,22 @@ export function ProfileMenu() {
                     </div>
                 </div>
                 <div className="p-1">
-                    <DropdownMenuItem render={<Link href={user.userType == "internal" ? routes.dashboards.dashboard : routes.profiles.profile} />} className="cursor-pointer">
-                        <UserIcon />
-                        {user.userType === "internal" ? "แดชบอร์ด" : "โปรไฟล์"}
-                    </DropdownMenuItem>
-                    {user.userType === "internal" && (
-                        <DropdownMenuItem render={<Link href={routes.home} />} className="cursor-pointer">
-                            <Home />
-                            หน้าหลัก
+                    {user.userType === "internal" ? (
+                        pathname === routes.dashboards.dashboard ? (
+                            <DropdownMenuItem render={<Link href={routes.home} />} className="cursor-pointer">
+                                <Home />
+                                หน้าหลัก
+                            </DropdownMenuItem>
+                        ) : (
+                            <DropdownMenuItem render={<Link href={routes.dashboards.dashboard} />} className="cursor-pointer">
+                                <UserIcon />
+                                แดชบอร์ด
+                            </DropdownMenuItem>
+                        )
+                    ) : (
+                        <DropdownMenuItem render={<Link href={routes.profiles.profile} />} className="cursor-pointer">
+                            <UserIcon />
+                            โปรไฟล์
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
