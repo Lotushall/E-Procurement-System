@@ -20,6 +20,15 @@ This is the first `userType`-based access rule anywhere in the app (frontend or 
 - **Protection stays client-side**, matching the existing `AuthGuard`/`GuestGuard` precedent exactly (a brief loading state while `useUser()` resolves, then either render or redirect). No `middleware.ts` is introduced — that would be new infrastructure this codebase doesn't have anywhere yet, out of scope here.
 - **No backend changes.** The placeholder page needs no internal-only API data, so there's nothing to protect server-side yet.
 
+## Addendum (post-implementation, 2026-07-27)
+
+Two of the scope decisions above changed after implementation, based on direct feedback once the placeholder was actually visible:
+
+- **Layout reverted to top-bar + sidebar, but with a dashboard-specific navbar, not the shared public one.** The "sidebar-only, no `Navbar`" decision above didn't hold — a top bar was wanted after all, but reusing `components/navbar.tsx`'s default-exported `Navbar` (the marketing-site nav with "หน้าหลัก/ประกาศจัดซื้อจัดจ้าง/ติดต่อเรา" links) was explicitly rejected as the wrong fit. Resolution: `ProfileMenu` and `NotificationMenu` (previously private to `navbar.tsx`) are now exported and reused inside a new `app/dashboard/_components/dashboard-navbar.tsx`, composing `SidebarTrigger` + page title on the left with `NotificationMenu` + `ProfileMenu` on the right. `AppSidebar`'s `SidebarFooter` (Part 3 below) was removed as a result — it duplicated the identity/logout affordance `ProfileMenu` already provides.
+- **Sidebar collapses to an icon rail, not off-canvas.** `<Sidebar>` now passes `collapsible="icon"` instead of the primitive's default `"offcanvas"`, so toggling the sidebar shrinks it to icon-only rather than hiding it completely; the header logo stays visible and the nav item picked up a `tooltip` prop for the collapsed state.
+
+Part 3's code block (`AppSidebar`) below reflects the original, pre-addendum version and is **superseded** by the above for the footer/collapsible behavior — kept as-is for the historical record of what Task 2 actually implemented at the time.
+
 ## Part 1: `lib/auth/useRequireInternal.ts` (new)
 
 Mirrors `useRequireAuth.ts` exactly in shape, adding one more branch for the wrong-user-type case:
