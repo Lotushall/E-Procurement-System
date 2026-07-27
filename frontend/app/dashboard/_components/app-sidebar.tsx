@@ -20,7 +20,7 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="top-14 h-[calc(100svh-3.5rem)]">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
           <Image

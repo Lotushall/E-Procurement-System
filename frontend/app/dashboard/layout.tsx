@@ -17,9 +17,9 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
   return (
     <InternalGuard>
       <SidebarProvider>
+        <DashboardNavbar />
         <AppSidebar />
-        <SidebarInset>
-          <DashboardNavbar />
+        <SidebarInset className="pt-14">
           <div className="flex flex-1 flex-col p-4">{children}</div>
         </SidebarInset>
       </SidebarProvider>
