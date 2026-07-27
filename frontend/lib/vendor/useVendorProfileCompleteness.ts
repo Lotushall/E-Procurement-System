@@ -12,7 +12,7 @@ export interface VendorProfileCompleteness {
 
 export function useVendorProfileCompleteness(): VendorProfileCompleteness {
   const { data: user, isLoading: isUserLoading } = useUser();
-  const { data: vendor, isPending } = useVendorProfile();
+  const { data: vendor, isPending } = useVendorProfile(user?.userType !== "internal");
 
   const hasVertifyEmail = !isUserLoading && !user?.emailVerifiedAt;
 
