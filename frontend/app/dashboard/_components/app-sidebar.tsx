@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, UserCheck, type LucideIcon } from "lucide-react";
+import { FileText, LayoutDashboard, Store, type LucideIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -30,14 +30,14 @@ const navItems: NavItem[] = [
     exact: true,
   },
   {
-    href: routes.dashboards.vendors.index,
-    label: "อนุมัติผู้ขาย",
-    icon: UserCheck,
-  },
-  {
     href: routes.dashboards.tor.index,
     label: "การจัดการ TOR",
     icon: FileText,
+  },
+  {
+    href: routes.dashboards.vendors.index,
+    label: "ผู้ค้าที่ลงทะเบียน",
+    icon: Store,
   },
 ];
 
@@ -46,29 +46,33 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="top-14 h-[calc(100svh-3.5rem)]">
-      <SidebarContent className="w-65">
+      <SidebarContent className="w-65 group-data-[collapsible=icon]:w-full">
         <SidebarGroup className="p-0">
-          <SidebarGroupContent className="py-3 px-0 pr-3">
+          <SidebarGroupContent className="py-3 px-0 pr-3 group-data-[collapsible=icon]:pr-0">
             <SidebarMenu>
               {navItems.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
                 return (
-                  <SidebarMenuItem key={item.href} className="mx-2.5 my-0.5">
+                  <SidebarMenuItem
+                    key={item.href}
+                    className="mx-2.5 my-0.5"
+                  >
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
                       tooltip={item.label}
                       className={cn(
                         "px-3.5 py-3 h-11",
+                        "group-data-[collapsible=icon]:px-0! group-data-[collapsible=icon]:py-3! group-data-[collapsible=icon]:h-10.5! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center",
                         "data-active:border-l-[3px] data-active:border-red-700 data-active:bg-red-600/10 data-active:text-red-700 dark:data-active:bg-red-600/20",
                         "data-active:hover:bg-red-600/10 data-active:hover:text-red-700",
                         "hover:bg-transparent"
                       )}
                     >
                       <item.icon className="size-5!" />
-                      <span className="font-bold">{item.label}</span>
+                      <span className="font-bold group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

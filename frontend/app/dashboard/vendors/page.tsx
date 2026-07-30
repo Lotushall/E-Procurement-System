@@ -1,12 +1,10 @@
 "use client";
 
-import { VendorApprovalList } from "./_components/vendor-approval-list";
 
-export default function VendorApprovalPage() {
+export default function VendorRegistrationPage() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">อนุมัติผู้ขาย</h1>
-      <VendorApprovalList />
+      <h1 className="text-2xl font-bold">ผู้ค้าที่ลงทะเบียน</h1>
     </div>
   );
 }

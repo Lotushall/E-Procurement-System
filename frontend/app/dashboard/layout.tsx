@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <InternalGuard>
-      <SidebarProvider>
+      <SidebarProvider style={{ "--sidebar-width-icon": "74px" } as React.CSSProperties}>
         <DashboardNavbar />
         <AppSidebar />
         <SidebarInset className="pt-14">
