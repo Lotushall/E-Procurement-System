@@ -15,6 +15,9 @@ export const routes = {
   },
   dashboards: {
     dashboard: "/dashboard",
+    tor: {
+      index: "/dashboard/tor",
+    },
   },
   terms: "/terms",
   privacy: "/privacy",
