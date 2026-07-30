@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 import type { VendorDocument } from "@/lib/vendor/types";
 import { FileText, Paperclip } from "lucide-react";
+import { VendorStatusBadge } from "@/components/vendor-status-badge";
 import { useSaveVendorDocument } from "@/lib/vendor/mutations";
 import { getVendorDocumentViewUrl } from "@/lib/vendor/api";
 import DeleteDocumentDialog from "./delete-document-dialog";
@@ -21,12 +21,6 @@ function getErrorMessage(error: unknown): string {
     : undefined;
   return message ?? "อัปโหลดเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
-
-const STATUS_STYLE: Record<string, { label: string; badge: string; dot: string }> = {
-  pending: { label: "รอตรวจสอบ", badge: "text-yellow-600 bg-yellow-400/15", dot: "bg-yellow-600" },
-  approved: { label: "อนุมัติแล้ว", badge: "text-green-800 bg-green-700/15", dot: "bg-green-800" },
-  rejected: { label: "ถูกปฏิเสธ", badge: "text-red-600 bg-red-400/15", dot: "bg-red-600" },
-};
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -111,7 +105,7 @@ export default function DocumentRow({
   const fileName = selectedFile?.name ?? existingDocument?.fileName;
   const fileSize = selectedFile ? formatFileSize(selectedFile.size) : undefined;
   const fileExtension = fileName?.split(".").pop()?.toUpperCase();
-  const status = selectedFile ? STATUS_STYLE.pending : (existingDocument && STATUS_STYLE[existingDocument.status]);
+  const statusValue = selectedFile ? "pending" : existingDocument?.status;
   const viewUrl =
     existingDocument && !updateVendorDocumentMutation.isPending
       ? getVendorDocumentViewUrl(existingDocument.id)
@@ -169,12 +163,7 @@ export default function DocumentRow({
               {!required && (
                 <Badge className="bg-gray-100 text-gray-600 tracking-wider">ไม่บังคับ</Badge>
               )}
-              {status && (
-                <Badge className={cn("tracking-wider", status.badge)}>
-                  <span className={cn("w-1.75 h-1.75 rounded-full", status.dot)} />
-                  {status.label}
-                </Badge>
-              )}
+              {statusValue && <VendorStatusBadge status={statusValue} />}
             </div>
           </div>
           {viewUrl ? (
