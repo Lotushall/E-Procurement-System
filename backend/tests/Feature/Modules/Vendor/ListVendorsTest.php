@@ -172,3 +172,113 @@ test('an invalid status value is rejected', function () {
 
     $response->assertStatus(422);
 });
+
+test('listing vendors supports pagination via page and per_page', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    foreach ([1, 2, 3] as $i) {
+        $vendorUser = User::factory()->create(['user_type' => 'company']);
+        $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+        $repository->saveCompanyDetail(VendorCompanyDetail::create(
+            vendorProfileId: $profile->id(),
+            companyName: "Vendor {$i}",
+            businessRegistrationNo: str_repeat((string) $i, 13),
+            taxId: TaxId::fromString(str_repeat((string) $i, 13)),
+            branchNo: null,
+            businessType: null,
+            address: null,
+            province: null,
+            postalCode: null,
+        ));
+    }
+
+    $this->actingAs($internalUser, 'web');
+
+    $firstPage = $this->getJson('/api/v1/vendors?page=1&per_page=2');
+
+    $firstPage->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('meta.total', 3)
+        ->assertJsonPath('meta.current_page', 1)
+        ->assertJsonPath('meta.per_page', 2);
+
+    expect($firstPage->json('links.next'))->not->toBeNull();
+    expect($firstPage->json('links.prev'))->toBeNull();
+
+    $secondPage = $this->getJson('/api/v1/vendors?page=2&per_page=2');
+
+    $secondPage->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('meta.current_page', 2);
+
+    expect($secondPage->json('links.next'))->toBeNull();
+    expect($secondPage->json('links.prev'))->not->toBeNull();
+});
+
+test('an invalid page value is rejected', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?page=0');
+
+    $response->assertStatus(422);
+});
+
+test('an invalid per_page value is rejected', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?per_page=101');
+
+    $response->assertStatus(422);
+});
+
+test('pagination respects the status filter', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    foreach ([1, 2, 3] as $i) {
+        $vendorUser = User::factory()->create(['user_type' => 'company']);
+        $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+        $repository->saveCompanyDetail(VendorCompanyDetail::create(
+            vendorProfileId: $profile->id(),
+            companyName: "Pending Vendor {$i}",
+            businessRegistrationNo: str_repeat((string) $i, 13),
+            taxId: TaxId::fromString(str_repeat((string) $i, 13)),
+            branchNo: null,
+            businessType: null,
+            address: null,
+            province: null,
+            postalCode: null,
+        ));
+    }
+
+    $approvedUser = User::factory()->create(['user_type' => 'company']);
+    $approvedProfile = VendorProfile::create(userId: $approvedUser->id);
+    $approvedProfile->approve(verifiedBy: $internalUser->id);
+    $approvedProfile = $repository->saveProfile($approvedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $approvedProfile->id(),
+        companyName: 'Approved Vendor',
+        businessRegistrationNo: '9999999999999',
+        taxId: TaxId::fromString('9999999999999'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?status=pending&page=1&per_page=2');
+
+    $response->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('meta.total', 3);
+
+    collect($response->json('data'))->each(
+        fn (array $vendor) => expect($vendor['verificationStatus'])->toBe('pending')
+    );
+});
