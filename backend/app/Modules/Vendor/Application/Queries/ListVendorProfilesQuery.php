@@ -3,14 +3,12 @@
 namespace App\Modules\Vendor\Application\Queries;
 
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 final class ListVendorProfilesQuery
 {
-    private const DEFAULT_PER_PAGE = 15;
+    private const DEFAULT_PER_PAGE = 20;
 
-    public function execute(?string $status, ?int $page = null, ?int $perPage = null): Collection|LengthAwarePaginator
+    public function execute(?string $status, ?int $page = null, ?int $perPage = null)
     {
         $query = VendorProfiles::query()
             ->with(['VendorProfilesCompanyDetail', 'VendorProfilesIndividualDetail'])

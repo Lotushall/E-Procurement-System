@@ -180,7 +180,6 @@ export function ProfileMenu() {
                     <DropdownMenuItem
                         variant="destructive"
                         onClick={() => {
-                            console.log("[LOGOUT-DEBUG] logout menu item clicked");
                             logout.mutate(undefined, {
                                 onSuccess: () => {
                                     router.push("/");

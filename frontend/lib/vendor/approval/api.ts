@@ -6,20 +6,38 @@ import type {
 } from "@/lib/vendor/approval/types";
 
 export async function fetchVendorList(
-  status: VendorVerificationStatus,
+  status?: VendorVerificationStatus,
+  search?: string,
 ): Promise<VendorSummary[]> {
   const { data } = await api.get<{ data: VendorSummary[] }>("/api/v1/vendors", {
-    params: { status },
+    params: { status, search },
   });
   return data.data;
 }
 
+export async function fetchVendorCount(
+  status: VendorVerificationStatus,
+): Promise<number> {
+  const { data } = await api.get<{ meta: { total: number } }>(
+    "/api/v1/vendors",
+    {
+      params: { status, per_page: 1 },
+    },
+  );
+  return data.meta.total;
+}
+
 export async function fetchVendorDetail(id: number): Promise<VendorDetail> {
-  const { data } = await api.get<{ data: VendorDetail }>(`/api/v1/vendors/${id}`);
+  const { data } = await api.get<{ data: VendorDetail }>(
+    `/api/v1/vendors/${id}`,
+  );
   return data.data;
 }
 
-export async function approveVendor(id: number, remark?: string): Promise<void> {
+export async function approveVendor(
+  id: number,
+  remark?: string,
+): Promise<void> {
   await api.post(`/api/v1/vendors/${id}/approve`, { remark });
 }
 
@@ -39,5 +57,7 @@ export async function rejectVendorDocument(
   documentId: number,
   remark: string,
 ): Promise<void> {
-  await api.post(`/api/v1/vendors/${vendorId}/documents/${documentId}/reject`, { remark });
+  await api.post(`/api/v1/vendors/${vendorId}/documents/${documentId}/reject`, {
+    remark,
+  });
 }

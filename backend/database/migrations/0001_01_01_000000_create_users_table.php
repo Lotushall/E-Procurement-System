@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('user_type', ['internal', 'company', 'individual']);
-            $table->enum('status', ['pending', 'active', 'suspended', 'inactive'])->default('pending');
+            $table->enum('status', ['pending', 'active', 'suspended', 'inactive'])->default('active');
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

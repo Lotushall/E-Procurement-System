@@ -11,17 +11,13 @@ import type {
 } from "@/lib/auth/types";
 
 export async function fetchCurrentUser(): Promise<CurrentUser | null> {
-  console.log("[LOGOUT-DEBUG] fetchCurrentUser: request start");
   try {
     const { data } = await api.get<{ data: CurrentUser }>("/api/v1/auth/user");
-    console.log("[LOGOUT-DEBUG] fetchCurrentUser: success", data.data);
     return data.data;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 401) {
-      console.log("[LOGOUT-DEBUG] fetchCurrentUser: 401, returning null");
       return null;
     }
-    console.log("[LOGOUT-DEBUG] fetchCurrentUser: error", error);
     throw error;
   }
 }

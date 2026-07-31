@@ -22,13 +22,13 @@ class VendorSeeder extends Seeder
     /**
      * How many vendors to seed per bucket — edit these to change the spread.
      */
-    private const int PENDING_COMPANY_COUNT = 3;
+    private const int PENDING_COMPANY_COUNT = 20;
 
-    private const int PENDING_INDIVIDUAL_COUNT = 2;
+    private const int PENDING_INDIVIDUAL_COUNT = 20;
 
-    private const int APPROVED_COUNT = 3;
+    private const int APPROVED_COUNT = 20;
 
-    private const int REJECTED_COUNT = 2;
+    private const int REJECTED_COUNT = 20;
 
     public function run(): void
     {

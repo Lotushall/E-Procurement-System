@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,8 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { useVendorList } from "@/lib/vendor/approval/useVendorList";
-import type { VendorSummary } from "@/lib/vendor/approval/types";
+import { useVendorListPage } from "./_hooks/use-vendor-list-page";
 import { VendorRow } from "./_components/vendor-row";
 import { VendorStatsCards, type VendorListFilter } from "./_components/vendor-stats-cards";
 
@@ -33,40 +31,19 @@ const EMPTY_MESSAGE: Record<VendorListFilter, string> = {
 export default function VendorListPage() {
   useBreadcrumb([{ label: "ผู้ค้าที่ลงทะเบียน" }]);
 
-  const [filter, setFilter] = useState<VendorListFilter>("all");
-  const [search, setSearch] = useState("");
+  const {
+    filter,
+    setFilter,
+    search,
+    setSearch,
+    debouncedSearch,
+    counts,
+    visible,
+    isPending,
+    isError,
+  } = useVendorListPage();
 
-  const pending = useVendorList("pending");
-  const approved = useVendorList("approved");
-  const rejected = useVendorList("rejected");
-
-  const isPending = pending.isPending || approved.isPending || rejected.isPending;
-  const isError = pending.isError || approved.isError || rejected.isError;
-
-  const counts: Record<VendorListFilter, number> = {
-    all: (pending.data?.length ?? 0) + (approved.data?.length ?? 0) + (rejected.data?.length ?? 0),
-    pending: pending.data?.length ?? 0,
-    approved: approved.data?.length ?? 0,
-    rejected: rejected.data?.length ?? 0,
-  };
-
-  const merged: VendorSummary[] = useMemo(() => {
-    const byFilter: Record<VendorListFilter, VendorSummary[]> = {
-      all: [...(pending.data ?? []), ...(approved.data ?? []), ...(rejected.data ?? [])],
-      pending: pending.data ?? [],
-      approved: approved.data ?? [],
-      rejected: rejected.data ?? [],
-    };
-    return [...byFilter[filter]].sort(
-      (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
-    );
-  }, [filter, pending.data, approved.data, rejected.data]);
-
-  const visible = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return merged;
-    return merged.filter((vendor) => vendor.displayName.toLowerCase().includes(term));
-  }, [merged, search]);
+  console.log(visible);
 
   return (
     <div className="flex flex-col gap-5">
@@ -82,7 +59,7 @@ export default function VendorListPage() {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="ค้นหาชื่อผู้ค้า"
+          // placeholder="ค้นหาชื่อผู้ค้า"
           className="bg-white h-10 rounded-sm"
         />
 
@@ -120,7 +97,7 @@ export default function VendorListPage() {
         </div>
       ) : (
         <p className="py-12 text-center text-sm text-muted-foreground">
-          {search.trim() ? "ไม่พบผู้ค้าที่ตรงกับคำค้นหา" : EMPTY_MESSAGE[filter]}
+          {debouncedSearch ? "ไม่พบผู้ค้าที่ตรงกับคำค้นหา" : EMPTY_MESSAGE[filter]}
         </p>
       )}
     </div>
