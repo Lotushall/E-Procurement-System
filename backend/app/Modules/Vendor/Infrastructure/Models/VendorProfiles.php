@@ -4,6 +4,7 @@ namespace App\Modules\Vendor\Infrastructure\Models;
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\States\VerificationStatus;
+use Database\Factories\VendorProfilesFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\ModelStates\HasStates;
 
-// use App\Modules\Vendor\Database\Factories\VendorProfilesFactory;
 #[Table('vendor_profiles')]
 #[Fillable([
     'user_id',
@@ -26,10 +26,10 @@ class VendorProfiles extends Model
 {
     use HasFactory, HasStates;
 
-    // protected static function newFactory(): VendorProfilesFactory
-    // {
-    //     // return VendorProfilesFactory::new();
-    // }
+    protected static function newFactory(): VendorProfilesFactory
+    {
+        return VendorProfilesFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.

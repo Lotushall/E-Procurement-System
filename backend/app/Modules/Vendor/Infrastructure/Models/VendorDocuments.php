@@ -4,6 +4,7 @@ namespace App\Modules\Vendor\Infrastructure\Models;
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\States\DocumentStatus;
+use Database\Factories\VendorDocumentsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -12,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\ModelStates\HasStates;
 
-// use App\Modules\Vendor\Database\Factories\VendorDocumentsFactory;
 #[Table('vendor_documents')]
 #[Fillable([
     'vendor_profile_id',
@@ -29,10 +29,10 @@ class VendorDocuments extends Model
 {
     use HasFactory, HasStates;
 
-    // protected static function newFactory(): VendorDocumentsFactory
-    // {
-    //     // return VendorDocumentsFactory::new();
-    // }
+    protected static function newFactory(): VendorDocumentsFactory
+    {
+        return VendorDocumentsFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.

@@ -2,14 +2,13 @@
 
 namespace App\Modules\Vendor\Infrastructure\Models;
 
+use Database\Factories\VendorCompanyDetailsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-// use App\Modules\Vendor\Database\Factories\VendorCompanyDetailsFactory;
 
 #[Table('vendor_company_details')]
 #[Fillable([
@@ -29,10 +28,10 @@ class VendorCompanyDetails extends Model
 {
     use HasFactory;
 
-    // protected static function newFactory(): VendorCompanyDetailsFactory
-    // {
-    //     // return VendorCompanyDetailsFactory::new();
-    // }
+    protected static function newFactory(): VendorCompanyDetailsFactory
+    {
+        return VendorCompanyDetailsFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.

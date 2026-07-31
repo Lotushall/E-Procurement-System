@@ -2,13 +2,13 @@
 
 namespace App\Modules\Vendor\Infrastructure\Models;
 
+use Database\Factories\VendorContactFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-// use App\Modules\Vendor\Database\Factories\VendorContactFactory;
 #[Table('vendor_contact')]
 #[Fillable([
     'vendor_profile_id',
@@ -24,10 +24,10 @@ class VendorContact extends Model
 {
     use HasFactory;
 
-    // protected static function newFactory(): VendorContactFactory
-    // {
-    //     // return VendorContactFactory::new();
-    // }
+    protected static function newFactory(): VendorContactFactory
+    {
+        return VendorContactFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.
