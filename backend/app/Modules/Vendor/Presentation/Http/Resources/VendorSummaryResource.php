@@ -18,9 +18,9 @@ class VendorSummaryResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'displayName' => $isCompany
-                ? $this->VendorProfilesCompanyDetail->company_name
-                : $this->VendorProfilesIndividualDetail->store_name,
+            'displayName' => $this->VendorProfilesCompanyDetail?->company_name
+                ?? $this->VendorProfilesIndividualDetail?->store_name
+                ?? '',
             'vendorType' => $isCompany ? 'company' : 'individual',
             'verificationStatus' => $this->verification_status->getValue(),
             'submittedAt' => $this->created_at->toIso8601String(),

@@ -8,6 +8,7 @@ use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 
 uses(RefreshDatabase::class);
 
@@ -45,7 +46,9 @@ test('an internal user can list all vendors regardless of status', function () {
     ));
 
     $individualUser = User::factory()->create(['user_type' => 'individual']);
-    $individualProfile = $repository->saveProfile(VendorProfile::create(userId: $individualUser->id));
+    $individualProfile = VendorProfile::create(userId: $individualUser->id);
+    $individualProfile->approve(verifiedBy: $internalUser->id);
+    $individualProfile = $repository->saveProfile($individualProfile);
     $repository->saveIndividualDetail(VendorIndividualDetail::create(
         vendorProfileId: $individualProfile->id(),
         storeName: "John's Store",
@@ -60,24 +63,60 @@ test('an internal user can list all vendors regardless of status', function () {
         postalCode: null,
     ));
 
+    $rejectedUser = User::factory()->create(['user_type' => 'company']);
+    $rejectedProfile = VendorProfile::create(userId: $rejectedUser->id);
+    $rejectedProfile->reject(verifiedBy: $internalUser->id);
+    $rejectedProfile = $repository->saveProfile($rejectedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $rejectedProfile->id(),
+        companyName: 'Rejected Co.',
+        businessRegistrationNo: '3333333333333',
+        taxId: TaxId::fromString('3333333333333'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors');
 
-    $response->assertOk()->assertJsonCount(2, 'data');
+    $response->assertOk()
+        ->assertJsonCount(3, 'data')
+        ->assertJsonStructure([
+            'data' => [
+                '*' => ['id', 'displayName', 'vendorType', 'verificationStatus', 'submittedAt'],
+            ],
+        ]);
+
+    expect(collect($response->json('data'))->pluck('verificationStatus')->sort()->values()->toArray())
+        ->toBe(['approved', 'pending', 'rejected']);
 
     $companyEntry = collect($response->json('data'))->firstWhere('id', $companyProfile->id());
     expect($companyEntry)->toMatchArray([
+        'id' => $companyProfile->id(),
         'displayName' => 'Acme Co., Ltd.',
         'vendorType' => 'company',
         'verificationStatus' => 'pending',
     ]);
+    expect(Carbon::parse($companyEntry['submittedAt'])->diffInSeconds(now()))->toBeLessThan(10);
 
     $individualEntry = collect($response->json('data'))->firstWhere('id', $individualProfile->id());
     expect($individualEntry)->toMatchArray([
+        'id' => $individualProfile->id(),
         'displayName' => "John's Store",
         'vendorType' => 'individual',
-        'verificationStatus' => 'pending',
+        'verificationStatus' => 'approved',
+    ]);
+
+    $rejectedEntry = collect($response->json('data'))->firstWhere('id', $rejectedProfile->id());
+    expect($rejectedEntry)->toMatchArray([
+        'id' => $rejectedProfile->id(),
+        'displayName' => 'Rejected Co.',
+        'vendorType' => 'company',
+        'verificationStatus' => 'rejected',
     ]);
 });
 
