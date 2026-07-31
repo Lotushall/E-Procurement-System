@@ -2,13 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorContact;
 use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
 /**
  * Sample vendor data for local development/demo use.
@@ -20,35 +21,54 @@ class VendorSeeder extends Seeder
 {
     public function run(): void
     {
-        for ($i = 0; $i < 3; $i++) {
-            $this->seedVendor(VendorCompanyDetails::factory(), VendorProfiles::factory());
-        }
+        $reviewer = User::where('email', 'admin@example.com')->first();
 
-        for ($i = 0; $i < 2; $i++) {
-            $this->seedVendor(VendorIndividualDetails::factory(), VendorProfiles::factory());
+        if ($reviewer === null) {
+            throw new RuntimeException('Run AdminUserSeeder first: php artisan db:seed --class=AdminUserSeeder');
         }
 
         for ($i = 0; $i < 3; $i++) {
-            $this->seedVendor($this->randomDetailFactory(), VendorProfiles::factory()->approved());
+            $this->seedVendor(VendorCompanyDetails::class, $reviewer);
         }
 
         for ($i = 0; $i < 2; $i++) {
-            $this->seedVendor($this->randomDetailFactory(), VendorProfiles::factory()->rejected());
+            $this->seedVendor(VendorIndividualDetails::class, $reviewer);
+        }
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->seedVendor($this->randomDetailModel(), $reviewer, 'approved');
+        }
+
+        for ($i = 0; $i < 2; $i++) {
+            $this->seedVendor($this->randomDetailModel(), $reviewer, 'rejected');
         }
     }
 
-    private function randomDetailFactory(): Factory
+    /**
+     * @return class-string<VendorCompanyDetails>|class-string<VendorIndividualDetails>
+     */
+    private function randomDetailModel(): string
     {
         return fake()->boolean()
-            ? VendorCompanyDetails::factory()
-            : VendorIndividualDetails::factory();
+            ? VendorCompanyDetails::class
+            : VendorIndividualDetails::class;
     }
 
-    private function seedVendor(Factory $detailFactory, Factory $profileFactory): void
+    private function seedVendor(string $detailModel, User $reviewer, ?string $status = null): void
     {
-        $profile = $profileFactory->create();
+        $userType = $detailModel === VendorCompanyDetails::class ? 'company' : 'individual';
 
-        $detailFactory->create(['vendor_profile_id' => $profile->id]);
+        $profileFactory = VendorProfiles::factory()->state([
+            'user_id' => User::factory()->state(['user_type' => $userType]),
+        ]);
+
+        $profile = match ($status) {
+            'approved' => $profileFactory->approved()->create(['verified_by' => $reviewer->id]),
+            'rejected' => $profileFactory->rejected()->create(['verified_by' => $reviewer->id]),
+            default => $profileFactory->create(),
+        };
+
+        $detailModel::factory()->create(['vendor_profile_id' => $profile->id]);
 
         VendorContact::factory()->create([
             'vendor_profile_id' => $profile->id,
@@ -56,6 +76,9 @@ class VendorSeeder extends Seeder
         ]);
 
         VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
-        VendorDocuments::factory()->approved()->create(['vendor_profile_id' => $profile->id]);
+        VendorDocuments::factory()->approved()->create([
+            'vendor_profile_id' => $profile->id,
+            'verified_by' => $reviewer->id,
+        ]);
     }
 }
