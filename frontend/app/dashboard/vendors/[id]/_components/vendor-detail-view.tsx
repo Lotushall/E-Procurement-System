@@ -9,6 +9,8 @@ import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-r
 import { useVendorDetail } from "@/lib/vendor-approval/useVendorDetail";
 import { useApproveVendor, useRejectVendor } from "@/lib/vendor-approval/mutations";
 import { VendorDocumentApprovalRow } from "./vendor-document-approval-row";
+import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import { routes } from "@/lib/routes";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -21,6 +23,17 @@ export function VendorDetailView({ vendorId }: { vendorId: number }) {
   const { data: vendor, isPending, isError } = useVendorDetail(vendorId);
   const approveVendor = useApproveVendor(vendorId);
   const rejectVendor = useRejectVendor(vendorId);
+
+  const displayName = vendor
+    ? vendor.detail.type === "company"
+      ? vendor.detail.companyName
+      : vendor.detail.storeName
+    : undefined;
+
+  useBreadcrumb([
+    { label: "ผู้ค้าที่ลงทะเบียน", href: routes.dashboards.vendors.index },
+    isPending ? { loading: true } : { label: displayName ?? "ไม่พบข้อมูลผู้ขายรายนี้" },
+  ]);
 
   if (isPending) {
     return (
@@ -37,9 +50,6 @@ export function VendorDetailView({ vendorId }: { vendorId: number }) {
       </p>
     );
   }
-
-  const displayName =
-    vendor.detail.type === "company" ? vendor.detail.companyName : vendor.detail.storeName;
 
   const handleApprove = () => {
     toast.promise(approveVendor.mutateAsync(undefined), {
