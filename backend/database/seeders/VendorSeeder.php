@@ -19,6 +19,17 @@ use RuntimeException;
  */
 class VendorSeeder extends Seeder
 {
+    /**
+     * How many vendors to seed per bucket — edit these to change the spread.
+     */
+    private const int PENDING_COMPANY_COUNT = 3;
+
+    private const int PENDING_INDIVIDUAL_COUNT = 2;
+
+    private const int APPROVED_COUNT = 3;
+
+    private const int REJECTED_COUNT = 2;
+
     public function run(): void
     {
         $reviewer = User::where('email', 'admin@example.com')->first();
@@ -27,19 +38,19 @@ class VendorSeeder extends Seeder
             throw new RuntimeException('Run AdminUserSeeder first: php artisan db:seed --class=AdminUserSeeder');
         }
 
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < self::PENDING_COMPANY_COUNT; $i++) {
             $this->seedVendor(VendorCompanyDetails::class, $reviewer);
         }
 
-        for ($i = 0; $i < 2; $i++) {
+        for ($i = 0; $i < self::PENDING_INDIVIDUAL_COUNT; $i++) {
             $this->seedVendor(VendorIndividualDetails::class, $reviewer);
         }
 
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < self::APPROVED_COUNT; $i++) {
             $this->seedVendor($this->randomDetailModel(), $reviewer, 'approved');
         }
 
-        for ($i = 0; $i < 2; $i++) {
+        for ($i = 0; $i < self::REJECTED_COUNT; $i++) {
             $this->seedVendor($this->randomDetailModel(), $reviewer, 'rejected');
         }
     }
