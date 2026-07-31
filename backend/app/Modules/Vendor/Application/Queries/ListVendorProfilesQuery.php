@@ -15,7 +15,8 @@ final class ListVendorProfilesQuery
         $query = VendorProfiles::query()
             ->with(['VendorProfilesCompanyDetail', 'VendorProfilesIndividualDetail'])
             ->when($status !== null, fn ($query) => $query->where('verification_status', $status))
-            ->latest();
+            ->latest()
+            ->orderByDesc('id');
 
         if ($page === null && $perPage === null) {
             return $query->get();

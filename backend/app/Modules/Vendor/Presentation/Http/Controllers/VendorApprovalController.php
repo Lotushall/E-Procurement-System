@@ -24,7 +24,7 @@ class VendorApprovalController extends Controller
         );
 
         if ($vendors instanceof LengthAwarePaginator) {
-            return VendorSummaryResource::collection($vendors)->response();
+            return VendorSummaryResource::collection($vendors)->preserveQuery()->response();
         }
 
         return response()->json([

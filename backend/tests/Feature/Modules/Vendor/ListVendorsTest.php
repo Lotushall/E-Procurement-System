@@ -281,4 +281,8 @@ test('pagination respects the status filter', function () {
     collect($response->json('data'))->each(
         fn (array $vendor) => expect($vendor['verificationStatus'])->toBe('pending')
     );
+
+    expect($response->json('links.next'))
+        ->toContain('status=pending')
+        ->toContain('per_page=2');
 });
