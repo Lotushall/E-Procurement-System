@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { useBreadcrumbStore, type BreadcrumbItem } from "./store";
 
