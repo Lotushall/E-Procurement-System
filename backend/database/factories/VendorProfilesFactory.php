@@ -19,7 +19,7 @@ class VendorProfilesFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::factory()->state(['user_type' => 'company']),
             'verification_status' => 'pending',
             'verified_at' => null,
             'verified_by' => null,
