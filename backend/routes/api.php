@@ -6,6 +6,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth')->group(function () {
         require __DIR__.'/api/v1/vendor.php';
+        require __DIR__.'/api/v1/vendors.php';
     });
 
     require __DIR__.'/api/v1/auth.php';
