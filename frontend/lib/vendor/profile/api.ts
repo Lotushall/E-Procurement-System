@@ -5,7 +5,7 @@ import type {
   UpdateVendorDocumentPayload,
   UpdateVendorInfoPayload,
   VendorProfile,
-} from "@/lib/vendor/types";
+} from "@/lib/vendor/profile/types";
 
 export async function fetchVendorProfile(): Promise<VendorProfile | null> {
   try {

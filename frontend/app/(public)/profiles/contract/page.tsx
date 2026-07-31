@@ -1,6 +1,6 @@
 "use client";
 
-import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
+import { useVendorProfile } from "@/lib/vendor/profile/useVendorProfile";
 import SectionTitle from "../_components/section-title";
 import AddContactDialog from "./_components/add-contact-dialog";
 import EditContactDialog from "./_components/edit-contact-dialog";

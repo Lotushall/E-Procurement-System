@@ -21,7 +21,7 @@ export function DashboardBreadcrumb() {
   const allItems = [{ label: "แดชบอร์ด", href: routes.dashboards.dashboard }, ...items];
 
   return (
-    <Breadcrumb className="mb-2">
+    <Breadcrumb className="mb-4.5">
       <BreadcrumbList>
         {allItems.map((item, index) => (
           <Fragment key={index}>

@@ -6,7 +6,7 @@ import {
   Dialog, DialogClose, DialogContent, DialogDescription,
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import type { VendorContact } from "@/lib/vendor/types";
+import type { VendorContact } from "@/lib/vendor/profile/types";
 import { useAddContactForm } from "../_hooks/use-add-contact-form";
 import { ContactFormFields } from "./contact-form-fields";
 import { Pencil } from "lucide-react";

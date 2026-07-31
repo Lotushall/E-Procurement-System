@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import { VendorProfile } from "@/lib/vendor/types";
-import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
+import { VendorProfile } from "@/lib/vendor/profile/types";
+import { useVendorProfile } from "@/lib/vendor/profile/useVendorProfile";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 

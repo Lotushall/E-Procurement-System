@@ -7,7 +7,7 @@ import {
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
-import type { VendorContact } from "@/lib/vendor/types";
+import type { VendorContact } from "@/lib/vendor/profile/types";
 import { Eye, Mail, MessageCircle, MoreHorizontal, Phone } from "lucide-react";
 
 export default function ViewContactDialog({ contact }: { contact: VendorContact }) {

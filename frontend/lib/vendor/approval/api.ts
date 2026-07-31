@@ -3,7 +3,7 @@ import type {
   VendorDetail,
   VendorSummary,
   VendorVerificationStatus,
-} from "@/lib/vendor-approval/types";
+} from "@/lib/vendor/approval/types";
 
 export async function fetchVendorList(
   status: VendorVerificationStatus,

@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { AddContactSchema, AddContactValues } from "../_schemas/schema";
-import { useSaveVendorContact } from "@/lib/vendor/mutations";
+import { useSaveVendorContact } from "@/lib/vendor/profile/mutations";
 
 function getErrorMessage(error: unknown): string {
   const fieldErrors =

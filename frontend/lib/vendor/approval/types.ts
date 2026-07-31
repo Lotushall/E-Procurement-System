@@ -1,4 +1,4 @@
-import type { VendorProfile, VendorVerificationStatus } from "@/lib/vendor/types";
+import type { VendorProfile, VendorVerificationStatus } from "@/lib/vendor/profile/types";
 import type { User } from "@/lib/user/types";
 
 export type { VendorVerificationStatus };

@@ -9,13 +9,13 @@ import {
   saveVendorContact,
   saveVendorDocument,
   updateVendorInfo,
-} from "@/lib/vendor/api";
-import { VENDOR_PROFILE_QUERY_KEY } from "@/lib/vendor/useVendorProfile";
+} from "@/lib/vendor/profile/api";
+import { VENDOR_PROFILE_QUERY_KEY } from "@/lib/vendor/profile/useVendorProfile";
 import type {
   SaveVendorContactPayload,
   UpdateVendorDocumentPayload,
   UpdateVendorInfoPayload,
-} from "@/lib/vendor/types";
+} from "@/lib/vendor/profile/types";
 
 export const UPDATE_VENDOR_INFO_MUTATION_KEY = [
   "vendor",

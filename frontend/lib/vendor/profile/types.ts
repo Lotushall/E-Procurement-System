@@ -1,4 +1,4 @@
-import { User } from "../user/types";
+import { User } from "@/lib/user/types";
 
 export type VendorVerificationStatus = "pending" | "approved" | "rejected";
 

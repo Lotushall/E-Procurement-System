@@ -2,7 +2,7 @@
 
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import { useVendorProfileCompleteness } from "@/lib/vendor/useVendorProfileCompleteness";
+import { useVendorProfileCompleteness } from "@/lib/vendor/profile/useVendorProfileCompleteness";
 import { Building2, CircleUserRound, FileText, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

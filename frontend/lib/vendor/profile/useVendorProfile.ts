@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchVendorProfile } from "@/lib/vendor/api";
+import { fetchVendorProfile } from "@/lib/vendor/profile/api";
 
 export const VENDOR_PROFILE_QUERY_KEY = ["vendor", "profile"] as const;
 

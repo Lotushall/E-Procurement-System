@@ -1,12 +1,12 @@
 // app/(public)/profiles/vendor-info/page.tsx
 "use client";
 
-import { useVendorProfile } from "@/lib/vendor/useVendorProfile";
+import { useVendorProfile } from "@/lib/vendor/profile/useVendorProfile";
 import { Spinner } from "@/components/ui/spinner";
 import SectionTitle from "../_components/section-title";
 import CompanyInfoForm from "./_components/company-info-form";
 import IndividualInfoForm from "./_components/individual-info-form";
-import { useIsVendorInfoSubmitting } from "@/lib/vendor/mutations";
+import { useIsVendorInfoSubmitting } from "@/lib/vendor/profile/mutations";
 
 export default function VendorInfo() {
   const { data: vendor, isLoading } = useVendorProfile();

@@ -6,12 +6,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { VendorStatusBadge } from "@/components/vendor-status-badge";
 import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-reason-dialog";
-import { getVendorDocumentViewUrl } from "@/lib/vendor/api";
-import type { VendorDocument } from "@/lib/vendor/types";
+import { getVendorDocumentViewUrl } from "@/lib/vendor/profile/api";
+import type { VendorDocument } from "@/lib/vendor/profile/types";
 import {
   useApproveVendorDocument,
   useRejectVendorDocument,
-} from "@/lib/vendor-approval/mutations";
+} from "@/lib/vendor/approval/mutations";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)

@@ -4,7 +4,7 @@ import {
   approveVendorDocument,
   rejectVendor,
   rejectVendorDocument,
-} from "@/lib/vendor-approval/api";
+} from "@/lib/vendor/approval/api";
 
 function useInvalidateVendors() {
   const queryClient = useQueryClient();

@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { VendorContact } from "@/lib/vendor/types";
-import { useDeleteVendorContact } from "@/lib/vendor/mutations";
+import type { VendorContact } from "@/lib/vendor/profile/types";
+import { useDeleteVendorContact } from "@/lib/vendor/profile/mutations";
 import { Trash2 } from "lucide-react";
 
 function getErrorMessage(error: unknown): string {

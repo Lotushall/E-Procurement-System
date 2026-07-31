@@ -93,9 +93,9 @@ export function VendorStatsCards({
 }
 ```
 
-## New: `app/dashboard/vendors/_components/vendor-list-view.tsx`
+## Modify: `app/dashboard/vendors/page.tsx`
 
-Follows the same `page.tsx` → `_components/*-view.tsx` split already used by the detail page (`app/dashboard/vendors/[id]/page.tsx` → `vendor-detail-view.tsx`), so `page.tsx` stays trivial:
+No `page.tsx` → `_components/*-view.tsx` split here, unlike the detail page. That split exists at `app/dashboard/vendors/[id]/page.tsx` for a specific reason — it has to unwrap `params` (a `Promise`) via `use()`, a Next.js routing concern worth isolating from the view logic. This list page takes no route params and has no such concern to isolate, so the logic below lives directly in `page.tsx`; adding a wrapper here would just be indirection with no payoff.
 
 ```tsx
 "use client";
@@ -113,8 +113,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useVendorList } from "@/lib/vendor-approval/useVendorList";
 import type { VendorSummary } from "@/lib/vendor-approval/types";
-import { VendorRow } from "./vendor-row";
-import { VendorStatsCards, type VendorListFilter } from "./vendor-stats-cards";
+import { VendorRow } from "./_components/vendor-row";
+import { VendorStatsCards, type VendorListFilter } from "./_components/vendor-stats-cards";
 
 const STATUS_OPTIONS: { value: VendorListFilter; label: string }[] = [
   { value: "all", label: "ทั้งหมด" },
@@ -130,7 +130,7 @@ const EMPTY_MESSAGE: Record<VendorListFilter, string> = {
   rejected: "ไม่มีผู้ค้าที่ถูกปฏิเสธ",
 };
 
-export function VendorListView() {
+export default function VendorListPage() {
   useBreadcrumb([{ label: "ผู้ค้าที่ลงทะเบียน" }]);
 
   const [filter, setFilter] = useState<VendorListFilter>("all");
@@ -218,22 +218,6 @@ export function VendorListView() {
   );
 }
 ```
-
-## Modify: `app/dashboard/vendors/page.tsx`
-
-Becomes a thin wrapper, matching the detail page's convention:
-
-```tsx
-"use client";
-
-import { VendorListView } from "./_components/vendor-list-view";
-
-export default function VendorListPage() {
-  return <VendorListView />;
-}
-```
-
-The `useBreadcrumb` call moves into `vendor-list-view.tsx` (see above) — same behavior, just relocated with the rest of the page's logic.
 
 ## Error handling
 
