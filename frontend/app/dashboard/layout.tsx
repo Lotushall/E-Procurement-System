@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { InternalGuard } from "./_components/internal-guard";
 import { AppSidebar } from "./_components/app-sidebar";
 import { DashboardNavbar } from "./_components/dashboard-navbar";
+import { DashboardBreadcrumb } from "./_components/dashboard-breadcrumb";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
@@ -20,7 +21,10 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
         <DashboardNavbar />
         <AppSidebar />
         <SidebarInset className="pt-14">
-          <div className="flex flex-1 flex-col px-6.5 pt-5.5 pb-10">{children}</div>
+          <div className="flex flex-1 flex-col px-6.5 pt-5.5 pb-10">
+            <DashboardBreadcrumb />
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </InternalGuard>
