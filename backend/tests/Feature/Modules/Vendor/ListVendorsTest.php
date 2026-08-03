@@ -6,6 +6,7 @@ use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
+use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -87,7 +88,7 @@ test('an internal user can list all vendors regardless of status', function () {
         ->assertJsonCount(3, 'data')
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'displayName', 'vendorType', 'verificationStatus', 'submittedAt'],
+                '*' => ['id', 'verificationStatus', 'detail', 'created_at', 'updated_at'],
             ],
         ]);
 
@@ -97,26 +98,32 @@ test('an internal user can list all vendors regardless of status', function () {
     $companyEntry = collect($response->json('data'))->firstWhere('id', $companyProfile->id());
     expect($companyEntry)->toMatchArray([
         'id' => $companyProfile->id(),
-        'displayName' => 'Acme Co., Ltd.',
-        'vendorType' => 'company',
         'verificationStatus' => 'pending',
     ]);
-    expect(Carbon::parse($companyEntry['submittedAt'])->diffInSeconds(now()))->toBeLessThan(10);
+    expect($companyEntry['detail'])->toMatchArray([
+        'type' => 'company',
+        'companyName' => 'Acme Co., Ltd.',
+    ]);
+    expect(Carbon::parse($companyEntry['created_at'])->diffInSeconds(now()))->toBeLessThan(10);
 
     $individualEntry = collect($response->json('data'))->firstWhere('id', $individualProfile->id());
     expect($individualEntry)->toMatchArray([
         'id' => $individualProfile->id(),
-        'displayName' => "John's Store",
-        'vendorType' => 'individual',
         'verificationStatus' => 'approved',
+    ]);
+    expect($individualEntry['detail'])->toMatchArray([
+        'type' => 'individual',
+        'storeName' => "John's Store",
     ]);
 
     $rejectedEntry = collect($response->json('data'))->firstWhere('id', $rejectedProfile->id());
     expect($rejectedEntry)->toMatchArray([
         'id' => $rejectedProfile->id(),
-        'displayName' => 'Rejected Co.',
-        'vendorType' => 'company',
         'verificationStatus' => 'rejected',
+    ]);
+    expect($rejectedEntry['detail'])->toMatchArray([
+        'type' => 'company',
+        'companyName' => 'Rejected Co.',
     ]);
 });
 
@@ -285,4 +292,540 @@ test('pagination respects the status filter', function () {
     expect($response->json('links.next'))
         ->toContain('status=pending')
         ->toContain('per_page=2');
+});
+
+test('an internal user can search vendors by company name', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $acmeUser = User::factory()->create(['user_type' => 'company']);
+    $acmeProfile = $repository->saveProfile(VendorProfile::create(userId: $acmeUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $acmeProfile->id(),
+        companyName: 'Acme Co., Ltd.',
+        businessRegistrationNo: '0123456789012',
+        taxId: TaxId::fromString('1234567890123'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $otherUser = User::factory()->create(['user_type' => 'company']);
+    $otherProfile = $repository->saveProfile(VendorProfile::create(userId: $otherUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $otherProfile->id(),
+        companyName: 'Globex Corp.',
+        businessRegistrationNo: '9876543210987',
+        taxId: TaxId::fromString('9876543210987'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?search=acme');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $acmeProfile->id());
+});
+
+test('an internal user can search vendors by individual store name and firstname', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $johnUser = User::factory()->create(['user_type' => 'individual']);
+    $johnProfile = $repository->saveProfile(VendorProfile::create(userId: $johnUser->id));
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $johnProfile->id(),
+        storeName: "John's Store",
+        prefix: 'Mr.',
+        firstname: 'John',
+        lastname: 'Doe',
+        citizenId: CitizenId::fromString('1234567890124'),
+        businessType: null,
+        taxId: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $janeUser = User::factory()->create(['user_type' => 'individual']);
+    $janeProfile = $repository->saveProfile(VendorProfile::create(userId: $janeUser->id));
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $janeProfile->id(),
+        storeName: "Jane's Boutique",
+        prefix: 'Ms.',
+        firstname: 'Jane',
+        lastname: 'Smith',
+        citizenId: CitizenId::fromString('1234567890125'),
+        businessType: null,
+        taxId: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $byStoreName = $this->getJson('/api/v1/vendors?search='.urlencode("John's"));
+    $byStoreName->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $johnProfile->id());
+
+    $byFirstname = $this->getJson('/api/v1/vendors?search=Jane');
+    $byFirstname->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $janeProfile->id());
+});
+
+test('an internal user can search vendors by owner email', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $matchingUser = User::factory()->create(['user_type' => 'company', 'email' => 'findme@example.com']);
+    $matchingProfile = $repository->saveProfile(VendorProfile::create(userId: $matchingUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $matchingProfile->id(),
+        companyName: 'Findme Co.',
+        businessRegistrationNo: '1122334455667',
+        taxId: TaxId::fromString('1122334455667'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $otherUser = User::factory()->create(['user_type' => 'company', 'email' => 'someoneelse@example.com']);
+    $otherProfile = $repository->saveProfile(VendorProfile::create(userId: $otherUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $otherProfile->id(),
+        companyName: 'Other Co.',
+        businessRegistrationNo: '7766554433221',
+        taxId: TaxId::fromString('7766554433221'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?search=findme@example.com');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $matchingProfile->id());
+});
+
+test('search combines with the status filter', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $pendingUser = User::factory()->create(['user_type' => 'company']);
+    $pendingProfile = $repository->saveProfile(VendorProfile::create(userId: $pendingUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $pendingProfile->id(),
+        companyName: 'Acme Pending Co.',
+        businessRegistrationNo: '1231231231231',
+        taxId: TaxId::fromString('1231231231231'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $approvedUser = User::factory()->create(['user_type' => 'company']);
+    $approvedProfile = VendorProfile::create(userId: $approvedUser->id);
+    $approvedProfile->approve(verifiedBy: $internalUser->id);
+    $approvedProfile = $repository->saveProfile($approvedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $approvedProfile->id(),
+        companyName: 'Acme Approved Co.',
+        businessRegistrationNo: '3213213213213',
+        taxId: TaxId::fromString('3213213213213'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?search=acme&status=approved');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $approvedProfile->id());
+});
+
+test('a too long search value is rejected', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?search='.str_repeat('a', 256));
+
+    $response->assertStatus(422);
+});
+
+test('listing vendors includes status counts in the response meta', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    foreach ([1, 2] as $i) {
+        $vendorUser = User::factory()->create(['user_type' => 'company']);
+        $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+        $repository->saveCompanyDetail(VendorCompanyDetail::create(
+            vendorProfileId: $profile->id(),
+            companyName: "Pending Vendor {$i}",
+            businessRegistrationNo: str_repeat((string) $i, 13),
+            taxId: TaxId::fromString(str_repeat((string) $i, 13)),
+            branchNo: null,
+            businessType: null,
+            address: null,
+            province: null,
+            postalCode: null,
+        ));
+    }
+
+    $approvedUser = User::factory()->create(['user_type' => 'company']);
+    $approvedProfile = VendorProfile::create(userId: $approvedUser->id);
+    $approvedProfile->approve(verifiedBy: $internalUser->id);
+    $approvedProfile = $repository->saveProfile($approvedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $approvedProfile->id(),
+        companyName: 'Approved Vendor',
+        businessRegistrationNo: '8888888888888',
+        taxId: TaxId::fromString('8888888888888'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $rejectedUser = User::factory()->create(['user_type' => 'company']);
+    $rejectedProfile = VendorProfile::create(userId: $rejectedUser->id);
+    $rejectedProfile->reject(verifiedBy: $internalUser->id);
+    $rejectedProfile = $repository->saveProfile($rejectedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $rejectedProfile->id(),
+        companyName: 'Rejected Vendor',
+        businessRegistrationNo: '9999999999998',
+        taxId: TaxId::fromString('9999999999998'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors');
+
+    $response->assertOk()
+        ->assertJsonPath('meta.counts.total', 4)
+        ->assertJsonPath('meta.counts.pending', 2)
+        ->assertJsonPath('meta.counts.approved', 1)
+        ->assertJsonPath('meta.counts.rejected', 1);
+});
+
+test('status counts in meta respect the search filter but ignore the status filter', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $acmePendingUser = User::factory()->create(['user_type' => 'company']);
+    $acmePendingProfile = $repository->saveProfile(VendorProfile::create(userId: $acmePendingUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $acmePendingProfile->id(),
+        companyName: 'Acme Pending',
+        businessRegistrationNo: '1112223334445',
+        taxId: TaxId::fromString('1112223334445'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $acmeApprovedUser = User::factory()->create(['user_type' => 'company']);
+    $acmeApprovedProfile = VendorProfile::create(userId: $acmeApprovedUser->id);
+    $acmeApprovedProfile->approve(verifiedBy: $internalUser->id);
+    $acmeApprovedProfile = $repository->saveProfile($acmeApprovedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $acmeApprovedProfile->id(),
+        companyName: 'Acme Approved',
+        businessRegistrationNo: '5556667778889',
+        taxId: TaxId::fromString('5556667778889'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $globexPendingUser = User::factory()->create(['user_type' => 'company']);
+    $globexPendingProfile = $repository->saveProfile(VendorProfile::create(userId: $globexPendingUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $globexPendingProfile->id(),
+        companyName: 'Globex Pending',
+        businessRegistrationNo: '2223334445556',
+        taxId: TaxId::fromString('2223334445556'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?search=acme&status=pending&per_page=10');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('meta.total', 1)
+        ->assertJsonPath('meta.counts.total', 2)
+        ->assertJsonPath('meta.counts.pending', 1)
+        ->assertJsonPath('meta.counts.approved', 1)
+        ->assertJsonPath('meta.counts.rejected', 0);
+});
+
+test('an internal user can sort vendors by created_at', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $oldestUser = User::factory()->create(['user_type' => 'company']);
+    $oldestProfile = $repository->saveProfile(VendorProfile::create(userId: $oldestUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $oldestProfile->id(),
+        companyName: 'Oldest Co.',
+        businessRegistrationNo: '1000000000001',
+        taxId: TaxId::fromString('1000000000001'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    VendorProfiles::whereKey($oldestProfile->id())->update(['created_at' => now()->subDays(3)]);
+
+    $middleUser = User::factory()->create(['user_type' => 'company']);
+    $middleProfile = $repository->saveProfile(VendorProfile::create(userId: $middleUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $middleProfile->id(),
+        companyName: 'Middle Co.',
+        businessRegistrationNo: '1000000000002',
+        taxId: TaxId::fromString('1000000000002'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    VendorProfiles::whereKey($middleProfile->id())->update(['created_at' => now()->subDays(2)]);
+
+    $newestUser = User::factory()->create(['user_type' => 'company']);
+    $newestProfile = $repository->saveProfile(VendorProfile::create(userId: $newestUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $newestProfile->id(),
+        companyName: 'Newest Co.',
+        businessRegistrationNo: '1000000000003',
+        taxId: TaxId::fromString('1000000000003'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    VendorProfiles::whereKey($newestProfile->id())->update(['created_at' => now()->subDays(1)]);
+
+    $this->actingAs($internalUser, 'web');
+
+    $ascending = $this->getJson('/api/v1/vendors?sort_by=created_at&sort_direction=asc');
+    $ascending->assertOk();
+    expect(collect($ascending->json('data'))->pluck('id')->toArray())
+        ->toBe([$oldestProfile->id(), $middleProfile->id(), $newestProfile->id()]);
+
+    $descending = $this->getJson('/api/v1/vendors?sort_by=created_at&sort_direction=desc');
+    $descending->assertOk();
+    expect(collect($descending->json('data'))->pluck('id')->toArray())
+        ->toBe([$newestProfile->id(), $middleProfile->id(), $oldestProfile->id()]);
+});
+
+test('an internal user can sort vendors by verification_status', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $pendingUser = User::factory()->create(['user_type' => 'company']);
+    $pendingProfile = $repository->saveProfile(VendorProfile::create(userId: $pendingUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $pendingProfile->id(),
+        companyName: 'Pending Co.',
+        businessRegistrationNo: '2000000000001',
+        taxId: TaxId::fromString('2000000000001'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $approvedUser = User::factory()->create(['user_type' => 'company']);
+    $approvedProfile = VendorProfile::create(userId: $approvedUser->id);
+    $approvedProfile->approve(verifiedBy: $internalUser->id);
+    $approvedProfile = $repository->saveProfile($approvedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $approvedProfile->id(),
+        companyName: 'Approved Co.',
+        businessRegistrationNo: '2000000000002',
+        taxId: TaxId::fromString('2000000000002'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $rejectedUser = User::factory()->create(['user_type' => 'company']);
+    $rejectedProfile = VendorProfile::create(userId: $rejectedUser->id);
+    $rejectedProfile->reject(verifiedBy: $internalUser->id);
+    $rejectedProfile = $repository->saveProfile($rejectedProfile);
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $rejectedProfile->id(),
+        companyName: 'Rejected Co.',
+        businessRegistrationNo: '2000000000003',
+        taxId: TaxId::fromString('2000000000003'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?sort_by=verification_status&sort_direction=asc');
+
+    $response->assertOk();
+    expect(collect($response->json('data'))->pluck('verificationStatus')->toArray())
+        ->toBe(['approved', 'pending', 'rejected']);
+});
+
+test('an internal user can sort vendors by user_type', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $companyUser = User::factory()->create(['user_type' => 'company']);
+    $companyProfile = $repository->saveProfile(VendorProfile::create(userId: $companyUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $companyProfile->id(),
+        companyName: 'Company Vendor',
+        businessRegistrationNo: '3000000000001',
+        taxId: TaxId::fromString('3000000000001'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $individualUser = User::factory()->create(['user_type' => 'individual']);
+    $individualProfile = $repository->saveProfile(VendorProfile::create(userId: $individualUser->id));
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $individualProfile->id(),
+        storeName: 'Individual Vendor',
+        prefix: 'Mr.',
+        firstname: 'Test',
+        lastname: 'Vendor',
+        citizenId: CitizenId::fromString('9999999999991'),
+        businessType: null,
+        taxId: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $ascending = $this->getJson('/api/v1/vendors?sort_by=user_type&sort_direction=asc');
+    $ascending->assertOk();
+    expect(collect($ascending->json('data'))->pluck('id')->toArray())
+        ->toBe([$companyProfile->id(), $individualProfile->id()]);
+
+    $descending = $this->getJson('/api/v1/vendors?sort_by=user_type&sort_direction=desc');
+    $descending->assertOk();
+    expect(collect($descending->json('data'))->pluck('id')->toArray())
+        ->toBe([$individualProfile->id(), $companyProfile->id()]);
+});
+
+test('an internal user can sort vendors by business_type across company and individual vendors', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $companyUser = User::factory()->create(['user_type' => 'company']);
+    $companyProfile = $repository->saveProfile(VendorProfile::create(userId: $companyUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $companyProfile->id(),
+        companyName: 'Trading Co.',
+        businessRegistrationNo: '4000000000001',
+        taxId: TaxId::fromString('4000000000001'),
+        branchNo: null,
+        businessType: 'Trading',
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $individualUser = User::factory()->create(['user_type' => 'individual']);
+    $individualProfile = $repository->saveProfile(VendorProfile::create(userId: $individualUser->id));
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $individualProfile->id(),
+        storeName: 'Retail Store',
+        prefix: 'Mr.',
+        firstname: 'Test',
+        lastname: 'Vendor',
+        citizenId: CitizenId::fromString('9999999999992'),
+        businessType: 'Retail',
+        taxId: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?sort_by=business_type&sort_direction=asc');
+
+    $response->assertOk();
+    expect(collect($response->json('data'))->pluck('id')->toArray())
+        ->toBe([$individualProfile->id(), $companyProfile->id()]);
+});
+
+test('an invalid sort_by value is rejected', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?sort_by=bogus');
+
+    $response->assertStatus(422);
+});
+
+test('an invalid sort_direction value is rejected', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors?sort_by=created_at&sort_direction=bogus');
+
+    $response->assertStatus(422);
 });

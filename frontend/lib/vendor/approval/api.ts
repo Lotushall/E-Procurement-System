@@ -1,18 +1,46 @@
 import { api } from "@/lib/api";
 import type {
   VendorDetail,
-  VendorSummary,
+  VendorListPagination,
+  VendorStatusCounts,
   VendorVerificationStatus,
 } from "@/lib/vendor/approval/types";
+import { VendorProfile } from "../profile/types";
+
+export interface VendorListResult {
+  vendors: VendorProfile[];
+  counts: VendorStatusCounts;
+  pagination: VendorListPagination;
+}
 
 export async function fetchVendorList(
   status?: VendorVerificationStatus,
   search?: string,
-): Promise<VendorSummary[]> {
-  const { data } = await api.get<{ data: VendorSummary[] }>("/api/v1/vendors", {
-    params: { status, search },
+  page = 1,
+  perPage = 20,
+): Promise<VendorListResult> {
+  const { data } = await api.get<{
+    data: VendorProfile[];
+    meta: {
+      counts: VendorStatusCounts;
+      current_page: number;
+      per_page: number;
+      total: number;
+      last_page: number;
+    };
+  }>("/api/v1/vendors", {
+    params: { status, search, page, per_page: perPage },
   });
-  return data.data;
+  return {
+    vendors: data.data,
+    counts: data.meta.counts,
+    pagination: {
+      currentPage: data.meta.current_page,
+      perPage: data.meta.per_page,
+      total: data.meta.total,
+      lastPage: data.meta.last_page,
+    },
+  };
 }
 
 export async function fetchVendorCount(

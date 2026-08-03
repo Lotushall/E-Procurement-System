@@ -16,16 +16,21 @@ class VendorProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $companyDetail = $this->VendorProfilesCompanyDetail;
+        $individualDetail = $this->VendorProfilesIndividualDetail;
+
         return [
             'id' => $this->id,
-            'verificationStatus' => $this->verification_status->getValue(),
+            'verificationStatus' => $this->whenNotNull($this->verification_status?->getValue()),
             'verifiedAt' => $this->whenNotNull($this->verified_at?->toIso8601String()),
             'remark' => $this->whenNotNull($this->remark),
-            'detail' => $this->VendorProfilesCompanyDetail !== null
-                ? new VendorCompanyDetailResource($this->VendorProfilesCompanyDetail)
-                : new VendorIndividualDetailResource($this->VendorProfilesIndividualDetail),
-            'contact' => $this->whenLoaded('VendorProfilesContact', fn() => VendorContactResource::collection($this->VendorProfilesContact)),
-            'document' => $this->whenLoaded('VendorProfilesContact', fn() => VendorDocumentResource::collection($this->VendorProfilesDocuments)),
+            'detail' => $companyDetail !== null
+                ? new VendorCompanyDetailResource($companyDetail)
+                : new VendorIndividualDetailResource($individualDetail),
+            'contact' => $this->whenLoaded('VendorProfilesContact', fn () => VendorContactResource::collection($this->VendorProfilesContact)),
+            'document' => $this->whenLoaded('VendorProfilesDocuments', fn () => VendorDocumentResource::collection($this->VendorProfilesDocuments)),
+            'created_at' => $this->whenNotNull($this->created_at?->toIso8601String()),
+            'updated_at' => $this->whenNotNull($this->updated_at?->toIso8601String()),
         ];
     }
 }

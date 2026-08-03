@@ -11,8 +11,9 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useVendorListPage } from "./_hooks/use-vendor-list-page";
-import { VendorRow } from "./_components/vendor-row";
 import { VendorStatsCards, type VendorListFilter } from "./_components/vendor-stats-cards";
+import { DataTable } from "./_components/table/data-table";
+import { columns } from "./_components/table/columns";
 
 const STATUS_OPTIONS: { value: VendorListFilter; label: string }[] = [
   { value: "all", label: "ทั้งหมด" },
@@ -39,6 +40,9 @@ export default function VendorListPage() {
     debouncedSearch,
     counts,
     visible,
+    pageCount,
+    pagination,
+    setPagination,
     isPending,
     isError,
   } = useVendorListPage();
@@ -59,7 +63,7 @@ export default function VendorListPage() {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          // placeholder="ค้นหาชื่อผู้ค้า"
+          placeholder="ค้นหาชื่อผู้ค้า | ชื่อร้านค้า | หมวดสินค้า/บริการ | เบอร์โทรศัพท์/อีเมล"
           className="bg-white h-10 rounded-sm"
         />
 
@@ -91,9 +95,13 @@ export default function VendorListPage() {
         </p>
       ) : visible.length > 0 ? (
         <div className="flex flex-col gap-2">
-          {visible.map((vendor) => (
-            <VendorRow key={vendor.id} />
-          ))}
+          <DataTable
+            columns={columns}
+            data={visible}
+            pageCount={pageCount}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+          />
         </div>
       ) : (
         <p className="py-12 text-center text-sm text-muted-foreground">

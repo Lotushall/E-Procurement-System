@@ -35,7 +35,7 @@ export default function Contract() {
                                 <div key={index} className="flex justify-between gap-3 p-4 border rounded-md">
                                     <div className="flex md:items-center gap-2 md:gap-3.5 min-w-0">
                                         <div className={cn(
-                                            "flex items-center justify-center shrink-0 font-bold text-white w-11 h-11 rounded-md",
+                                            "flex items-center justify-center shrink-0 font-bold text-white size-11 rounded-md",
                                             contact.isMainContact ? "bg-red-700" : "bg-gray-200 text-gray-500"
                                         )}>
                                             {getInitials(contact.contactName)}

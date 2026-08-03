@@ -63,6 +63,8 @@ export interface VendorProfile {
   detail: VendorProfileDetail;
   contact: VendorContact[];
   document?: VendorDocument[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface SaveVendorContactPayload {

@@ -1,32 +1,44 @@
 import { useEffect, useState } from "react";
+import type { PaginationState } from "@tanstack/react-table";
 import { useVendorList } from "@/lib/vendor/approval/useVendorList";
 import type { VendorListFilter } from "../_components/vendor-stats-cards";
 
 const SEARCH_DEBOUNCE_MS = 350;
+const DEFAULT_PAGINATION: PaginationState = { pageIndex: 0, pageSize: 20 };
 
 export function useVendorListPage() {
   const [filter, setFilter] = useState<VendorListFilter>("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>(DEFAULT_PAGINATION);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setDebouncedSearch(search.trim()), SEARCH_DEBOUNCE_MS);
+    const timeout = setTimeout(
+      () => setDebouncedSearch(search.trim()),
+      SEARCH_DEBOUNCE_MS,
+    );
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const pending = useVendorList("pending");
-  const approved = useVendorList("approved");
-  const rejected = useVendorList("rejected");
-  const list = useVendorList(filter === "all" ? undefined : filter, debouncedSearch || undefined);
+  const queryKey = `${filter}:${debouncedSearch}`;
+  const [prevQueryKey, setPrevQueryKey] = useState(queryKey);
+  if (queryKey !== prevQueryKey) {
+    setPrevQueryKey(queryKey);
+    setPagination((current) => ({ ...current, pageIndex: 0 }));
+  }
 
-  const isPending = pending.isPending || approved.isPending || rejected.isPending || list.isPending;
-  const isError = pending.isError || approved.isError || rejected.isError || list.isError;
+  const list = useVendorList(
+    filter === "all" ? undefined : filter,
+    debouncedSearch || undefined,
+    pagination.pageIndex + 1,
+    pagination.pageSize,
+  );
 
   const counts: Record<VendorListFilter, number> = {
-    all: (pending.data?.length ?? 0) + (approved.data?.length ?? 0) + (rejected.data?.length ?? 0),
-    pending: pending.data?.length ?? 0,
-    approved: approved.data?.length ?? 0,
-    rejected: rejected.data?.length ?? 0,
+    all: list.data?.counts.total ?? 0,
+    pending: list.data?.counts.pending ?? 0,
+    approved: list.data?.counts.approved ?? 0,
+    rejected: list.data?.counts.rejected ?? 0,
   };
 
   return {
@@ -36,8 +48,11 @@ export function useVendorListPage() {
     setSearch,
     debouncedSearch,
     counts,
-    visible: list.data ?? [],
-    isPending,
-    isError,
+    visible: list.data?.vendors ?? [],
+    pageCount: list.data?.pagination.lastPage ?? 0,
+    pagination,
+    setPagination,
+    isPending: list.isPending,
+    isError: list.isError,
   };
 }
