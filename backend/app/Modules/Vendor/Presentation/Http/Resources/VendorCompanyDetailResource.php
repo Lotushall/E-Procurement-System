@@ -18,15 +18,15 @@ class VendorCompanyDetailResource extends JsonResource
     {
         return [
             'type' => 'company',
-            'companyName' => $this->company_name,
-            'businessRegistrationNo' => self::maskSensitiveId($this->business_registration_no),
-            'taxId' => self::maskSensitiveId($this->tax_id),
-            'branchNo' => $this->branch_no,
-            'businessType' => $this->business_type,
-            'address' => $this->address,
-            'country' => $this->country,
-            'province' => $this->province,
-            'postalCode' => $this->postal_code,
+            'companyName' => $this->whenNotNull($this->company_name),
+            'businessRegistrationNo' => $this->whenNotNull(self::maskSensitiveId($this->business_registration_no)),
+            'taxId' => $this->whenNotNull(self::maskSensitiveId($this->tax_id)),
+            'branchNo' => $this->whenNotNull($this->branch_no),
+            'businessType' => $this->whenNotNull($this->business_type),
+            'address' => $this->whenNotNull($this->address),
+            'country' => $this->whenNotNull($this->country),
+            'province' => $this->whenNotNull($this->province),
+            'postalCode' => $this->whenNotNull($this->postal_code),
         ];
     }
 

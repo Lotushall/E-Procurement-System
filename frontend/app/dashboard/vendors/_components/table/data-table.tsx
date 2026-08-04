@@ -4,6 +4,7 @@ import {
     ColumnDef,
     OnChangeFn,
     PaginationState,
+    SortingState,
     flexRender,
     getCoreRowModel,
     useReactTable,
@@ -23,24 +24,33 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     pageCount: number
+    total: number
     pagination: PaginationState
     onPaginationChange: OnChangeFn<PaginationState>
+    sorting: SortingState
+    onSortingChange: OnChangeFn<SortingState>
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     pageCount,
+    total,
     pagination,
     onPaginationChange,
+    sorting,
+    onSortingChange,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
         pageCount,
-        state: { pagination },
+        state: { pagination, sorting },
         onPaginationChange,
+        onSortingChange,
         manualPagination: true,
+        manualSorting: true,
+        enableMultiSort: false,
         getCoreRowModel: getCoreRowModel(),
     })
 
@@ -91,7 +101,7 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} />
+            <DataTablePagination table={table} total={total} />
         </div>
     )
 }

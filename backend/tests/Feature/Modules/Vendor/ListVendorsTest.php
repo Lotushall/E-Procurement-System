@@ -1,7 +1,10 @@
 <?php
 
+use App\Modules\Shared\Domain\ValueObjects\Email;
+use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
+use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
@@ -425,6 +428,118 @@ test('an internal user can search vendors by owner email', function () {
         ->assertJsonPath('data.0.id', $matchingProfile->id());
 });
 
+test('an internal user can search vendors by business type', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $companyUser = User::factory()->create(['user_type' => 'company']);
+    $companyProfile = $repository->saveProfile(VendorProfile::create(userId: $companyUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $companyProfile->id(),
+        companyName: 'Acme Co., Ltd.',
+        businessRegistrationNo: '0123456789012',
+        taxId: TaxId::fromString('1234567890123'),
+        branchNo: null,
+        businessType: 'Wholesale Trading',
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $individualUser = User::factory()->create(['user_type' => 'individual']);
+    $individualProfile = $repository->saveProfile(VendorProfile::create(userId: $individualUser->id));
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $individualProfile->id(),
+        storeName: "John's Store",
+        prefix: 'Mr.',
+        firstname: 'John',
+        lastname: 'Doe',
+        citizenId: CitizenId::fromString('1234567890124'),
+        businessType: 'Food Retail',
+        taxId: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $byCompanyBusinessType = $this->getJson('/api/v1/vendors?search=Wholesale');
+    $byCompanyBusinessType->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $companyProfile->id());
+
+    $byIndividualBusinessType = $this->getJson('/api/v1/vendors?search=Retail');
+    $byIndividualBusinessType->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $individualProfile->id());
+});
+
+test('an internal user can search vendors by contact phone and contact email', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $matchingUser = User::factory()->create(['user_type' => 'company']);
+    $matchingProfile = $repository->saveProfile(VendorProfile::create(userId: $matchingUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $matchingProfile->id(),
+        companyName: 'Findme Co.',
+        businessRegistrationNo: '1122334455667',
+        taxId: TaxId::fromString('1122334455667'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    $repository->saveContact(VendorContact::create(
+        vendorProfileId: $matchingProfile->id(),
+        contactName: 'Contact Person',
+        contactPosition: null,
+        contactPhone: PhoneNumber::fromString('0812345678'),
+        contactEmail: Email::fromString('contact@findme.com'),
+        lineId: null,
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $otherUser = User::factory()->create(['user_type' => 'company']);
+    $otherProfile = $repository->saveProfile(VendorProfile::create(userId: $otherUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $otherProfile->id(),
+        companyName: 'Other Co.',
+        businessRegistrationNo: '7766554433221',
+        taxId: TaxId::fromString('7766554433221'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    $repository->saveContact(VendorContact::create(
+        vendorProfileId: $otherProfile->id(),
+        contactName: 'Other Contact',
+        contactPosition: null,
+        contactPhone: PhoneNumber::fromString('0898765432'),
+        contactEmail: Email::fromString('contact@other.com'),
+        lineId: null,
+        otherContact: null,
+        isMainContact: true,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $byPhone = $this->getJson('/api/v1/vendors?search=0812345678');
+    $byPhone->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $matchingProfile->id());
+
+    $byContactEmail = $this->getJson('/api/v1/vendors?search=contact@findme.com');
+    $byContactEmail->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $matchingProfile->id());
+});
+
 test('search combines with the status filter', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     $repository = new VendorRepository;
@@ -810,6 +925,53 @@ test('an internal user can sort vendors by business_type across company and indi
     $response->assertOk();
     expect(collect($response->json('data'))->pluck('id')->toArray())
         ->toBe([$individualProfile->id(), $companyProfile->id()]);
+});
+
+test('an internal user can sort vendors by name across company and individual vendors', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $companyUser = User::factory()->create(['user_type' => 'company']);
+    $companyProfile = $repository->saveProfile(VendorProfile::create(userId: $companyUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $companyProfile->id(),
+        companyName: 'Zulu Trading',
+        businessRegistrationNo: '4000000000003',
+        taxId: TaxId::fromString('4000000000003'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $individualUser = User::factory()->create(['user_type' => 'individual']);
+    $individualProfile = $repository->saveProfile(VendorProfile::create(userId: $individualUser->id));
+    $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $individualProfile->id(),
+        storeName: 'Alpha Store',
+        prefix: 'Mr.',
+        firstname: 'Test',
+        lastname: 'Vendor',
+        citizenId: CitizenId::fromString('9999999999993'),
+        businessType: null,
+        taxId: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $ascending = $this->getJson('/api/v1/vendors?sort_by=name&sort_direction=asc');
+    $ascending->assertOk();
+    expect(collect($ascending->json('data'))->pluck('id')->toArray())
+        ->toBe([$individualProfile->id(), $companyProfile->id()]);
+
+    $descending = $this->getJson('/api/v1/vendors?sort_by=name&sort_direction=desc');
+    $descending->assertOk();
+    expect(collect($descending->json('data'))->pluck('id')->toArray())
+        ->toBe([$companyProfile->id(), $individualProfile->id()]);
 });
 
 test('an invalid sort_by value is rejected', function () {

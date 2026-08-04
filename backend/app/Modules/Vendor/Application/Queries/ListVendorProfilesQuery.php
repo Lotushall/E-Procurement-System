@@ -19,7 +19,12 @@ final class ListVendorProfilesQuery
         ?int $perPage = null,
     ): Collection|LengthAwarePaginator {
         $query = VendorProfiles::query()
-            ->with(['VendorProfilesCompanyDetail', 'VendorProfilesIndividualDetail', 'VendorProfilesContact'])
+            ->select(['id', 'created_at', 'verification_status'])
+            ->with([
+                'VendorProfilesCompanyDetail:vendor_profile_id,company_name,business_type',
+                'VendorProfilesIndividualDetail:vendor_profile_id,store_name,business_type',
+                'VendorProfilesContact:vendor_profile_id,contact_email,contact_phone,is_main_contact',
+            ])
             ->status($status)
             ->search($search)
             ->sort($sortBy, $sortDirection)

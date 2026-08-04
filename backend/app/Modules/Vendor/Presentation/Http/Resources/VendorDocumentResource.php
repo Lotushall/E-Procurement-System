@@ -18,13 +18,13 @@ class VendorDocumentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'documentType' => $this->document_type,
-            'fileName' => $this->file_name,
-            'filePath' => $this->file_path,
-            'status' => $this->status,
-            'verifiedBy' => $this->verified_by,
-            'verifiedAt' => $this->verified_at,
-            'remark' => $this->remark,
+            'documentType' => $this->whenNotNull($this->document_type),
+            'fileName' => $this->whenNotNull($this->file_name),
+            'filePath' => $this->whenNotNull($this->file_path),
+            'status' => $this->whenNotNull($this->status),
+            'verifiedBy' => $this->whenNotNull($this->verified_by),
+            'verifiedAt' => $this->whenNotNull($this->verified_at),
+            'remark' => $this->whenNotNull($this->remark),
         ];
     }
 }

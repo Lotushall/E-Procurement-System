@@ -84,12 +84,13 @@ class VendorProfiles extends Model
     #[Scope]
     protected function status(Builder $query, ?string $status): void
     {
-        $query->when($status !== null, fn(Builder $query) => $query->where('verification_status', $status));
+        $query->when($status !== null, fn (Builder $query) => $query->where('verification_status', $status));
     }
 
     /**
-     * Scope a query to vendor profiles whose company name, individual store name/owner
-     * name, or account email matches the given search term.
+     * Scope a query to vendor profiles whose company name, business type, individual
+     * store name/owner name, contact phone/email, or account email matches the given
+     * search term.
      */
     #[Scope]
     protected function search(Builder $query, ?string $search): void
@@ -98,17 +99,27 @@ class VendorProfiles extends Model
             return;
         }
 
-        $term = '%' . $search . '%';
+        $term = '%'.$search.'%';
 
         $query->where(function (Builder $query) use ($term) {
             $query->whereIn('id', VendorCompanyDetails::query()
-                ->where('company_name', 'like', $term)
+                ->where(function (Builder $query) use ($term) {
+                    $query->where('company_name', 'like', $term)
+                        ->orWhere('business_type', 'like', $term);
+                })
                 ->select('vendor_profile_id'))
                 ->orWhereIn('id', VendorIndividualDetails::query()
                     ->where(function (Builder $query) use ($term) {
                         $query->where('store_name', 'like', $term)
                             ->orWhere('firstname', 'like', $term)
-                            ->orWhere('lastname', 'like', $term);
+                            ->orWhere('lastname', 'like', $term)
+                            ->orWhere('business_type', 'like', $term);
+                    })
+                    ->select('vendor_profile_id'))
+                ->orWhereIn('id', VendorContact::query()
+                    ->where(function (Builder $query) use ($term) {
+                        $query->where('contact_phone', 'like', $term)
+                            ->orWhere('contact_email', 'like', $term);
                     })
                     ->select('vendor_profile_id'))
                 ->orWhereIn('user_id', User::query()
@@ -120,8 +131,8 @@ class VendorProfiles extends Model
     /**
      * Scope a query to sort by the given whitelisted column.
      *
-     * `user_type` and `business_type` live on related tables, so they're sorted via
-     * correlated subqueries (per advanced-queries guidance) instead of joins, to avoid
+     * `user_type`, `business_type`, and `name` live on related tables, so they're sorted
+     * via correlated subqueries (per advanced-queries guidance) instead of joins, to avoid
      * disturbing the parent select/eager-load and risking duplicate/renamed columns.
      */
     #[Scope]
@@ -140,6 +151,15 @@ class VendorProfiles extends Model
                     select coalesce(
                         (select business_type from vendor_company_details where vendor_company_details.vendor_profile_id = vendor_profiles.id),
                         (select business_type from vendor_individual_details where vendor_individual_details.vendor_profile_id = vendor_profiles.id)
+                    )
+                )'),
+                $direction
+            ),
+            'name' => $query->orderBy(
+                DB::raw('(
+                    select coalesce(
+                        (select company_name from vendor_company_details where vendor_company_details.vendor_profile_id = vendor_profiles.id),
+                        (select store_name from vendor_individual_details where vendor_individual_details.vendor_profile_id = vendor_profiles.id)
                     )
                 )'),
                 $direction

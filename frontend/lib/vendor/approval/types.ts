@@ -20,6 +20,15 @@ export interface VendorListPagination {
   lastPage: number;
 }
 
+export type VendorSortBy =
+  | "created_at"
+  | "verification_status"
+  | "user_type"
+  | "business_type"
+  | "name";
+
+export type VendorSortDirection = "asc" | "desc";
+
 export interface VendorDetail extends VendorProfile {
   user: Pick<User, "username" | "email">;
 }

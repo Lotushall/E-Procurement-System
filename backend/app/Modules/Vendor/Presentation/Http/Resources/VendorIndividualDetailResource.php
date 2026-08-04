@@ -18,19 +18,19 @@ class VendorIndividualDetailResource extends JsonResource
     {
         return [
             'type' => 'individual',
-            'storeName' => $this->store_name,
-            'prefix' => $this->prefix,
-            'firstname' => $this->firstname,
-            'lastname' => $this->lastname,
-            'citizenId' => self::maskSensitiveId($this->citizen_id),
-            'businessType' => $this->business_type,
-            'taxId' => self::maskSensitiveId($this->tax_id),
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'address' => $this->address,
-            'country' => $this->country,
-            'province' => $this->province,
-            'postalCode' => $this->postal_code,
+            'storeName' => $this->whenNotNull($this->store_name),
+            'prefix' => $this->whenNotNull($this->prefix),
+            'firstname' => $this->whenNotNull($this->firstname),
+            'lastname' => $this->whenNotNull($this->lastname),
+            'citizenId' => $this->whenNotNull(self::maskSensitiveId($this->citizen_id)),
+            'businessType' => $this->whenNotNull($this->business_type),
+            'taxId' => $this->whenNotNull(self::maskSensitiveId($this->tax_id)),
+            'email' => $this->whenNotNull($this->email),
+            'phone' => $this->whenNotNull($this->phone),
+            'address' => $this->whenNotNull($this->address),
+            'country' => $this->whenNotNull($this->country),
+            'province' => $this->whenNotNull($this->province),
+            'postalCode' => $this->whenNotNull($this->postal_code),
         ];
     }
 

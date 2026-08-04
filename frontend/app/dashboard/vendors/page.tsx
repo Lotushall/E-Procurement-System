@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -8,10 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useVendorListPage } from "./_hooks/use-vendor-list-page";
 import { VendorStatsCards, type VendorListFilter } from "./_components/vendor-stats-cards";
+import { VendorListSkeleton, VendorTableSkeleton } from "./_components/vendor-list-skeleton";
 import { DataTable } from "./_components/table/data-table";
 import { columns } from "./_components/table/columns";
 
@@ -30,6 +31,14 @@ const EMPTY_MESSAGE: Record<VendorListFilter, string> = {
 };
 
 export default function VendorListPage() {
+  return (
+    <Suspense fallback={<VendorListSkeleton />}>
+      <VendorListPageContent />
+    </Suspense>
+  );
+}
+
+function VendorListPageContent() {
   useBreadcrumb([{ label: "ผู้ค้าที่ลงทะเบียน" }]);
 
   const {
@@ -41,13 +50,15 @@ export default function VendorListPage() {
     counts,
     visible,
     pageCount,
+    total,
     pagination,
     setPagination,
+    sorting,
+    setSorting,
     isPending,
+    isFetching,
     isError,
   } = useVendorListPage();
-
-  console.log(visible);
 
   return (
     <div className="flex flex-col gap-5">
@@ -57,56 +68,61 @@ export default function VendorListPage() {
         <p className="text-sm text-gray-600 tracking-wide">ผู้ค้าที่สมัครผ่านระบบ ทั้งนิติบุคคลและบุคคลธรรมดา พร้อมสถานะการตรวจสอบ</p>
       </div>
 
-      <VendorStatsCards counts={counts} active={filter} onSelect={setFilter} />
-
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="ค้นหาชื่อผู้ค้า | ชื่อร้านค้า | หมวดสินค้า/บริการ | เบอร์โทรศัพท์/อีเมล"
-          className="bg-white h-10 rounded-sm"
-        />
-
-        <Select
-          items={STATUS_OPTIONS}
-          value={filter}
-          onValueChange={(value) => setFilter(value as VendorListFilter)}
-        >
-          <SelectTrigger className="sm:w-40 h-10! bg-white rounded-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent side="bottom" alignItemWithTrigger={false}>
-            {STATUS_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       {isPending ? (
-        <div className="flex justify-center py-12">
-          <Spinner className="size-6" />
-        </div>
-      ) : isError ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          ไม่สามารถโหลดข้อมูลผู้ค้าได้ กรุณาลองใหม่อีกครั้ง
-        </p>
-      ) : visible.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <DataTable
-            columns={columns}
-            data={visible}
-            pageCount={pageCount}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-          />
-        </div>
+        <VendorListSkeleton />
       ) : (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          {debouncedSearch ? "ไม่พบผู้ค้าที่ตรงกับคำค้นหา" : EMPTY_MESSAGE[filter]}
-        </p>
+        <>
+          <VendorStatsCards counts={counts} active={filter} onSelect={setFilter} />
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="ค้นหาชื่อผู้ค้า | ชื่อร้านค้า | หมวดสินค้า/บริการ | เบอร์โทรศัพท์/อีเมล"
+              className="bg-white h-10 rounded-sm"
+            />
+
+            <Select
+              items={STATUS_OPTIONS}
+              value={filter}
+              onValueChange={(value) => setFilter(value as VendorListFilter)}
+            >
+              <SelectTrigger className="sm:w-40 h-10! bg-white rounded-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent side="bottom" alignItemWithTrigger={false}>
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {isError ? (
+            <p className="py-12 text-center text-sm text-muted-foreground">
+              ไม่สามารถโหลดข้อมูลผู้ค้าได้ กรุณาลองใหม่อีกครั้ง
+            </p>
+          ) : isFetching ? (
+            <VendorTableSkeleton />
+          ) : visible.length > 0 ? (
+            <DataTable
+              columns={columns}
+              data={visible}
+              pageCount={pageCount}
+              total={total}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              sorting={sorting}
+              onSortingChange={setSorting}
+            />
+          ) : (
+            <p className="py-12 text-center text-sm text-muted-foreground">
+              {debouncedSearch ? "ไม่พบผู้ค้าที่ตรงกับคำค้นหา" : EMPTY_MESSAGE[filter]}
+            </p>
+          )}
+        </>
       )}
     </div>
   );

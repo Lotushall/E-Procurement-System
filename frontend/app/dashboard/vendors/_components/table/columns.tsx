@@ -1,13 +1,54 @@
 "use client"
+import { format } from "date-fns";
+
 
 import Link from "next/link"
-import { Building2, Eye, User, type LucideIcon } from "lucide-react"
-import type { ColumnDef } from "@tanstack/react-table"
+import {
+    ArrowDown,
+    ArrowUp,
+    ArrowUpDown,
+    Building2,
+    Eye,
+    User,
+    type LucideIcon,
+} from "lucide-react"
+import type { Column, ColumnDef } from "@tanstack/react-table"
 import type { VendorProfile } from "@/lib/vendor/profile/types"
 import { Button } from "@/components/ui/button"
 import { VendorStatusBadge } from "@/components/vendor-status-badge"
 import { routes } from "@/lib/routes"
-import { formatPhone, getInitials } from "@/lib/utils"
+import { cn, formatPhone, getInitials } from "@/lib/utils"
+
+function SortableHeader({
+    column,
+    label,
+    align = "left",
+}: {
+    column: Column<VendorProfile, unknown>
+    label: string
+    align?: "left" | "center"
+}) {
+    const sorted = column.getIsSorted()
+    return (
+        <div className={cn("flex items-center", align === "center" && "justify-center")}>
+            <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-3 h-8"
+                onClick={() => column.toggleSorting()}
+            >
+                {label}
+                {sorted === "asc" ? (
+                    <ArrowUp className="ml-1.5 size-3.5" />
+                ) : sorted === "desc" ? (
+                    <ArrowDown className="ml-1.5 size-3.5" />
+                ) : (
+                    <ArrowUpDown className="ml-1.5 size-3.5 text-muted-foreground" />
+                )}
+            </Button>
+        </div>
+    )
+}
 
 const VENDOR_TYPE_LABEL: Record<"company" | "individual", string> = {
     company: "นิติบุคคล",
@@ -21,8 +62,8 @@ const VENDOR_TYPE_ICON: Record<"company" | "individual", LucideIcon> = {
 
 export const columns: ColumnDef<VendorProfile>[] = [
     {
-        id: "vendor",
-        header: "ผู้ค้า",
+        id: "name",
+        header: ({ column }) => <SortableHeader column={column} label="ผู้ค้า" />,
         accessorFn: (vendor) => vendor.detail.type === "company" ? vendor.detail.companyName : vendor.detail.storeName,
         cell: ({ getValue }) => (
             <div className="flex items-center gap-3">
@@ -34,8 +75,8 @@ export const columns: ColumnDef<VendorProfile>[] = [
         ),
     },
     {
-        id: "vendorType",
-        header: "ประเภท",
+        id: "user_type",
+        header: ({ column }) => <SortableHeader column={column} label="ประเภท" />,
         accessorFn: (vendor) => vendor.detail.type,
         cell: ({ getValue }) => {
             const type = getValue<"company" | "individual">()
@@ -49,8 +90,8 @@ export const columns: ColumnDef<VendorProfile>[] = [
         },
     },
     {
-        id: "businessType",
-        header: "หมวดสินค้า/บริการ",
+        id: "business_type",
+        header: ({ column }) => <SortableHeader column={column} label="หมวดสินค้า/บริการ" />,
         accessorFn: (vendor) => vendor.detail.businessType,
         cell: ({ getValue }) => getValue<string | null>() || "-",
     },
@@ -70,14 +111,17 @@ export const columns: ColumnDef<VendorProfile>[] = [
         },
     },
     {
-        id: "submittedAt",
-        header: () => <div className="text-center">วันที่สมัคร</div>,
+        id: "created_at",
+        header: ({ column }) => <SortableHeader column={column} label="วันที่สมัคร" align="center" />,
         accessorFn: (vendor) => vendor.created_at,
-        cell: ({ getValue }) => <div className="text-center">{new Date(getValue<string>()).toLocaleDateString("th-TH")}</div>,
+        cell: ({ getValue }) => <div className="text-center">
+            {format(new Date(getValue<string>()), "dd-MM-yyyy")}
+        </div>,
     },
     {
-        id: "status",
+        id: "verification_status",
         header: () => <div className="text-center">สถานะ</div>,
+        enableSorting: false,
         accessorFn: (vendor) => vendor.verificationStatus,
         cell: ({ getValue }) => (
             <div className="flex justify-center">

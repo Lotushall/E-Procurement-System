@@ -18,13 +18,13 @@ class VendorContactResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'contactName' => $this->contact_name,
-            'contactPosition' => $this->contact_position,
-            'contactPhone' => $this->contact_phone,
-            'contactEmail' => $this->contact_email,
-            'lineId' => $this->line_id,
-            'otherContact' => $this->other_contact,
-            'isMainContact' => $this->is_main_contact,
+            'contactName' => $this->whenNotNull($this->contact_name),
+            'contactPosition' => $this->whenNotNull($this->contact_position),
+            'contactPhone' => $this->whenNotNull($this->contact_phone),
+            'contactEmail' => $this->whenNotNull($this->contact_email),
+            'lineId' => $this->whenNotNull($this->line_id),
+            'otherContact' => $this->whenNotNull($this->other_contact),
+            'isMainContact' => $this->whenNotNull($this->is_main_contact),
         ];
     }
 }

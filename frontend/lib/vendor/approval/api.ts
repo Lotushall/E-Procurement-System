@@ -2,6 +2,8 @@ import { api } from "@/lib/api";
 import type {
   VendorDetail,
   VendorListPagination,
+  VendorSortBy,
+  VendorSortDirection,
   VendorStatusCounts,
   VendorVerificationStatus,
 } from "@/lib/vendor/approval/types";
@@ -18,6 +20,8 @@ export async function fetchVendorList(
   search?: string,
   page = 1,
   perPage = 20,
+  sortBy?: VendorSortBy,
+  sortDirection?: VendorSortDirection,
 ): Promise<VendorListResult> {
   const { data } = await api.get<{
     data: VendorProfile[];
@@ -29,7 +33,14 @@ export async function fetchVendorList(
       last_page: number;
     };
   }>("/api/v1/vendors", {
-    params: { status, search, page, per_page: perPage },
+    params: {
+      status,
+      search,
+      page,
+      per_page: perPage,
+      sort_by: sortBy,
+      sort_direction: sortDirection,
+    },
   });
   return {
     vendors: data.data,
