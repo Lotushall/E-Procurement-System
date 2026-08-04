@@ -24,7 +24,7 @@ interface DataTablePaginationProps<TData> {
 
 type PageItem = number | "left-ellipsis" | "right-ellipsis"
 
-function getPageItems(current: number, total: number, siblingCount = 2): PageItem[] {
+function getPageItems(current: number, total: number, siblingCount = 1): PageItem[] {
     const totalSlots = siblingCount * 2 + 5
     if (totalSlots >= total) {
         return Array.from({ length: total }, (_, i) => i + 1)
@@ -59,8 +59,8 @@ export function DataTablePagination<TData>({
 
     return (
         <div className="flex flex-col gap-3 px-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 *:bg-white">
+            <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1.5 *:bg-white">
                     <Button
                         variant="outline"
                         size="icon"
@@ -74,13 +74,14 @@ export function DataTablePagination<TData>({
                     <Button
                         variant="outline"
                         size="icon"
-                        className="size-8 rounded-sm"
+                        className="size-8 rounded-full sm:rounded-sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
                         <span className="sr-only">Go to previous page</span>
                         <ChevronLeft />
                     </Button>
+
                     {pageItems.map((item) =>
                         typeof item === "number" ? (
                             <Button
@@ -88,8 +89,9 @@ export function DataTablePagination<TData>({
                                 variant={item === currentPage ? "default" : "outline"}
                                 size="icon"
                                 className={cn(
-                                    "size-8 rounded-sm",
-                                    item === currentPage && "bg-red-700! text-white! hover:bg-red-700/90",
+                                    "size-8 rounded-full sm:rounded-sm",
+                                    item === currentPage &&
+                                        "bg-black! text-white! hover:bg-black/90 sm:bg-red-700! sm:hover:bg-red-700/90",
                                 )}
                                 onClick={() => table.setPageIndex(item - 1)}
                             >
@@ -107,7 +109,7 @@ export function DataTablePagination<TData>({
                     <Button
                         variant="outline"
                         size="icon"
-                        className="size-8 rounded-sm"
+                        className="size-8 rounded-full sm:rounded-sm"
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
@@ -126,11 +128,13 @@ export function DataTablePagination<TData>({
                     </Button>
                 </div>
 
-                <div className="text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Found {total} results</span>
-                </div>
+                <div className="hidden items-center gap-2 sm:flex">
+                    <div className="text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">Found {total} results</span>
+                    </div>
 
-                <Separator orientation="vertical"/>
+                    <Separator orientation="vertical" />
+                </div>
 
                 <div className="flex items-center gap-2">
                     <p className="text-sm font-medium">Rows per page</p>
