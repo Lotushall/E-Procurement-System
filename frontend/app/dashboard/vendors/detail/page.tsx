@@ -54,22 +54,36 @@ function VendorDetailContent() {
 
   return (
     <div className="flex flex-col gap-6">
+
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+        {/* Vendor profile header */}
         <div className="flex items-center gap-3.5">
+
+          {/* Info */}
           <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-red-700 text-sm font-bold text-white">
             {getInitials(displayName ?? "")}
           </div>
+
           <div className="flex flex-col gap-0.5">
             <h1 className="text-2xl font-bold">{displayName}</h1>
             <p className="text-sm text-muted-foreground">{vendor.user?.email}</p>
           </div>
+
+          <div className="flex flex-col gap-0.5">
+            <VendorStatusBadge status={vendor.verificationStatus} />
+            <div className="h-4" />
+          </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <VendorStatusBadge status={vendor.verificationStatus} />
+
           <Button type="button" onClick={handleApprove} disabled={approveVendor.isPending}>
             อนุมัติผู้ค้า
           </Button>
+
           <RejectReasonDialog
             trigger={<Button type="button" variant="destructive" />}
             triggerChildren="ปฏิเสธผู้ค้า"
@@ -81,8 +95,10 @@ function VendorDetailContent() {
         </div>
       </div>
 
+      {/* Profile Information */}
       <VendorProfileInfo detail={vendor.detail} />
 
+      {/* Contact Information */}
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-bold">ผู้ติดต่อ</h2>
         {(vendor.contact ?? []).length > 0 ? (
@@ -126,6 +142,7 @@ function VendorDetailContent() {
         )}
       </div>
 
+      {/* Document Information */}
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-bold">เอกสาร</h2>
         {vendor.document && vendor.document.length > 0 ? (
