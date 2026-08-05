@@ -1,6 +1,6 @@
 "use client";
 
-import { useVendorProfile } from "@/lib/vendor/profile/useVendorProfile";
+import { useVendorProfile } from "@/lib/vendor/profile/queries/useVendorProfile";
 import SectionTitle from "../_components/section-title";
 import DocumentRow from "./_components/document-row";
 import { REQUIRED_DOCUMENTS } from "../data/document-types";

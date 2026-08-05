@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { OnChangeFn, PaginationState, SortingState } from "@tanstack/react-table";
-import { useVendorList } from "@/lib/vendor/approval/useVendorList";
+import { useVendorList } from "@/lib/vendor/approval/queries/useVendorList";
 import type { VendorSortBy, VendorSortDirection } from "@/lib/vendor/approval/types";
 import { digitsOnly } from "@/lib/utils";
 import type { VendorListFilter } from "../_components/vendor-stats-cards";

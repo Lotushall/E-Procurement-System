@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useUpdateVendorInfo } from "@/lib/vendor/profile/mutations";
+import { useUpdateVendorInfo } from "@/lib/vendor/profile/mutations/useUpdateVendorInfo";
 import type {
   VendorCompanyInfoValues,
   VendorIndividualInfoValues,

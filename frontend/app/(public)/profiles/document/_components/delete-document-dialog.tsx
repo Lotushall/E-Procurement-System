@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import type { VendorDocument } from "@/lib/vendor/profile/types";
-import { useDeleteVendorDocument } from "@/lib/vendor/profile/mutations";
+import { useDeleteVendorDocument } from "@/lib/vendor/profile/mutations/useDeleteVendorDocument";
 import { Trash2 } from "lucide-react";
 
 function getErrorMessage(error: unknown): string {

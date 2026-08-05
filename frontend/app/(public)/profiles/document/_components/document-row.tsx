@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import type { VendorDocument } from "@/lib/vendor/profile/types";
 import { FileText, Paperclip } from "lucide-react";
 import { VendorStatusBadge } from "@/components/vendor-status-badge";
-import { useSaveVendorDocument } from "@/lib/vendor/profile/mutations";
+import { useSaveVendorDocument } from "@/lib/vendor/profile/mutations/useSaveVendorDocument";
 import { getVendorDocumentViewUrl } from "@/lib/vendor/profile/api";
 import DeleteDocumentDialog from "./delete-document-dialog";
 import { FILE_KIND_CONFIG, type FileKind } from "../../data/document-types";

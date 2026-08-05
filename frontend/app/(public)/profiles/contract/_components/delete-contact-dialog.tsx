@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { VendorContact } from "@/lib/vendor/profile/types";
-import { useDeleteVendorContact } from "@/lib/vendor/profile/mutations";
+import { useDeleteVendorContact } from "@/lib/vendor/profile/mutations/useDeleteVendorContact";
 import { Trash2 } from "lucide-react";
 
 function getErrorMessage(error: unknown): string {

@@ -2,8 +2,9 @@
 
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
-import { useVendorDetail } from "@/lib/vendor/approval/useVendorDetail";
-import { useApproveVendor, useRejectVendor } from "@/lib/vendor/approval/mutations";
+import { useVendorDetail } from "@/lib/vendor/approval/queries/useVendorDetail";
+import { useApproveVendor } from "@/lib/vendor/approval/mutations/useApproveVendor";
+import { useRejectVendor } from "@/lib/vendor/approval/mutations/useRejectVendor";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
 

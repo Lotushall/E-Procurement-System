@@ -1,5 +1,5 @@
 import { useUser } from "@/lib/auth/useUser";
-import { useVendorProfile } from "@/lib/vendor/profile/useVendorProfile";
+import { useVendorProfile } from "@/lib/vendor/profile/queries/useVendorProfile";
 import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
 
 export interface VendorProfileCompleteness {

@@ -9,10 +9,8 @@ import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-r
 import { getVendorDocumentViewUrl } from "@/lib/vendor/profile/api";
 import type { VendorDocument } from "@/lib/vendor/profile/types";
 import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
-import {
-  useApproveVendorDocument,
-  useRejectVendorDocument,
-} from "@/lib/vendor/approval/mutations";
+import { useApproveVendorDocument } from "@/lib/vendor/approval/mutations/useApproveVendorDocument";
+import { useRejectVendorDocument } from "@/lib/vendor/approval/mutations/useRejectVendorDocument";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)

@@ -26,7 +26,7 @@ import { useUser } from "@/lib/auth/useUser";
 import { useLogout } from "@/lib/auth/mutations";
 import { routes } from "@/lib/routes";
 import { CurrentUser } from "@/lib/auth/types";
-import { useVendorProfileCompleteness } from "@/lib/vendor/profile/useVendorProfileCompleteness";
+import { useVendorProfileCompleteness } from "@/lib/vendor/profile/queries/useVendorProfileCompleteness";
 
 const menus = [
     {
