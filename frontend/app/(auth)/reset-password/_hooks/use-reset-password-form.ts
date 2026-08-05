@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useResetPassword } from "@/lib/auth/mutations";
+import { useResetPassword } from "@/lib/auth/mutations/useResetPassword";
 import { ResetPasswordSchema, ResetPasswordValues } from "../_schemas/schema";
 
 export type ResetPasswordStatus = "invalid" | "form" | "success";

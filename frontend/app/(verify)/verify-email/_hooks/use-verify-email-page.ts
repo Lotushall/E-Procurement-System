@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { useVerifyEmail } from "@/lib/auth/mutations";
+import { useVerifyEmail } from "@/lib/auth/mutations/useVerifyEmail";
 import { routes } from "@/lib/routes";
 
 export type VerifyEmailStatus = "invalid" | "verifying" | "success" | "error";

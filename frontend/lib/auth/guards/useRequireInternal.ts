@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/auth/useUser";
+import { useUser } from "@/lib/auth/queries/useUser";
 import { routes } from "@/lib/routes";
 
 export function useRequireInternal() {

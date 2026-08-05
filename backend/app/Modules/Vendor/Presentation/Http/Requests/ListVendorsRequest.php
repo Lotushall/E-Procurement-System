@@ -8,11 +8,6 @@ use Illuminate\Validation\Rule;
 
 class ListVendorsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->user_type === UserType::Internal;
-    }
-
     /**
      * @return array<string, mixed>
      */

@@ -44,7 +44,7 @@ export function ResetPasswordView() {
                 </CardHeader>
 
                 <CardFooter className="flex flex-col bg-white border-none pb-6 pt-4">
-                    <Link href={routes.forgotpassword} className="w-full">
+                    <Link href={routes.auth.forgotpassword} className="w-full">
                         <Button className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
                             ขอลิงก์ใหม่
                         </Button>
@@ -76,7 +76,7 @@ export function ResetPasswordView() {
                 </CardHeader>
 
                 <CardFooter className="flex flex-col bg-white border-none pb-6 pt-4">
-                    <Link href={routes.login} className="w-full">
+                    <Link href={routes.auth.login} className="w-full">
                         <Button className="text-white text-lg font-medium bg-red-700 w-full px-1.5 h-11 hover:bg-red-600">
                             ไปหน้าเข้าสู่ระบบ
                         </Button>

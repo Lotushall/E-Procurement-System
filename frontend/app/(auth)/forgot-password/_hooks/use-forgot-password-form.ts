@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useForgotPassword } from "@/lib/auth/mutations";
+import { useForgotPassword } from "@/lib/auth/mutations/useForgotPassword";
 import { ForgotPasswordSchema, ForgotPasswordValues } from "../_schemas/schema";
 
 const RESEND_COOLDOWN_SECONDS = 60;

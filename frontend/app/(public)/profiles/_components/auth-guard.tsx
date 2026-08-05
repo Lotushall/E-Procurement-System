@@ -1,6 +1,6 @@
 "use client";
 
-import { useRequireAuth } from "@/lib/auth/useRequireAuth";
+import { useRequireAuth } from "@/lib/auth/guards/useRequireAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function ProfileLayoutSkeleton() {

@@ -1,4 +1,4 @@
-import { useUser } from "@/lib/auth/useUser";
+import { useUser } from "@/lib/auth/queries/useUser";
 import { useVendorProfile } from "@/lib/vendor/profile/queries/useVendorProfile";
 import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
 

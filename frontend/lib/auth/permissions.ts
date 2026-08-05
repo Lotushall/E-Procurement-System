@@ -1,4 +1,4 @@
-import { useUser } from "@/lib/auth/useUser";
+import { useUser } from "@/lib/auth/queries/useUser";
 import type { User } from "@/lib/user/types";
 
 export function hasRole(user: User | null | undefined, role: string): boolean {

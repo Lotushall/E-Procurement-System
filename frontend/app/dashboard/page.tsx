@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/lib/auth/useUser";
+import { useUser } from "@/lib/auth/queries/useUser";
 
 export default function DashboardPage() {
   const { data: user } = useUser();

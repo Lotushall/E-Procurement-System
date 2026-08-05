@@ -4,8 +4,10 @@ namespace App\Modules\Vendor\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Vendor\Application\Queries\CountVendorProfilesByStatusQuery;
+use App\Modules\Vendor\Application\Queries\GetVendorProfileByIdQuery;
 use App\Modules\Vendor\Application\Queries\ListVendorProfilesQuery;
 use App\Modules\Vendor\Presentation\Http\Requests\ListVendorsRequest;
+use App\Modules\Vendor\Presentation\Http\Requests\ShowVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,6 +17,7 @@ class VendorApprovalController extends Controller
     public function __construct(
         private readonly ListVendorProfilesQuery $listVendorProfiles,
         private readonly CountVendorProfilesByStatusQuery $countVendorProfilesByStatus,
+        private readonly GetVendorProfileByIdQuery $getVendorProfileById,
     ) {}
 
     public function index(ListVendorsRequest $request): JsonResponse
@@ -41,6 +44,15 @@ class VendorApprovalController extends Controller
         return response()->json([
             'data' => VendorProfileResource::collection($vendors),
             'meta' => ['counts' => $counts],
+        ]);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $vendor = $this->getVendorProfileById->execute($id);
+
+        return response()->json([
+            'data' => new VendorProfileResource($vendor),
         ]);
     }
 }

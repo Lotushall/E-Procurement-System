@@ -2,8 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useUpdateAccount } from "@/lib/auth/mutations";
-import { useUser } from "@/lib/auth/useUser";
+import { useUpdateAccount } from "@/lib/auth/mutations/useUpdateAccount";
+import { useUser } from "@/lib/auth/queries/useUser";
 import { AccountInfoSchema, AccountInfoValues } from "../_schemas/schema";
 
 function getErrorMessage(error: unknown): string {

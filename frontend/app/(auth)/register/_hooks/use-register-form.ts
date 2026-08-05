@@ -3,7 +3,8 @@ import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { useRegister, useResendVerificationEmail } from "@/lib/auth/mutations";
+import { useRegister } from "@/lib/auth/mutations/useRegister";
+import { useResendVerificationEmail } from "@/lib/auth/mutations/useResendVerificationEmail";
 import type { RegisterVendorPayload } from "@/lib/auth/types";
 import { RegisterSchema, RegisterValues } from "../_schemas/schema";
 

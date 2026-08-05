@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useLogin } from "@/lib/auth/mutations";
+import { useLogin } from "@/lib/auth/mutations/useLogin";
 import { routes } from "@/lib/routes";
 import { LoginSchema, LoginValues } from "../_schemas/schema";
 

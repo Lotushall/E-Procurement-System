@@ -22,8 +22,8 @@ import {
     SheetTrigger,
 } from "./ui/sheet";
 import { cn, getInitials } from "@/lib/utils";
-import { useUser } from "@/lib/auth/useUser";
-import { useLogout } from "@/lib/auth/mutations";
+import { useUser } from "@/lib/auth/queries/useUser";
+import { useLogout } from "@/lib/auth/mutations/useLogout";
 import { routes } from "@/lib/routes";
 import { CurrentUser } from "@/lib/auth/types";
 import { useVendorProfileCompleteness } from "@/lib/vendor/profile/queries/useVendorProfileCompleteness";

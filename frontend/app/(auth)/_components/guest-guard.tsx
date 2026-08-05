@@ -1,6 +1,6 @@
 "use client";
 
-import { useRequireGuest } from "@/lib/auth/useRequireGuest";
+import { useRequireGuest } from "@/lib/auth/guards/useRequireGuest";
 
 export function GuestGuard({ children }: Readonly<{ children: React.ReactNode }>) {
     const { isChecking } = useRequireGuest();

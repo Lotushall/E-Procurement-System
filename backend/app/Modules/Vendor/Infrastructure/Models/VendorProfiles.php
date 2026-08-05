@@ -50,7 +50,7 @@ class VendorProfiles extends Model
     // Relations
     public function VendorProfilesUser(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function VendorProfilesVerifiedBy(): BelongsTo

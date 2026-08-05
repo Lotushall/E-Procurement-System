@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useChangePassword } from "@/lib/auth/mutations";
+import { useChangePassword } from "@/lib/auth/mutations/useChangePassword";
 import { ChangePasswordSchema, ChangePasswordValues } from "../_schemas/schema";
 
 function getErrorMessage(error: unknown): string {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRequireInternal } from "@/lib/auth/useRequireInternal";
+import { useRequireInternal } from "@/lib/auth/guards/useRequireInternal";
 import { Spinner } from "@/components/ui/spinner";
 
 export function InternalGuard({ children }: Readonly<{ children: React.ReactNode }>) {
