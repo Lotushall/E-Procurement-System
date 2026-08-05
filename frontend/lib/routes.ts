@@ -17,7 +17,7 @@ export const routes = {
     dashboard: "/dashboard",
     vendors: {
       index: "/dashboard/vendors",
-      detail: (id: number | string) => `/dashboard/vendors/${id}`,
+      detail: (id: number | string) => `/dashboard/vendors/detail?id=${id}`,
     },
     tor: {
       index: "/dashboard/tor",
