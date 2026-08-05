@@ -31,14 +31,18 @@ export function RejectReasonDialog({
   const [open, setOpen] = useState(false);
   const [remark, setRemark] = useState("");
 
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setRemark("");
+  };
+
   const handleConfirm = () => {
     onConfirm(remark.trim());
-    setOpen(false);
-    setRemark("");
+    handleOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={trigger}>{triggerChildren}</DialogTrigger>
 
       <DialogContent>
