@@ -8,6 +8,7 @@ import { VendorStatusBadge } from "@/components/vendor-status-badge";
 import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-reason-dialog";
 import { getVendorDocumentViewUrl } from "@/lib/vendor/profile/api";
 import type { VendorDocument } from "@/lib/vendor/profile/types";
+import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
 import {
   useApproveVendorDocument,
   useRejectVendorDocument,
@@ -23,12 +24,18 @@ function getErrorMessage(error: unknown): string {
 export function VendorDocumentApprovalRow({
   vendorId,
   document,
+  vendorType,
 }: {
   vendorId: number;
   document: VendorDocument;
+  vendorType: "company" | "individual";
 }) {
   const approveDoc = useApproveVendorDocument(vendorId);
   const rejectDoc = useRejectVendorDocument(vendorId);
+
+  const label =
+    REQUIRED_DOCUMENTS[vendorType].find((d) => d.key === document.documentType)?.label ??
+    document.documentType;
 
   const handleApprove = () => {
     toast.promise(approveDoc.mutateAsync(document.id), {
@@ -47,8 +54,9 @@ export function VendorDocumentApprovalRow({
           rel="noopener"
           className="font-bold hover:underline"
         >
-          {document.fileName}
+          {label}
         </Link>
+        <p className="text-sm text-muted-foreground">{document.fileName}</p>
         <VendorStatusBadge status={document.status} />
       </div>
       <div className="flex shrink-0 items-center gap-2">

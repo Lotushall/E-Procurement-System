@@ -28,7 +28,7 @@ export function VendorDetailView({ vendorId }: { vendorId: number }) {
   const approveVendor = useApproveVendor(vendorId);
   const rejectVendor = useRejectVendor(vendorId);
 
-  const notFound = !isValidId || isError || (!isPending && !vendor);
+  const notFound = !isValidId || (isError && !vendor) || (!isPending && !vendor);
   const displayName = vendor
     ? vendor.detail.type === "company"
       ? vendor.detail.companyName
@@ -73,7 +73,7 @@ export function VendorDetailView({ vendorId }: { vendorId: number }) {
           </div>
           <div className="flex flex-col gap-0.5">
             <h1 className="text-2xl font-bold">{displayName}</h1>
-            <p className="text-sm text-muted-foreground">{vendor.user.email}</p>
+            <p className="text-sm text-muted-foreground">{vendor.user?.email}</p>
           </div>
         </div>
 
@@ -103,9 +103,9 @@ export function VendorDetailView({ vendorId }: { vendorId: number }) {
 
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-bold">ผู้ติดต่อ</h2>
-        {vendor.contact.length > 0 ? (
+        {(vendor.contact ?? []).length > 0 ? (
           <div className="flex flex-col gap-2">
-            {[...vendor.contact]
+            {[...(vendor.contact ?? [])]
               .sort((a, b) => (b.isMainContact ? 1 : 0) - (a.isMainContact ? 1 : 0))
               .map((contact) => (
                 <VendorContactRow key={contact.id} contact={contact} />
@@ -121,7 +121,12 @@ export function VendorDetailView({ vendorId }: { vendorId: number }) {
         {vendor.document && vendor.document.length > 0 ? (
           <div className="flex flex-col gap-2">
             {vendor.document.map((doc) => (
-              <VendorDocumentApprovalRow key={doc.id} vendorId={vendorId} document={doc} />
+              <VendorDocumentApprovalRow
+                key={doc.id}
+                vendorId={vendorId}
+                document={doc}
+                vendorType={vendor.detail.type}
+              />
             ))}
           </div>
         ) : (
