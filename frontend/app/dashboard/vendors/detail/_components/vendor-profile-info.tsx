@@ -2,9 +2,9 @@ import type { VendorProfileDetail } from "@/lib/vendor/profile/types";
 
 function InfoItem({ label, value }: { label: string; value?: string | null }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex min-w-0 flex-col gap-0.5">
       <p className="text-sm tracking-wide text-gray-500">{label}</p>
-      <p className="text-base font-medium">{value || "-"}</p>
+      <p className="text-base font-medium break-words">{value || "-"}</p>
     </div>
   );
 }
