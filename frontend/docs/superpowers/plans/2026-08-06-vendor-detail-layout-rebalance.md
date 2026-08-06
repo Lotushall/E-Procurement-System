@@ -119,3 +119,10 @@ Note in the task result which of these were actually checked vs. left for the us
 git add app/dashboard/vendors/detail/page.tsx app/dashboard/vendors/detail/_components/vendor-profile-info.tsx
 git commit -m "style(vendor-detail): rebalance profile/contact columns and responsive info grid"
 ```
+
+## Amendments (post-implementation, commit `ed91adf`)
+
+Steps above are the historical record of what was executed at commit `5626647` — left as-is. The final whole-branch review found two Important issues that a follow-up fix commit addressed; see the spec's own "Amendments" section for the technical detail. In short:
+
+- The outer row from Steps 1-2 (`flex gap-6`) is now `flex flex-col gap-6 lg:flex-row` — it stacks below `lg` (1024px) instead of applying the 50/50 split at every width, which had made the contact column unusably narrow below `lg`.
+- `InfoItem` (referenced in Step 6.3) also gained `break-words` on its value `<p>`, alongside the `min-w-0` already on its wrapper. Step 6.3's claim that `min-w-0` alone causes wrapping is inaccurate — `break-words` is what actually does that; `min-w-0` only lets the grid item shrink to make room for it.

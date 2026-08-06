@@ -30,3 +30,12 @@ Additionally, `VendorProfileInfo`'s info grid is declared as `grid-cols-2 ... md
 ## Testing
 
 No test runner configured in this repo. Verification is `npx tsc --noEmit` / `npm run lint`, plus disclosed manual QA (no browser automation available in this environment): at narrow and wide viewport widths, profile/contact columns stay visually even, and the info grid collapses to 1 column on narrow widths and 2 on wider ones.
+
+## Amendments (post-implementation, commit `ed91adf`)
+
+The initial implementation (commit `5626647`) locked both columns to `flex-1` at every viewport width, which the final review traced to two real problems and fixed:
+
+1. **Row now stacks below `lg`.** The row's className is `flex flex-col gap-6 lg:flex-row`, not the bare `flex gap-6` described above — at every width below `lg` (1024px) both columns render full-width, stacked; the 50/50 `flex-1` split only takes effect at `lg` and above. Without this, the 50/50 lock made the contact column unusably narrow on mobile (sidebar becomes a sheet below 768px).
+2. **`InfoItem` also has `min-w-0` (wrapper) and `break-words` (value `<p>`).** `min-w-0` alone (as originally described in this doc) does not prevent a long unbroken value (e.g. a long email in the individual branch) from overflowing its grid cell — CSS grid items default to `min-width: auto`/min-content regardless of the flex parent's `min-w-0`. `break-words` on the value text is what actually allows wrapping instead of overflow; `min-w-0` on `InfoItem`'s own wrapper is still needed so the grid item itself can shrink below its min-content width.
+
+Also corrects the Problem section's stated starting point: it describes the pre-existing grid class as `md:grid-cols-2`, which was the state of the user's uncommitted WIP at the time this spec was written, not the last-committed state (`md:grid-cols-4` as of base commit `b184135`). Not a discrepancy in the implementation — just a note for anyone diffing this doc against git history.
