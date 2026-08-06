@@ -95,51 +95,55 @@ function VendorDetailContent() {
         </div>
       </div>
 
-      {/* Profile Information */}
-      <VendorProfileInfo detail={vendor.detail} />
+      <div className="flex gap-6">
+        {/* Profile Information */}
+        <div className="flex-1 min-w-0">
+          <VendorProfileInfo detail={vendor.detail} />
+        </div>
 
-      {/* Contact Information */}
-      <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-bold">ผู้ติดต่อ</h2>
-        {(vendor.contact ?? []).length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {[...(vendor.contact ?? [])]
-              .sort((a, b) => (b.isMainContact ? 1 : 0) - (a.isMainContact ? 1 : 0))
-              .map((contact) => (
-                <div key={contact.id} className="flex items-center gap-3.5 rounded-md border p-4">
-                  <div
-                    className={cn(
-                      "flex size-11 shrink-0 items-center justify-center rounded-md font-bold text-white",
-                      contact.isMainContact ? "bg-red-700" : "bg-gray-200 text-gray-500",
-                    )}
-                  >
-                    {getInitials(contact.contactName)}
-                  </div>
-
-                  <div className="flex min-w-0 flex-col">
-                    <div className="flex flex-col-reverse gap-1 md:flex-row md:items-center md:gap-2.5">
-                      <p className="font-bold tracking-wide capitalize">{contact.contactName}</p>
-                      {contact.isMainContact && (
-                        <Badge className="bg-red-100 text-red-800 tracking-wider">
-                          ผู้ติดต่อหลัก
-                        </Badge>
+        {/* Contact Information */}
+        <div className="flex flex-1 min-w-0 flex-col gap-3">
+          <h2 className="text-lg font-bold">ผู้ติดต่อ</h2>
+          {(vendor.contact ?? []).length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {[...(vendor.contact ?? [])]
+                .sort((a, b) => (b.isMainContact ? 1 : 0) - (a.isMainContact ? 1 : 0))
+                .map((contact) => (
+                  <div key={contact.id} className="flex items-center gap-3.5 rounded-md border p-4">
+                    <div
+                      className={cn(
+                        "flex size-11 shrink-0 items-center justify-center rounded-md font-bold text-white",
+                        contact.isMainContact ? "bg-red-700" : "bg-gray-200 text-gray-500",
                       )}
+                    >
+                      {getInitials(contact.contactName)}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-1 text-sm font-thin tracking-wide text-gray-600">
-                      <p className="capitalize">{contact.contactPosition || contact.contactName}</p>
-                      {contact.contactPhone && <p> · {formatPhone(contact.contactPhone)}</p>}
-                      {contact.contactEmail && <p className="break-all"> · {contact.contactEmail}</p>}
-                      {contact.lineId && <p> · {contact.lineId}</p>}
-                      {contact.otherContact && <p> · {contact.otherContact}</p>}
+                    <div className="flex min-w-0 flex-col">
+                      <div className="flex flex-col-reverse gap-1 md:flex-row md:items-center md:gap-2.5">
+                        <p className="font-bold tracking-wide capitalize">{contact.contactName}</p>
+                        {contact.isMainContact && (
+                          <Badge className="bg-red-100 text-red-800 tracking-wider">
+                            ผู้ติดต่อหลัก
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1 text-sm font-thin tracking-wide text-gray-600">
+                        <p className="capitalize">{contact.contactPosition || contact.contactName}</p>
+                        {contact.contactPhone && <p> · {formatPhone(contact.contactPhone)}</p>}
+                        {contact.contactEmail && <p className="break-all"> · {contact.contactEmail}</p>}
+                        {contact.lineId && <p> · {contact.lineId}</p>}
+                        {contact.otherContact && <p> · {contact.otherContact}</p>}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">ยังไม่มีผู้ติดต่อ</p>
-        )}
+                ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">ยังไม่มีผู้ติดต่อ</p>
+          )}
+        </div>
       </div>
 
       {/* Document Information */}

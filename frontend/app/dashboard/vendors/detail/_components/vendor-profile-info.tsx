@@ -3,8 +3,8 @@ import type { VendorProfileDetail } from "@/lib/vendor/profile/types";
 function InfoItem({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <p className="text-xs tracking-wide text-gray-500">{label}</p>
-      <p className="text-sm font-medium">{value || "-"}</p>
+      <p className="text-sm tracking-wide text-gray-500">{label}</p>
+      <p className="text-base font-medium">{value || "-"}</p>
     </div>
   );
 }
@@ -13,7 +13,7 @@ export function VendorProfileInfo({ detail }: { detail: VendorProfileDetail }) {
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-lg font-bold">ข้อมูลผู้ค้า</h2>
-      <div className="grid grid-cols-2 gap-4 rounded-md border p-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 rounded-md border p-4 sm:grid-cols-2">
         {detail.type === "company" ? (
           <>
             <InfoItem label="ชื่อบริษัท / นิติบุคคล" value={detail.companyName} />
