@@ -5,14 +5,14 @@
 
 ## Problem
 
-In the vendor detail page (`frontend/app/dashboard/vendors/detail/page.tsx`), the "ข้อมูลผู้ค้า" (`VendorProfileInfo`) and "ผู้ติดต่อ" (contact list) sections sit side by side in a `flex gap-6` container with no width constraint on either child. Each column ends up sized by its own content instead of splitting the row evenly, so the layout looks unbalanced.
+In the vendor detail page (`app/dashboard/vendors/detail/page.tsx`), the "ข้อมูลผู้ค้า" (`VendorProfileInfo`) and "ผู้ติดต่อ" (contact list) sections sit side by side in a `flex gap-6` container with no width constraint on either child. Each column ends up sized by its own content instead of splitting the row evenly, so the layout looks unbalanced.
 
 Additionally, `VendorProfileInfo`'s info grid is declared as `grid-cols-2 ... md:grid-cols-2` — the `md:` variant is redundant since the base class already forces 2 columns at every breakpoint, including narrow ones.
 
 ## Scope
 
-- `frontend/app/dashboard/vendors/detail/page.tsx` (lines 98-145): the profile/contact two-column row only.
-- `frontend/app/dashboard/vendors/detail/_components/vendor-profile-info.tsx`: the info grid.
+- `app/dashboard/vendors/detail/page.tsx` (lines 98-145): the profile/contact two-column row only.
+- `app/dashboard/vendors/detail/_components/vendor-profile-info.tsx`: the info grid.
 - Out of scope: page header, action buttons, document section, field additions/removals/reordering (all fields stay as-is).
 
 ## Design
@@ -27,7 +27,6 @@ Additionally, `VendorProfileInfo`'s info grid is declared as `grid-cols-2 ... md
 - No changes to the document section.
 - Contact list items keep their existing per-contact bordered-row styling (no shared outer wrapper box added).
 
-## Verification
+## Testing
 
-- `tsc`/lint pass.
-- Manual check (disclosed, no browser automation available in this env) at narrow and wide viewport widths: profile/contact columns stay visually even; info grid collapses to 1 column on narrow widths and 2 on wider ones.
+No test runner configured in this repo. Verification is `npx tsc --noEmit` / `npm run lint`, plus disclosed manual QA (no browser automation available in this environment): at narrow and wide viewport widths, profile/contact columns stay visually even, and the info grid collapses to 1 column on narrow widths and 2 on wider ones.
