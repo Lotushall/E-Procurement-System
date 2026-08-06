@@ -10,6 +10,7 @@ import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-r
 import { VendorDocumentApprovalRow } from "./_components/vendor-document-approval-row";
 import { VendorProfileInfo } from "./_components/vendor-profile-info";
 import { useVendorDetailPage } from "./_hooks/use-vendor-detail-page";
+import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
 
 export default function VendorDetailPage() {
@@ -32,9 +33,14 @@ function VendorDetailContent() {
     displayName,
     approveVendor,
     rejectVendor,
+    pendingVendor,
     handleApprove,
     handleReject,
+    handlePending,
   } = useVendorDetailPage(vendorId);
+
+  const isVendorActionPending =
+    approveVendor.isPending || rejectVendor.isPending || pendingVendor.isPending;
 
   if (isValidId && isPending) {
     return (
@@ -80,18 +86,35 @@ function VendorDetailContent() {
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
 
-          <Button type="button" onClick={handleApprove} disabled={approveVendor.isPending}>
-            อนุมัติผู้ค้า
-          </Button>
+          {vendor.verificationStatus !== "pending" && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePending}
+              disabled={isVendorActionPending}
+            >
+              {pendingVendor.isPending ? "กำลังดำเนินการ..." : "รอตรวจสอบ"}
+            </Button>
+          )}
 
-          <RejectReasonDialog
-            trigger={<Button type="button" variant="destructive" />}
-            triggerChildren="ปฏิเสธผู้ค้า"
-            title="ปฏิเสธผู้ค้า"
-            description={`ระบุเหตุผลที่ปฏิเสธ "${displayName}"`}
-            isPending={rejectVendor.isPending}
-            onConfirm={handleReject}
-          />
+          {vendor.verificationStatus !== "approved" && (
+            <Button type="button" onClick={handleApprove} disabled={isVendorActionPending}>
+              {approveVendor.isPending ? "กำลังดำเนินการ..." : "อนุมัติผู้ค้า"}
+            </Button>
+          )}
+
+          {vendor.verificationStatus !== "rejected" && (
+            <RejectReasonDialog
+              trigger={
+                <Button type="button" variant="destructive" disabled={isVendorActionPending} />
+              }
+              triggerChildren={rejectVendor.isPending ? "กำลังดำเนินการ..." : "ปฏิเสธผู้ค้า"}
+              title="ปฏิเสธผู้ค้า"
+              description={`ระบุเหตุผลที่ปฏิเสธ "${displayName}"`}
+              isPending={rejectVendor.isPending}
+              onConfirm={handleReject}
+            />
+          )}
         </div>
       </div>
 
@@ -149,20 +172,17 @@ function VendorDetailContent() {
       {/* Document Information */}
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-bold">เอกสาร</h2>
-        {vendor.document && vendor.document.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {vendor.document.map((doc) => (
-              <VendorDocumentApprovalRow
-                key={doc.id}
-                vendorId={vendorId}
-                document={doc}
-                vendorType={vendor.detail.type}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">ยังไม่มีเอกสารที่อัปโหลด</p>
-        )}
+        <div className="flex flex-col gap-2">
+          {REQUIRED_DOCUMENTS[vendor.detail.type].map((docType) => (
+            <VendorDocumentApprovalRow
+              key={docType.key}
+              vendorId={vendorId}
+              label={docType.label}
+              required={docType.required}
+              document={vendor.document?.find((doc) => doc.documentType === docType.key)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

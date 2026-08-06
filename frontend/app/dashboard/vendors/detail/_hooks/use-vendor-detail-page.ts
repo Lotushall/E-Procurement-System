@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useVendorDetail } from "@/lib/vendor/approval/queries/useVendorDetail";
 import { useApproveVendor } from "@/lib/vendor/approval/mutations/useApproveVendor";
 import { useRejectVendor } from "@/lib/vendor/approval/mutations/useRejectVendor";
+import { usePendingVendor } from "@/lib/vendor/approval/mutations/usePendingVendor";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
 
@@ -20,6 +21,7 @@ export function useVendorDetailPage(vendorId: number) {
   const { data: vendor, isPending, isError } = useVendorDetail(vendorId);
   const approveVendor = useApproveVendor(vendorId);
   const rejectVendor = useRejectVendor(vendorId);
+  const pendingVendor = usePendingVendor(vendorId);
 
   const notFound = !isValidId || (isError && !vendor) || (!isPending && !vendor);
   const displayName = vendor
@@ -49,6 +51,14 @@ export function useVendorDetailPage(vendorId: number) {
     });
   };
 
+  const handlePending = () => {
+    toast.promise(pendingVendor.mutateAsync(), {
+      loading: "กำลังดำเนินการ...",
+      success: "ส่งกลับไปรอตรวจสอบแล้ว",
+      error: getErrorMessage,
+    });
+  };
+
   return {
     vendor,
     isValidId,
@@ -57,7 +67,9 @@ export function useVendorDetailPage(vendorId: number) {
     displayName,
     approveVendor,
     rejectVendor,
+    pendingVendor,
     handleApprove,
     handleReject,
+    handlePending,
   };
 }

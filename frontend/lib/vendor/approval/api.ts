@@ -84,6 +84,10 @@ export async function rejectVendor(id: number, remark: string): Promise<void> {
   await api.post(`/api/v1/vendors/${id}/reject`, { remark });
 }
 
+export async function pendingVendor(id: number): Promise<void> {
+  await api.post(`/api/v1/vendors/${id}/pending`);
+}
+
 export async function approveVendorDocument(
   vendorId: number,
   documentId: number,
@@ -99,4 +103,11 @@ export async function rejectVendorDocument(
   await api.post(`/api/v1/vendors/${vendorId}/documents/${documentId}/reject`, {
     remark,
   });
+}
+
+export async function pendingVendorDocument(
+  vendorId: number,
+  documentId: number,
+): Promise<void> {
+  await api.post(`/api/v1/vendors/${vendorId}/documents/${documentId}/pending`);
 }
