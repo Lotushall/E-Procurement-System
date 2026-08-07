@@ -75,6 +75,12 @@ const DOCUMENT_STATUS_COLOR: Record<"approved" | "pending" | "rejected", string>
     rejected: "text-red-600",
 }
 
+const DOCUMENT_STATUS_LABEL: Record<"approved" | "pending" | "rejected", string> = {
+    approved: "อนุมัติแล้ว",
+    pending: "รอตรวจสอบ",
+    rejected: "ถูกปฏิเสธ",
+}
+
 function DocumentStatusCount({
     status,
     count,
@@ -84,8 +90,11 @@ function DocumentStatusCount({
 }) {
     const Icon = DOCUMENT_STATUS_ICON[status]
     return (
-        <span className="flex items-center gap-1 text-xs font-medium text-gray-700">
-            <Icon className={cn("size-3.5", DOCUMENT_STATUS_COLOR[status])} />
+        <span
+            className="flex items-center gap-1 text-xs font-medium text-gray-700"
+            aria-label={`${DOCUMENT_STATUS_LABEL[status]} ${count} ฉบับ`}
+        >
+            <Icon className={cn("size-3.5", DOCUMENT_STATUS_COLOR[status])} aria-hidden="true" />
             {count}
         </span>
     )
