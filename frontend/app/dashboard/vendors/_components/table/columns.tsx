@@ -4,9 +4,6 @@ import { format } from "date-fns";
 
 import Link from "next/link"
 import {
-    ArrowDown,
-    ArrowUp,
-    ArrowUpDown,
     Building2,
     CircleCheck,
     CircleX,
@@ -15,43 +12,13 @@ import {
     User,
     type LucideIcon,
 } from "lucide-react"
-import type { Column, ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import type { VendorProfile } from "@/lib/vendor/profile/types"
 import { Button } from "@/components/ui/button"
+import { SortableHeader } from "@/components/ui/data-table-sortable-header"
 import { VendorStatusBadge } from "@/components/vendor-status-badge"
 import { routes } from "@/lib/routes"
 import { cn, formatPhone, getInitials } from "@/lib/utils"
-
-function SortableHeader({
-    column,
-    label,
-    align = "left",
-}: {
-    column: Column<VendorProfile, unknown>
-    label: string
-    align?: "left" | "center"
-}) {
-    const sorted = column.getIsSorted()
-    return (
-        <div className={cn("flex items-center", align === "center" && "justify-center")}>
-            <Button
-                variant="ghost"
-                size="sm"
-                className="-ml-3 h-8"
-                onClick={() => column.toggleSorting()}
-            >
-                {label}
-                {sorted === "asc" ? (
-                    <ArrowUp className="ml-1.5 size-3.5" />
-                ) : sorted === "desc" ? (
-                    <ArrowDown className="ml-1.5 size-3.5" />
-                ) : (
-                    <ArrowUpDown className="ml-1.5 size-3.5 text-muted-foreground" />
-                )}
-            </Button>
-        </div>
-    )
-}
 
 const VENDOR_TYPE_LABEL: Record<"company" | "individual", string> = {
     company: "นิติบุคคล",
