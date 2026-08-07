@@ -86,10 +86,19 @@ class VendorSeeder extends Seeder
             'is_main_contact' => true,
         ]);
 
-        VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+        [$pendingType, $approvedType] = fake()->randomElements(
+            ['company_registration', 'id_card', 'vat_registration'],
+            2,
+        );
+
+        VendorDocuments::factory()->create([
+            'vendor_profile_id' => $profile->id,
+            'document_type' => $pendingType,
+        ]);
         VendorDocuments::factory()->approved()->create([
             'vendor_profile_id' => $profile->id,
             'verified_by' => $reviewer->id,
+            'document_type' => $approvedType,
         ]);
     }
 }
