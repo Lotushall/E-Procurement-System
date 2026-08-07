@@ -1043,14 +1043,49 @@ test('listing vendors includes a document status count breakdown', function () {
     $rejectedDoc->reject(verifiedBy: $internalUser->id, remark: 'Illegible scan');
     $repository->saveDocument($rejectedDoc);
 
+    $otherUser = User::factory()->create(['user_type' => 'company']);
+    $otherProfile = $repository->saveProfile(VendorProfile::create(userId: $otherUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $otherProfile->id(),
+        companyName: 'Other Doc Status Co.',
+        businessRegistrationNo: '5000000000004',
+        taxId: TaxId::fromString('5000000000004'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $otherApprovedDoc1 = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $otherProfile->id(),
+        documentType: 'citizen_id',
+        fileName: 'citizen_id.pdf',
+        filePath: 'vendor-documents/citizen_id.pdf',
+    ));
+    $otherApprovedDoc1->approve(verifiedBy: $internalUser->id);
+    $repository->saveDocument($otherApprovedDoc1);
+
+    $otherApprovedDoc2 = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $otherProfile->id(),
+        documentType: 'house_registration',
+        fileName: 'house_registration.pdf',
+        filePath: 'vendor-documents/house_registration.pdf',
+    ));
+    $otherApprovedDoc2->approve(verifiedBy: $internalUser->id);
+    $repository->saveDocument($otherApprovedDoc2);
+
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors');
 
-    $response->assertOk()
-        ->assertJsonPath('data.0.documentStatusCounts.approved', 1)
-        ->assertJsonPath('data.0.documentStatusCounts.pending', 2)
-        ->assertJsonPath('data.0.documentStatusCounts.rejected', 1);
+    $response->assertOk();
+
+    $entry = collect($response->json('data'))->firstWhere('id', $profile->id());
+    expect($entry['documentStatusCounts'])->toBe(['approved' => 1, 'pending' => 2, 'rejected' => 1]);
+
+    $otherEntry = collect($response->json('data'))->firstWhere('id', $otherProfile->id());
+    expect($otherEntry['documentStatusCounts'])->toBe(['approved' => 2, 'pending' => 0, 'rejected' => 0]);
 });
 
 test('a vendor with no documents has zero document status counts', function () {

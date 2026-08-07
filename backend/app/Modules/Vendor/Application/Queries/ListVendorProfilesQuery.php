@@ -19,7 +19,7 @@ final class ListVendorProfilesQuery
         ?int $perPage = null,
     ): Collection|LengthAwarePaginator {
         $query = VendorProfiles::query()
-            ->select(['id', 'created_at', 'verification_status'])
+            ->select(['id', 'created_at', 'updated_at', 'verification_status'])
             ->withCount([
                 'VendorProfilesDocuments as approved_documents_count' => fn ($q) => $q->where('status', 'approved'),
                 'VendorProfilesDocuments as pending_documents_count' => fn ($q) => $q->where('status', 'pending'),
