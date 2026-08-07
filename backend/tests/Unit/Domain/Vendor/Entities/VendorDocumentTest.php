@@ -100,3 +100,53 @@ test('reupload replaces the file, resets to pending, and clears verification', f
         ->and($document->verifiedAt())->toBeNull()
         ->and($document->remark())->toBeNull();
 });
+
+test('resubmit transitions a rejected document back to pending and clears verification', function () {
+    $document = VendorDocument::create(
+        vendorProfileId: 10,
+        documentType: 'id_card',
+        fileName: 'id-card.pdf',
+        filePath: 'documents/id-card.pdf',
+    );
+    $document->reject(verifiedBy: 2, remark: 'Blurry image');
+
+    $document->resubmit();
+
+    expect($document->status())->toBeInstanceOf(Pending::class)
+        ->and($document->isPending())->toBeTrue()
+        ->and($document->verifiedAt())->toBeNull()
+        ->and($document->verifiedBy())->toBeNull()
+        ->and($document->remark())->toBeNull();
+});
+
+test('resubmit transitions an approved document back to pending and clears verification', function () {
+    $document = VendorDocument::create(
+        vendorProfileId: 10,
+        documentType: 'id_card',
+        fileName: 'id-card.pdf',
+        filePath: 'documents/id-card.pdf',
+    );
+    $document->approve(verifiedBy: 2, remark: 'Clear copy');
+
+    $document->resubmit();
+
+    expect($document->status())->toBeInstanceOf(Pending::class)
+        ->and($document->isPending())->toBeTrue()
+        ->and($document->verifiedAt())->toBeNull()
+        ->and($document->verifiedBy())->toBeNull()
+        ->and($document->remark())->toBeNull();
+});
+
+test('resubmit is a no-op when already pending', function () {
+    $document = VendorDocument::create(
+        vendorProfileId: 10,
+        documentType: 'id_card',
+        fileName: 'id-card.pdf',
+        filePath: 'documents/id-card.pdf',
+    );
+    $pendingState = $document->status();
+
+    $document->resubmit();
+
+    expect($document->status())->toBe($pendingState);
+});

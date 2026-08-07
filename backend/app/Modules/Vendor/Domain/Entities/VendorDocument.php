@@ -99,6 +99,18 @@ final class VendorDocument
         $this->remark = null;
     }
 
+    public function resubmit(): void
+    {
+        if ($this->status instanceof Pending) {
+            return;
+        }
+
+        $this->status = new Pending($this);
+        $this->verifiedBy = null;
+        $this->verifiedAt = null;
+        $this->remark = null;
+    }
+
     // -----------------------------
     // Getters
     // -----------------------------
