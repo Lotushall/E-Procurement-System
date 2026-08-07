@@ -5,6 +5,7 @@ use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
+use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
@@ -990,4 +991,118 @@ test('an invalid sort_direction value is rejected', function () {
     $response = $this->getJson('/api/v1/vendors?sort_by=created_at&sort_direction=bogus');
 
     $response->assertStatus(422);
+});
+
+test('listing vendors includes a document status count breakdown', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $profile->id(),
+        companyName: 'Doc Status Co.',
+        businessRegistrationNo: '5000000000001',
+        taxId: TaxId::fromString('5000000000001'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $approvedDoc = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'citizen_id',
+        fileName: 'citizen_id.pdf',
+        filePath: 'vendor-documents/citizen_id.pdf',
+    ));
+    $approvedDoc->approve(verifiedBy: $internalUser->id);
+    $repository->saveDocument($approvedDoc);
+
+    $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'house_registration',
+        fileName: 'house_registration.pdf',
+        filePath: 'vendor-documents/house_registration.pdf',
+    ));
+
+    $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'commercial_registration',
+        fileName: 'commercial_registration.pdf',
+        filePath: 'vendor-documents/commercial_registration.pdf',
+    ));
+
+    $rejectedDoc = $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'vat_registration',
+        fileName: 'vat_registration.pdf',
+        filePath: 'vendor-documents/vat_registration.pdf',
+    ));
+    $rejectedDoc->reject(verifiedBy: $internalUser->id, remark: 'Illegible scan');
+    $repository->saveDocument($rejectedDoc);
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors');
+
+    $response->assertOk()
+        ->assertJsonPath('data.0.documentStatusCounts.approved', 1)
+        ->assertJsonPath('data.0.documentStatusCounts.pending', 2)
+        ->assertJsonPath('data.0.documentStatusCounts.rejected', 1);
+});
+
+test('a vendor with no documents has zero document status counts', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $profile->id(),
+        companyName: 'No Docs Co.',
+        businessRegistrationNo: '5000000000002',
+        taxId: TaxId::fromString('5000000000002'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors');
+
+    $response->assertOk()
+        ->assertJsonPath('data.0.documentStatusCounts.approved', 0)
+        ->assertJsonPath('data.0.documentStatusCounts.pending', 0)
+        ->assertJsonPath('data.0.documentStatusCounts.rejected', 0);
+});
+
+test('a vendor detail response does not include document status counts', function () {
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = new VendorRepository;
+
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $profile->id(),
+        companyName: 'Detail Co.',
+        businessRegistrationNo: '5000000000003',
+        taxId: TaxId::fromString('5000000000003'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson("/api/v1/vendors/{$profile->id()}");
+
+    $response->assertOk();
+    expect($response->json('data'))->not->toHaveKey('documentStatusCounts');
 });

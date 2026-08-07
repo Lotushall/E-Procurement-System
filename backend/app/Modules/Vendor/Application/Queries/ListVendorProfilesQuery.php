@@ -20,6 +20,11 @@ final class ListVendorProfilesQuery
     ): Collection|LengthAwarePaginator {
         $query = VendorProfiles::query()
             ->select(['id', 'created_at', 'verification_status'])
+            ->withCount([
+                'VendorProfilesDocuments as approved_documents_count' => fn ($q) => $q->where('status', 'approved'),
+                'VendorProfilesDocuments as pending_documents_count' => fn ($q) => $q->where('status', 'pending'),
+                'VendorProfilesDocuments as rejected_documents_count' => fn ($q) => $q->where('status', 'rejected'),
+            ])
             ->with([
                 'VendorProfilesCompanyDetail:vendor_profile_id,company_name,business_type',
                 'VendorProfilesIndividualDetail:vendor_profile_id,store_name,business_type',

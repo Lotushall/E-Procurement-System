@@ -24,6 +24,14 @@ class VendorProfileResource extends JsonResource
             'verificationStatus' => $this->whenNotNull($this->verification_status?->getValue()),
             'verifiedAt' => $this->whenNotNull($this->verified_at?->toIso8601String()),
             'remark' => $this->whenNotNull($this->remark),
+            'documentStatusCounts' => $this->when(
+                isset($this->approved_documents_count),
+                fn () => [
+                    'approved' => (int) $this->approved_documents_count,
+                    'pending' => (int) $this->pending_documents_count,
+                    'rejected' => (int) $this->rejected_documents_count,
+                ],
+            ),
             'detail' => $companyDetail !== null
                 ? new VendorCompanyDetailResource($companyDetail)
                 : new VendorIndividualDetailResource($individualDetail),
