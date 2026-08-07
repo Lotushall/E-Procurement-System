@@ -8,6 +8,9 @@ import {
     ArrowUp,
     ArrowUpDown,
     Building2,
+    CircleCheck,
+    CircleX,
+    Clock,
     Eye,
     User,
     type LucideIcon,
@@ -60,10 +63,16 @@ const VENDOR_TYPE_ICON: Record<"company" | "individual", LucideIcon> = {
     individual: User,
 }
 
-const DOCUMENT_STATUS_DOT: Record<"approved" | "pending" | "rejected", string> = {
-    approved: "bg-green-800",
-    pending: "bg-yellow-600",
-    rejected: "bg-red-600",
+const DOCUMENT_STATUS_ICON: Record<"approved" | "pending" | "rejected", LucideIcon> = {
+    approved: CircleCheck,
+    pending: Clock,
+    rejected: CircleX,
+}
+
+const DOCUMENT_STATUS_COLOR: Record<"approved" | "pending" | "rejected", string> = {
+    approved: "text-green-800",
+    pending: "text-yellow-600",
+    rejected: "text-red-600",
 }
 
 function DocumentStatusCount({
@@ -73,9 +82,10 @@ function DocumentStatusCount({
     status: "approved" | "pending" | "rejected"
     count: number
 }) {
+    const Icon = DOCUMENT_STATUS_ICON[status]
     return (
         <span className="flex items-center gap-1 text-xs font-medium text-gray-700">
-            <span className={cn("w-1.75 h-1.75 rounded-full", DOCUMENT_STATUS_DOT[status])} />
+            <Icon className={cn("size-3.5", DOCUMENT_STATUS_COLOR[status])} />
             {count}
         </span>
     )
