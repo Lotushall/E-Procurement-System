@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 
 const SKELETON_ROWS = 6;
-const COLUMN_WIDTHS = ["w-20", "w-24", "w-28", "w-20", "w-16", "w-16"];
+const COLUMN_WIDTHS = ["w-20", "w-24", "w-28", "w-20", "w-16", "w-16", "w-16"];
 
 export function VendorTableSkeleton() {
   return (
@@ -51,6 +51,9 @@ export function VendorTableSkeleton() {
               </TableCell>
               <TableCell className="px-4 py-3">
                 <Skeleton className="mx-auto h-5 w-16 rounded-full" />
+              </TableCell>
+              <TableCell className="px-4 py-3">
+                <Skeleton className="mx-auto h-4 w-16" />
               </TableCell>
               <TableCell className="px-4 py-3">
                 <Skeleton className="mx-auto size-8 rounded-md" />
