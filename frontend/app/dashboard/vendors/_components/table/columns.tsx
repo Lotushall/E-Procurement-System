@@ -60,6 +60,27 @@ const VENDOR_TYPE_ICON: Record<"company" | "individual", LucideIcon> = {
     individual: User,
 }
 
+const DOCUMENT_STATUS_DOT: Record<"approved" | "pending" | "rejected", string> = {
+    approved: "bg-green-800",
+    pending: "bg-yellow-600",
+    rejected: "bg-red-600",
+}
+
+function DocumentStatusCount({
+    status,
+    count,
+}: {
+    status: "approved" | "pending" | "rejected"
+    count: number
+}) {
+    return (
+        <span className="flex items-center gap-1 text-xs font-medium text-gray-700">
+            <span className={cn("w-1.75 h-1.75 rounded-full", DOCUMENT_STATUS_DOT[status])} />
+            {count}
+        </span>
+    )
+}
+
 export const columns: ColumnDef<VendorProfile>[] = [
     {
         id: "name",
@@ -128,6 +149,28 @@ export const columns: ColumnDef<VendorProfile>[] = [
                 <VendorStatusBadge status={getValue<string>()} />
             </div>
         ),
+    },
+    {
+        id: "document_status",
+        header: () => <div className="text-center">สถานะเอกสาร</div>,
+        enableSorting: false,
+        accessorFn: (vendor) => vendor.documentStatusCounts,
+        cell: ({ getValue }) => {
+            const counts = getValue<VendorProfile["documentStatusCounts"]>()
+            const total = (counts?.approved ?? 0) + (counts?.pending ?? 0) + (counts?.rejected ?? 0)
+
+            if (!counts || total === 0) {
+                return <div className="flex justify-center text-muted-foreground">-</div>
+            }
+
+            return (
+                <div className="flex justify-center gap-2.5">
+                    {counts.approved > 0 && <DocumentStatusCount status="approved" count={counts.approved} />}
+                    {counts.pending > 0 && <DocumentStatusCount status="pending" count={counts.pending} />}
+                    {counts.rejected > 0 && <DocumentStatusCount status="rejected" count={counts.rejected} />}
+                </div>
+            )
+        },
     },
     {
         id: "actions",

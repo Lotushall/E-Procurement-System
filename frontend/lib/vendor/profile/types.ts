@@ -63,6 +63,11 @@ export interface VendorProfile {
   detail: VendorProfileDetail;
   contact: VendorContact[];
   document?: VendorDocument[];
+  documentStatusCounts?: {
+    approved: number;
+    pending: number;
+    rejected: number;
+  };
   created_at: string;
   updated_at: string;
 }
