@@ -30,6 +30,26 @@ class VendorSeeder extends Seeder
 
     private const int REJECTED_COUNT = 20;
 
+    /**
+     * Mirrors REQUIRED_DOCUMENTS keys in
+     * frontend/app/(public)/profiles/data/document-types.ts — the only place
+     * document_type strings are matched against on the vendor detail page.
+     */
+    private const array COMPANY_DOCUMENT_TYPES = [
+        'company_certificate',
+        'authorized_person_id',
+        'vat_registration',
+        'shareholder_list',
+        'financial_statement',
+    ];
+
+    private const array INDIVIDUAL_DOCUMENT_TYPES = [
+        'citizen_id',
+        'house_registration',
+        'commercial_registration',
+        'vat_registration',
+    ];
+
     public function run(): void
     {
         $reviewer = User::where('email', 'admin@example.com')->first();
@@ -86,10 +106,8 @@ class VendorSeeder extends Seeder
             'is_main_contact' => true,
         ]);
 
-        [$pendingType, $approvedType] = fake()->randomElements(
-            ['company_registration', 'id_card', 'vat_registration'],
-            2,
-        );
+        $documentTypes = $userType === 'company' ? self::COMPANY_DOCUMENT_TYPES : self::INDIVIDUAL_DOCUMENT_TYPES;
+        [$pendingType, $approvedType] = fake()->randomElements($documentTypes, 2);
 
         VendorDocuments::factory()->create([
             'vendor_profile_id' => $profile->id,
