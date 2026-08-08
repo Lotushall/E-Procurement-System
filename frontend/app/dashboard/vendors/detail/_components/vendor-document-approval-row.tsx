@@ -113,6 +113,9 @@ export function VendorDocumentApprovalRow({
           <p className="flex items-center wrap-break-word text-xs font-thin tracking-wide text-gray-600">
             {document?.fileName ?? "ยังไม่มีเอกสาร"}
           </p>
+          {document?.status === "rejected" && document.remark && (
+            <p className="wrap-break-word text-xs text-red-600">เหตุผล: {document.remark}</p>
+          )}
         </div>
       </div>
 

@@ -181,6 +181,9 @@ export default function DocumentRow({
               {fileName ?? "ยังไม่มีเอกสาร"}
             </p>
           )}
+          {existingDocument?.status === "rejected" && existingDocument.remark && (
+            <p className="wrap-break-word text-xs text-red-600">เหตุผล: {existingDocument.remark}</p>
+          )}
         </div>
       </div>
 

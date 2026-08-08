@@ -38,7 +38,7 @@ export interface VendorDocument {
   status: string;
   verifiedBy: User;
   verifiedAt: string;
-  remark: string;
+  remark?: string;
 }
 export interface VendorContact {
   id: number;
