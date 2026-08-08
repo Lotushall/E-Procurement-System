@@ -114,7 +114,7 @@ export function VendorDocumentApprovalRow({
             {document?.fileName ?? "ยังไม่มีเอกสาร"}
           </p>
           {document?.status === "rejected" && document.remark && (
-            <p className="wrap-break-word text-xs text-red-600">เหตุผล: {document.remark}</p>
+            <p className="wrap-break-word text-sm text-red-600">เหตุผล: {document.remark}</p>
           )}
         </div>
       </div>

@@ -182,7 +182,7 @@ export default function DocumentRow({
             </p>
           )}
           {statusValue === "rejected" && existingDocument?.remark && (
-            <p className="wrap-break-word text-xs text-red-600">เหตุผล: {existingDocument.remark}</p>
+            <p className="wrap-break-word text-sm text-red-600">เหตุผล: {existingDocument.remark}</p>
           )}
         </div>
       </div>

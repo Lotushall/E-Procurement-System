@@ -64,7 +64,7 @@ const RejectRemark = () => {
         return null;
     }
 
-    return <p className="wrap-break-word text-xs text-red-600">เหตุผล: {vendor.remark}</p>;
+    return <p className="wrap-break-word text-sm text-red-600">เหตุผล: {vendor.remark}</p>;
 }
 
 export default function Navbar() {
