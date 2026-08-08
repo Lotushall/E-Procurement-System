@@ -6,14 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Modules\Vendor\Application\Queries\CountVendorProfilesByStatusQuery;
 use App\Modules\Vendor\Application\Queries\GetVendorProfileByIdQuery;
 use App\Modules\Vendor\Application\Queries\ListVendorProfilesQuery;
+use App\Modules\Vendor\Application\UseCases\ApproveVendorDocumentUseCase;
 use App\Modules\Vendor\Application\UseCases\ApproveVendorProfileUseCase;
+use App\Modules\Vendor\Application\UseCases\PendingVendorDocumentUseCase;
 use App\Modules\Vendor\Application\UseCases\PendingVendorProfileUseCase;
+use App\Modules\Vendor\Application\UseCases\RejectVendorDocumentUseCase;
 use App\Modules\Vendor\Application\UseCases\RejectVendorProfileUseCase;
 use App\Modules\Vendor\Presentation\Http\Requests\ApproveVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\ListVendorsRequest;
+use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorDocumentRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VendorApprovalController extends Controller
@@ -25,6 +30,9 @@ class VendorApprovalController extends Controller
         private readonly ApproveVendorProfileUseCase $approveVendorProfile,
         private readonly RejectVendorProfileUseCase $rejectVendorProfile,
         private readonly PendingVendorProfileUseCase $pendingVendorProfile,
+        private readonly ApproveVendorDocumentUseCase $approveVendorDocument,
+        private readonly RejectVendorDocumentUseCase $rejectVendorDocument,
+        private readonly PendingVendorDocumentUseCase $pendingVendorDocument,
     ) {}
 
     public function index(ListVendorsRequest $request): JsonResponse
@@ -82,6 +90,27 @@ class VendorApprovalController extends Controller
         $this->pendingVendorProfile->execute($id);
 
         return $this->vendorResponse($id);
+    }
+
+    public function approveDocument(Request $request, int $vendorId, int $documentId): JsonResponse
+    {
+        $this->approveVendorDocument->execute($vendorId, $documentId, $request->user()->id);
+
+        return $this->vendorResponse($vendorId);
+    }
+
+    public function rejectDocument(RejectVendorDocumentRequest $request, int $vendorId, int $documentId): JsonResponse
+    {
+        $this->rejectVendorDocument->execute($vendorId, $documentId, $request->user()->id, $request->validated('remark'));
+
+        return $this->vendorResponse($vendorId);
+    }
+
+    public function pendingDocument(int $vendorId, int $documentId): JsonResponse
+    {
+        $this->pendingVendorDocument->execute($vendorId, $documentId);
+
+        return $this->vendorResponse($vendorId);
     }
 
     private function vendorResponse(int $id): JsonResponse
