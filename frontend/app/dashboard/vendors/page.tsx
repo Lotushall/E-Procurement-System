@@ -60,6 +60,9 @@ function VendorListPageContent() {
     isError,
   } = useVendorListPage();
 
+  console.log(visible);
+
+
   return (
     <div className="flex flex-col gap-5">
 
