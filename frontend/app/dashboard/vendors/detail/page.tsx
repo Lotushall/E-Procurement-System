@@ -79,7 +79,11 @@ function VendorDetailContent() {
 
           <div className="flex flex-col gap-0.5">
             <VendorStatusBadge status={vendor.verificationStatus} />
-            <div className="h-4" />
+            {vendor.verificationStatus === "rejected" && vendor.remark ? (
+              <p className="max-w-60 text-xs text-red-600">เหตุผล: {vendor.remark}</p>
+            ) : (
+              <div className="h-4" />
+            )}
           </div>
         </div>
 

@@ -57,6 +57,16 @@ const StatusBadge = () => {
     )
 }
 
+const RejectRemark = () => {
+    const { data: vendor } = useVendorProfile()
+
+    if (vendor?.verificationStatus !== "rejected" || !vendor.remark) {
+        return null;
+    }
+
+    return <p className="text-xs text-red-600">เหตุผล: {vendor.remark}</p>;
+}
+
 export default function Navbar() {
     return (
         <div className="flex flex-col gap-3.5">
@@ -72,6 +82,7 @@ export default function Navbar() {
                 </div>
 
                 <p className="text-sm tracking-wide text-gray-600">จัดการข้อมูลบริษัท ผู้ติดต่อ และเอกสารประกอบสำหรับการขึ้นทะเบียน</p>
+                <RejectRemark />
             </div>
         </div>
     )
