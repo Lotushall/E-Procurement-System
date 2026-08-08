@@ -51,3 +51,10 @@ test('execute throws when the document does not belong to the vendor profile', f
     expect(fn () => pendingVendorDocumentUseCase()->execute($ownerProfile->id, $otherDocument->id))
         ->toThrow(ModelNotFoundException::class);
 });
+
+test('execute throws when the document id does not exist', function () {
+    $profile = VendorProfiles::factory()->create();
+
+    expect(fn () => pendingVendorDocumentUseCase()->execute($profile->id, 999999))
+        ->toThrow(ModelNotFoundException::class);
+});

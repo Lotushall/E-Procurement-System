@@ -41,3 +41,15 @@ test('approving a nonexistent vendor document returns 404', function () {
 
     $response->assertStatus(404);
 });
+
+test('a vendor user cannot approve a vendor document', function () {
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+
+    $this->actingAs($vendorUser, 'web');
+
+    $response = $this->postJson("/api/v1/vendors/{$profile->id}/documents/{$document->id}/approve");
+
+    $response->assertStatus(403);
+});

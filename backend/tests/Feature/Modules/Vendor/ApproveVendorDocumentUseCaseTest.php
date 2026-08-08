@@ -28,6 +28,20 @@ test('execute approves a pending vendor document', function () {
     ]);
 });
 
+test('execute approves a rejected vendor document', function () {
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->rejected()->create(['vendor_profile_id' => $profile->id]);
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+
+    approveVendorDocumentUseCase()->execute($profile->id, $document->id, $internalUser->id);
+
+    $this->assertDatabaseHas('vendor_documents', [
+        'id' => $document->id,
+        'status' => 'approved',
+        'verified_by' => $internalUser->id,
+    ]);
+});
+
 test('execute throws when the document does not belong to the vendor profile', function () {
     $ownerProfile = VendorProfiles::factory()->create();
     $otherProfile = VendorProfiles::factory()->create();

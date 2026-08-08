@@ -37,6 +37,7 @@ test('execute approves a rejected vendor profile', function () {
         'id' => $profile->id,
         'verification_status' => 'approved',
         'verified_by' => $internalUser->id,
+        'remark' => null,
     ]);
 });
 

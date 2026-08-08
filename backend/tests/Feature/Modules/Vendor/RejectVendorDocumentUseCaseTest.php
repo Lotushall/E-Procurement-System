@@ -29,6 +29,20 @@ test('execute rejects a pending vendor document', function () {
     ]);
 });
 
+test('execute rejects an approved vendor document', function () {
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->approved()->create(['vendor_profile_id' => $profile->id]);
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+
+    rejectVendorDocumentUseCase()->execute($profile->id, $document->id, $internalUser->id, 'Revoked');
+
+    $this->assertDatabaseHas('vendor_documents', [
+        'id' => $document->id,
+        'status' => 'rejected',
+        'remark' => 'Revoked',
+    ]);
+});
+
 test('execute throws when the document does not belong to the vendor profile', function () {
     $ownerProfile = VendorProfiles::factory()->create();
     $otherProfile = VendorProfiles::factory()->create();
