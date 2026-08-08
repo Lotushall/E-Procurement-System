@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Modules\Vendor\Application\Queries\CountVendorProfilesByStatusQuery;
 use App\Modules\Vendor\Application\Queries\GetVendorProfileByIdQuery;
 use App\Modules\Vendor\Application\Queries\ListVendorProfilesQuery;
+use App\Modules\Vendor\Application\UseCases\ApproveVendorProfileUseCase;
+use App\Modules\Vendor\Application\UseCases\PendingVendorProfileUseCase;
+use App\Modules\Vendor\Application\UseCases\RejectVendorProfileUseCase;
+use App\Modules\Vendor\Presentation\Http\Requests\ApproveVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\ListVendorsRequest;
-use App\Modules\Vendor\Presentation\Http\Requests\ShowVendorRequest;
+use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -18,6 +22,9 @@ class VendorApprovalController extends Controller
         private readonly ListVendorProfilesQuery $listVendorProfiles,
         private readonly CountVendorProfilesByStatusQuery $countVendorProfilesByStatus,
         private readonly GetVendorProfileByIdQuery $getVendorProfileById,
+        private readonly ApproveVendorProfileUseCase $approveVendorProfile,
+        private readonly RejectVendorProfileUseCase $rejectVendorProfile,
+        private readonly PendingVendorProfileUseCase $pendingVendorProfile,
     ) {}
 
     public function index(ListVendorsRequest $request): JsonResponse
@@ -53,6 +60,34 @@ class VendorApprovalController extends Controller
 
         return response()->json([
             'data' => new VendorProfileResource($vendor),
+        ]);
+    }
+
+    public function approve(ApproveVendorRequest $request, int $id): JsonResponse
+    {
+        $this->approveVendorProfile->execute($id, $request->user()->id, $request->validated('remark'));
+
+        return $this->vendorResponse($id);
+    }
+
+    public function reject(RejectVendorRequest $request, int $id): JsonResponse
+    {
+        $this->rejectVendorProfile->execute($id, $request->user()->id, $request->validated('remark'));
+
+        return $this->vendorResponse($id);
+    }
+
+    public function pending(int $id): JsonResponse
+    {
+        $this->pendingVendorProfile->execute($id);
+
+        return $this->vendorResponse($id);
+    }
+
+    private function vendorResponse(int $id): JsonResponse
+    {
+        return response()->json([
+            'data' => new VendorProfileResource($this->getVendorProfileById->execute($id)),
         ]);
     }
 }
