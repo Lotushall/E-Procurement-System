@@ -66,6 +66,10 @@ test('send persists a database notification for the user', function () {
     notificationSender()->send([$user->id], fakeDatabaseNotification());
 
     expect($user->notifications()->count())->toBe(1);
+    $this->assertDatabaseHas('notifications', [
+        'notifiable_type' => 'user',
+        'notifiable_id' => $user->id,
+    ]);
 });
 
 test('send is a no-op when given an empty array of user ids', function () {
