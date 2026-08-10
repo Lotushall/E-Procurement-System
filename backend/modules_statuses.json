@@ -3,5 +3,6 @@
     "Auth": true,
     "Test": true,
     "Vendor": true,
-    "Shared": true
+    "Shared": true,
+    "Notification": true
 }
