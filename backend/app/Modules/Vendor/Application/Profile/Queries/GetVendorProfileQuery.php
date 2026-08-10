@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Vendor\Application\Queries;
+namespace App\Modules\Vendor\Application\Profile\Queries;
 
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 

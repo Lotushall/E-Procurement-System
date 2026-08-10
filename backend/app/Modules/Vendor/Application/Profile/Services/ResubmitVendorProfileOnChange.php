@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Vendor\Application\Services;
+namespace App\Modules\Vendor\Application\Profile\Services;
 
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 

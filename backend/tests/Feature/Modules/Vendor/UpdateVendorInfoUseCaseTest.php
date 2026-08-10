@@ -2,8 +2,8 @@
 
 use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\User\Infrastructure\Models\User;
-use App\Modules\Vendor\Application\DTOs\UpdateVendorInfoData;
-use App\Modules\Vendor\Application\UseCases\UpdateVendorInfoUseCase;
+use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorInfoData;
+use App\Modules\Vendor\Application\Profile\UseCases\UpdateVendorInfoUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;

@@ -3,8 +3,8 @@
 use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Infrastructure\Models\User;
-use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
-use App\Modules\Vendor\Application\UseCases\SaveVendorContactUseCase;
+use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorContactData;
+use App\Modules\Vendor\Application\Profile\UseCases\SaveVendorContactUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;

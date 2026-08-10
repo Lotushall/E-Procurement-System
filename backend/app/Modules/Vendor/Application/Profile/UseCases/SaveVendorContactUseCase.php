@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Vendor\Application\UseCases;
+namespace App\Modules\Vendor\Application\Profile\UseCases;
 
 use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
-use App\Modules\Vendor\Application\DTOs\UpdateVendorContactData;
+use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorContactData;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Shared\Support\ChangeLogger;

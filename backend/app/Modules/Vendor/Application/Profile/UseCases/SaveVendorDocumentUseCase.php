@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Vendor\Application\UseCases;
+namespace App\Modules\Vendor\Application\Profile\UseCases;
 
-use App\Modules\Vendor\Application\DTOs\UpdateVendorDocumentData;
-use App\Modules\Vendor\Application\Services\ResubmitVendorProfileOnChange;
+use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorDocumentData;
+use App\Modules\Vendor\Application\Profile\Services\ResubmitVendorProfileOnChange;
 use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use Illuminate\Support\Facades\DB;

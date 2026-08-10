@@ -1,7 +1,7 @@
 <?php
 
 use App\Modules\User\Infrastructure\Models\User;
-use App\Modules\Vendor\Application\UseCases\DeleteVendorDocumentUseCase;
+use App\Modules\Vendor\Application\Profile\UseCases\DeleteVendorDocumentUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;

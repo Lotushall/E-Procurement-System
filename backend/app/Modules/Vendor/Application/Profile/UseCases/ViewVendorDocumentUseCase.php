@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Vendor\Application\UseCases;
+namespace App\Modules\Vendor\Application\Profile\UseCases;
 
 use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;

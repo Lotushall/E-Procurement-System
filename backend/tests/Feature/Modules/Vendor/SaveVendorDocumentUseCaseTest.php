@@ -1,8 +1,8 @@
 <?php
 
 use App\Modules\User\Infrastructure\Models\User;
-use App\Modules\Vendor\Application\DTOs\UpdateVendorDocumentData;
-use App\Modules\Vendor\Application\UseCases\SaveVendorDocumentUseCase;
+use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorDocumentData;
+use App\Modules\Vendor\Application\Profile\UseCases\SaveVendorDocumentUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorDocument;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;

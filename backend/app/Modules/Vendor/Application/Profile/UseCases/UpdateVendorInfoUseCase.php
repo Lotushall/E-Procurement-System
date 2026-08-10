@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Vendor\Application\UseCases;
+namespace App\Modules\Vendor\Application\Profile\UseCases;
 
 use App\Modules\Shared\Domain\ValueObjects\PostalCode;
-use App\Modules\Vendor\Application\DTOs\UpdateVendorInfoData;
+use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorInfoData;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;

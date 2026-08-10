@@ -3,7 +3,7 @@
 use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Infrastructure\Models\User;
-use App\Modules\Vendor\Application\UseCases\DeleteVendorContactUseCase;
+use App\Modules\Vendor\Application\Profile\UseCases\DeleteVendorContactUseCase;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Vendor\Application\UseCases;
+namespace App\Modules\Vendor\Application\Profile\UseCases;
 
-use App\Modules\Vendor\Application\Services\ResubmitVendorProfileOnChange;
+use App\Modules\Vendor\Application\Profile\Services\ResubmitVendorProfileOnChange;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use DomainException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
