@@ -21,6 +21,11 @@ function fakeDatabaseNotification(): Notification
         {
             return ['database'];
         }
+
+        public function toArray(object $notifiable): array
+        {
+            return ['message' => 'test notification'];
+        }
     };
 }
 
@@ -52,4 +57,22 @@ test('send skips ids that do not exist without throwing', function () {
     notificationSender()->send([$user->id, 999999], $notification);
 
     NotificationFacade::assertSentTo($user, $notification::class);
+    NotificationFacade::assertCount(1);
+});
+
+test('send persists a database notification for the user', function () {
+    $user = User::factory()->create();
+
+    notificationSender()->send([$user->id], fakeDatabaseNotification());
+
+    expect($user->notifications()->count())->toBe(1);
+});
+
+test('send is a no-op when given an empty array of user ids', function () {
+    NotificationFacade::fake();
+    $notification = fakeDatabaseNotification();
+
+    notificationSender()->send([], $notification);
+
+    NotificationFacade::assertNothingSent();
 });
