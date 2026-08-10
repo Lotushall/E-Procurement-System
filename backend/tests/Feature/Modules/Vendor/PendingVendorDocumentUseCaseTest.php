@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Vendor\Application\UseCases\PendingVendorDocumentUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorDocumentUseCase;
 use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

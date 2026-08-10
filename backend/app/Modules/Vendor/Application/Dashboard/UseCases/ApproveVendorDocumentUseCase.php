@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Modules\Vendor\Application\UseCases;
+namespace App\Modules\Vendor\Application\Dashboard\UseCases;
 
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-final class PendingVendorDocumentUseCase
+final class ApproveVendorDocumentUseCase
 {
     public function __construct(
         private readonly VendorRepositoryInterface $vendors,
     ) {}
 
-    public function execute(int $vendorProfileId, int $documentId): void
+    public function execute(int $vendorProfileId, int $documentId, int $verifiedBy): void
     {
         $document = $this->vendors->findDocumentByVendorProfileIdAndId($vendorProfileId, $documentId);
 
@@ -21,12 +21,13 @@ final class PendingVendorDocumentUseCase
             );
         }
 
-        $document->resubmit();
+        $document->approve($verifiedBy);
         $this->vendors->saveDocument($document);
 
-        app_log('Vendor document set back to pending', [
+        app_log('Vendor document approved', [
             'vendor_profile_id' => $vendorProfileId,
             'document_id' => $documentId,
+            'verified_by' => $verifiedBy,
         ], 'info', 'vendor');
     }
 }

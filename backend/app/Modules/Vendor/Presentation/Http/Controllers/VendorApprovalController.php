@@ -3,15 +3,15 @@
 namespace App\Modules\Vendor\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Vendor\Application\Queries\CountVendorProfilesByStatusQuery;
-use App\Modules\Vendor\Application\Queries\GetVendorProfileByIdQuery;
-use App\Modules\Vendor\Application\Queries\ListVendorProfilesQuery;
-use App\Modules\Vendor\Application\UseCases\ApproveVendorDocumentUseCase;
-use App\Modules\Vendor\Application\UseCases\ApproveVendorProfileUseCase;
-use App\Modules\Vendor\Application\UseCases\PendingVendorDocumentUseCase;
-use App\Modules\Vendor\Application\UseCases\PendingVendorProfileUseCase;
-use App\Modules\Vendor\Application\UseCases\RejectVendorDocumentUseCase;
-use App\Modules\Vendor\Application\UseCases\RejectVendorProfileUseCase;
+use App\Modules\Vendor\Application\Dashboard\Queries\CountVendorProfilesByStatusQuery;
+use App\Modules\Vendor\Application\Dashboard\Queries\GetVendorProfileByIdQuery;
+use App\Modules\Vendor\Application\Dashboard\Queries\ListVendorProfilesQuery;
+use App\Modules\Vendor\Application\Dashboard\UseCases\ApproveVendorDocumentUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\ApproveVendorProfileUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorDocumentUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorProfileUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\RejectVendorDocumentUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\RejectVendorProfileUseCase;
 use App\Modules\Vendor\Presentation\Http\Requests\ApproveVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\ListVendorsRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorDocumentRequest;
