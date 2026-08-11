@@ -85,7 +85,12 @@ class VendorApprovalController extends Controller
 
     public function reject(RejectVendorRequest $request, int $id): JsonResponse
     {
-        $this->rejectVendorProfile->execute($id, $request->user()->id, $request->validated('remark'));
+        $this->rejectVendorProfile->execute(
+            $id,
+            $request->user()->id,
+            $request->validated('remark'),
+            $request->boolean('send_email', true),
+        );
 
         return $this->vendorResponse($id);
     }

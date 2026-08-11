@@ -2,7 +2,9 @@
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Modules\Vendor\Infrastructure\Notifications\VendorProfileRejectedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -49,4 +51,23 @@ test('rejecting a nonexistent vendor returns 404', function () {
     $response = $this->postJson('/api/v1/vendors/99999/reject', ['remark' => 'Missing documents']);
 
     $response->assertStatus(404);
+});
+
+test('rejecting a vendor without send_email skips the mail channel', function () {
+    Notification::fake();
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $profile = VendorProfiles::factory()->create();
+
+    $this->actingAs($internalUser, 'web');
+
+    $this->postJson("/api/v1/vendors/{$profile->id}/reject", [
+        'remark' => 'Missing documents',
+        'send_email' => false,
+    ]);
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorProfileRejectedNotification::class,
+        fn ($notification, $channels) => $channels === ['database']
+    );
 });

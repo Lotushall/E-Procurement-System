@@ -21,6 +21,7 @@ class RejectVendorRequest extends FormRequest
     {
         return [
             'remark' => ['required', 'string'],
+            'send_email' => ['sometimes', 'boolean'],
         ];
     }
 }
