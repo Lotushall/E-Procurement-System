@@ -27,6 +27,13 @@ import { useLogout } from "@/lib/auth/mutations/useLogout";
 import { routes } from "@/lib/routes";
 import { CurrentUser } from "@/lib/auth/types";
 import { useVendorProfileCompleteness } from "@/lib/vendor/profile/queries/useVendorProfileCompleteness";
+import { useNotifications } from "@/lib/notification/queries/useNotifications";
+import { useUnreadNotificationCount } from "@/lib/notification/queries/useUnreadNotificationCount";
+import { useMarkAllNotificationsRead } from "@/lib/notification/mutations/useMarkAllNotificationsRead";
+import { useSelectNotification } from "@/lib/notification/useSelectNotification";
+import { NotificationBody } from "@/components/notification-item";
+import { isAxiosError } from "axios";
+import { toast } from "sonner";
 
 const menus = [
     {
@@ -197,6 +204,13 @@ export function ProfileMenu() {
     );
 }
 
+function getNotificationErrorMessage(error: unknown): string {
+    const message = isAxiosError(error)
+        ? (error.response?.data as { message?: string } | undefined)?.message
+        : undefined;
+    return message ?? "ดำเนินการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+}
+
 export function NotificationMenu() {
     const { data: user } = useUser();
     const {
@@ -205,10 +219,15 @@ export function NotificationMenu() {
         hasIncompleteContact,
         hasIncompleteDocument,
     } = useVendorProfileCompleteness();
+    const { data: unreadCount } = useUnreadNotificationCount();
+    const { data: notificationPage } = useNotifications(1, 5);
+    const markAllRead = useMarkAllNotificationsRead();
+    const selectNotification = useSelectNotification();
+    const badgeCount = unreadCount ?? 0;
 
     const isVendor = user?.userType === "company" || user?.userType === "individual";
 
-    const notifications = isVendor
+    const checklist = isVendor
         ? [
             {
                 key: "account",
@@ -245,6 +264,15 @@ export function NotificationMenu() {
         ].filter((notification) => notification.show)
         : [];
 
+    const notifications = notificationPage?.data ?? [];
+    const hasAnyItem = checklist.length > 0 || notifications.length > 0;
+
+    const handleMarkAllRead = () => {
+        markAllRead.mutate(undefined, {
+            onError: (error) => toast.error(getNotificationErrorMessage(error)),
+        });
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger
@@ -257,8 +285,10 @@ export function NotificationMenu() {
                 }
             >
                 <Bell className="size-5" />
-                {notifications.length > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-1.75 h-1.75 rounded-full bg-red-600" />
+                {badgeCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                    </span>
                 )}
             </DropdownMenuTrigger>
 
@@ -268,37 +298,74 @@ export function NotificationMenu() {
             >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold tracking-wide">การแจ้งเตือน</p>
-                    {notifications.length > 0 && (
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
-                            {notifications.length} รายการ
-                        </span>
+                    {badgeCount > 0 && (
+                        <button
+                            type="button"
+                            onClick={handleMarkAllRead}
+                            disabled={markAllRead.isPending}
+                            className="cursor-pointer text-xs font-medium text-red-700 hover:underline disabled:opacity-50"
+                        >
+                            อ่านทั้งหมด
+                        </button>
                     )}
                 </div>
 
-                {notifications.length === 0 ? (
+                {!hasAnyItem ? (
                     <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
                         <CheckCircle2 className="size-8 text-green-600" />
                         <p className="text-sm text-muted-foreground">ไม่มีการแจ้งเตือนใหม่</p>
                     </div>
                 ) : (
-                    <div className="p-1">
-                        {notifications.map((notification) => (
-                            <DropdownMenuItem
-                                key={notification.key}
-                                render={<Link href={notification.href} />}
-                                className="cursor-pointer items-start gap-3 py-2.5"
-                            >
-                                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">
-                                    {notification.icon}
-                                </span>
-                                <div className="flex min-w-0 flex-col">
-                                    <p className="text-sm font-medium leading-tight">{notification.label}</p>
-                                    <p className="text-xs text-muted-foreground">{notification.description}</p>
-                                </div>
-                            </DropdownMenuItem>
-                        ))}
-                    </div>
+                    <>
+                        {checklist.length > 0 && (
+                            <div className="p-1">
+                                {checklist.map((notification) => (
+                                    <DropdownMenuItem
+                                        key={notification.key}
+                                        render={<Link href={notification.href} />}
+                                        className="cursor-pointer items-start gap-3 py-2.5"
+                                    >
+                                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">
+                                            {notification.icon}
+                                        </span>
+                                        <div className="flex min-w-0 flex-col">
+                                            <p className="text-sm font-medium leading-tight">{notification.label}</p>
+                                            <p className="text-xs text-muted-foreground">{notification.description}</p>
+                                        </div>
+                                    </DropdownMenuItem>
+                                ))}
+                            </div>
+                        )}
+
+                        {checklist.length > 0 && notifications.length > 0 && <DropdownMenuSeparator />}
+
+                        {notifications.length > 0 && (
+                            <div className="p-1">
+                                <p className="px-2 py-1 text-xs font-medium text-muted-foreground">การแจ้งเตือนล่าสุด</p>
+                                {notifications.map((notification) => (
+                                    <DropdownMenuItem
+                                        key={notification.id}
+                                        onClick={() => selectNotification(notification)}
+                                        className={cn(
+                                            "cursor-pointer items-start gap-3 py-2.5",
+                                            notification.readAt === null && "bg-red-50/50",
+                                        )}
+                                    >
+                                        <NotificationBody notification={notification} />
+                                    </DropdownMenuItem>
+                                ))}
+                            </div>
+                        )}
+                    </>
                 )}
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                    render={<Link href={routes.notifications} />}
+                    className="cursor-pointer justify-center py-2 text-sm font-medium text-red-700"
+                >
+                    ดูทั้งหมด
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );
