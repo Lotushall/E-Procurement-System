@@ -7,12 +7,12 @@ use Illuminate\Notifications\Notification;
 
 uses(RefreshDatabase::class);
 
-function countUnreadNotificationsQuery(): CountUnreadNotificationsQuery
+function countUnreadNotificationsQueryHelper(): CountUnreadNotificationsQuery
 {
     return app(CountUnreadNotificationsQuery::class);
 }
 
-function fakeNotification(): Notification
+function fakeNotificationForCountUnreadNotificationsQuery(): Notification
 {
     return new class extends Notification
     {
@@ -30,17 +30,17 @@ function fakeNotification(): Notification
 
 test('execute counts only unread notifications for the given user', function () {
     $user = User::factory()->create();
-    $user->notify(fakeNotification());
-    $user->notify(fakeNotification());
+    $user->notify(fakeNotificationForCountUnreadNotificationsQuery());
+    $user->notify(fakeNotificationForCountUnreadNotificationsQuery());
     $user->notifications()->first()->markAsRead();
 
-    expect(countUnreadNotificationsQuery()->execute($user->id))->toBe(1);
+    expect(countUnreadNotificationsQueryHelper()->execute($user->id))->toBe(1);
 });
 
 test('execute does not count notifications belonging to other users', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
-    $otherUser->notify(fakeNotification());
+    $otherUser->notify(fakeNotificationForCountUnreadNotificationsQuery());
 
-    expect(countUnreadNotificationsQuery()->execute($user->id))->toBe(0);
+    expect(countUnreadNotificationsQueryHelper()->execute($user->id))->toBe(0);
 });
