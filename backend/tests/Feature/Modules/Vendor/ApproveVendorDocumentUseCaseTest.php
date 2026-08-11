@@ -4,8 +4,10 @@ use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Application\Dashboard\UseCases\ApproveVendorDocumentUseCase;
 use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Modules\Vendor\Infrastructure\Notifications\VendorDocumentApprovedNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -58,4 +60,34 @@ test('execute throws when the document id does not exist', function () {
 
     expect(fn () => approveVendorDocumentUseCase()->execute($profile->id, 999999, $internalUser->id))
         ->toThrow(ModelNotFoundException::class);
+});
+
+test('execute notifies the profile owner with mail enabled by default', function () {
+    Notification::fake();
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+
+    approveVendorDocumentUseCase()->execute($profile->id, $document->id, $internalUser->id);
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorDocumentApprovedNotification::class,
+        fn ($notification, $channels) => in_array('mail', $channels, true)
+    );
+});
+
+test('execute notifies the profile owner without mail when sendEmail is false', function () {
+    Notification::fake();
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+
+    approveVendorDocumentUseCase()->execute($profile->id, $document->id, $internalUser->id, false);
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorDocumentApprovedNotification::class,
+        fn ($notification, $channels) => $channels === ['database']
+    );
 });

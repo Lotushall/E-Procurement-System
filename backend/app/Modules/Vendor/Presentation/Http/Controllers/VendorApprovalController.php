@@ -12,13 +12,13 @@ use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorDocumentUseCa
 use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorProfileUseCase;
 use App\Modules\Vendor\Application\Dashboard\UseCases\RejectVendorDocumentUseCase;
 use App\Modules\Vendor\Application\Dashboard\UseCases\RejectVendorProfileUseCase;
+use App\Modules\Vendor\Presentation\Http\Requests\ApproveVendorDocumentRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\ApproveVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\ListVendorsRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorDocumentRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VendorApprovalController extends Controller
@@ -102,9 +102,14 @@ class VendorApprovalController extends Controller
         return $this->vendorResponse($id);
     }
 
-    public function approveDocument(Request $request, int $vendorId, int $documentId): JsonResponse
+    public function approveDocument(ApproveVendorDocumentRequest $request, int $vendorId, int $documentId): JsonResponse
     {
-        $this->approveVendorDocument->execute($vendorId, $documentId, $request->user()->id);
+        $this->approveVendorDocument->execute(
+            $vendorId,
+            $documentId,
+            $request->user()->id,
+            $request->boolean('send_email', true),
+        );
 
         return $this->vendorResponse($vendorId);
     }
