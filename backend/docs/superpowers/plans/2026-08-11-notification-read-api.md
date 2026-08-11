@@ -493,6 +493,12 @@ git commit -m "feat(notification): add MarkAllNotificationsAsReadUseCase"
 
 ### Task 2: Presentation layer — routes, controller, request, resource
 
+Each of the 4 test files below declares its own `fakeNotificationFor<Endpoint>Endpoint()` top-level
+helper with a name unique to that file (not a shared `fakeNotification()`/`fakeApiNotification()`).
+Pest loads every test file into the same PHP process for a full-suite run, so two files declaring an
+identically-named top-level function is a fatal "cannot redeclare function" error — Task 1 hit exactly
+this and had to fix it after the fact. Keep the names as given; do not rename them to something shared.
+
 **Files:**
 - Create: `app/Modules/Notification/Presentation/Http/Requests/ListNotificationsRequest.php`
 - Create: `app/Modules/Notification/Presentation/Http/Resources/NotificationResource.php`
@@ -523,7 +529,7 @@ use Illuminate\Notifications\Notification;
 
 uses(RefreshDatabase::class);
 
-function fakeApiNotification(): Notification
+function fakeNotificationForListNotificationsEndpoint(): Notification
 {
     return new class extends Notification
     {
@@ -547,7 +553,7 @@ test('listing notifications requires authentication', function () {
 
 test('a user can list their own notifications', function () {
     $user = User::factory()->create();
-    $user->notify(fakeApiNotification());
+    $user->notify(fakeNotificationForListNotificationsEndpoint());
 
     $this->actingAs($user, 'web');
 
@@ -567,7 +573,7 @@ test('a user can list their own notifications', function () {
 test('a user only sees their own notifications', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
-    $otherUser->notify(fakeApiNotification());
+    $otherUser->notify(fakeNotificationForListNotificationsEndpoint());
 
     $this->actingAs($user, 'web');
 
@@ -578,8 +584,8 @@ test('a user only sees their own notifications', function () {
 
 test('listing notifications filters by unread status', function () {
     $user = User::factory()->create();
-    $user->notify(fakeApiNotification());
-    $user->notify(fakeApiNotification());
+    $user->notify(fakeNotificationForListNotificationsEndpoint());
+    $user->notify(fakeNotificationForListNotificationsEndpoint());
     $user->notifications()->first()->markAsRead();
 
     $this->actingAs($user, 'web');
@@ -591,7 +597,7 @@ test('listing notifications filters by unread status', function () {
 
 test('listing notifications returns camelCase pagination meta', function () {
     $user = User::factory()->create();
-    collect(range(1, 3))->each(fn () => $user->notify(fakeApiNotification()));
+    collect(range(1, 3))->each(fn () => $user->notify(fakeNotificationForListNotificationsEndpoint()));
 
     $this->actingAs($user, 'web');
 
@@ -768,7 +774,7 @@ use Illuminate\Notifications\Notification;
 
 uses(RefreshDatabase::class);
 
-function fakeApiNotification(): Notification
+function fakeNotificationForUnreadCountEndpoint(): Notification
 {
     return new class extends Notification
     {
@@ -793,9 +799,9 @@ test('unread count requires authentication', function () {
 test('unread count only reflects the current user notifications', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
-    $user->notify(fakeApiNotification());
-    $otherUser->notify(fakeApiNotification());
-    $otherUser->notify(fakeApiNotification());
+    $user->notify(fakeNotificationForUnreadCountEndpoint());
+    $otherUser->notify(fakeNotificationForUnreadCountEndpoint());
+    $otherUser->notify(fakeNotificationForUnreadCountEndpoint());
 
     $this->actingAs($user, 'web');
 
@@ -905,7 +911,7 @@ use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
-function fakeApiNotification(): Notification
+function fakeNotificationForMarkNotificationAsReadEndpoint(): Notification
 {
     return new class extends Notification
     {
@@ -929,7 +935,7 @@ test('marking a notification as read requires authentication', function () {
 
 test('a user can mark their own notification as read', function () {
     $user = User::factory()->create();
-    $user->notify(fakeApiNotification());
+    $user->notify(fakeNotificationForMarkNotificationAsReadEndpoint());
     $notification = $user->notifications()->sole();
 
     $this->actingAs($user, 'web');
@@ -943,7 +949,7 @@ test('a user can mark their own notification as read', function () {
 test('a user cannot mark another user notification as read', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
-    $otherUser->notify(fakeApiNotification());
+    $otherUser->notify(fakeNotificationForMarkNotificationAsReadEndpoint());
     $notification = $otherUser->notifications()->sole();
 
     $this->actingAs($user, 'web');
@@ -1076,7 +1082,7 @@ use Illuminate\Notifications\Notification;
 
 uses(RefreshDatabase::class);
 
-function fakeApiNotification(): Notification
+function fakeNotificationForMarkAllNotificationsAsReadEndpoint(): Notification
 {
     return new class extends Notification
     {
@@ -1100,8 +1106,8 @@ test('marking all notifications as read requires authentication', function () {
 
 test('a user can mark all their notifications as read', function () {
     $user = User::factory()->create();
-    $user->notify(fakeApiNotification());
-    $user->notify(fakeApiNotification());
+    $user->notify(fakeNotificationForMarkAllNotificationsAsReadEndpoint());
+    $user->notify(fakeNotificationForMarkAllNotificationsAsReadEndpoint());
 
     $this->actingAs($user, 'web');
 
@@ -1114,7 +1120,7 @@ test('a user can mark all their notifications as read', function () {
 test('marking all as read does not affect another user notifications', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
-    $otherUser->notify(fakeApiNotification());
+    $otherUser->notify(fakeNotificationForMarkAllNotificationsAsReadEndpoint());
 
     $this->actingAs($user, 'web');
 
