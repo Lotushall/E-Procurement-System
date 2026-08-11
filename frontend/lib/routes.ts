@@ -1,5 +1,6 @@
 export const routes = {
   home: "/",
+  notifications: "/notifications",
   profiles: {
     profile: "/profiles",
     vendorInfo: "/profiles/vendor-info",
