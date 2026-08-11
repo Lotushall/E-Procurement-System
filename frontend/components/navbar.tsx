@@ -32,8 +32,8 @@ import { useUnreadNotificationCount } from "@/lib/notification/queries/useUnread
 import { useMarkAllNotificationsRead } from "@/lib/notification/mutations/useMarkAllNotificationsRead";
 import { useSelectNotification } from "@/lib/notification/useSelectNotification";
 import { NotificationBody } from "@/components/notification-item";
-import { isAxiosError } from "axios";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/api-error";
 
 const menus = [
     {
@@ -204,13 +204,6 @@ export function ProfileMenu() {
     );
 }
 
-function getNotificationErrorMessage(error: unknown): string {
-    const message = isAxiosError(error)
-        ? (error.response?.data as { message?: string } | undefined)?.message
-        : undefined;
-    return message ?? "ดำเนินการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
-
 export function NotificationMenu() {
     const { data: user } = useUser();
     const {
@@ -269,7 +262,7 @@ export function NotificationMenu() {
 
     const handleMarkAllRead = () => {
         markAllRead.mutate(undefined, {
-            onError: (error) => toast.error(getNotificationErrorMessage(error)),
+            onError: (error) => toast.error(getErrorMessage(error)),
         });
     };
 
@@ -285,16 +278,20 @@ export function NotificationMenu() {
                 }
             >
                 <Bell className="size-5" />
-                {badgeCount > 0 && (
+                {badgeCount > 0 ? (
                     <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
                         {badgeCount > 99 ? "99+" : badgeCount}
                     </span>
+                ) : (
+                    checklist.length > 0 && (
+                        <span className="absolute top-1.5 right-1.5 w-1.75 h-1.75 rounded-full bg-red-600" />
+                    )
                 )}
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
                 align="end"
-                className="w-80 overflow-hidden p-0"
+                className="w-80 overflow-y-auto p-0"
             >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold tracking-wide">การแจ้งเตือน</p>

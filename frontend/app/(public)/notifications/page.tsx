@@ -2,22 +2,18 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useNotifications } from "@/lib/notification/queries/useNotifications";
 import { useUnreadNotificationCount } from "@/lib/notification/queries/useUnreadNotificationCount";
 import { useMarkAllNotificationsRead } from "@/lib/notification/mutations/useMarkAllNotificationsRead";
+import { useRequireAuth } from "@/lib/auth/guards/useRequireAuth";
+import { getErrorMessage } from "@/lib/api-error";
+import { routes } from "@/lib/routes";
 import { NotificationList } from "./_components/notification-list";
 
 const PER_PAGE = 15;
-
-function getErrorMessage(error: unknown): string {
-  const message = isAxiosError(error)
-    ? (error.response?.data as { message?: string } | undefined)?.message
-    : undefined;
-  return message ?? "ดำเนินการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 export default function NotificationsPage() {
   return (
@@ -30,6 +26,7 @@ export default function NotificationsPage() {
 function NotificationsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isChecking } = useRequireAuth();
   const page = Math.max(1, Number(searchParams.get("page")) || 1);
 
   const { data, isPending, isError, refetch } = useNotifications(page, PER_PAGE);
@@ -44,7 +41,7 @@ function NotificationsPageContent() {
       params.set("page", String(next));
     }
     const query = params.toString();
-    router.replace(query ? `/notifications?${query}` : "/notifications", { scroll: false });
+    router.replace(query ? `${routes.notifications}?${query}` : routes.notifications, { scroll: false });
   };
 
   const handleMarkAllRead = () => {
@@ -52,6 +49,14 @@ function NotificationsPageContent() {
       onError: (error) => toast.error(getErrorMessage(error)),
     });
   };
+
+  if (isChecking) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner className="size-6" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8">

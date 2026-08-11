@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, type LucideIcon } from "lucide-react";
+import { Bell, CheckCircle2, XCircle, type LucideIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
 import { routes } from "@/lib/routes";
@@ -33,6 +33,20 @@ export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
   },
 };
 
+const FALLBACK_NOTIFICATION_META: NotificationMeta = {
+  icon: Bell,
+  tone: "success",
+  href: routes.notifications,
+};
+
+export function getNotificationMeta(type: NotificationType): NotificationMeta {
+  return NOTIFICATION_META[type] ?? FALLBACK_NOTIFICATION_META;
+}
+
 export function formatNotificationTime(iso: string): string {
-  return formatDistanceToNow(new Date(iso), { addSuffix: true, locale: th });
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return formatDistanceToNow(date, { addSuffix: true, locale: th });
 }

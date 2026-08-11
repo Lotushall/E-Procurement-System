@@ -1,3 +1,6 @@
+// These four endpoints are a designed-but-not-yet-implemented backend contract.
+// See docs/superpowers/specs/2026-08-11-notification-center-design.md.
+// Requests will fail until the backend read-side API plan ships.
 import { api } from "@/lib/api";
 import type { PaginatedNotifications } from "@/lib/notification/types";
 

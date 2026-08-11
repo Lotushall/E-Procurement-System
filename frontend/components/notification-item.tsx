@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
-import { NOTIFICATION_META, formatNotificationTime } from "@/lib/notification/utils";
+import { getNotificationMeta, formatNotificationTime } from "@/lib/notification/utils";
 import type { NotificationItem } from "@/lib/notification/types";
 
 export function NotificationBody({ notification }: { notification: NotificationItem }) {
-  const meta = NOTIFICATION_META[notification.type];
+  const meta = getNotificationMeta(notification.type);
   const Icon = meta.icon;
 
   return (
