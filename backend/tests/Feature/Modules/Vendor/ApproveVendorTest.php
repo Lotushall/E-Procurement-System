@@ -2,7 +2,9 @@
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Modules\Vendor\Infrastructure\Notifications\VendorProfileApprovedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -49,4 +51,20 @@ test('a vendor user cannot approve a vendor', function () {
     $response = $this->postJson("/api/v1/vendors/{$profile->id}/approve");
 
     $response->assertStatus(403);
+});
+
+test('approving a vendor without send_email skips the mail channel', function () {
+    Notification::fake();
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $profile = VendorProfiles::factory()->create();
+
+    $this->actingAs($internalUser, 'web');
+
+    $this->postJson("/api/v1/vendors/{$profile->id}/approve", ['send_email' => false]);
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorProfileApprovedNotification::class,
+        fn ($notification, $channels) => $channels === ['database']
+    );
 });
