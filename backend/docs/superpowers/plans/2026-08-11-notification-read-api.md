@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a read-side REST API to `App\Modules\Notification` — list notifications, unread count, mark one/all as read — so the frontend can render a notification bell/dropdown for the logged-in user.
+**Goal:** Add a read-side REST API to `App\Modules\Notification` — list notifications, unread count, mark one/all as read — matching the exact contract a sibling frontend session already implemented against (`frontend/lib/notification/api.ts`, `frontend/docs/superpowers/specs/2026-08-11-notification-center-design.md`).
 
 **Architecture:** New `Application` layer (2 Queries + 2 UseCases) operates on the `User` model's existing `Notifiable` trait relations (`notifications()`/`unreadNotifications()`) — no new repository abstraction. New `Presentation` layer (Controller + FormRequest + Resource) exposes 4 endpoints under `/api/v1/notifications`, mounted in the existing `auth` middleware group alongside vendor routes.
 
@@ -12,9 +12,15 @@
 
 - Every endpoint requires authentication (`auth` middleware) — unauthenticated requests get 401.
 - Every endpoint is scoped to the logged-in user's own notifications only. Mark-as-read on a notification belonging to another user returns 404 (not 403) — achieved by scoping the lookup through `$user->notifications()`, never a global `DatabaseNotification::find()`.
-- List endpoint: page-based pagination (`?page=&per_page=`), default `per_page` 20, max 100 — same shape as `ListVendorProfilesQuery`.
+- **Response shapes are a fixed external contract already consumed by frontend code — copy them exactly, do not "improve" or Laravel-default them:**
+  - `GET /notifications` → `{ "data": [{ "id", "type", "message", "readAt", "createdAt" }], "meta": { "currentPage", "lastPage", "perPage", "total" } }` — `meta` keys are **camelCase**, item fields are **flat** (no nested `data` object), `readAt`/`createdAt` are **camelCase**. Do NOT use Laravel's default paginated-resource auto-response (it produces snake_case `current_page` etc. plus a `links` key) — build the response array explicitly in the controller.
+  - `GET /notifications/unread-count` → `{ "data": { "count": n } }` — wrapped one level deeper than you'd expect.
+  - `PATCH /notifications/{id}/read` → **204 No Content**, no body.
+  - `PATCH /notifications/read-all` → **204 No Content**, no body.
+  - These are `PATCH`, not `POST`.
+- List endpoint: page-based pagination (`?page=&per_page=`), default `per_page` 20, max 100.
 - List endpoint: optional `?status=unread|read` filter. No other status values are valid.
-- No delete/dismiss endpoint. No single-notification "show" endpoint. No frontend work. No changes to `NotificationServiceProvider` (nothing new needs binding).
+- No delete/dismiss endpoint. No single-notification "show" endpoint. No frontend work (already done in a separate session). No changes to `NotificationServiceProvider` (nothing new needs binding).
 - All Application-layer methods take `int $userId` (not a `User` instance), matching `GetVendorProfileQuery::execute(int $userId)`.
 
 ---
@@ -33,12 +39,11 @@
 
 **Interfaces:**
 - Consumes: `App\Modules\User\Infrastructure\Models\User` (existing, has `Notifiable` trait → `notifications()`, `unreadNotifications()` relations).
-- Produces:
+- Produces (consumed directly by Task 2's controller):
   - `ListNotificationsQuery::execute(int $userId, ?string $status = null, ?int $page = null, ?int $perPage = null): Illuminate\Pagination\LengthAwarePaginator`
   - `CountUnreadNotificationsQuery::execute(int $userId): int`
-  - `MarkNotificationAsReadUseCase::execute(int $userId, string $notificationId): Illuminate\Notifications\DatabaseNotification`
+  - `MarkNotificationAsReadUseCase::execute(int $userId, string $notificationId): void`
   - `MarkAllNotificationsAsReadUseCase::execute(int $userId): void`
-  - These four signatures are consumed directly by Task 2's controller.
 
 - [ ] **Step 1: Write the failing tests for `ListNotificationsQuery`**
 
@@ -361,22 +366,21 @@ Create `app/Modules/Notification/Application/UseCases/MarkNotificationAsReadUseC
 namespace App\Modules\Notification\Application\UseCases;
 
 use App\Modules\User\Infrastructure\Models\User;
-use Illuminate\Notifications\DatabaseNotification;
 
 final class MarkNotificationAsReadUseCase
 {
-    public function execute(int $userId, string $notificationId): DatabaseNotification
+    public function execute(int $userId, string $notificationId): void
     {
         $notification = User::query()->findOrFail($userId)
             ->notifications()
             ->findOrFail($notificationId);
 
         $notification->markAsRead();
-
-        return $notification;
     }
 }
 ```
+
+Returns `void` — the HTTP endpoint that calls this (Task 2) responds 204 No Content, so there is no caller that needs the notification object back.
 
 - [ ] **Step 14: Run the test to verify it passes**
 
@@ -501,8 +505,10 @@ git commit -m "feat(notification): add MarkAllNotificationsAsReadUseCase"
 - Test: `tests/Feature/Modules/Notification/MarkAllNotificationsAsReadTest.php`
 
 **Interfaces:**
-- Consumes (from Task 1): `ListNotificationsQuery::execute(int $userId, ?string $status, ?int $page, ?int $perPage): LengthAwarePaginator`, `CountUnreadNotificationsQuery::execute(int $userId): int`, `MarkNotificationAsReadUseCase::execute(int $userId, string $notificationId): DatabaseNotification`, `MarkAllNotificationsAsReadUseCase::execute(int $userId): void`.
-- Produces: HTTP routes `GET /api/v1/notifications`, `GET /api/v1/notifications/unread-count`, `POST /api/v1/notifications/{id}/read`, `POST /api/v1/notifications/read-all` — final, nothing downstream consumes these in this plan.
+- Consumes (from Task 1): `ListNotificationsQuery::execute(int $userId, ?string $status, ?int $page, ?int $perPage): LengthAwarePaginator`, `CountUnreadNotificationsQuery::execute(int $userId): int`, `MarkNotificationAsReadUseCase::execute(int $userId, string $notificationId): void`, `MarkAllNotificationsAsReadUseCase::execute(int $userId): void`.
+- Produces: HTTP routes `GET /api/v1/notifications`, `GET /api/v1/notifications/unread-count`, `PATCH /api/v1/notifications/{id}/read`, `PATCH /api/v1/notifications/read-all` — final, nothing downstream in this backend repo consumes these; a sibling frontend session (`frontend/lib/notification/api.ts`) already consumes exactly this contract.
+
+**This task's response shapes are an external contract already relied upon by shipped frontend code — see Global Constraints above. Do not deviate from the exact JSON shapes, field casing, HTTP methods, or status codes shown in the code blocks below.**
 
 - [ ] **Step 1: Write the failing test for listing notifications**
 
@@ -549,8 +555,13 @@ test('a user can list their own notifications', function () {
 
     $response->assertOk()
         ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.data.message', 'test notification')
-        ->assertJsonPath('data.0.read_at', null);
+        ->assertJsonPath('data.0.type', 'test_event')
+        ->assertJsonPath('data.0.message', 'test notification')
+        ->assertJsonPath('data.0.readAt', null)
+        ->assertJsonStructure([
+            'data' => [['id', 'type', 'message', 'readAt', 'createdAt']],
+            'meta' => ['currentPage', 'lastPage', 'perPage', 'total'],
+        ]);
 });
 
 test('a user only sees their own notifications', function () {
@@ -577,12 +588,25 @@ test('listing notifications filters by unread status', function () {
 
     $response->assertOk()->assertJsonCount(1, 'data');
 });
+
+test('listing notifications returns camelCase pagination meta', function () {
+    $user = User::factory()->create();
+    collect(range(1, 3))->each(fn () => $user->notify(fakeApiNotification()));
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->getJson('/api/v1/notifications?page=1&per_page=2');
+
+    $response->assertOk()->assertJson([
+        'meta' => ['currentPage' => 1, 'lastPage' => 2, 'perPage' => 2, 'total' => 3],
+    ]);
+});
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
 
 Run: `php artisan test tests/Feature/Modules/Notification/ListNotificationsTest.php --compact`
-Expected: FAIL (4 tests) — the route doesn't exist yet, so every request 404s; even the "requires authentication" test fails because it asserts 401, not 404
+Expected: FAIL (5 tests) — the route doesn't exist yet, so every request 404s; even the "requires authentication" test fails because it asserts 401, not 404
 
 - [ ] **Step 3: Implement `ListNotificationsRequest`, `NotificationResource`, the controller's `index()` action, and the route**
 
@@ -633,13 +657,16 @@ class NotificationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'data' => $this->data,
-            'read_at' => $this->read_at?->toIso8601String(),
-            'created_at' => $this->created_at?->toIso8601String(),
+            'type' => $this->data['type'],
+            'message' => $this->data['message'],
+            'readAt' => $this->read_at?->toIso8601String(),
+            'createdAt' => $this->created_at?->toIso8601String(),
         ];
     }
 }
 ```
+
+Note the flat `type`/`message` fields (read out of the `data` json blob) and **camelCase** `readAt`/`createdAt` — this is the exact `NotificationItem` shape frontend's `frontend/lib/notification/types.ts` already expects.
 
 Create `app/Modules/Notification/Presentation/Http/Controllers/NotificationController.php`:
 
@@ -669,10 +696,20 @@ class NotificationController extends Controller
             perPage: $request->validated('per_page'),
         );
 
-        return NotificationResource::collection($notifications->withQueryString())->response();
+        return response()->json([
+            'data' => NotificationResource::collection($notifications->getCollection()),
+            'meta' => [
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                'perPage' => $notifications->perPage(),
+                'total' => $notifications->total(),
+            ],
+        ]);
     }
 }
 ```
+
+The response is built explicitly (not `NotificationResource::collection($paginator)->response()`) because Laravel's automatic paginated-resource response produces snake_case `current_page`/`last_page`/`per_page` plus a `links` key — the frontend contract requires camelCase `currentPage`/`lastPage`/`perPage`/`total` and nothing else in `meta`.
 
 Create `routes/api/v1/notification.php`:
 
@@ -709,7 +746,7 @@ Route::prefix('v1')->group(function () {
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `php artisan test tests/Feature/Modules/Notification/ListNotificationsTest.php --compact`
-Expected: PASS (4 tests)
+Expected: PASS (5 tests)
 
 - [ ] **Step 5: Commit**
 
@@ -764,9 +801,11 @@ test('unread count only reflects the current user notifications', function () {
 
     $response = $this->getJson('/api/v1/notifications/unread-count');
 
-    $response->assertOk()->assertJson(['count' => 1]);
+    $response->assertOk()->assertJson(['data' => ['count' => 1]]);
 });
 ```
+
+Note the `{ "data": { "count": n } }` shape — wrapped one level deeper than the list endpoint.
 
 - [ ] **Step 7: Run the test to verify it fails**
 
@@ -806,13 +845,21 @@ class NotificationController extends Controller
             perPage: $request->validated('per_page'),
         );
 
-        return NotificationResource::collection($notifications->withQueryString())->response();
+        return response()->json([
+            'data' => NotificationResource::collection($notifications->getCollection()),
+            'meta' => [
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                'perPage' => $notifications->perPage(),
+                'total' => $notifications->total(),
+            ],
+        ]);
     }
 
     public function unreadCount(Request $request): JsonResponse
     {
         return response()->json([
-            'count' => $this->countUnreadNotifications->execute($request->user()->id),
+            'data' => ['count' => $this->countUnreadNotifications->execute($request->user()->id)],
         ]);
     }
 }
@@ -875,7 +922,7 @@ function fakeApiNotification(): Notification
 }
 
 test('marking a notification as read requires authentication', function () {
-    $response = $this->postJson('/api/v1/notifications/'.Str::uuid().'/read');
+    $response = $this->patchJson('/api/v1/notifications/'.Str::uuid().'/read');
 
     $response->assertStatus(401);
 });
@@ -887,10 +934,9 @@ test('a user can mark their own notification as read', function () {
 
     $this->actingAs($user, 'web');
 
-    $response = $this->postJson("/api/v1/notifications/{$notification->id}/read");
+    $response = $this->patchJson("/api/v1/notifications/{$notification->id}/read");
 
-    $response->assertOk()->assertJsonPath('data.id', $notification->id);
-
+    $response->assertNoContent();
     expect($notification->fresh()->read_at)->not->toBeNull();
 });
 
@@ -902,7 +948,7 @@ test('a user cannot mark another user notification as read', function () {
 
     $this->actingAs($user, 'web');
 
-    $response = $this->postJson("/api/v1/notifications/{$notification->id}/read");
+    $response = $this->patchJson("/api/v1/notifications/{$notification->id}/read");
 
     $response->assertStatus(404);
     expect($notification->fresh()->read_at)->toBeNull();
@@ -912,11 +958,13 @@ test('marking a nonexistent notification as read returns 404', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'web');
 
-    $response = $this->postJson('/api/v1/notifications/'.Str::uuid().'/read');
+    $response = $this->patchJson('/api/v1/notifications/'.Str::uuid().'/read');
 
     $response->assertStatus(404);
 });
 ```
+
+Note `patchJson`, not `postJson` — the route is `PATCH`. `assertNoContent()` asserts HTTP 204 with an empty body.
 
 - [ ] **Step 12: Run the test to verify it fails**
 
@@ -940,6 +988,7 @@ use App\Modules\Notification\Presentation\Http\Requests\ListNotificationsRequest
 use App\Modules\Notification\Presentation\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class NotificationController extends Controller
 {
@@ -958,23 +1007,29 @@ class NotificationController extends Controller
             perPage: $request->validated('per_page'),
         );
 
-        return NotificationResource::collection($notifications->withQueryString())->response();
+        return response()->json([
+            'data' => NotificationResource::collection($notifications->getCollection()),
+            'meta' => [
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                'perPage' => $notifications->perPage(),
+                'total' => $notifications->total(),
+            ],
+        ]);
     }
 
     public function unreadCount(Request $request): JsonResponse
     {
         return response()->json([
-            'count' => $this->countUnreadNotifications->execute($request->user()->id),
+            'data' => ['count' => $this->countUnreadNotifications->execute($request->user()->id)],
         ]);
     }
 
-    public function markAsRead(Request $request, string $id): JsonResponse
+    public function markAsRead(Request $request, string $id): Response
     {
-        $notification = $this->markNotificationAsRead->execute($request->user()->id, $id);
+        $this->markNotificationAsRead->execute($request->user()->id, $id);
 
-        return response()->json([
-            'data' => new NotificationResource($notification),
-        ]);
+        return response()->noContent();
     }
 }
 ```
@@ -990,9 +1045,11 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-    Route::post('{id}/read', [NotificationController::class, 'markAsRead'])->whereUuid('id')->name('notifications.read');
+    Route::patch('{id}/read', [NotificationController::class, 'markAsRead'])->whereUuid('id')->name('notifications.read');
 });
 ```
+
+Note `Route::patch`, not `Route::post`.
 
 - [ ] **Step 14: Run the test to verify it passes**
 
@@ -1003,7 +1060,7 @@ Expected: PASS (4 tests)
 
 ```bash
 git add app/Modules/Notification/Presentation/Http/Controllers/NotificationController.php routes/api/v1/notification.php tests/Feature/Modules/Notification/MarkNotificationAsReadTest.php
-git commit -m "feat(notification): add POST /notifications/{id}/read endpoint"
+git commit -m "feat(notification): add PATCH /notifications/{id}/read endpoint"
 ```
 
 - [ ] **Step 16: Write the failing test for marking all notifications as read**
@@ -1036,7 +1093,7 @@ function fakeApiNotification(): Notification
 }
 
 test('marking all notifications as read requires authentication', function () {
-    $response = $this->postJson('/api/v1/notifications/read-all');
+    $response = $this->patchJson('/api/v1/notifications/read-all');
 
     $response->assertStatus(401);
 });
@@ -1048,9 +1105,9 @@ test('a user can mark all their notifications as read', function () {
 
     $this->actingAs($user, 'web');
 
-    $response = $this->postJson('/api/v1/notifications/read-all');
+    $response = $this->patchJson('/api/v1/notifications/read-all');
 
-    $response->assertOk();
+    $response->assertNoContent();
     expect($user->unreadNotifications()->count())->toBe(0);
 });
 
@@ -1061,7 +1118,7 @@ test('marking all as read does not affect another user notifications', function 
 
     $this->actingAs($user, 'web');
 
-    $this->postJson('/api/v1/notifications/read-all');
+    $this->patchJson('/api/v1/notifications/read-all');
 
     expect($otherUser->unreadNotifications()->count())->toBe(1);
 });
@@ -1090,6 +1147,7 @@ use App\Modules\Notification\Presentation\Http\Requests\ListNotificationsRequest
 use App\Modules\Notification\Presentation\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class NotificationController extends Controller
 {
@@ -1109,30 +1167,36 @@ class NotificationController extends Controller
             perPage: $request->validated('per_page'),
         );
 
-        return NotificationResource::collection($notifications->withQueryString())->response();
+        return response()->json([
+            'data' => NotificationResource::collection($notifications->getCollection()),
+            'meta' => [
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                'perPage' => $notifications->perPage(),
+                'total' => $notifications->total(),
+            ],
+        ]);
     }
 
     public function unreadCount(Request $request): JsonResponse
     {
         return response()->json([
-            'count' => $this->countUnreadNotifications->execute($request->user()->id),
+            'data' => ['count' => $this->countUnreadNotifications->execute($request->user()->id)],
         ]);
     }
 
-    public function markAsRead(Request $request, string $id): JsonResponse
+    public function markAsRead(Request $request, string $id): Response
     {
-        $notification = $this->markNotificationAsRead->execute($request->user()->id, $id);
+        $this->markNotificationAsRead->execute($request->user()->id, $id);
 
-        return response()->json([
-            'data' => new NotificationResource($notification),
-        ]);
+        return response()->noContent();
     }
 
-    public function markAllAsRead(Request $request): JsonResponse
+    public function markAllAsRead(Request $request): Response
     {
         $this->markAllNotificationsAsRead->execute($request->user()->id);
 
-        return response()->json(['message' => 'อ่านการแจ้งเตือนทั้งหมดแล้ว']);
+        return response()->noContent();
     }
 }
 ```
@@ -1148,8 +1212,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-    Route::post('{id}/read', [NotificationController::class, 'markAsRead'])->whereUuid('id')->name('notifications.read');
-    Route::post('read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::patch('{id}/read', [NotificationController::class, 'markAsRead'])->whereUuid('id')->name('notifications.read');
+    Route::patch('read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 });
 ```
 
@@ -1161,11 +1225,11 @@ Expected: PASS (3 tests)
 - [ ] **Step 20: Run the full test suite to confirm no regressions**
 
 Run: `php artisan test --compact`
-Expected: Same baseline as before this plan (341 tests, 336 passed, 5 pre-existing unrelated failures) plus all new tests from Task 1 and Task 2 passing — total new tests: 12 (Task 1) + 13 (Task 2) = 25 new passing tests.
+Expected: Same baseline as before this plan (341 tests, 336 passed, 5 pre-existing unrelated failures) plus all new tests from Task 1 and Task 2 passing — total new tests: 12 (Task 1) + 14 (Task 2) = 26 new passing tests.
 
 - [ ] **Step 21: Commit**
 
 ```bash
 git add app/Modules/Notification/Presentation/Http/Controllers/NotificationController.php routes/api/v1/notification.php tests/Feature/Modules/Notification/MarkAllNotificationsAsReadTest.php
-git commit -m "feat(notification): add POST /notifications/read-all endpoint"
+git commit -m "feat(notification): add PATCH /notifications/read-all endpoint"
 ```

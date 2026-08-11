@@ -16,16 +16,67 @@ API เพื่อดึงรายการ notification ของ user ท�
 Eloquent relation ที่ `Notifiable` trait (มีอยู่แล้วบน `User` model) ให้มาฟรี ๆ
 (`notifications()`/`unreadNotifications()`) ไม่ต้องสร้าง repository abstraction ใหม่
 
+**สำคัญ — API contract นี้ต้องตรงกับที่ frontend implement ไปแล้ว:** session คู่ขนานฝั่ง frontend
+implement `frontend/lib/notification/` (dropdown ในกระดิ่ง + หน้า `/notifications`) เสร็จแล้วจริงตาม
+contract ที่ออกแบบล่วงหน้าไว้ใน `frontend/docs/superpowers/specs/2026-08-11-notification-center-design.md`
+(ดู "API contract ที่ต้องการจาก backend" ในไฟล์นั้น) — งานนี้ implement backend ให้ตรงกับ contract นั้น
+เป๊ะ ๆ ไม่ใช่ออกแบบ endpoint shape เองใหม่ ค่า field/casing/HTTP method/status code ทุกตัวด้านล่างคัดลอกมา
+จาก contract ที่ frontend ใช้งานจริงอยู่แล้ว (`frontend/lib/notification/api.ts`,
+`frontend/lib/notification/types.ts`)
+
 ## ขอบเขต (ยืนยันกับ user แล้ว)
 
 - 4 endpoint: list (paginate), unread count, mark หนึ่งรายการว่าอ่านแล้ว, mark ทั้งหมดว่าอ่านแล้ว
 - **ไม่ทำ** endpoint ลบ/ซ่อน notification — ไม่ได้ร้องขอ
 - **ไม่ทำ** endpoint ดู notification เดียว (show) — ไม่ได้ร้องขอ
-- list endpoint pagination แบบ page-based เหมือน `ListVendorProfilesQuery` (`?page=&per_page=`)
-- list endpoint กรองอ่าน/ยังไม่อ่านได้ผ่าน `?status=unread|read`
+- list endpoint pagination แบบ page-based (`?page=&per_page=`)
+- list endpoint กรองอ่าน/ยังไม่อ่านได้ผ่าน `?status=unread|read` (frontend ยังไม่ใช้ query param นี้ตอนนี้
+  แต่เป็น superset ที่ backward-compatible กับ contract เดิม — เพิ่ม parameter ที่ไม่ระบุใน list response
+  ก็ยังตรง contract เพราะ default ไม่กรองอะไรเลย เหมือนพฤติกรรมเดิมที่ frontend คาดหวัง)
 - ทุก endpoint scope เฉพาะ notification ของ user ที่ login อยู่เท่านั้น (ทั้ง vendor และ internal user ใช้
   endpoint เดียวกันได้ — ไม่ผูกกับ user type ใด) — mark-as-read ต้อง 404 ถ้า id ไม่ใช่ของ user นั้น (กัน IDOR)
-- ไม่ทำ frontend ใด ๆ ในงานนี้
+- ไม่ทำ frontend ใด ๆ ในงานนี้ (ทำไปแล้วในอีก session)
+
+## API contract (คัดลอกจาก `frontend/lib/notification/api.ts` และ
+`frontend/lib/notification/types.ts` ตรง ๆ)
+
+Auth เดิม (Sanctum cookie, `auth` middleware) — ทุก endpoint ผูกกับ user ที่ login โดยไม่ต้องรับ id มาเอง
+
+**`GET /api/v1/notifications?page=1&per_page=10`** → 200
+```jsonc
+{
+  "data": [
+    {
+      "id": "uuid",
+      "type": "vendor_document_rejected",
+      "message": "เอกสาร...ของคุณถูกปฏิเสธ: ...",
+      "readAt": null,
+      "createdAt": "2026-08-11T09:00:00Z"
+    }
+  ],
+  "meta": { "currentPage": 1, "lastPage": 3, "perPage": 10, "total": 25 }
+}
+```
+`meta` เป็น **camelCase ตรงตัว** (ไม่ใช่ Laravel default pagination meta ที่เป็น `current_page` ฯลฯ) —
+ต้อง build response array เองในคอนโทรลเลอร์ ไม่ใช้ `LengthAwarePaginator`/`ResourceCollection` auto-response
+ตรง ๆ เพราะ Laravel จะได้ `current_page`/`last_page`/`per_page`/`total` แบบ snake_case บวก `links` ที่ไม่
+ตรง contract นี้
+
+แต่ละ item เป็น field **แบนราบ** `id`/`type`/`message`/`readAt`/`createdAt` — ไม่ใช่ `data: {...}` ห่อ
+`type`/`message` ไว้ข้างใน, ไม่ส่ง `document_type`/`remark` แยก เพราะ `message` ที่ backend compose ไว้แล้ว
+ใน `toDatabase()` ของแต่ละ notification class รวมข้อความที่ต้องแสดงครบแล้ว (frontend map เฉพาะ `type` ไป
+ไอคอน/สี/ลิงก์เอง ไม่ต้องใช้ field อื่น)
+
+**`GET /api/v1/notifications/unread-count`** → 200
+```jsonc
+{ "data": { "count": 3 } }
+```
+(ห่อด้วย `data` อีกชั้น ต่างจาก list ที่ `data` เป็น array ตรง ๆ)
+
+**`PATCH /api/v1/notifications/{id}/read`** → **204 No Content** (ไม่มี response body — frontend เป็น
+optimistic update, ไม่อ่าน response)
+
+**`PATCH /api/v1/notifications/read-all`** → **204 No Content**
 
 ## Application layer — `App\Modules\Notification\Application`
 
@@ -96,19 +147,16 @@ final class CountUnreadNotificationsQuery
 namespace App\Modules\Notification\Application\UseCases;
 
 use App\Modules\User\Infrastructure\Models\User;
-use Illuminate\Notifications\DatabaseNotification;
 
 final class MarkNotificationAsReadUseCase
 {
-    public function execute(int $userId, string $notificationId): DatabaseNotification
+    public function execute(int $userId, string $notificationId): void
     {
         $notification = User::query()->findOrFail($userId)
             ->notifications()
             ->findOrFail($notificationId);
 
         $notification->markAsRead();
-
-        return $notification;
     }
 }
 ```
@@ -116,7 +164,8 @@ final class MarkNotificationAsReadUseCase
 `notifications()->findOrFail($notificationId)` scope query ด้วย `notifiable_id`/`notifiable_type` ของ
 user นั้นอยู่แล้ว (เป็น `MorphMany` relation) — id ของ notification ที่ไม่ใช่ของ user คนนี้จะไม่เจอ ได้
 `ModelNotFoundException` → 404 อัตโนมัติ (global JSON exception handler ใน `bootstrap/app.php` มีอยู่แล้ว
-ไม่ต้อง try/catch เพิ่ม)
+ไม่ต้อง try/catch เพิ่ม) — คืนค่า `void` เพราะ endpoint ที่เรียกใช้คืน 204 No Content ไม่มี response body
+ให้ serialize
 
 ### `UseCases/MarkAllNotificationsAsReadUseCase.php`
 
@@ -192,21 +241,20 @@ class NotificationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'data' => $this->data,
-            'read_at' => $this->read_at?->toIso8601String(),
-            'created_at' => $this->created_at?->toIso8601String(),
+            'type' => $this->data['type'],
+            'message' => $this->data['message'],
+            'readAt' => $this->read_at?->toIso8601String(),
+            'createdAt' => $this->created_at?->toIso8601String(),
         ];
     }
 }
 ```
 
-`read_at` **ไม่ใช้** `whenNotNull` (ต่างจาก `VendorProfileResource` บาง field) เพราะ key ต้องอยู่เสมอให้
-frontend เช็ค `null` เพื่อรู้สถานะยังไม่อ่านได้ตรง ๆ — ถ้าใช้ `whenNotNull` key จะหายไปทั้ง key เวลายังไม่อ่าน
-
-`data` ส่งค่าดิบจาก `toDatabase()` ของแต่ละ notification class ตรง ๆ (cast เป็น `array` อยู่แล้วโดย
-`Illuminate\Notifications\DatabaseNotification`) มี `type`/`message` เสมอ บวก key เฉพาะ event
-(`remark`, `document_type`) — ไม่ normalize เพิ่ม เพราะทุก notification class ของ Vendor ที่มีอยู่ตอนนี้
-ส่ง `type`/`message` มาให้แล้วอย่างสม่ำเสมอ
+Flat `type`/`message` อ่านจาก `data` json blob (cast เป็น `array` อยู่แล้วโดย
+`Illuminate\Notifications\DatabaseNotification`) — ทุก notification class ของ Vendor ที่มีอยู่ตอนนี้ส่ง
+`type`/`message` มาให้ครบเสมอใน `toDatabase()` **ไม่ส่ง** `document_type`/`remark` ต่อ เพราะ contract
+frontend ไม่ใช้ field พวกนี้ (`message` compose ข้อความเต็มไว้ให้แล้ว) `readAt`/`createdAt` เป็น camelCase
+ตรงตาม `NotificationItem` type ฝั่ง frontend
 
 ### `Http\Controllers\NotificationController.php`
 
@@ -224,6 +272,7 @@ use App\Modules\Notification\Presentation\Http\Requests\ListNotificationsRequest
 use App\Modules\Notification\Presentation\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class NotificationController extends Controller
 {
@@ -243,30 +292,36 @@ class NotificationController extends Controller
             perPage: $request->validated('per_page'),
         );
 
-        return NotificationResource::collection($notifications->withQueryString())->response();
+        return response()->json([
+            'data' => NotificationResource::collection($notifications->getCollection()),
+            'meta' => [
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                'perPage' => $notifications->perPage(),
+                'total' => $notifications->total(),
+            ],
+        ]);
     }
 
     public function unreadCount(Request $request): JsonResponse
     {
         return response()->json([
-            'count' => $this->countUnreadNotifications->execute($request->user()->id),
+            'data' => ['count' => $this->countUnreadNotifications->execute($request->user()->id)],
         ]);
     }
 
-    public function markAsRead(Request $request, string $id): JsonResponse
+    public function markAsRead(Request $request, string $id): Response
     {
-        $notification = $this->markNotificationAsRead->execute($request->user()->id, $id);
+        $this->markNotificationAsRead->execute($request->user()->id, $id);
 
-        return response()->json([
-            'data' => new NotificationResource($notification),
-        ]);
+        return response()->noContent();
     }
 
-    public function markAllAsRead(Request $request): JsonResponse
+    public function markAllAsRead(Request $request): Response
     {
         $this->markAllNotificationsAsRead->execute($request->user()->id);
 
-        return response()->json(['message' => 'อ่านการแจ้งเตือนทั้งหมดแล้ว']);
+        return response()->noContent();
     }
 }
 ```
@@ -282,13 +337,14 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-    Route::post('{id}/read', [NotificationController::class, 'markAsRead'])->whereUuid('id')->name('notifications.read');
-    Route::post('read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::patch('{id}/read', [NotificationController::class, 'markAsRead'])->whereUuid('id')->name('notifications.read');
+    Route::patch('read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 });
 ```
 
 `{id}` เป็น UUID (primary key ของตาราง `notifications`) ต่างจาก vendor routes ที่ใช้ `whereNumber` —
-`whereUuid()` เป็น route constraint helper ที่มีอยู่แล้วใน Laravel 13
+`whereUuid()` เป็น route constraint helper ที่มีอยู่แล้วใน Laravel 13 **`PATCH`** ไม่ใช่ `POST` ตรงตาม
+contract ที่ frontend เรียกด้วย `api.patch(...)`
 
 `routes/api.php` (ไฟล์ที่ require route ย่อยทั้งหมด) เพิ่ม require ไฟล์นี้ในกลุ่ม `auth` middleware เดิม
 (บรรทัดเดียวกับ `vendor.php`/`dashboard/vendors.php` เพราะ endpoint นี้ใช้ได้กับทุก user type ที่ login
@@ -312,8 +368,8 @@ container ตามปกติ ไม่ต้อง bind อะไรเพิ
 
 - ลบ/ซ่อน notification
 - endpoint ดู notification เดียว (show)
-- Frontend UI ใด ๆ (bell icon, dropdown, badge)
-- Broadcast/real-time (websocket) — ตอนนี้เป็น polling-based ผ่าน REST ธรรมดา
+- Frontend UI ใด ๆ (ทำไปแล้วในอีก session — ดู `frontend/docs/superpowers/specs/2026-08-11-notification-center-design.md`)
+- Broadcast/real-time (websocket) — ตอนนี้เป็น polling-based ผ่าน REST ธรรมดา (frontend poll ทุก 3 นาที)
 
 ## Testing
 
@@ -335,7 +391,9 @@ notification จริงในฐานข้อมูลผ่าน `$user->n
 `MarkNotificationAsReadTest.php`, `MarkAllNotificationsAsReadTest.php`) — ยิง request ผ่าน
 `actingAs($user)`:
 - ต้อง login ก่อนถึงเรียกได้ (401 ถ้าไม่ได้ login) — ตรวจผ่าน middleware `auth` เดิม ไม่ต้องเขียนโค้ดเพิ่ม
-- response shape ตรงตาม `NotificationResource` (`id`, `data`, `read_at`, `created_at`)
+- list/unread-count response shape ตรงตาม contract ด้านบน (`data`/`meta` camelCase, item แบนราบ,
+  unread-count ห่อด้วย `data`)
+- mark-as-read/mark-all-as-read คืน **204 ไม่มี body**, ยืนยันผลจริงจาก DB (ไม่ใช่จาก response)
 - mark-as-read endpoint คืน 404 เมื่อพยายาม mark notification ของ user อื่น
 
 รัน `php artisan test --compact` เต็มชุดหลังแก้เสร็จ เทียบ baseline ปัจจุบัน (341 tests, 336 passed, 5
