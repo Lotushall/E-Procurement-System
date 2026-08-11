@@ -3,7 +3,9 @@
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Modules\Vendor\Infrastructure\Notifications\VendorDocumentRejectedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -53,4 +55,24 @@ test('rejecting a nonexistent vendor document returns 404', function () {
     $response = $this->postJson("/api/v1/vendors/{$profile->id}/documents/99999/reject", ['remark' => 'Blurry image']);
 
     $response->assertStatus(404);
+});
+
+test('rejecting a vendor document without send_email skips the mail channel', function () {
+    Notification::fake();
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+
+    $this->actingAs($internalUser, 'web');
+
+    $this->postJson("/api/v1/vendors/{$profile->id}/documents/{$document->id}/reject", [
+        'remark' => 'Blurry image',
+        'send_email' => false,
+    ]);
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorDocumentRejectedNotification::class,
+        fn ($notification, $channels) => $channels === ['database']
+    );
 });
