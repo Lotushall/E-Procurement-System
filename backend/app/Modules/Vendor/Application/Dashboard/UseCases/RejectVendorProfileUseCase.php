@@ -25,7 +25,10 @@ final class RejectVendorProfileUseCase
         $profile->reject($verifiedBy, $remark);
         $this->vendors->saveProfile($profile);
 
-        $this->notifications->send([$profile->userId()], new VendorProfileRejectedNotification($remark, $sendEmail));
+        $this->notifications->send(
+            [$profile->userId()],
+            new VendorProfileRejectedNotification($profile->remark() ?? $remark, $sendEmail)
+        );
 
         app_log('Vendor profile rejected', [
             'vendor_profile_id' => $vendorProfileId,

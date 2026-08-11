@@ -35,7 +35,7 @@ final class RejectVendorDocumentUseCase
 
         $this->notifications->send(
             [$profile->userId()],
-            new VendorDocumentRejectedNotification($document->documentType(), $remark, $sendEmail)
+            new VendorDocumentRejectedNotification($document->documentType(), $document->remark() ?? $remark, $sendEmail)
         );
 
         app_log('Vendor document rejected', [

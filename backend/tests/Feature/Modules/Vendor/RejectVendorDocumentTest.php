@@ -76,3 +76,20 @@ test('rejecting a vendor document without send_email skips the mail channel', fu
         fn ($notification, $channels) => $channels === ['database']
     );
 });
+
+test('rejecting a vendor document without specifying send_email defaults to sending mail', function () {
+    Notification::fake();
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+
+    $this->actingAs($internalUser, 'web');
+
+    $this->postJson("/api/v1/vendors/{$profile->id}/documents/{$document->id}/reject", ['remark' => 'Blurry image']);
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorDocumentRejectedNotification::class,
+        fn ($notification, $channels) => in_array('mail', $channels, true)
+    );
+});

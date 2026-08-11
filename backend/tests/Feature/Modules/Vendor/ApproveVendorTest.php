@@ -68,3 +68,19 @@ test('approving a vendor without send_email skips the mail channel', function ()
         fn ($notification, $channels) => $channels === ['database']
     );
 });
+
+test('approving a vendor without specifying send_email defaults to sending mail', function () {
+    Notification::fake();
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $profile = VendorProfiles::factory()->create();
+
+    $this->actingAs($internalUser, 'web');
+
+    $this->postJson("/api/v1/vendors/{$profile->id}/approve");
+
+    Notification::assertSentTo(
+        $profile->VendorProfilesUser,
+        VendorProfileApprovedNotification::class,
+        fn ($notification, $channels) => in_array('mail', $channels, true)
+    );
+});
