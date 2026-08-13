@@ -59,6 +59,8 @@ function AuthControl({
 }) {
     const { data: user, isLoading } = useUser();
 
+    console.log(user);
+
     if (isLoading) {
         return variant === "desktop" ? (
             <div className="h-10 w-40 animate-pulse rounded-full bg-gray-300" />
