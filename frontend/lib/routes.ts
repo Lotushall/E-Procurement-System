@@ -23,6 +23,10 @@ export const routes = {
     tor: {
       index: "/dashboard/tor",
     },
+    user: {
+      index: "/dashboard/users",
+      detail: (id: number | string) => `/dashboard/users/detail?id=${id}`,
+    },
   },
   terms: "/terms",
   privacy: "/privacy",
