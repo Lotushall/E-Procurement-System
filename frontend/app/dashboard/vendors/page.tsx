@@ -13,7 +13,7 @@ import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useVendorListPage } from "./_hooks/use-vendor-list-page";
 import { VendorStatsCards, type VendorListFilter } from "./_components/vendor-stats-cards";
 import { VendorListSkeleton, VendorTableSkeleton } from "./_components/vendor-list-skeleton";
-import { DataTable } from "./_components/table/data-table";
+import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./_components/table/columns";
 
 const STATUS_OPTIONS: { value: VendorListFilter; label: string }[] = [
