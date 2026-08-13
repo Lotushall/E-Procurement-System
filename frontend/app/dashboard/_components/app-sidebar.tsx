@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, Store, type LucideIcon } from "lucide-react";
+import { FileText, LayoutDashboard, Store, UserRound, type LucideIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +38,11 @@ const navItems: NavItem[] = [
     href: routes.dashboards.vendors.index,
     label: "ผู้ค้าที่ลงทะเบียน",
     icon: Store,
+  },
+  {
+    href: routes.dashboards.user.index,
+    label: "จัดการผู้ใช้",
+    icon: UserRound,
   },
 ];
 
