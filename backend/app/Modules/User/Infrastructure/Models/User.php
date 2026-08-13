@@ -6,11 +6,15 @@ use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus;
 use App\Modules\User\Infrastructure\Notifications\QueuedResetPassword;
 use App\Modules\User\Infrastructure\Notifications\QueuedVerifyEmail;
+use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
+use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -100,5 +104,72 @@ class User extends Authenticatable implements MustVerifyEmail
     public function UserInternalProfile(): HasOne
     {
         return $this->hasOne(InternalProfiles::class);
+    }
+
+    /**
+     * Scope a query to only include users of the given type.
+     */
+    #[Scope]
+    protected function type(Builder $query, ?string $type): void
+    {
+        $query->when($type !== null, fn (Builder $query) => $query->where('user_type', $type));
+    }
+
+    /**
+     * Scope a query to only include users with the given status.
+     */
+    #[Scope]
+    protected function status(Builder $query, ?string $status): void
+    {
+        $query->when($status !== null, fn (Builder $query) => $query->where('status', $status));
+    }
+
+    /**
+     * Scope a query to users whose username, email, resolved internal name, company
+     * name, or individual store name matches the given search term.
+     */
+    #[Scope]
+    protected function search(Builder $query, ?string $search): void
+    {
+        if ($search === null || trim($search) === '') {
+            return;
+        }
+
+        $term = '%'.$search.'%';
+
+        $query->where(function (Builder $query) use ($term) {
+            $query->where('username', 'like', $term)
+                ->orWhere('email', 'like', $term)
+                ->orWhereIn('id', InternalProfiles::query()
+                    ->where(function (Builder $query) use ($term) {
+                        $query->where('firstname', 'like', $term)
+                            ->orWhere('lastname', 'like', $term);
+                    })
+                    ->select('user_id'))
+                ->orWhereIn('id', VendorProfiles::query()
+                    ->whereIn('id', VendorCompanyDetails::query()
+                        ->where('company_name', 'like', $term)
+                        ->select('vendor_profile_id'))
+                    ->select('user_id'))
+                ->orWhereIn('id', VendorProfiles::query()
+                    ->whereIn('id', VendorIndividualDetails::query()
+                        ->where('store_name', 'like', $term)
+                        ->select('vendor_profile_id'))
+                    ->select('user_id'));
+        });
+    }
+
+    /**
+     * Scope a query to sort by the given whitelisted column (defaults to created_at).
+     */
+    #[Scope]
+    protected function sort(Builder $query, ?string $sortBy, ?string $sortDirection = null): void
+    {
+        $direction = $sortDirection === 'asc' ? 'asc' : 'desc';
+
+        $query->orderBy(
+            in_array($sortBy, ['username', 'email'], true) ? $sortBy : 'created_at',
+            $direction,
+        );
     }
 }
