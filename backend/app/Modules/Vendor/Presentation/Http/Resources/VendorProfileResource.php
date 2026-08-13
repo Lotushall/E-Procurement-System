@@ -38,6 +38,7 @@ class VendorProfileResource extends JsonResource
             'contact' => $this->whenLoaded('VendorProfilesContact', fn () => VendorContactResource::collection($this->VendorProfilesContact)),
             'document' => $this->whenLoaded('VendorProfilesDocuments', fn () => VendorDocumentResource::collection($this->VendorProfilesDocuments)),
             'user' => $this->whenLoaded('VendorProfilesUser', fn () => [
+                'id' => $this->VendorProfilesUser->id,
                 'username' => $this->VendorProfilesUser->username,
                 'email' => $this->VendorProfilesUser->email,
             ]),

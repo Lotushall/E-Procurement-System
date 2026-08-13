@@ -68,6 +68,7 @@ test('an internal user can fetch a vendor profile by id', function () {
         ->assertJsonPath('data.detail.type', 'company')
         ->assertJsonPath('data.detail.companyName', 'Acme Co., Ltd.')
         ->assertJsonPath('data.user.email', 'vendor@example.com')
+        ->assertJsonPath('data.user.id', $companyUser->id)
         ->assertJsonCount(1, 'data.contact')
         ->assertJsonPath('data.contact.0.contactName', 'Jane Doe')
         ->assertJsonCount(1, 'data.document')
