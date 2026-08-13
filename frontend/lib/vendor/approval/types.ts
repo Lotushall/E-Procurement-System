@@ -30,5 +30,5 @@ export type VendorSortBy =
 export type VendorSortDirection = "asc" | "desc";
 
 export interface VendorDetail extends VendorProfile {
-  user: Pick<User, "username" | "email">;
+  user: Pick<User, "id" | "username" | "email">;
 }

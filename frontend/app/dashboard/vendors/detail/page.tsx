@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { VendorDocumentApprovalRow } from "./_components/vendor-document-approva
 import { VendorProfileInfo } from "./_components/vendor-profile-info";
 import { useVendorDetailPage } from "./_hooks/use-vendor-detail-page";
 import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
+import { routes } from "@/lib/routes";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
 
 export default function VendorDetailPage() {
@@ -74,7 +76,17 @@ function VendorDetailContent() {
 
           <div className="flex flex-col gap-0.5">
             <h1 className="text-2xl font-bold">{displayName}</h1>
-            <p className="text-sm text-muted-foreground">{vendor.user?.email}</p>
+            <p className="text-sm text-muted-foreground">
+              {vendor.user?.email}
+              {vendor.user?.id && (
+                <Link
+                  href={routes.dashboards.user.detail(vendor.user.id)}
+                  className="ml-2 text-red-700 hover:underline"
+                >
+                  ดูบัญชีผู้ใช้
+                </Link>
+              )}
+            </p>
           </div>
 
           <div className="flex flex-col gap-0.5">
