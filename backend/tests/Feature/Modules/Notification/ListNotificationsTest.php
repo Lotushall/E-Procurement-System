@@ -84,3 +84,25 @@ test('listing notifications returns camelCase pagination meta', function () {
         'meta' => ['currentPage' => 1, 'lastPage' => 2, 'perPage' => 2, 'total' => 3],
     ]);
 });
+
+test('listing notifications does not crash when a notification is missing the message key', function () {
+    $user = User::factory()->create();
+    $user->notify(new class extends Notification
+    {
+        public function via(object $notifiable): array
+        {
+            return ['database'];
+        }
+
+        public function toArray(object $notifiable): array
+        {
+            return ['type' => 'minimal_event'];
+        }
+    });
+
+    $this->actingAs($user, 'web');
+
+    $response = $this->getJson('/api/v1/notifications');
+
+    $response->assertOk()->assertJsonPath('data.0.message', '');
+});
