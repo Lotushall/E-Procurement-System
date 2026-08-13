@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Modules\User\Application\Queries;
+
+use App\Modules\User\Infrastructure\Models\User;
+
+final class GetUserByIdQuery
+{
+    public function execute(int $id): User
+    {
+        return User::query()
+            ->with([
+                'UserInternalProfile',
+                'UserVendorProfile.VendorProfilesCompanyDetail',
+                'UserVendorProfile.VendorProfilesIndividualDetail',
+            ])
+            ->findOrFail($id);
+    }
+}
