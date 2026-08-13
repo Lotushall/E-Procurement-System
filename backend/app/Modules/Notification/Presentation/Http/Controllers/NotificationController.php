@@ -5,6 +5,7 @@ namespace App\Modules\Notification\Presentation\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Notification\Application\Queries\CountUnreadNotificationsQuery;
 use App\Modules\Notification\Application\Queries\ListNotificationsQuery;
+use App\Modules\Notification\Application\UseCases\MarkAllNotificationsAsReadUseCase;
 use App\Modules\Notification\Application\UseCases\MarkNotificationAsReadUseCase;
 use App\Modules\Notification\Presentation\Http\Requests\ListNotificationsRequest;
 use App\Modules\Notification\Presentation\Http\Resources\NotificationResource;
@@ -18,6 +19,7 @@ class NotificationController extends Controller
         private readonly ListNotificationsQuery $listNotifications,
         private readonly CountUnreadNotificationsQuery $countUnreadNotifications,
         private readonly MarkNotificationAsReadUseCase $markNotificationAsRead,
+        private readonly MarkAllNotificationsAsReadUseCase $markAllNotificationsAsRead,
     ) {}
 
     public function index(ListNotificationsRequest $request): JsonResponse
@@ -50,6 +52,13 @@ class NotificationController extends Controller
     public function markAsRead(Request $request, string $id): Response
     {
         $this->markNotificationAsRead->execute($request->user()->id, $id);
+
+        return response()->noContent();
+    }
+
+    public function markAllAsRead(Request $request): Response
+    {
+        $this->markAllNotificationsAsRead->execute($request->user()->id);
 
         return response()->noContent();
     }
