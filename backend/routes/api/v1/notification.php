@@ -5,4 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
 });

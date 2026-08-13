@@ -3,15 +3,18 @@
 namespace App\Modules\Notification\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Notification\Application\Queries\CountUnreadNotificationsQuery;
 use App\Modules\Notification\Application\Queries\ListNotificationsQuery;
 use App\Modules\Notification\Presentation\Http\Requests\ListNotificationsRequest;
 use App\Modules\Notification\Presentation\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
     public function __construct(
         private readonly ListNotificationsQuery $listNotifications,
+        private readonly CountUnreadNotificationsQuery $countUnreadNotifications,
     ) {}
 
     public function index(ListNotificationsRequest $request): JsonResponse
@@ -31,6 +34,13 @@ class NotificationController extends Controller
                 'perPage' => $notifications->perPage(),
                 'total' => $notifications->total(),
             ],
+        ]);
+    }
+
+    public function unreadCount(Request $request): JsonResponse
+    {
+        return response()->json([
+            'data' => ['count' => $this->countUnreadNotifications->execute($request->user()->id)],
         ]);
     }
 }
