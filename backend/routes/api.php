@@ -8,6 +8,7 @@ Route::prefix('v1')->group(function () {
         require __DIR__.'/api/v1/vendor.php';
         require __DIR__.'/api/v1/dashboard/vendors.php';
         require __DIR__.'/api/v1/notification.php';
+        require __DIR__.'/api/v1/dashboard/users.php';
     });
 
     require __DIR__.'/api/v1/auth.php';

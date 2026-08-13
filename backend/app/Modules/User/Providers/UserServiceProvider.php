@@ -10,6 +10,8 @@ use App\Modules\User\Infrastructure\Notifications\EmailVerificationSender;
 use App\Modules\User\Infrastructure\Notifications\PasswordResetLinkSender;
 use App\Modules\User\Infrastructure\Repositories\InternalProfilesRepository;
 use App\Modules\User\Infrastructure\Repositories\UserRepository;
+use App\Modules\User\Presentation\Policies\UserPolicy;
+use Illuminate\Support\Facades\Gate;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class UserServiceProvider extends ModuleServiceProvider
@@ -32,5 +34,12 @@ class UserServiceProvider extends ModuleServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(EmailVerificationSenderInterface::class, EmailVerificationSender::class);
         $this->app->bind(PasswordResetLinkSenderInterface::class, PasswordResetLinkSender::class);
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        Gate::define('users.viewAny', [UserPolicy::class, 'viewAny']);
     }
 }

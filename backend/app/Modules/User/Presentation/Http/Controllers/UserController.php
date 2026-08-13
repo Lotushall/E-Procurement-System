@@ -3,54 +3,37 @@
 namespace App\Modules\User\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Modules\User\Application\Queries\ListUsersQuery;
+use App\Modules\User\Presentation\Http\Requests\ListUsersRequest;
+use App\Modules\User\Presentation\Http\Resources\UserResource;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(
+        private readonly ListUsersQuery $listUsers,
+    ) {}
+
+    public function index(ListUsersRequest $request): JsonResponse
     {
-        return view('user::index');
+        $users = $this->listUsers->execute(
+            type: $request->validated('type'),
+            status: $request->validated('status'),
+            search: $request->validated('search'),
+            sortBy: $request->validated('sort_by'),
+            sortDirection: $request->validated('sort_direction'),
+            page: $request->validated('page'),
+            perPage: $request->validated('per_page'),
+        );
+
+        return response()->json([
+            'data' => UserResource::collection($users->getCollection()),
+            'meta' => [
+                'currentPage' => $users->currentPage(),
+                'lastPage' => $users->lastPage(),
+                'perPage' => $users->perPage(),
+                'total' => $users->total(),
+            ],
+        ]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('user::create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('user::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('user::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }
