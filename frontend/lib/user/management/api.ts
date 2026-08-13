@@ -1,3 +1,6 @@
+// These endpoints are a designed-but-not-yet-implemented backend contract.
+// See docs/superpowers/specs/2026-08-13-user-management-list-design.md.
+// Requests will fail until the backend read-side API plan ships.
 import { api } from "@/lib/api";
 import type {
   PaginatedUserList,
@@ -28,7 +31,15 @@ export async function fetchUserList(
       sort_direction: sortDirection,
     },
   });
-  return data;
+  return {
+    data: data.data,
+    meta: {
+      currentPage: data.meta.currentPage,
+      lastPage: data.meta.lastPage,
+      perPage: data.meta.perPage,
+      total: data.meta.total,
+    },
+  };
 }
 
 export async function fetchUserDetail(id: number): Promise<UserDetail> {

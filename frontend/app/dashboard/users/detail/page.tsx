@@ -60,7 +60,7 @@ function UserDetailContent() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3.5">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-red-700 text-sm font-bold text-white">
-            {getInitials(user.name)}
+            {getInitials(user.name ?? "")}
           </div>
 
           <div className="flex flex-col gap-0.5">
@@ -73,7 +73,7 @@ function UserDetailContent() {
           <UserStatusBadge status={user.status} />
         </div>
 
-        {user.vendorProfileId !== null && (
+        {user.vendorProfileId && (
           <Button
             type="button"
             variant="outline"
@@ -91,7 +91,9 @@ function UserDetailContent() {
         </div>
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">วันที่สร้างบัญชี</span>
-          <span className="text-sm font-medium">{format(new Date(user.createdAt), "dd-MM-yyyy")}</span>
+          <span className="text-sm font-medium">
+            {Number.isNaN(new Date(user.createdAt).getTime()) ? "-" : format(new Date(user.createdAt), "dd-MM-yyyy")}
+          </span>
         </div>
       </div>
     </div>

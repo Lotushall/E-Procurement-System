@@ -32,7 +32,7 @@ export const columns: ColumnDef<UserListItem>[] = [
         cell: ({ row }) => (
             <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center size-8.5 rounded-md bg-red-700 text-white text-xs font-bold tracking-wider">
-                    {getInitials(row.original.name)}
+                    {getInitials(row.original.name ?? "")}
                 </div>
                 <div className="flex flex-col">
                     <span className="font-bold">{row.original.name}</span>
@@ -78,9 +78,14 @@ export const columns: ColumnDef<UserListItem>[] = [
         id: "created_at",
         header: ({ column }) => <SortableHeader column={column} label="วันที่สร้าง" align="center" />,
         accessorFn: (user) => user.createdAt,
-        cell: ({ getValue }) => (
-            <div className="text-center">{format(new Date(getValue<string>()), "dd-MM-yyyy")}</div>
-        ),
+        cell: ({ getValue }) => {
+            const date = new Date(getValue<string>())
+            return (
+                <div className="text-center">
+                    {Number.isNaN(date.getTime()) ? "-" : format(date, "dd-MM-yyyy")}
+                </div>
+            )
+        },
     },
     {
         id: "actions",
