@@ -6,16 +6,22 @@ use App\Modules\User\Application\DTOs\CreateInternalUserData;
 use App\Modules\User\Application\UseCases\CreateInternalUserUseCase;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class AdminUserSeeder extends Seeder
 {
     /**
-     * Seed the "admin" role and a default admin account.
+     * Seed the "admin" role, its vendor-approval permissions, and a default admin account.
      */
     public function run(): void
     {
-        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+
+        $admin->givePermissionTo([
+            Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']),
+            Permission::firstOrCreate(['name' => 'vendors.review', 'guard_name' => 'web']),
+        ]);
 
         if (app(UserRepositoryInterface::class)->findByEmail('admin@example.com') !== null) {
             return;

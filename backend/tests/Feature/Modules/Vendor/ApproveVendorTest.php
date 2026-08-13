@@ -15,7 +15,7 @@ test('approving a vendor requires authentication', function () {
 });
 
 test('an internal user can approve a pending vendor', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
 
     $this->actingAs($internalUser, 'web');
@@ -34,7 +34,7 @@ test('an internal user can approve a pending vendor', function () {
 });
 
 test('approving a nonexistent vendor returns 404', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->postJson('/api/v1/vendors/99999/approve');
@@ -55,7 +55,7 @@ test('a vendor user cannot approve a vendor', function () {
 
 test('approving a vendor without send_email skips the mail channel', function () {
     Notification::fake();
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
 
     $this->actingAs($internalUser, 'web');
@@ -71,7 +71,7 @@ test('approving a vendor without send_email skips the mail channel', function ()
 
 test('approving a vendor without specifying send_email defaults to sending mail', function () {
     Notification::fake();
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
 
     $this->actingAs($internalUser, 'web');

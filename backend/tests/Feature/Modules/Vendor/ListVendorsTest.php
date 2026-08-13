@@ -33,7 +33,7 @@ test('a vendor user cannot list vendors', function () {
 });
 
 test('an internal user can list all vendors regardless of status', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $companyUser = User::factory()->create(['user_type' => 'company']);
@@ -132,7 +132,7 @@ test('an internal user can list all vendors regardless of status', function () {
 });
 
 test('an internal user can filter vendors by status', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $pendingUser = User::factory()->create(['user_type' => 'company']);
@@ -176,7 +176,7 @@ test('an internal user can filter vendors by status', function () {
 });
 
 test('an invalid status value is rejected', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors?status=bogus');
@@ -185,7 +185,7 @@ test('an invalid status value is rejected', function () {
 });
 
 test('listing vendors supports pagination via page and per_page', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     foreach ([1, 2, 3] as $i) {
@@ -228,7 +228,7 @@ test('listing vendors supports pagination via page and per_page', function () {
 });
 
 test('an invalid page value is rejected', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors?page=0');
@@ -237,7 +237,7 @@ test('an invalid page value is rejected', function () {
 });
 
 test('an invalid per_page value is rejected', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors?per_page=101');
@@ -246,7 +246,7 @@ test('an invalid per_page value is rejected', function () {
 });
 
 test('pagination respects the status filter', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     foreach ([1, 2, 3] as $i) {
@@ -299,7 +299,7 @@ test('pagination respects the status filter', function () {
 });
 
 test('an internal user can search vendors by company name', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $acmeUser = User::factory()->create(['user_type' => 'company']);
@@ -340,7 +340,7 @@ test('an internal user can search vendors by company name', function () {
 });
 
 test('an internal user can search vendors by individual store name and firstname', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $johnUser = User::factory()->create(['user_type' => 'individual']);
@@ -389,7 +389,7 @@ test('an internal user can search vendors by individual store name and firstname
 });
 
 test('an internal user can search vendors by owner email', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $matchingUser = User::factory()->create(['user_type' => 'company', 'email' => 'findme@example.com']);
@@ -430,7 +430,7 @@ test('an internal user can search vendors by owner email', function () {
 });
 
 test('an internal user can search vendors by business type', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $companyUser = User::factory()->create(['user_type' => 'company']);
@@ -477,7 +477,7 @@ test('an internal user can search vendors by business type', function () {
 });
 
 test('an internal user can search vendors by contact phone and contact email', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $matchingUser = User::factory()->create(['user_type' => 'company']);
@@ -542,7 +542,7 @@ test('an internal user can search vendors by contact phone and contact email', f
 });
 
 test('search combines with the status filter', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $pendingUser = User::factory()->create(['user_type' => 'company']);
@@ -585,7 +585,7 @@ test('search combines with the status filter', function () {
 });
 
 test('a too long search value is rejected', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors?search='.str_repeat('a', 256));
@@ -594,7 +594,7 @@ test('a too long search value is rejected', function () {
 });
 
 test('listing vendors includes status counts in the response meta', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     foreach ([1, 2] as $i) {
@@ -657,7 +657,7 @@ test('listing vendors includes status counts in the response meta', function () 
 });
 
 test('status counts in meta respect the search filter but ignore the status filter', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $acmePendingUser = User::factory()->create(['user_type' => 'company']);
@@ -718,7 +718,7 @@ test('status counts in meta respect the search filter but ignore the status filt
 });
 
 test('an internal user can sort vendors by created_at', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $oldestUser = User::factory()->create(['user_type' => 'company']);
@@ -780,7 +780,7 @@ test('an internal user can sort vendors by created_at', function () {
 });
 
 test('an internal user can sort vendors by verification_status', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $pendingUser = User::factory()->create(['user_type' => 'company']);
@@ -839,7 +839,7 @@ test('an internal user can sort vendors by verification_status', function () {
 });
 
 test('an internal user can sort vendors by user_type', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $companyUser = User::factory()->create(['user_type' => 'company']);
@@ -886,7 +886,7 @@ test('an internal user can sort vendors by user_type', function () {
 });
 
 test('an internal user can sort vendors by business_type across company and individual vendors', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $companyUser = User::factory()->create(['user_type' => 'company']);
@@ -929,7 +929,7 @@ test('an internal user can sort vendors by business_type across company and indi
 });
 
 test('an internal user can sort vendors by name across company and individual vendors', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $companyUser = User::factory()->create(['user_type' => 'company']);
@@ -976,7 +976,7 @@ test('an internal user can sort vendors by name across company and individual ve
 });
 
 test('an invalid sort_by value is rejected', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors?sort_by=bogus');
@@ -985,7 +985,7 @@ test('an invalid sort_by value is rejected', function () {
 });
 
 test('an invalid sort_direction value is rejected', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors?sort_by=created_at&sort_direction=bogus');
@@ -994,7 +994,7 @@ test('an invalid sort_direction value is rejected', function () {
 });
 
 test('listing vendors includes a document status count breakdown', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $vendorUser = User::factory()->create(['user_type' => 'company']);
@@ -1089,7 +1089,7 @@ test('listing vendors includes a document status count breakdown', function () {
 });
 
 test('a vendor with no documents has zero document status counts', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $vendorUser = User::factory()->create(['user_type' => 'company']);
@@ -1117,7 +1117,7 @@ test('a vendor with no documents has zero document status counts', function () {
 });
 
 test('a vendor detail response does not include document status counts', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $vendorUser = User::factory()->create(['user_type' => 'company']);

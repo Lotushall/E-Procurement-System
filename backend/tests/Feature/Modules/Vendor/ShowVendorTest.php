@@ -27,7 +27,7 @@ test('a vendor user cannot fetch a vendor by id', function () {
 });
 
 test('an internal user can fetch a vendor profile by id', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $repository = new VendorRepository;
 
     $companyUser = User::factory()->create(['user_type' => 'company', 'email' => 'vendor@example.com']);
@@ -75,7 +75,7 @@ test('an internal user can fetch a vendor profile by id', function () {
 });
 
 test('fetching a nonexistent vendor returns 404', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/vendors/99999');

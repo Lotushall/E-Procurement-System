@@ -16,7 +16,7 @@ test('rejecting a vendor document requires authentication', function () {
 });
 
 test('an internal user can reject a pending vendor document', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 
@@ -35,7 +35,7 @@ test('an internal user can reject a pending vendor document', function () {
 });
 
 test('rejecting a vendor document requires a remark', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 
@@ -46,8 +46,20 @@ test('rejecting a vendor document requires a remark', function () {
     $response->assertStatus(422)->assertJsonValidationErrors('remark');
 });
 
+test('a vendor user cannot reject a vendor document', function () {
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+
+    $this->actingAs($vendorUser, 'web');
+
+    $response = $this->postJson("/api/v1/vendors/{$profile->id}/documents/{$document->id}/reject", ['remark' => 'Blurry image']);
+
+    $response->assertStatus(403);
+});
+
 test('rejecting a nonexistent vendor document returns 404', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
 
     $this->actingAs($internalUser, 'web');
@@ -59,7 +71,7 @@ test('rejecting a nonexistent vendor document returns 404', function () {
 
 test('rejecting a vendor document without send_email skips the mail channel', function () {
     Notification::fake();
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 
@@ -79,7 +91,7 @@ test('rejecting a vendor document without send_email skips the mail channel', fu
 
 test('rejecting a vendor document without specifying send_email defaults to sending mail', function () {
     Notification::fake();
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 

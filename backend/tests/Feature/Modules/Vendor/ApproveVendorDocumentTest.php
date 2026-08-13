@@ -16,7 +16,7 @@ test('approving a vendor document requires authentication', function () {
 });
 
 test('an internal user can approve a pending vendor document', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 
@@ -34,7 +34,7 @@ test('an internal user can approve a pending vendor document', function () {
 });
 
 test('approving a nonexistent vendor document returns 404', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
 
     $this->actingAs($internalUser, 'web');
@@ -58,7 +58,7 @@ test('a vendor user cannot approve a vendor document', function () {
 
 test('approving a vendor document without send_email skips the mail channel', function () {
     Notification::fake();
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 
@@ -75,7 +75,7 @@ test('approving a vendor document without send_email skips the mail channel', fu
 
 test('approving a vendor document without specifying send_email defaults to sending mail', function () {
     Notification::fake();
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
 

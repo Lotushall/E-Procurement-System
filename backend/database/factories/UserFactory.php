@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
 /**
  * @extends Factory<User>
@@ -18,6 +20,22 @@ class UserFactory extends Factory
      * The current password being used by the factory.
      */
     protected static ?string $password;
+
+    /**
+     * An internal user with vendor-approval access (there is currently only
+     * one internal tier, so this grants the same permissions the seeded
+     * "admin" role has — see AdminUserSeeder).
+     */
+    public function internal(): static
+    {
+        return $this->state(['user_type' => UserType::Internal])
+            ->afterCreating(function (User $user) {
+                $user->givePermissionTo([
+                    Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']),
+                    Permission::firstOrCreate(['name' => 'vendors.review', 'guard_name' => 'web']),
+                ]);
+            });
+    }
 
     /**
      * Define the model's default state.

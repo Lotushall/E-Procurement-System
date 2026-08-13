@@ -14,7 +14,7 @@ test('setting a vendor document back to pending requires authentication', functi
 });
 
 test('an internal user can send an approved vendor document back to pending', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
     $document = VendorDocuments::factory()->approved()->create(['vendor_profile_id' => $profile->id]);
 
@@ -31,8 +31,20 @@ test('an internal user can send an approved vendor document back to pending', fu
     ]);
 });
 
+test('a vendor user cannot send a vendor document back to pending', function () {
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->approved()->create(['vendor_profile_id' => $profile->id]);
+
+    $this->actingAs($vendorUser, 'web');
+
+    $response = $this->postJson("/api/v1/vendors/{$profile->id}/documents/{$document->id}/pending");
+
+    $response->assertStatus(403);
+});
+
 test('setting a nonexistent vendor document back to pending returns 404', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->create();
 
     $this->actingAs($internalUser, 'web');

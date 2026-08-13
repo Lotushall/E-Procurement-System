@@ -13,7 +13,7 @@ test('setting a vendor back to pending requires authentication', function () {
 });
 
 test('an internal user can send an approved vendor back to pending', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $profile = VendorProfiles::factory()->approved()->create();
 
     $this->actingAs($internalUser, 'web');
@@ -29,8 +29,19 @@ test('an internal user can send an approved vendor back to pending', function ()
     ]);
 });
 
+test('a vendor user cannot send a vendor back to pending', function () {
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $profile = VendorProfiles::factory()->approved()->create();
+
+    $this->actingAs($vendorUser, 'web');
+
+    $response = $this->postJson("/api/v1/vendors/{$profile->id}/pending");
+
+    $response->assertStatus(403);
+});
+
 test('setting a nonexistent vendor back to pending returns 404', function () {
-    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $internalUser = User::factory()->internal()->create();
     $this->actingAs($internalUser, 'web');
 
     $response = $this->postJson('/api/v1/vendors/99999/pending');
