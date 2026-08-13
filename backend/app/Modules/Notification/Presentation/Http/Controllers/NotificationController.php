@@ -5,16 +5,19 @@ namespace App\Modules\Notification\Presentation\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Notification\Application\Queries\CountUnreadNotificationsQuery;
 use App\Modules\Notification\Application\Queries\ListNotificationsQuery;
+use App\Modules\Notification\Application\UseCases\MarkNotificationAsReadUseCase;
 use App\Modules\Notification\Presentation\Http\Requests\ListNotificationsRequest;
 use App\Modules\Notification\Presentation\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class NotificationController extends Controller
 {
     public function __construct(
         private readonly ListNotificationsQuery $listNotifications,
         private readonly CountUnreadNotificationsQuery $countUnreadNotifications,
+        private readonly MarkNotificationAsReadUseCase $markNotificationAsRead,
     ) {}
 
     public function index(ListNotificationsRequest $request): JsonResponse
@@ -42,5 +45,12 @@ class NotificationController extends Controller
         return response()->json([
             'data' => ['count' => $this->countUnreadNotifications->execute($request->user()->id)],
         ]);
+    }
+
+    public function markAsRead(Request $request, string $id): Response
+    {
+        $this->markNotificationAsRead->execute($request->user()->id, $id);
+
+        return response()->noContent();
     }
 }
