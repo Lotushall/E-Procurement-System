@@ -13,8 +13,20 @@ export interface UserListItem {
   createdAt: string;
 }
 
+export interface InternalProfileFields {
+  prefix: string | null;
+  firstname: string;
+  lastname: string;
+  employeeNo: string | null;
+  department: string | null;
+  position: string | null;
+  phone: string | null;
+}
+
 export interface UserDetail extends UserListItem {
   vendorProfileId: number | null;
+  role: string | null;
+  internalProfile: InternalProfileFields | null;
 }
 
 export interface UserListPagination {
@@ -28,3 +40,23 @@ export interface PaginatedUserList {
   data: UserListItem[];
   meta: UserListPagination;
 }
+
+export interface Role {
+  name: string;
+}
+
+export interface CreateUserPayload {
+  username: string;
+  email: string;
+  password: string;
+  role: string;
+  prefix?: string;
+  firstname: string;
+  lastname: string;
+  employeeNo?: string;
+  department?: string;
+  position?: string;
+  phone?: string;
+}
+
+export type UpdateUserPayload = Omit<CreateUserPayload, "username" | "email" | "password">;

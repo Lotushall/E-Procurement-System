@@ -1,9 +1,13 @@
 // These endpoints are a designed-but-not-yet-implemented backend contract.
-// See docs/superpowers/specs/2026-08-13-user-management-list-design.md.
-// Requests will fail until the backend read-side API plan ships.
+// See docs/superpowers/specs/2026-08-13-user-management-list-design.md (list/detail)
+// and docs/superpowers/specs/2026-08-14-user-management-create-edit-design.md (create/edit/status/roles).
+// Requests will fail until the backend API plan(s) ship.
 import { api } from "@/lib/api";
 import type {
+  CreateUserPayload,
   PaginatedUserList,
+  Role,
+  UpdateUserPayload,
   UserDetail,
   UserSortBy,
   UserSortDirection,
@@ -44,5 +48,28 @@ export async function fetchUserList(
 
 export async function fetchUserDetail(id: number): Promise<UserDetail> {
   const { data } = await api.get<{ data: UserDetail }>(`/api/v1/dashboard/users/${id}`);
+  return data.data;
+}
+
+export async function createUser(payload: CreateUserPayload): Promise<UserDetail> {
+  const { data } = await api.post<{ data: UserDetail }>("/api/v1/dashboard/users", payload);
+  return data.data;
+}
+
+export async function updateUser(id: number, payload: UpdateUserPayload): Promise<UserDetail> {
+  const { data } = await api.patch<{ data: UserDetail }>(`/api/v1/dashboard/users/${id}`, payload);
+  return data.data;
+}
+
+export async function updateUserStatus(id: number, status: UserStatus): Promise<UserStatus> {
+  const { data } = await api.patch<{ data: { status: UserStatus } }>(
+    `/api/v1/dashboard/users/${id}/status`,
+    { status },
+  );
+  return data.data.status;
+}
+
+export async function fetchRoles(): Promise<Role[]> {
+  const { data } = await api.get<{ data: Role[] }>("/api/v1/dashboard/roles");
   return data.data;
 }
