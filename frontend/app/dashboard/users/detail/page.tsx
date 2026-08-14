@@ -9,8 +9,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { UserStatusBadge } from "@/components/user-status-badge";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import { useHasPermission } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { getInitials } from "@/lib/utils";
+import { EditUserDialog } from "./_components/edit-user-dialog";
 
 const USER_TYPE_LABEL: Record<"internal" | "company" | "individual", string> = {
   internal: "พนักงานภายใน",
@@ -33,6 +35,7 @@ function UserDetailContent() {
 
   const { data: user, isPending, isError } = useUserDetail(userId);
   const notFound = !isValidId || (isError && !user) || (!isPending && !user);
+  const canUpdateUser = useHasPermission("users.update");
 
   useBreadcrumb([
     { label: "จัดการผู้ใช้", href: routes.dashboards.user.index },
@@ -76,15 +79,19 @@ function UserDetailContent() {
           </div>
         </div>
 
-        {user.vendorProfileId && (
-          <Button
-            type="button"
-            variant="outline"
-            render={<Link href={routes.dashboards.vendors.detail(user.vendorProfileId)} />}
-          >
-            ดูข้อมูลผู้ค้า
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {user.userType === "internal" && canUpdateUser && <EditUserDialog user={user} />}
+
+          {user.vendorProfileId && (
+            <Button
+              type="button"
+              variant="outline"
+              render={<Link href={routes.dashboards.vendors.detail(user.vendorProfileId)} />}
+            >
+              ดูข้อมูลผู้ค้า
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 rounded-md border p-4">
