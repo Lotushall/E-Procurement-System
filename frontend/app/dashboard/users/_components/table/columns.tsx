@@ -34,11 +34,11 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<UserListItem>
             cell: ({ row }) => (
                 <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center size-8.5 rounded-md bg-red-700 text-white text-xs font-bold tracking-wider">
-                        {getInitials(row.original.name ?? "")}
+                        {getInitials(row.original.username ?? "")}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold">{row.original.name}</span>
-                        <span className="text-xs text-muted-foreground">{row.original.username}</span>
+                        <span className="font-bold">{row.original.username}</span>
+                        <span className="text-xs text-muted-foreground">{row.original.name}</span>
                     </div>
                 </div>
             ),
