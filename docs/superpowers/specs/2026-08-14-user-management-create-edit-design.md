@@ -88,17 +88,27 @@ Response `200`: `{ "data": UserDetail }`
 { "data": [{ "name": "admin" }] }
 ```
 
-**5. แก้ `UserDetailResource`** — เพิ่ม `role` เข้า `UserDetail` contract เดิม
+**5. แก้ `UserDetailResource`** — เพิ่ม `role` และ `internalProfile` เข้า `UserDetail` contract เดิม
 ```jsonc
 {
   "data": {
     "id": 1, "username": "somchai", "email": "somchai@example.com", "name": "สมชาย ใจดี",
     "userType": "internal", "status": "active", "createdAt": "2026-08-01T09:00:00Z",
     "vendorProfileId": null,
-    "role": "admin" // string ถ้า userType=internal, null ถ้าไม่ใช่
+    "role": "admin", // string ถ้า userType=internal, null ถ้าไม่ใช่
+    "internalProfile": { // object ถ้า userType=internal, null ถ้าไม่ใช่ — ใช้ pre-fill ฟอร์มแก้ไข (ข้อ 2)
+      "prefix": "นาย",
+      "firstname": "สมชาย",
+      "lastname": "ใจดี",
+      "employeeNo": "EMP001",
+      "department": "จัดซื้อ",
+      "position": "เจ้าหน้าที่",
+      "phone": "0812345678"
+    }
   }
 }
 ```
+(gap พบตอนเขียน implementation plan: `name` เดิมเป็น string รวมแล้ว ใช้ pre-fill ฟอร์มแก้ไขไม่ได้ ต้องมี field แยกด้วย)
 
 **6. Permission ใหม่ 3 ตัว**: `users.create`, `users.update`, `users.updateStatus` — มอบให้ role "admin" ใน `AdminUserSeeder` (เหมือน `vendors.view`/`vendors.review` ที่มีอยู่แล้ว)
 
@@ -137,9 +147,20 @@ export interface CreateUserPayload {
 
 export type UpdateUserPayload = Omit<CreateUserPayload, "username" | "email" | "password">;
 
+export interface InternalProfileFields {
+  prefix: string | null;
+  firstname: string;
+  lastname: string;
+  employeeNo: string | null;
+  department: string | null;
+  position: string | null;
+  phone: string | null;
+}
+
 export interface UserDetail extends UserListItem {
   vendorProfileId: number | null;
   role: string | null;
+  internalProfile: InternalProfileFields | null;
 }
 ```
 
