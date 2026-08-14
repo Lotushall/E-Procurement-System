@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import { useHasPermission } from "@/lib/auth/permissions";
 import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
+import { CreateUserDialog } from "./_components/create-user-dialog";
 import { columns } from "./_components/table/columns";
 
 const TYPE_OPTIONS: { value: UserTypeFilter; label: string }[] = [
@@ -41,6 +43,8 @@ export default function UsersPage() {
 function UsersPageContent() {
   useBreadcrumb([{ label: "จัดการผู้ใช้" }]);
 
+  const canCreateUser = useHasPermission("users.create");
+
   const {
     typeFilter,
     setTypeFilter,
@@ -63,11 +67,14 @@ function UsersPageContent() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold">จัดการผู้ใช้</h1>
-        <p className="text-sm text-gray-600 tracking-wide">
-          รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">จัดการผู้ใช้</h1>
+          <p className="text-sm text-gray-600 tracking-wide">
+            รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
+          </p>
+        </div>
+        {canCreateUser && <CreateUserDialog />}
       </div>
 
       {isPending ? (
