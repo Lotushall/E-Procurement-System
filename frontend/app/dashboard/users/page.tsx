@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,7 +15,7 @@ import { useHasPermission } from "@/lib/auth/permissions";
 import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
 import { CreateUserDialog } from "./_components/create-user-dialog";
-import { columns } from "./_components/table/columns";
+import { createColumns } from "./_components/table/columns";
 
 const TYPE_OPTIONS: { value: UserTypeFilter; label: string }[] = [
   { value: "all", label: "ทุกประเภท" },
@@ -44,6 +44,8 @@ function UsersPageContent() {
   useBreadcrumb([{ label: "จัดการผู้ใช้" }]);
 
   const canCreateUser = useHasPermission("users.create");
+  const canUpdateStatus = useHasPermission("users.updateStatus");
+  const columns = useMemo(() => createColumns(canUpdateStatus), [canUpdateStatus]);
 
   const {
     typeFilter,
