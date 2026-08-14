@@ -16,7 +16,10 @@ Status: Draft — รอ backend ทำ API ตาม contract ด้านล�
 ## ขอบเขตของ spec นี้ (ยืนยันกับ user แล้ว)
 
 - **เพิ่ม user**: สร้าง **internal user (พนักงานภายใน) เท่านั้น** — company/individual ยังคงมาจากการสมัคร vendor เองเท่านั้น ไม่มีปุ่มสร้างจากหน้านี้
-- **แก้ไขข้อมูลโปรไฟล์ + role**: **internal staff เท่านั้น** — company/individual ไม่มีปุ่มแก้ไขจากหน้านี้ (ข้อมูล vendor แก้ที่ฝั่ง Vendor module อยู่แล้ว)
+- **แก้ไข user**: ปุ่มแก้ไขโชว์ทุกแถว/ทุกประเภท user (ไม่จำกัดแค่ internal) แต่ field ที่แก้ได้ต่างกันตามประเภท:
+  - **ทุกประเภท**: username, อีเมล, รีเซ็ตรหัสผ่าน (optional — เว้นว่าง = ไม่เปลี่ยน)
+  - **internal เท่านั้น**: เพิ่มข้อมูลโปรไฟล์ + role (คำนำหน้า/ชื่อ/นามสกุล/รหัสพนักงาน/แผนก/ตำแหน่ง/role) — ส่วนนี้ยังคงเหมือนเดิมทุกอย่าง
+  - **company/individual**: แก้ได้แค่ username/อีเมล/รหัสผ่าน เท่านั้น — ข้อมูลโปรไฟล์ธุรกิจ (ชื่อบริษัท/เลขผู้เสียภาษี ฯลฯ) **ไม่ได้อยู่ใน scope นี้** ยังคงแก้ที่ฝั่ง Vendor module เหมือนเดิม (ตัดสินใจระหว่างคุย: การแก้ข้อมูลธุรกิจ vendor เป็นคนละเรื่องกับการแก้บัญชี user ทั้งสองอย่างอยู่คนละโมดูลกัน)
 - **เปลี่ยนสถานะ**: ใช้ได้กับ **user ทุกประเภท** (internal/company/individual) ผ่าน dropdown ในคอลัมน์สถานะของตารางรายชื่อ (`app/dashboard/users/page.tsx`) โดยตรง — ไม่ใช่หน้าแยก, ไม่ใช่ dialog
 - **UI ทั้งหมดเป็น Dialog/Modal บนหน้าเดิม** (list + detail) ไม่มี route ใหม่
 - **Permission-gated**: permission ใหม่ 3 ตัว (`users.create`, `users.update`, `users.updateStatus`) ควบคุมการมองเห็นปุ่ม/dropdown เหล่านี้
@@ -25,7 +28,8 @@ Status: Draft — รอ backend ทำ API ตาม contract ด้านล�
 
 ## Out of scope
 
-- สร้าง/แก้ไขบัญชี company/individual จากหน้านี้ (ยังคงเป็นเส้นทางสมัคร vendor เดิม + แก้ที่ Vendor module เดิม)
+- แก้ไข**ข้อมูลธุรกิจ**ของ company/individual (ชื่อบริษัท/เลขผู้เสียภาษี/ชื่อร้าน/เลขบัตรประชาชน ฯลฯ) จากหน้านี้ — ยังคงเป็นเส้นทาง Vendor module เดิม (username/อีเมล/รหัสผ่านของบัญชี user แก้ได้จากหน้านี้ตามข้อบน แต่ข้อมูลโปรไฟล์ธุรกิจไม่ใช่)
+- สร้างบัญชี company/individual จากหน้านี้ (ยังคงเป็นเส้นทางสมัคร vendor เอง)
 - การจัดการ role/permission เอง (สร้าง role ใหม่, กำหนดว่า role ไหนมี permission อะไร) — ยังใช้ seeder-based เหมือนเดิม ("admin" role เดียว) สิ่งที่ spec นี้ทำคือแค่ "เลือก role ที่มีอยู่แล้วให้ user" ไม่ใช่ "สร้าง/แก้ role"
 - ลบ user
 - Dropdown เปลี่ยนสถานะบนหน้า User detail — คงเป็น read-only badge เหมือนเดิม เปลี่ยนได้ที่ตารางรายชื่อเท่านั้น
@@ -57,10 +61,27 @@ Response `201`: `{ "data": UserDetail }` (shape เดียวกับ `GET /u
 Field ตรงกับ `CreateInternalUserData` ที่มีอยู่แล้วทุกตัว — ฝั่ง backend คาดว่าใช้ `CreateInternalUserUseCase` เดิมได้เกือบทั้งหมด แค่ผูก controller action + form request validation + policy ability ใหม่
 **หมายเหตุ**: endpoint นี้ตั้งใจ**ไม่ใส่** `confirmed` rule บน `password` — admin ตั้งรหัสผ่านให้ user เองในช่องเดียว frontend ไม่ส่ง `password_confirmation` มาด้วย ต่างจาก `ChangePasswordRequest`/`RegisterRequest`/`ResetPasswordRequest` ที่มีอยู่เดิม
 
-**2. `PATCH /api/v1/dashboard/users/{id}`** — แก้ไขโปรไฟล์ + role (`can:users.update`)
+**2. `PATCH /api/v1/dashboard/users/{id}`** — แก้ไขบัญชี user (`can:users.update`, **ใช้ได้ทุกประเภท user**)
+
+Body มี 2 รูปแบบ ขึ้นกับ `userType` ของ target user (backend ดูจาก `id` เอง ไม่ต้องส่ง `userType` มาด้วย):
+
+**2a. userType=company/individual** — แก้ได้แค่บัญชี (username/อีเมล/รหัสผ่าน) ห้ามแก้ข้อมูลโปรไฟล์ธุรกิจจาก endpoint นี้:
 ```jsonc
-// Request — backend ต้อง reject (422/403) ถ้า target user ไม่ใช่ userType=internal
+// Request
 {
+  "username": "somchai2",
+  "email": "somchai2@example.com",
+  "password": "newpassword123" // optional — ไม่ส่ง/ส่ง empty string = ไม่เปลี่ยนรหัสผ่าน
+}
+```
+
+**2b. userType=internal** — แก้ได้ทั้งบัญชีและโปรไฟล์+role:
+```jsonc
+// Request
+{
+  "username": "somchai2",
+  "email": "somchai2@example.com",
+  "password": "newpassword123", // optional — ไม่ส่ง/ส่ง empty string = ไม่เปลี่ยนรหัสผ่าน
   "role": "admin",
   "prefix": "นาย",
   "firstname": "สมชาย",
@@ -71,9 +92,11 @@ Field ตรงกับ `CreateInternalUserData` ที่มีอยู่แ
   "phone": "0812345678"
 }
 ```
-Response `200`: `{ "data": UserDetail }`
-ไม่มี username/email/password ในนี้ — แก้ได้แค่ profile fields + role (ตรงกับ `InternalProfile::update()` ที่มีอยู่แล้ว + reassign role)
-**หมายเหตุ**: request นี้คือ full replacement ของ profile fields ทั้งหมด — frontend ส่งทุก field มาด้วยเสมอ ค่าที่เป็น empty string/null หมายถึง "ล้างค่าฟิลด์นี้" ไม่ใช่ "ไม่แตะฟิลด์นี้" ดังนั้น backend ต้อง overwrite ทุก field ที่ส่งมาตรงๆ ห้ามทำแบบ partial update (เช่น `?? $existingProfile->employeeNo`) เพราะจะทำให้ล้างค่าไม่ได้
+
+Response `200` (ทั้ง 2 แบบ): `{ "data": UserDetail }`
+**หมายเหตุ password**: เหมือน endpoint สร้าง user (ข้อ 1) — ไม่มี `confirmed` rule, ช่องเดียว, และเป็น optional (ต่างจากตอนสร้างที่ required) เว้นว่างหรือไม่ส่งมา = ไม่แตะรหัสผ่านเดิม
+**หมายเหตุ profile fields (เฉพาะ 2b)**: เป็น full replacement เหมือนเดิม — frontend ส่งทุก field มาด้วยเสมอ ค่าที่เป็น empty string/null หมายถึง "ล้างค่าฟิลด์นี้" ไม่ใช่ "ไม่แตะฟิลด์นี้" ดังนั้น backend ต้อง overwrite ทุก field ที่ส่งมาตรงๆ ห้ามทำแบบ partial update (เช่น `?? $existingProfile->employeeNo`) เพราะจะทำให้ล้างค่าไม่ได้
+**หมายเหตุ username/email uniqueness**: ต้องเช็คไม่ชนกับ user คนอื่น (ยกเว้นตัวเอง) เหมือน `UpdateAccountPayload`/`ChangePasswordRequest` ที่ vendor self-service ใช้อยู่แล้ว
 
 **3. `PATCH /api/v1/dashboard/users/{id}/status`** — เปลี่ยนสถานะ (`can:users.updateStatus`, ใช้ได้ทุกประเภท user)
 ```jsonc
