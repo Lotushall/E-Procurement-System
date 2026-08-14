@@ -59,4 +59,21 @@ export interface CreateUserPayload {
   phone?: string;
 }
 
-export type UpdateUserPayload = Omit<CreateUserPayload, "username" | "email" | "password">;
+export interface UpdateAccountPayload {
+  username: string;
+  email: string;
+  password?: string;
+}
+
+export interface UpdateInternalUserPayload extends UpdateAccountPayload {
+  role: string;
+  prefix?: string;
+  firstname: string;
+  lastname: string;
+  employeeNo?: string;
+  department?: string;
+  position?: string;
+  phone?: string;
+}
+
+export type UpdateUserPayload = UpdateAccountPayload | UpdateInternalUserPayload;

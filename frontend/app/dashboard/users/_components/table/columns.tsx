@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { SortableHeader } from "@/components/ui/data-table-sortable-header"
 import { UserStatusBadge } from "@/components/user-status-badge"
 import { UserStatusSelect } from "@/components/user-status-select"
+import { EditUserDialog } from "../edit-user-dialog"
 import { routes } from "@/lib/routes"
 import { getInitials } from "@/lib/utils"
 
@@ -24,7 +25,7 @@ const USER_TYPE_ICON: Record<UserType, LucideIcon> = {
     individual: Store,
 }
 
-export function createColumns(canUpdateStatus: boolean): ColumnDef<UserListItem>[] {
+export function createColumns(canUpdateStatus: boolean, canUpdateUser: boolean): ColumnDef<UserListItem>[] {
     return [
         {
             id: "name",
@@ -37,7 +38,7 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<UserListItem>
                         {getInitials(row.original.username ?? "")}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold">{row.original.username}</span>
+                        <span className="font-bold capitalize">{row.original.username}</span>
                         <span className="text-xs text-muted-foreground">{row.original.name}</span>
                     </div>
                 </div>
@@ -98,7 +99,7 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<UserListItem>
             header: () => <div className="text-center mx-auto">Actions</div>,
             enableHiding: false,
             cell: ({ row }) => (
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-1.5">
                     <Button
                         variant="outline"
                         render={<Link href={routes.dashboards.user.detail(row.original.id)} />}
@@ -106,6 +107,9 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<UserListItem>
                     >
                         <Eye className="w-4 h-4 text-gray-500" />
                     </Button>
+                    {canUpdateUser && (
+                        <EditUserDialog userId={row.original.id} compact />
+                    )}
                 </div>
             ),
         },

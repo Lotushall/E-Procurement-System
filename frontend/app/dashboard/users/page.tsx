@@ -45,7 +45,11 @@ function UsersPageContent() {
 
   const canCreateUser = useHasPermission("users.create");
   const canUpdateStatus = useHasPermission("users.updateStatus");
-  const columns = useMemo(() => createColumns(canUpdateStatus), [canUpdateStatus]);
+  const canUpdateUser = useHasPermission("users.update");
+  const columns = useMemo(
+    () => createColumns(canUpdateStatus, canUpdateUser),
+    [canUpdateStatus, canUpdateUser],
+  );
 
   const {
     typeFilter,

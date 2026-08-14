@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useUpdateUser } from "@/lib/user/management/mutations/useUpdateUser";
-import { UpdateUserSchema, type UpdateUserValues } from "../_schemas/schema";
+import { UpdateAccountSchema, type UpdateAccountValues } from "../_schemas/schema";
 
 function getErrorMessage(error: unknown): string {
   const fieldErrors =
@@ -20,28 +20,31 @@ function getErrorMessage(error: unknown): string {
   return message ?? "บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
 
-export function useUpdateUserForm(
+export function useUpdateAccountForm(
   id: number,
   onSubmitted: () => void,
-  initialValues: UpdateUserValues,
+  initialValues: UpdateAccountValues,
 ) {
   const updateUserMutation = useUpdateUser(id);
 
-  const form = useForm<UpdateUserValues>({
-    resolver: zodResolver(UpdateUserSchema),
+  const form = useForm<UpdateAccountValues>({
+    resolver: zodResolver(UpdateAccountSchema),
     defaultValues: initialValues,
     values: initialValues,
   });
 
   const onSubmit = form.handleSubmit((values) => {
-    toast.promise(updateUserMutation.mutateAsync(values), {
-      loading: "กำลังบันทึกข้อมูล...",
-      success: () => {
-        onSubmitted();
-        return "บันทึกข้อมูลสำเร็จ";
+    toast.promise(
+      updateUserMutation.mutateAsync({ ...values, password: values.password || undefined }),
+      {
+        loading: "กำลังบันทึกข้อมูล...",
+        success: () => {
+          onSubmitted();
+          return "บันทึกข้อมูลสำเร็จ";
+        },
+        error: getErrorMessage,
       },
-      error: getErrorMessage,
-    });
+    );
   });
 
   return {
