@@ -55,6 +55,7 @@ Auth เดิม (Sanctum cookie) + policy-based permission (แบบเดี
 ```
 Response `201`: `{ "data": UserDetail }` (shape เดียวกับ `GET /users/{id}`)
 Field ตรงกับ `CreateInternalUserData` ที่มีอยู่แล้วทุกตัว — ฝั่ง backend คาดว่าใช้ `CreateInternalUserUseCase` เดิมได้เกือบทั้งหมด แค่ผูก controller action + form request validation + policy ability ใหม่
+**หมายเหตุ**: endpoint นี้ตั้งใจ**ไม่ใส่** `confirmed` rule บน `password` — admin ตั้งรหัสผ่านให้ user เองในช่องเดียว frontend ไม่ส่ง `password_confirmation` มาด้วย ต่างจาก `ChangePasswordRequest`/`RegisterRequest`/`ResetPasswordRequest` ที่มีอยู่เดิม
 
 **2. `PATCH /api/v1/dashboard/users/{id}`** — แก้ไขโปรไฟล์ + role (`can:users.update`)
 ```jsonc
@@ -72,6 +73,7 @@ Field ตรงกับ `CreateInternalUserData` ที่มีอยู่แ
 ```
 Response `200`: `{ "data": UserDetail }`
 ไม่มี username/email/password ในนี้ — แก้ได้แค่ profile fields + role (ตรงกับ `InternalProfile::update()` ที่มีอยู่แล้ว + reassign role)
+**หมายเหตุ**: request นี้คือ full replacement ของ profile fields ทั้งหมด — frontend ส่งทุก field มาด้วยเสมอ ค่าที่เป็น empty string/null หมายถึง "ล้างค่าฟิลด์นี้" ไม่ใช่ "ไม่แตะฟิลด์นี้" ดังนั้น backend ต้อง overwrite ทุก field ที่ส่งมาตรงๆ ห้ามทำแบบ partial update (เช่น `?? $existingProfile->employeeNo`) เพราะจะทำให้ล้างค่าไม่ได้
 
 **3. `PATCH /api/v1/dashboard/users/{id}/status`** — เปลี่ยนสถานะ (`can:users.updateStatus`, ใช้ได้ทุกประเภท user)
 ```jsonc
