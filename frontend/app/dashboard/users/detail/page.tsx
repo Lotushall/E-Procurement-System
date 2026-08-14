@@ -70,7 +70,10 @@ function UserDetailContent() {
             </p>
           </div>
 
-          <UserStatusBadge status={user.status} />
+          <div className="flex flex-col gap-1">
+            <UserStatusBadge status={user.status} />
+            <div className="h-4" />
+          </div>
         </div>
 
         {user.vendorProfileId && (
