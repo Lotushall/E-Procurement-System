@@ -87,7 +87,7 @@ function UsersPageContent() {
         <div className="flex items-center gap-2">
           {canManageRoles && (
             <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} className="h-10">
-              จัดการ role
+              จัดการ Role และ Permission
             </Button>
           )}
           {canCreateUser && <CreateUserDialog />}

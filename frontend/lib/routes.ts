@@ -26,7 +26,7 @@ export const routes = {
     user: {
       index: "/dashboard/users",
       detail: (id: number | string) => `/dashboard/users/detail?id=${id}`,
-      roles: "/dashboard/users/roles",
+      roles: "/dashboard/users/roles-permissions",
     },
   },
   terms: "/terms",
