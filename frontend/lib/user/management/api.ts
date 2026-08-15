@@ -6,7 +6,9 @@ import { api } from "@/lib/api";
 import type {
   CreateUserPayload,
   PaginatedUserList,
-  Role,
+  Permission,
+  RoleDetail,
+  RoleFormPayload,
   UpdateUserPayload,
   UserDetail,
   UserSortBy,
@@ -69,7 +71,26 @@ export async function updateUserStatus(id: number, status: UserStatus): Promise<
   return data.data.status;
 }
 
-export async function fetchRoles(): Promise<Role[]> {
-  const { data } = await api.get<{ data: Role[] }>("/api/v1/dashboard/roles");
+export async function fetchRoles(): Promise<RoleDetail[]> {
+  const { data } = await api.get<{ data: RoleDetail[] }>("/api/v1/dashboard/roles");
   return data.data;
+}
+
+export async function fetchPermissions(): Promise<Permission[]> {
+  const { data } = await api.get<{ data: Permission[] }>("/api/v1/dashboard/permissions");
+  return data.data;
+}
+
+export async function createRole(payload: RoleFormPayload): Promise<RoleDetail> {
+  const { data } = await api.post<{ data: RoleDetail }>("/api/v1/dashboard/roles", payload);
+  return data.data;
+}
+
+export async function updateRole(id: number, payload: RoleFormPayload): Promise<RoleDetail> {
+  const { data } = await api.patch<{ data: RoleDetail }>(`/api/v1/dashboard/roles/${id}`, payload);
+  return data.data;
+}
+
+export async function deleteRole(id: number): Promise<void> {
+  await api.delete(`/api/v1/dashboard/roles/${id}`);
 }

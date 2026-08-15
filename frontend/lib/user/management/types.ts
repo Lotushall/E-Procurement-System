@@ -41,8 +41,22 @@ export interface PaginatedUserList {
   meta: UserListPagination;
 }
 
-export interface Role {
+export interface Permission {
   name: string;
+  label: string;
+  group: string;
+}
+
+export interface RoleDetail {
+  id: number;
+  name: string;
+  permissions: string[];
+  userCount: number;
+}
+
+export interface RoleFormPayload {
+  name: string;
+  permissions: string[];
 }
 
 export interface CreateUserPayload {
