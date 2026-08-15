@@ -1,24 +1,21 @@
 "use client";
 
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
+import type { Permission } from "@/lib/user/management/types";
+import { DeletePermissionDialog } from "./delete-permission-dialog";
 import { PermissionFormDialog } from "./permission-form-dialog";
-import { permissionColumns } from "./table/permission-columns";
 
 export function PermissionTab() {
   const { data: permissions, isPending, isError } = usePermissions();
 
-  const sorted = [...(permissions ?? [])].sort(
-    (a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name),
-  );
+  const groups = (permissions ?? []).reduce<Record<string, Permission[]>>((acc, permission) => {
+    (acc[permission.group] ??= []).push(permission);
+    return acc;
+  }, {});
 
-  const table = useReactTable({
-    data: sorted,
-    columns: permissionColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  const groupNames = Object.keys(groups).sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="flex flex-col gap-4">
@@ -34,40 +31,44 @@ export function PermissionTab() {
         <p className="py-12 text-center text-sm text-muted-foreground">
           ไม่สามารถโหลดข้อมูล permission ได้ กรุณาลองใหม่อีกครั้ง
         </p>
+      ) : groupNames.length === 0 ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          ยังไม่มี permission ในระบบ
+        </p>
       ) : (
-        <div className="overflow-hidden rounded-xl border shadow-md">
-          <Table>
-            <TableHeader className="bg-[#F7F8FA]">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="px-4 py-3 font-bold text-gray-600 tracking-wide">
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {groupNames.map((group) => {
+            const items = [...groups[group]].sort((a, b) => a.name.localeCompare(b.name));
+            return (
+              <Card key={group} className="shadow-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>{group}</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {items.length} permissions
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2">
+                  {items.map((permission) => (
+                    <div
+                      key={permission.name}
+                      className="flex items-center justify-between gap-2 rounded-md border p-2"
+                    >
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="truncate text-sm font-bold">{permission.name}</span>
+                        <span className="truncate text-xs text-muted-foreground">{permission.label}</span>
+                      </div>
+                      <div className="flex shrink-0 gap-1">
+                        <PermissionFormDialog permission={permission} />
+                        <DeletePermissionDialog permission={permission} />
+                      </div>
+                    </div>
                   ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} className="even:bg-[#F7F8FA] odd:bg-white">
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="px-4 py-3 text-gray-700">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={permissionColumns.length} className="h-24 text-center">
-                    ยังไม่มี permission ในระบบ
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
