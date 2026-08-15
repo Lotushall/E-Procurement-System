@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import type { Permission } from "@/lib/user/management/types";
+import { getGroupLabel } from "../_data/group-labels";
 import { DeletePermissionDialog } from "./delete-permission-dialog";
 import { PermissionFormDialog } from "./permission-form-dialog";
 
@@ -44,7 +45,7 @@ export function PermissionTab() {
               <Card key={group} className="shadow-md">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{group}</span>
+                    <span>{getGroupLabel(group)}</span>
                     <span className="text-sm font-normal text-muted-foreground">
                       {items.length} permissions
                     </span>
@@ -57,8 +58,8 @@ export function PermissionTab() {
                       className="flex items-center justify-between gap-2 rounded-md border p-2"
                     >
                       <div className="flex flex-col overflow-hidden">
-                        <span className="truncate text-sm font-bold">{permission.name}</span>
-                        <span className="truncate text-xs text-muted-foreground">{permission.label}</span>
+                        <span className="truncate text-sm font-bold">{permission.label}</span>
+                        <span className="truncate text-xs text-muted-foreground">{permission.name}</span>
                       </div>
                       <div className="flex shrink-0 gap-1">
                         <PermissionFormDialog permission={permission} />

@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import type { Permission } from "@/lib/user/management/types";
+import { getGroupLabel } from "../_data/group-labels";
 import { usePermissionForm } from "../_hooks/use-permission-form";
 
 export function PermissionFormDialog({ permission }: { permission?: Permission }) {
@@ -56,7 +57,7 @@ export function PermissionFormDialog({ permission }: { permission?: Permission }
             error={errors.name?.message}
             badge={
               groupPreview ? (
-                <span className="text-xs text-muted-foreground">จะถูกจัดกลุ่มเป็น: {groupPreview}</span>
+                <span className="text-xs text-muted-foreground">จะถูกจัดกลุ่มเป็น: {getGroupLabel(groupPreview)}</span>
               ) : undefined
             }
           >
