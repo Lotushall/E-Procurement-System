@@ -10,8 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useHasPermission } from "@/lib/auth/permissions";
+import { routes } from "@/lib/routes";
 import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
 import { CreateUserDialog } from "./_components/create-user-dialog";
@@ -46,6 +49,7 @@ function UsersPageContent() {
   const canCreateUser = useHasPermission("users.create");
   const canUpdateStatus = useHasPermission("users.updateStatus");
   const canUpdateUser = useHasPermission("users.update");
+  const canManageRoles = useHasPermission("roles.manage");
   const columns = useMemo(
     () => createColumns(canUpdateStatus, canUpdateUser),
     [canUpdateStatus, canUpdateUser],
@@ -71,6 +75,9 @@ function UsersPageContent() {
     isError,
   } = useUserListPage();
 
+  console.log(visible);
+
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -80,7 +87,14 @@ function UsersPageContent() {
             รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
           </p>
         </div>
-        {canCreateUser && <CreateUserDialog />}
+        <div className="flex items-center gap-2">
+          {canManageRoles && (
+            <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} className="h-10">
+              จัดการ role
+            </Button>
+          )}
+          {canCreateUser && <CreateUserDialog />}
+        </div>
       </div>
 
       {isPending ? (
