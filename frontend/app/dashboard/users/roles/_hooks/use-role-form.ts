@@ -27,7 +27,7 @@ export function useRoleForm(onSubmitted: () => void, role?: RoleDetail) {
   const updateRoleMutation = useUpdateRole(role?.id ?? 0);
 
   const initialValues: RoleFormValues = role
-    ? { name: role.name, permissions: role.permissions }
+    ? { name: role.name, permissions: role.permissions ?? [] }
     : { name: "", permissions: [] };
 
   const form = useForm<RoleFormValues>({

@@ -16,7 +16,7 @@ export const columns: ColumnDef<RoleDetail>[] = [
     {
         id: "permissions",
         header: () => <div className="text-center">Permission</div>,
-        accessorFn: (role) => role.permissions.length,
+        accessorFn: (role) => role.permissions?.length ?? 0,
         cell: ({ getValue }) => (
             <div className="flex justify-center">
                 <Badge variant="secondary">{getValue<number>()} permissions</Badge>
