@@ -63,6 +63,40 @@ Validation: `name` required, unique, pattern `^[a-z][a-z0-9_]*\.[a-z][a-zA-Z0-9_
 **4. `DELETE /api/v1/dashboard/permissions/{name}`** — ลบ permission (`can:roles.manage`, endpoint ใหม่)
 ลบได้เสมอไม่มีเงื่อนไข — response สำเร็จ `204` ถ้า permission นี้ผูกอยู่กับ role ใดๆ จะหลุดออกจาก permission set ของ role นั้นโดยอัตโนมัติ (cascade ผ่าน pivot table)
 
+## Backend follow-up ที่จำเป็นต้องทำ (พบระหว่าง implement ฝั่ง frontend, ยังไม่ได้ทำ)
+
+สองข้อนี้เป็นสิ่งที่ backend **ต้องทำ** ไม่ใช่แค่ "ควรทำ" — endpoint ในสเปคนี้ทำงานไม่ได้ถูกต้องถ้าไม่ทำตามข้อ A และ B ด้านล่าง
+
+### A. Permission catalog ต้องย้ายจาก PHP enum ไปเป็น DB-backed จริง (ผูก endpoint ในสเปคนี้ตรงๆ)
+
+**ปัญหาที่พบ**: `App\Modules\User\Domain\Enums\Permission` (`backend/app/Modules/User/Domain/Enums/Permission.php`) เป็น PHP enum แบบ compile-time มี 2 หน้าที่:
+1. จ่ายรายการให้ `GET /api/v1/dashboard/permissions` ผ่าน `ListPermissionsQuery` (วนลูป `Permission::cases()`)
+2. เป็น whitelist validate `permissions.*` ตอนสร้าง/แก้ role ผ่าน `StoreRoleRequest` (`Rule::in(Permission::values())`)
+
+enum นี้**คนละตัวกับ** `Spatie\Permission\Models\Permission` ที่ผูกตาราง `permissions` จริงใน DB และเป็นตัวที่ `can:` middleware เช็คสิทธิ์จริง — สองระบบนี้ไม่ sync กันเลย ผลที่เจอจริงระหว่างทดสอบ:
+- ลบแถวใน DB (Spatie) ไม่ทำให้ permission หายจาก UI catalog เพราะ catalog อ่านจาก enum ไม่ใช่ DB
+- ลบแถวใน DB (Spatie) แต่ถ้ามี route ไหนยัง gate ด้วย `can:` permission นั้นอยู่ → **route นั้น deny ทุกคนทันที** (ไม่ใช่แค่ deny เฉพาะคนที่เพิ่งเสียสิทธิ์)
+- ที่สำคัญกว่านั้น: **จะสร้าง permission ใหม่ผ่าน `POST /api/v1/dashboard/permissions` ตามสเปคนี้ไม่ได้เลยถ้ายังอิง enum** เพราะ PHP enum เพิ่ม case ตอน runtime ไม่ได้ ต้องแก้โค้ด+deploy เท่านั้น — ขัดกับเป้าหมายทั้งฟีเจอร์นี้โดยตรง
+
+**ทางแก้**: เพิ่มคอลัมน์ `label` (string) เข้าไปในตาราง `permissions` ของ Spatie โดยตรง (ไม่ต้องมีคอลัมน์ `group` แยก — derive จาก `name` ตอน query เสมอ เช่น `explode('.', $name)[0]` ให้ตรงกับที่ frontend ทำฝั่ง client) แล้ว:
+- `ListPermissionsQuery` เปลี่ยนไปอ่านจาก `Spatie\Permission\Models\Permission::all()` แทน `Permission::cases()`
+- `StoreRoleRequest` เปลี่ยน whitelist เป็น query จากตารางจริงแทน `Permission::values()`
+- `POST`/`PATCH`/`DELETE /api/v1/dashboard/permissions` (ข้อ 2-4 ด้านบน) implement โดยเขียน/ลบแถวในตารางนี้ตรงๆ (สร้าง permission ใหม่ = insert แถวใหม่พร้อม `label`, ไม่ต้องแก้โค้ด)
+- ลบ enum `App\Modules\User\Domain\Enums\Permission` ทิ้งทั้งไฟล์เมื่อไม่มีจุดไหนอ้างถึงแล้ว
+
+### B. เอา `roles.manage` ออกจากระบบ permission ทั้งหมด — เปลี่ยนไปเช็ค role "admin" ตรงๆ แทน
+
+**Amendment ต่อขอบเขตเดิม**: user ตัดสินใจระหว่าง implement ว่าการเข้าถึงหน้า/endpoint จัดการ role-permission **ไม่ควรผูกกับ permission `roles.manage`** อีกต่อไป (เพราะเป็น permission ที่ตัวเองมีสิทธิ์แก้ไข/ลบตัวเองได้ผ่าน UI นี้ — self-referential/bootstrapping risk) ให้เปลี่ยนไปเช็คว่า **user มี role ชื่อ `admin` โดยตรง** แทนทั้งระบบ
+
+**Frontend แก้แล้ว** (commit `774ed91`): `useHasPermission("roles.manage")` → `useHasRole("admin")` ทั้งที่ `app/dashboard/users/roles-permissions/page.tsx` และปุ่มเข้าถึงใน `app/dashboard/users/page.tsx`
+
+**Backend ยังไม่ได้แก้ — ต้องทำ 3 จุด**:
+1. ลบ `case RolesManage = 'roles.manage'` ออกจาก enum (จุดนี้จะหายไปเองถ้าทำข้อ A ก่อน เพราะเลิกใช้ enum ทั้งไฟล์) และลบ reference ใน `label()`/`group()` ของ enum ด้วยถ้ายังไม่ทำข้อ A
+2. ลบการ grant `roles.manage` ออกจาก `AdminUserSeeder.php` (และลบแถว permission `roles.manage` ออกจากตาราง Spatie ถ้ายังไม่ได้ลบ)
+3. เปลี่ยน route middleware ทุกจุดที่ gate ด้วย `can:roles.manage` (รวม route ที่เพิ่งเพิ่มใหม่ใน `backend/routes/api/v1/dashboard/users.php` ระหว่างที่ทำข้อนี้) ให้เช็ค role แทน — Spatie Permission package มี middleware alias `role:` ให้ใช้ได้ทันที (เช่น `->middleware('role:admin')`) ไม่ต้องเขียน middleware เอง
+
+**คำเตือน**: ข้อ B นี้ชนกับงานที่ backend session กำลังทำอยู่ตอนนี้โดยตรง (`backend/routes/api/v1/dashboard/users.php` ถูกแก้ไปแล้วเพิ่ม route ที่ gate ด้วย `can:roles.manage`) — ต้อง sync กับ session นั้นก่อนแก้ ไม่งั้นจะชนกัน
+
 ## Part 1: `lib/user/management/` (ต่อยอดของเดิม)
 
 ```
