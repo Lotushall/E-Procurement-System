@@ -1,0 +1,90 @@
+"use client";
+
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { isAxiosError } from "axios";
+import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDeleteRole } from "@/lib/user/management/mutations/useDeleteRole";
+import type { RoleDetail } from "@/lib/user/management/types";
+
+function getErrorMessage(error: unknown): string {
+  const message = isAxiosError(error)
+    ? (error.response?.data as { message?: string } | undefined)?.message
+    : undefined;
+  return message ?? "ลบ role ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+}
+
+export function DeleteRoleDialog({ role }: { role: RoleDetail }) {
+  const [open, setOpen] = useState(false);
+  const deleteRoleMutation = useDeleteRole();
+  const disabledReason =
+    role.userCount > 0 ? `ไม่สามารถลบ role ที่ยังมีผู้ใช้งานอยู่ได้ (${role.userCount} คน)` : undefined;
+
+  const handleDelete = () => {
+    toast.promise(deleteRoleMutation.mutateAsync(role.id), {
+      loading: "กำลังลบ role...",
+      success: () => {
+        setOpen(false);
+        return "ลบ role สำเร็จ";
+      },
+      error: getErrorMessage,
+    });
+  };
+
+  const trigger = (
+    <AlertDialogTrigger
+      render={
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="ลบ role"
+          disabled={!!disabledReason}
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed"
+        />
+      }
+    >
+      <Trash2 />
+    </AlertDialogTrigger>
+  );
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      {disabledReason ? (
+        <Tooltip>
+          <TooltipTrigger render={<span className="inline-flex" tabIndex={0} />}>
+            {trigger}
+          </TooltipTrigger>
+          <TooltipContent>{disabledReason}</TooltipContent>
+        </Tooltip>
+      ) : (
+        trigger
+      )}
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>ลบ role</AlertDialogTitle>
+          <AlertDialogDescription>
+            ต้องการลบ role &quot;{role.name}&quot; ใช่หรือไม่?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={deleteRoleMutation.isPending}
+            className="bg-red-700 text-white hover:bg-red-600"
+            onClick={handleDelete}
+          >
+            ลบ role
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
