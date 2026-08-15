@@ -70,6 +70,8 @@ Auth เดิม (Sanctum cookie) + policy-based permission
 ```
 Backward compatible กับ dropdown เดิมที่อ่านแค่ `.name` — ฟิลด์ใหม่แค่เพิ่มเข้ามา ไม่ลบของเดิม
 
+**Amendment (2026-08-15):** ตอนเขียน spec นี้ endpoint ยังไม่มีจริง (ยืนยันจาก `routes/api/v1/dashboard/users.php`) และ `2026-08-14-user-management-create-edit-design.md` ข้อ 4 เคยบรรยาย shape ของ endpoint เดียวกันไว้ไม่ตรงกัน (`{ "data": [{ "name": "admin" }] }` เท่านั้น) — แก้ spec นั้นให้ตรงกับ shape ในหน้านี้แล้ว shape ด้านบนคือตัวที่ถูกต้อง ให้ backend ยึดตามนี้
+
 **3. `POST /api/v1/dashboard/roles`** — สร้าง role (`can:roles.manage`, endpoint ใหม่)
 ```jsonc
 // Request

@@ -109,8 +109,23 @@ Response `200` (ทั้ง 2 แบบ): `{ "data": UserDetail }`
 `pending→active`, `active→suspended`, `suspended→active`, `active→inactive`, `inactive→active` เท่านั้น — ส่ง transition ที่ไม่ได้อยู่ในรายการนี้ต้องได้ `422` กลับมา (spatie/laravel-model-states จะ throw `TransitionNotFound` เองถ้าเรียก `transitionTo()` ตรงๆ — backend แค่ต้อง catch แล้ว map เป็น 422)
 
 **4. `GET /api/v1/dashboard/roles`** — รายชื่อ role สำหรับ dropdown (`can:users.viewAny`, endpoint ใหม่)
+
+**Amendment (2026-08-15):** shape นี้ถูกแทนที่แล้วโดย `2026-08-14-role-permission-management-design.md` ข้อ 2 — endpoint เดียวกัน ใช้ gate เดิม (`can:users.viewAny`) แต่ response เต็มกว่านี้ (มี `id`/`permissions`/`userCount` เพิ่มจาก `name`) เพื่อรองรับหน้า `/dashboard/users/roles` ที่ต้องใช้ข้อมูลพวกนี้ด้วย:
 ```jsonc
-{ "data": [{ "name": "admin" }] }
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "admin",
+      "permissions": ["vendors.view", "vendors.review", "users.create", "users.update", "users.updateStatus", "roles.manage"],
+      "userCount": 1
+    }
+  ]
+}
+```
+Backward compatible กับ dropdown ในหน้านี้ที่อ่านแค่ `.name` — ฟิลด์ใหม่แค่เพิ่มเข้ามา ไม่ลบของเดิม เมื่อ implement backend ให้ยึด shape นี้เป็นหลัก ไม่ใช่ `{ "data": [{ "name": "admin" }] }` เดิมด้านล่าง (เก็บไว้เป็นบริบทประวัติเท่านั้น):
+```jsonc
+{ "data": [{ "name": "admin" }] } // เดิม — ไม่ใช้แล้ว
 ```
 
 **5. แก้ `UserDetailResource`** — เพิ่ม `role` และ `internalProfile` เข้า `UserDetail` contract เดิม
