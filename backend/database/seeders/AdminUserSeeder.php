@@ -21,13 +21,15 @@ class AdminUserSeeder extends Seeder
         $admin->givePermissionTo([
             Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']),
             Permission::firstOrCreate(['name' => 'vendors.review', 'guard_name' => 'web']),
-            // Temporary: the users.create/update/updateStatus API endpoints don't exist yet
-            // (see docs/superpowers/specs/2026-08-14-user-management-create-edit-design.md) —
+            // Temporary: the users.create/update/updateStatus/roles.manage API endpoints don't
+            // exist yet (see docs/superpowers/specs/2026-08-14-user-management-create-edit-design.md
+            // and docs/superpowers/specs/2026-08-14-role-permission-management-design.md) —
             // granted early so the already-shipped frontend UI is visible for local QA. The
-            // real backend plan for that spec should revisit this grant once the endpoints ship.
+            // real backend plans for those specs should revisit this grant once the endpoints ship.
             Permission::firstOrCreate(['name' => 'users.create', 'guard_name' => 'web']),
             Permission::firstOrCreate(['name' => 'users.update', 'guard_name' => 'web']),
             Permission::firstOrCreate(['name' => 'users.updateStatus', 'guard_name' => 'web']),
+            Permission::firstOrCreate(['name' => 'roles.manage', 'guard_name' => 'web']),
         ]);
 
         if (app(UserRepositoryInterface::class)->findByEmail('admin@example.com') !== null) {
