@@ -16,17 +16,29 @@ export const routes = {
   },
   dashboards: {
     dashboard: "/dashboard",
+    tors: {
+      index: "/dashboard/tors",
+    },
+    tenders: {
+      index: "/dashboard/tenders",
+    },
     vendors: {
       index: "/dashboard/vendors",
       detail: (id: number | string) => `/dashboard/vendors/detail?id=${id}`,
     },
-    tor: {
-      index: "/dashboard/tor",
+    reports: {
+      index: "/dashboard/reports",
+    },
+    logs: {
+      index: "/dashboard/logs",
     },
     user: {
       index: "/dashboard/users",
       detail: (id: number | string) => `/dashboard/users/detail?id=${id}`,
       roles: "/dashboard/users/roles-permissions",
+    },
+    setting: {
+      index: "/dashboard/settings",
     },
   },
   terms: "/terms",

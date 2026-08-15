@@ -1,7 +1,6 @@
 export const GROUP_LABELS: Record<string, string> = {
-  vendors: "ผู้ค้า",
-  users: "ผู้ใช้",
-  roles: "Role/สิทธิ์",
+  vendors: "จัดการผู้ค้า",
+  users: "จัดการผู้ใช้",
 };
 
 export function getGroupLabel(group: string): string {

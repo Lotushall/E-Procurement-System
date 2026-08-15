@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, Store, UserRound, type LucideIcon } from "lucide-react";
+import { ChartColumn, ClipboardList, FileText, FolderKanban, LayoutDashboard, Settings, Store, UserRound, type LucideIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -36,9 +36,16 @@ const navItems: NavItem[] = [
     exact: true,
   },
   {
-    href: routes.dashboards.tor.index,
+    href: routes.dashboards.tors.index,
     label: "การจัดการ TOR",
     icon: FileText,
+    permission: "tor.view",
+    role: "admin",
+  },
+  {
+    href: routes.dashboards.tenders.index,
+    label: "Tender Projects",
+    icon: FolderKanban,
   },
   {
     href: routes.dashboards.vendors.index,
@@ -46,9 +53,24 @@ const navItems: NavItem[] = [
     icon: Store,
   },
   {
+    href: routes.dashboards.reports.index,
+    label: "รายงาน",
+    icon: ChartColumn,
+  },
+  {
+    href: routes.dashboards.logs.index,
+    label: "Audit Logs",
+    icon: ClipboardList,
+  },
+  {
     href: routes.dashboards.user.index,
     label: "จัดการผู้ใช้",
     icon: UserRound,
+  },
+  {
+    href: routes.dashboards.setting.index,
+    label: "การตั้งค่า",
+    icon: Settings,
   },
 ];
 
