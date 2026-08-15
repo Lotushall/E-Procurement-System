@@ -11,7 +11,8 @@ export function PermissionTab() {
   const { data: permissions, isPending, isError } = usePermissions();
 
   const groups = (permissions ?? []).reduce<Record<string, Permission[]>>((acc, permission) => {
-    (acc[permission.group] ??= []).push(permission);
+    const group = permission.name.split(".")[0];
+    (acc[group] ??= []).push(permission);
     return acc;
   }, {});
 
