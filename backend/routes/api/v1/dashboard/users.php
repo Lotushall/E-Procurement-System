@@ -15,13 +15,13 @@ Route::prefix('dashboard')->group(function () {
         ->name('dashboard.users.show');
 
     Route::get('permissions', [PermissionController::class, 'index'])
-        ->middleware('can:roles.manage')
+        ->middleware('role:admin')
         ->name('dashboard.permissions.index');
 
     Route::get('roles', [RoleController::class, 'index'])
         ->middleware('can:users.viewAny')
         ->name('dashboard.roles.index');
     Route::post('roles', [RoleController::class, 'store'])
-        ->middleware('can:roles.manage')
+        ->middleware('role:admin')
         ->name('dashboard.roles.store');
 });

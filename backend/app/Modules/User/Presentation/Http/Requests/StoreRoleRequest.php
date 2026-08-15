@@ -2,7 +2,6 @@
 
 namespace App\Modules\User\Presentation\Http\Requests;
 
-use App\Modules\User\Domain\Enums\Permission;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +20,7 @@ class StoreRoleRequest extends FormRequest
                 Rule::unique('roles', 'name'),
             ],
             'permissions' => ['present', 'array'],
-            'permissions.*' => ['string', Rule::in(Permission::values())],
+            'permissions.*' => ['string', Rule::exists('permissions', 'name')],
         ];
     }
 

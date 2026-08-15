@@ -7,11 +7,10 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-function internalUserWithRolesManage(): User
+function internalAdminUser(): User
 {
     $user = User::factory()->create(['user_type' => 'internal']);
     $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-    $role->givePermissionTo(Permission::firstOrCreate(['name' => 'roles.manage', 'guard_name' => 'web']));
     $user->assignRole($role);
 
     return $user;
@@ -23,7 +22,7 @@ test('fetching the permission catalog requires authentication', function () {
     $response->assertStatus(401);
 });
 
-test('an internal user without roles.manage cannot fetch the permission catalog', function () {
+test('an internal user without the admin role cannot fetch the permission catalog', function () {
     $user = User::factory()->create(['user_type' => 'internal']);
     $this->actingAs($user, 'web');
 
@@ -32,12 +31,14 @@ test('an internal user without roles.manage cannot fetch the permission catalog'
     $response->assertStatus(403);
 });
 
-test('a user with roles.manage can fetch the permission catalog', function () {
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+test('a user with the admin role can fetch the permission catalog', function () {
+    Permission::create(['name' => 'vendors.view', 'guard_name' => 'web', 'label' => 'ดูรายชื่อผู้ค้า']);
+
+    $this->actingAs(internalAdminUser(), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/permissions');
 
     $response->assertOk()
-        ->assertJsonCount(6, 'data')
-        ->assertJsonFragment(['name' => 'roles.manage', 'label' => 'จัดการ role และสิทธิ์', 'group' => 'Role/สิทธิ์']);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonFragment(['name' => 'vendors.view', 'label' => 'ดูรายชื่อผู้ค้า', 'group' => 'vendors']);
 });

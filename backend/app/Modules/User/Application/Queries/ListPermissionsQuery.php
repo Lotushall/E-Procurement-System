@@ -2,7 +2,7 @@
 
 namespace App\Modules\User\Application\Queries;
 
-use App\Modules\User\Domain\Enums\Permission;
+use Spatie\Permission\Models\Permission;
 
 final class ListPermissionsQuery
 {
@@ -11,13 +11,14 @@ final class ListPermissionsQuery
      */
     public function execute(): array
     {
-        return array_map(
-            fn (Permission $permission): array => [
-                'name' => $permission->value,
-                'label' => $permission->label(),
-                'group' => $permission->group(),
-            ],
-            Permission::cases(),
-        );
+        return Permission::query()
+            ->orderBy('id')
+            ->get()
+            ->map(fn (Permission $permission): array => [
+                'name' => $permission->name,
+                'label' => $permission->label ?? $permission->name,
+                'group' => explode('.', $permission->name)[0],
+            ])
+            ->all();
     }
 }

@@ -41,6 +41,5 @@ class UserServiceProvider extends ModuleServiceProvider
         parent::boot();
 
         Gate::define('users.viewAny', [UserPolicy::class, 'viewAny']);
-        Gate::define('roles.manage', [UserPolicy::class, 'manageRoles']);
     }
 }

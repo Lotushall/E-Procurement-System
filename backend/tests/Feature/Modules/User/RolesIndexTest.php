@@ -22,7 +22,7 @@ test('a non-internal user cannot fetch roles', function () {
     $response->assertStatus(403);
 });
 
-test('an internal user without roles.manage can still fetch roles', function () {
+test('an internal user without the admin role can still fetch roles', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     $this->actingAs($internalUser, 'web');
 
@@ -33,7 +33,7 @@ test('an internal user without roles.manage can still fetch roles', function () 
 
 test('the roles list includes id, permissions, and userCount', function () {
     $role = Role::create(['name' => 'admin', 'guard_name' => 'web']);
-    $role->givePermissionTo(Permission::firstOrCreate(['name' => 'roles.manage', 'guard_name' => 'web']));
+    $role->givePermissionTo(Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']));
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     $internalUser->assignRole($role);
     $this->actingAs($internalUser, 'web');
@@ -43,6 +43,6 @@ test('the roles list includes id, permissions, and userCount', function () {
     $response->assertOk()
         ->assertJsonPath('data.0.id', $role->id)
         ->assertJsonPath('data.0.name', 'admin')
-        ->assertJsonPath('data.0.permissions', ['roles.manage'])
+        ->assertJsonPath('data.0.permissions', ['vendors.view'])
         ->assertJsonPath('data.0.userCount', 1);
 });
