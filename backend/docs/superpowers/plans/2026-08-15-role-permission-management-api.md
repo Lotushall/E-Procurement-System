@@ -633,7 +633,7 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-function internalUserWithRolesManage(): User
+function internalUserWithRolesManageForStore(): User
 {
     $user = User::factory()->create(['user_type' => 'internal']);
     $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
@@ -659,7 +659,7 @@ test('an internal user without roles.manage cannot create a role', function () {
 });
 
 test('a user with roles.manage can create a role', function () {
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForStore(), 'web');
 
     $response = $this->postJson('/api/v1/dashboard/roles', [
         'name' => 'procurement_officer',
@@ -673,7 +673,7 @@ test('a user with roles.manage can create a role', function () {
 });
 
 test('role name must match the lowercase snake pattern', function () {
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForStore(), 'web');
 
     $response = $this->postJson('/api/v1/dashboard/roles', ['name' => 'Procurement Officer', 'permissions' => []]);
 
@@ -682,7 +682,7 @@ test('role name must match the lowercase snake pattern', function () {
 
 test('role name must be unique', function () {
     Role::create(['name' => 'procurement_officer', 'guard_name' => 'web']);
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForStore(), 'web');
 
     $response = $this->postJson('/api/v1/dashboard/roles', ['name' => 'procurement_officer', 'permissions' => []]);
 
@@ -690,7 +690,7 @@ test('role name must be unique', function () {
 });
 
 test('permissions must be within the known catalog', function () {
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForStore(), 'web');
 
     $response = $this->postJson('/api/v1/dashboard/roles', [
         'name' => 'procurement_officer',
@@ -963,7 +963,7 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-function internalUserWithRolesManage(): User
+function internalUserWithRolesManageForUpdate(): User
 {
     $user = User::factory()->create(['user_type' => 'internal']);
     $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
@@ -994,7 +994,7 @@ test('an internal user without roles.manage cannot update a role', function () {
 test('a user with roles.manage can rename a role and change its permissions', function () {
     Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']);
     $role = Role::create(['name' => 'procurement_officer', 'guard_name' => 'web']);
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForUpdate(), 'web');
 
     $response = $this->patchJson("/api/v1/dashboard/roles/{$role->id}", [
         'name' => 'procurement_lead',
@@ -1009,7 +1009,7 @@ test('a user with roles.manage can rename a role and change its permissions', fu
 test('removing roles.manage from the admin role is rejected', function () {
     $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $role->givePermissionTo(Permission::firstOrCreate(['name' => 'roles.manage', 'guard_name' => 'web']));
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForUpdate(), 'web');
 
     $response = $this->patchJson("/api/v1/dashboard/roles/{$role->id}", [
         'name' => 'admin',
@@ -1025,7 +1025,7 @@ test('removing roles.manage from the admin role is rejected', function () {
 test('renaming the admin role while keeping roles.manage is allowed', function () {
     $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $role->givePermissionTo(Permission::firstOrCreate(['name' => 'roles.manage', 'guard_name' => 'web']));
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForUpdate(), 'web');
 
     $response = $this->patchJson("/api/v1/dashboard/roles/{$role->id}", [
         'name' => 'super_admin',
@@ -1327,7 +1327,7 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-function internalUserWithRolesManage(): User
+function internalUserWithRolesManageForDestroy(): User
 {
     $user = User::factory()->create(['user_type' => 'internal']);
     $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
@@ -1357,7 +1357,7 @@ test('an internal user without roles.manage cannot delete a role', function () {
 
 test('a user with roles.manage can delete an unused role', function () {
     $role = Role::create(['name' => 'unused_role', 'guard_name' => 'web']);
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForDestroy(), 'web');
 
     $response = $this->deleteJson("/api/v1/dashboard/roles/{$role->id}");
 
@@ -1369,7 +1369,7 @@ test('deleting a role that still has users is rejected with 422', function () {
     $role = Role::create(['name' => 'procurement_officer', 'guard_name' => 'web']);
     $assignedUser = User::factory()->create(['user_type' => 'internal']);
     $assignedUser->assignRole($role);
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForDestroy(), 'web');
 
     $response = $this->deleteJson("/api/v1/dashboard/roles/{$role->id}");
 
@@ -1379,7 +1379,7 @@ test('deleting a role that still has users is rejected with 422', function () {
 });
 
 test('deleting a nonexistent role returns 404', function () {
-    $this->actingAs(internalUserWithRolesManage(), 'web');
+    $this->actingAs(internalUserWithRolesManageForDestroy(), 'web');
 
     $response = $this->deleteJson('/api/v1/dashboard/roles/999999');
 
