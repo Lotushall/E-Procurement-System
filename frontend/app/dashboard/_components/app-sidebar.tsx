@@ -12,6 +12,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { hasPermission, hasRole } from "@/lib/auth/permissions";
+import { useUser } from "@/lib/auth/queries/useUser";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +22,10 @@ type NavItem = {
   label: string;
   icon: LucideIcon;
   exact?: boolean;
+  /** Item is hidden unless the current user has this permission. */
+  permission?: string;
+  /** Item is hidden unless the current user has this role. */
+  role?: string;
 };
 
 const navItems: NavItem[] = [
@@ -48,6 +54,13 @@ const navItems: NavItem[] = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { data: user } = useUser();
+
+  const visibleItems = navItems.filter((item) => {
+    if (item.permission && !hasPermission(user, item.permission)) return false;
+    if (item.role && !hasRole(user, item.role)) return false;
+    return true;
+  });
 
   return (
     <Sidebar collapsible="icon" className="top-14 h-[calc(100svh-3.5rem)]">
@@ -55,7 +68,7 @@ export function AppSidebar() {
         <SidebarGroup className="p-0">
           <SidebarGroupContent className="py-3 px-0 pr-3 group-data-[collapsible=icon]:pr-0">
             <SidebarMenu>
-              {navItems.map((item) => {
+              {visibleItems.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
