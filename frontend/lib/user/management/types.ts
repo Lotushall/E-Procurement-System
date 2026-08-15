@@ -59,6 +59,11 @@ export interface RoleFormPayload {
   permissions: string[];
 }
 
+export interface PermissionFormPayload {
+  name: string;
+  label: string;
+}
+
 export interface CreateUserPayload {
   username: string;
   email: string;

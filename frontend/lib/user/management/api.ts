@@ -7,6 +7,7 @@ import type {
   CreateUserPayload,
   PaginatedUserList,
   Permission,
+  PermissionFormPayload,
   RoleDetail,
   RoleFormPayload,
   UpdateUserPayload,
@@ -93,4 +94,21 @@ export async function updateRole(id: number, payload: RoleFormPayload): Promise<
 
 export async function deleteRole(id: number): Promise<void> {
   await api.delete(`/api/v1/dashboard/roles/${id}`);
+}
+
+export async function createPermission(payload: PermissionFormPayload): Promise<Permission> {
+  const { data } = await api.post<{ data: Permission }>("/api/v1/dashboard/permissions", payload);
+  return data.data;
+}
+
+export async function updatePermission(name: string, payload: PermissionFormPayload): Promise<Permission> {
+  const { data } = await api.patch<{ data: Permission }>(
+    `/api/v1/dashboard/permissions/${encodeURIComponent(name)}`,
+    payload,
+  );
+  return data.data;
+}
+
+export async function deletePermission(name: string): Promise<void> {
+  await api.delete(`/api/v1/dashboard/permissions/${encodeURIComponent(name)}`);
 }
