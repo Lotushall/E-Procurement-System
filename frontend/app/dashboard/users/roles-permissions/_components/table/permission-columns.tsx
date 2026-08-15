@@ -21,7 +21,7 @@ export const permissionColumns: ColumnDef<Permission>[] = [
     {
         id: "group",
         header: () => <div className="text-center">กลุ่ม</div>,
-        accessorFn: (permission) => permission.group,
+        accessorFn: (permission) => permission.name.split(".")[0],
         cell: ({ getValue }) => (
             <div className="flex justify-center">
                 <Badge variant="secondary">{getValue<string>()}</Badge>

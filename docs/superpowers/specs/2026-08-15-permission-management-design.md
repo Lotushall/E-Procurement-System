@@ -50,7 +50,7 @@ Auth เดิม (Sanctum cookie) + policy-based permission ทั้งหม�
 // Response 201
 { "data": { "name": "reports.export", "label": "ส่งออกรายงาน", "group": "reports" } }
 ```
-Validation: `name` required, unique, pattern `^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$` (ต้องมีจุดคั่น prefix.action เพื่อให้ derive group ได้), `label` required string
+Validation: `name` required, unique, pattern `^[a-z][a-z0-9_]*\.[a-z][a-zA-Z0-9_]*$` (ต้องมีจุดคั่น prefix.action เพื่อให้ derive group ได้; prefix ต้องเป็นตัวพิมพ์เล็กล้วนเพราะใช้ derive group ที่ต้อง stable/predictable, ส่วน action อนุญาต camelCase ได้ เช่น `updateStatus`), `label` required string
 
 **3. `PATCH /api/v1/dashboard/permissions/{name}`** — แก้ไข permission (`can:roles.manage`, endpoint ใหม่) — ใช้ `name` **เดิม (ก่อนแก้)** เป็น identifier ใน URL เพราะ `Permission` ที่ frontend เห็นไม่มี numeric id (อิง `name` เป็น unique key เหมือน resource เดิม)
 ```jsonc
