@@ -1,7 +1,7 @@
 # Permission management (frontend only) — extends role management
 
 Date: 2026-08-15
-Status: Draft — รอ backend ทำ API ตาม contract ด้านล่าง (แยกเป็นอีก plan)
+Status: Draft — รอ backend ทำ API ตาม contract ด้านล่าง (แยกเป็นอีก plan) — **อัปเดต**: "Backend follow-up" ข้อ A และ B ด้านล่าง implement แล้ว (commit `49d57c2`) ส่วน POST/PATCH/DELETE /permissions ตาม contract ยังไม่ได้ทำ
 
 ## บริบท
 
@@ -63,7 +63,7 @@ Validation: `name` required, unique, pattern `^[a-z][a-z0-9_]*\.[a-z][a-zA-Z0-9_
 **4. `DELETE /api/v1/dashboard/permissions/{name}`** — ลบ permission (`can:roles.manage`, endpoint ใหม่)
 ลบได้เสมอไม่มีเงื่อนไข — response สำเร็จ `204` ถ้า permission นี้ผูกอยู่กับ role ใดๆ จะหลุดออกจาก permission set ของ role นั้นโดยอัตโนมัติ (cascade ผ่าน pivot table)
 
-## Backend follow-up ที่จำเป็นต้องทำ (พบระหว่าง implement ฝั่ง frontend, ยังไม่ได้ทำ)
+## Backend follow-up ที่จำเป็นต้องทำ (พบระหว่าง implement ฝั่ง frontend — **implement แล้วทั้ง A และ B ที่ commit `49d57c2`**)
 
 สองข้อนี้เป็นสิ่งที่ backend **ต้องทำ** ไม่ใช่แค่ "ควรทำ" — endpoint ในสเปคนี้ทำงานไม่ได้ถูกต้องถ้าไม่ทำตามข้อ A และ B ด้านล่าง
 
