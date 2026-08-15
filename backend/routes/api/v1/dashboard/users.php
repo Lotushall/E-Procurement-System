@@ -21,4 +21,7 @@ Route::prefix('dashboard')->group(function () {
     Route::get('roles', [RoleController::class, 'index'])
         ->middleware('can:users.viewAny')
         ->name('dashboard.roles.index');
+    Route::post('roles', [RoleController::class, 'store'])
+        ->middleware('can:roles.manage')
+        ->name('dashboard.roles.store');
 });
