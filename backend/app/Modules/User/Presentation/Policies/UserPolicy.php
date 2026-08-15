@@ -14,6 +14,6 @@ class UserPolicy
 
     public function manageRoles(User $user): bool
     {
-        return $user->user_type === UserType::Internal && $user->can('roles.manage');
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('roles.manage');
     }
 }
