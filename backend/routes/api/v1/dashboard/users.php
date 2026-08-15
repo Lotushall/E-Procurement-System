@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\User\Presentation\Http\Controllers\PermissionController;
 use App\Modules\User\Presentation\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,4 +12,8 @@ Route::prefix('dashboard')->group(function () {
         ->middleware('can:users.viewAny')
         ->whereNumber('id')
         ->name('dashboard.users.show');
+
+    Route::get('permissions', [PermissionController::class, 'index'])
+        ->middleware('can:roles.manage')
+        ->name('dashboard.permissions.index');
 });
