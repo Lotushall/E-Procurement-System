@@ -13,7 +13,7 @@ import { DataTable } from "@/components/ui/data-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { useHasPermission } from "@/lib/auth/permissions";
+import { useHasPermission, useHasRole } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
@@ -49,7 +49,7 @@ function UsersPageContent() {
   const canCreateUser = useHasPermission("users.create");
   const canUpdateStatus = useHasPermission("users.updateStatus");
   const canUpdateUser = useHasPermission("users.update");
-  const canManageRoles = useHasPermission("roles.manage");
+  const canManageRoles = useHasRole("admin");
   const columns = useMemo(
     () => createColumns(canUpdateStatus, canUpdateUser),
     [canUpdateStatus, canUpdateUser],

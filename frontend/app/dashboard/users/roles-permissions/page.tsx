@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { useHasPermission } from "@/lib/auth/permissions";
+import { useHasRole } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { RoleTab } from "./_components/role-tab";
 import { PermissionTab } from "./_components/permission-tab";
@@ -13,7 +13,7 @@ export default function RolesPermissionsPage() {
     { label: "จัดการ Role และสิทธิ์" },
   ]);
 
-  const canManageRoles = useHasPermission("roles.manage");
+  const canManageRoles = useHasRole("admin");
 
   if (!canManageRoles) {
     return (
