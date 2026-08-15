@@ -22,9 +22,9 @@ type NavItem = {
   label: string;
   icon: LucideIcon;
   exact?: boolean;
-  /** Item is hidden unless the current user has this permission. */
+  /** Visible if the user has this permission. If `role` is also set, either satisfies. */
   permission?: string;
-  /** Item is hidden unless the current user has this role. */
+  /** Visible if the user has this role. If `permission` is also set, either satisfies. */
   role?: string;
 };
 
@@ -57,9 +57,11 @@ export function AppSidebar() {
   const { data: user } = useUser();
 
   const visibleItems = navItems.filter((item) => {
-    if (item.permission && !hasPermission(user, item.permission)) return false;
-    if (item.role && !hasRole(user, item.role)) return false;
-    return true;
+    if (!item.permission && !item.role) return true;
+    return (
+      (!!item.permission && hasPermission(user, item.permission)) ||
+      (!!item.role && hasRole(user, item.role))
+    );
   });
 
   return (
