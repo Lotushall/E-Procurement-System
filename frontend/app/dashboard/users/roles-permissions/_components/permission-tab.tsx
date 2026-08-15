@@ -21,10 +21,6 @@ export function PermissionTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <PermissionFormDialog />
-      </div>
-
       {isPending ? (
         <div className="flex justify-center py-12">
           <Spinner className="size-6" />

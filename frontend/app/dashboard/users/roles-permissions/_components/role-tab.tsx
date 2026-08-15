@@ -4,7 +4,6 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Spinner } from "@/components/ui/spinner";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
-import { RoleFormDialog } from "./role-form-dialog";
 import { columns } from "./table/columns";
 
 export function RoleTab() {
@@ -18,10 +17,6 @@ export function RoleTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <RoleFormDialog />
-      </div>
-
       {isPending ? (
         <div className="flex justify-center py-12">
           <Spinner className="size-6" />
