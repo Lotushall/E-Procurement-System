@@ -17,7 +17,7 @@ Status: Draft — รอ backend ทำ API ตาม contract ด้านล�
 
 ## Out of scope
 
-- สร้าง permission ใหม่จาก UI (permission ผูกกับ `can:` gate ในโค้ดจริง เพิ่ม permission ใหม่ต้องแก้โค้ด/deploy)
+- ~~สร้าง permission ใหม่จาก UI (permission ผูกกับ `can:` gate ในโค้ดจริง เพิ่ม permission ใหม่ต้องแก้โค้ด/deploy)~~ — **ยกเลิกแล้ว โดย `2026-08-15-permission-management-design.md`** ซึ่งเปิดให้ CRUD permission เต็มรูปแบบจาก UI (รวม route เปลี่ยนเป็น `/dashboard/users/roles-permissions`) ดูสเปคนั้นแทน
 - Multi-role ต่อ user (ระบบยังเป็น 1 user : 1 role เหมือนเดิม ไม่เปลี่ยน)
 - ดูรายชื่อ user ที่ใช้ role นี้ (โชว์แค่จำนวน ไม่ลิงก์ไปดูรายชื่อ)
 - Sidebar nav item ใหม่ (เข้าถึงผ่านปุ่มในหน้า Users เท่านั้น)
