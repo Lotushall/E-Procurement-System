@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/app/(public)/profiles/_components/input-field";
+import { PermissionPicker } from "@/components/permission-picker";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
+import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
 import type { UserDetail } from "@/lib/user/management/types";
 import { routes } from "@/lib/routes";
@@ -137,7 +139,8 @@ function EditAccountForm({ user }: { user: UserDetail }) {
 function EditInternalUserForm({ user }: { user: UserDetail }) {
   const router = useRouter();
   const { data: roles } = useRoles();
-  const { register, control, onSubmit, isSubmitting, formState: { errors } } =
+  const { data: permissions } = usePermissions();
+  const { register, control, setValue, onSubmit, isSubmitting, formState: { errors } } =
     useUpdateInternalUserForm(user.id, () => router.push(routes.dashboards.user.detail(user.id)), {
       username: user.username,
       email: user.email,
@@ -150,6 +153,7 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
       position: user.internalProfile?.position ?? "",
       phone: user.internalProfile?.phone ?? "",
       role: user.role ?? "",
+      permissions: user.permissions ?? [],
     });
 
   return (
@@ -231,7 +235,10 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
             <Select
               items={(roles ?? []).map((r) => ({ value: r.name, label: ROLE_LABELS[r.name] ?? r.name }))}
               value={value}
-              onValueChange={onChange}
+              onValueChange={(next) => {
+                onChange(next);
+                setValue("permissions", (roles ?? []).find((r) => r.name === next)?.permissions ?? []);
+              }}
               {...field}
             >
               <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={!!errors.role}>
@@ -248,6 +255,19 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
               </SelectContent>
             </Select>
           </InputField>
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="permissions"
+        render={({ field: { value, onChange } }) => (
+          <div className="flex flex-col gap-4">
+            {errors.permissions && (
+              <p className="text-xs text-destructive">{errors.permissions.message}</p>
+            )}
+            <PermissionPicker permissions={permissions ?? []} value={value} onChange={onChange} />
+          </div>
         )}
       />
 
