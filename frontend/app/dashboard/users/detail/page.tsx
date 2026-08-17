@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { UserStatusBadge } from "@/components/user-status-badge";
@@ -12,7 +13,6 @@ import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useHasPermission } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { getInitials } from "@/lib/utils";
-import { EditUserDialog } from "../_components/edit-user-dialog";
 
 const USER_TYPE_LABEL: Record<"internal" | "company" | "individual", string> = {
   internal: "พนักงานภายใน",
@@ -80,7 +80,16 @@ function UserDetailContent() {
         </div>
 
         <div className="flex items-center gap-2">
-          {canUpdateUser && <EditUserDialog userId={user.id} />}
+          {canUpdateUser && (
+            <Button
+              variant="outline"
+              render={<Link href={routes.dashboards.user.edit(user.id)} />}
+              nativeButton={false}
+            >
+              <Pencil />
+              <p>แก้ไข</p>
+            </Button>
+          )}
 
           {user.vendorProfileId && (
             <Button

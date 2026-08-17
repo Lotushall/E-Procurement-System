@@ -2,14 +2,13 @@
 
 import Link from "next/link"
 import { format } from "date-fns"
-import { Building2, Eye, Store, UserRound, type LucideIcon } from "lucide-react"
+import { Building2, Eye, Pencil, Store, UserRound, type LucideIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { UserListItem, UserType } from "@/lib/user/management/types"
 import { Button } from "@/components/ui/button"
 import { SortableHeader } from "@/components/ui/data-table-sortable-header"
 import { UserStatusBadge } from "@/components/user-status-badge"
 import { UserStatusSelect } from "@/components/user-status-select"
-import { EditUserDialog } from "../edit-user-dialog"
 import { routes } from "@/lib/routes"
 import { getInitials } from "@/lib/utils"
 
@@ -109,7 +108,15 @@ export function createColumns(canUpdateStatus: boolean, canUpdateUser: boolean):
                         <Eye className="w-4 h-4 text-gray-500" />
                     </Button>
                     {canUpdateUser && (
-                        <EditUserDialog userId={row.original.id} compact />
+                        <Button
+                            variant="outline"
+                            render={<Link href={routes.dashboards.user.edit(row.original.id)} />}
+                            nativeButton={false}
+                            aria-label="แก้ไข user"
+                            className="size-8 px-1.5 pt-px rounded-md bg-white"
+                        >
+                            <Pencil className="w-4 h-4 text-gray-500" />
+                        </Button>
                     )}
                 </div>
             ),

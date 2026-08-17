@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useMemo } from "react";
+import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,7 +18,6 @@ import { useHasPermission, useHasRole } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
-import { CreateUserDialog } from "./_components/create-user-dialog";
 import { createColumns } from "./_components/table/columns";
 
 const TYPE_OPTIONS: { value: UserTypeFilter; label: string }[] = [
@@ -90,7 +90,16 @@ function UsersPageContent() {
               จัดการ Role และ Permission
             </Button>
           )}
-          {canCreateUser && <CreateUserDialog />}
+          {canCreateUser && (
+            <Button
+              render={<Link href={routes.dashboards.user.create} />}
+              nativeButton={false}
+              className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10"
+            >
+              <Plus />
+              <p>เพิ่ม user</p>
+            </Button>
+          )}
         </div>
       </div>
 

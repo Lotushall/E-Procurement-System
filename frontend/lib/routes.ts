@@ -34,7 +34,9 @@ export const routes = {
     },
     user: {
       index: "/dashboard/users",
+      create: "/dashboard/users/create",
       detail: (id: number | string) => `/dashboard/users/detail?id=${id}`,
+      edit: (id: number | string) => `/dashboard/users/edit?id=${id}`,
       roles: "/dashboard/users/roles-permissions",
     },
     setting: {
