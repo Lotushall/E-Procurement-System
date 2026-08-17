@@ -37,6 +37,7 @@ export function useCreateUserForm(onSubmitted: () => void) {
       position: "",
       phone: "",
       role: "",
+      permissions: [],
     },
   });
 

@@ -12,6 +12,7 @@ export const CreateUserSchema = z.object({
   position: z.string().optional(),
   phone: z.string().optional(),
   role: z.string().min(1, "กรุณาเลือก role"),
+  permissions: z.array(z.string()),
 });
 
 export type CreateUserValues = z.infer<typeof CreateUserSchema>;
@@ -40,6 +41,7 @@ export const UpdateInternalUserSchema = z.object({
   position: z.string().optional(),
   phone: z.string().optional(),
   role: z.string().min(1, "กรุณาเลือก role"),
+  permissions: z.array(z.string()),
 });
 
 export type UpdateInternalUserValues = z.infer<typeof UpdateInternalUserSchema>;

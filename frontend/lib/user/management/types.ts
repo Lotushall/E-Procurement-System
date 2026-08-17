@@ -27,6 +27,7 @@ export interface UserDetail extends UserListItem {
   vendorProfileId: number | null;
   role: string | null;
   internalProfile: InternalProfileFields | null;
+  permissions: string[] | null;
 }
 
 export interface UserListPagination {
@@ -69,6 +70,7 @@ export interface CreateUserPayload {
   email: string;
   password: string;
   role: string;
+  permissions: string[];
   prefix?: string;
   firstname: string;
   lastname: string;
@@ -86,6 +88,7 @@ export interface UpdateAccountPayload {
 
 export interface UpdateInternalUserPayload extends UpdateAccountPayload {
   role: string;
+  permissions: string[];
   prefix?: string;
   firstname: string;
   lastname: string;
