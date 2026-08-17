@@ -139,7 +139,7 @@ function EditAccountForm({ user }: { user: UserDetail }) {
 function EditInternalUserForm({ user }: { user: UserDetail }) {
   const router = useRouter();
   const { data: roles } = useRoles();
-  const { data: permissions } = usePermissions();
+  const { data: permissions, isPending: permissionsPending, isError: permissionsError } = usePermissions();
   const { register, control, setValue, onSubmit, isSubmitting, formState: { errors } } =
     useUpdateInternalUserForm(user.id, () => router.push(routes.dashboards.user.detail(user.id)), {
       username: user.username,
@@ -153,10 +153,18 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
       position: user.internalProfile?.position ?? "",
       phone: user.internalProfile?.phone ?? "",
       role: user.role ?? "",
-      permissions: user.permissions ?? [],
+      permissions: user.permissions ?? (roles ?? []).find((r) => r.name === user.role)?.permissions ?? [],
     });
 
-  return (
+  return permissionsPending ? (
+    <div className="flex justify-center py-8">
+      <Spinner className="size-6" />
+    </div>
+  ) : permissionsError ? (
+    <p className="py-8 text-center text-sm text-muted-foreground">
+      ไม่สามารถโหลดรายการ permission ได้ กรุณาลองใหม่อีกครั้ง
+    </p>
+  ) : (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
       <div className="grid gap-4 md:grid-cols-2">
         <InputField label="Username" error={errors.username?.message}>

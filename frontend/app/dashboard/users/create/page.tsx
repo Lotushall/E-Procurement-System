@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
@@ -33,7 +34,7 @@ export default function CreateUserPage() {
 function CreateUserPageContent() {
   const router = useRouter();
   const { data: roles } = useRoles();
-  const { data: permissions } = usePermissions();
+  const { data: permissions, isPending: permissionsPending, isError: permissionsError } = usePermissions();
   const { register, control, setValue, onSubmit, isSubmitting, formState: { errors } } =
     useCreateUserForm(() => router.push(routes.dashboards.user.index));
 
@@ -53,6 +54,15 @@ function CreateUserPageContent() {
 
       <Card className="shadow-md">
         <CardContent className="pt-6">
+          {permissionsPending ? (
+            <div className="flex justify-center py-8">
+              <Spinner className="size-6" />
+            </div>
+          ) : permissionsError ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              ไม่สามารถโหลดรายการ permission ได้ กรุณาลองใหม่อีกครั้ง
+            </p>
+          ) : (
           <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
             <div className="grid gap-4 md:grid-cols-2">
               <InputField label="Username" error={errors.username?.message}>
@@ -174,6 +184,7 @@ function CreateUserPageContent() {
               </Button>
             </div>
           </form>
+          )}
         </CardContent>
       </Card>
     </div>
