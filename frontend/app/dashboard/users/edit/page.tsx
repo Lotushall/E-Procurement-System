@@ -13,6 +13,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import { PermissionPicker } from "@/components/permission-picker";
+import { RoleSelect } from "@/components/role-select";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
@@ -22,10 +23,6 @@ import type { UserDetail } from "@/lib/user/management/types";
 import { routes } from "@/lib/routes";
 import { useUpdateAccountForm } from "../_hooks/use-update-account-form";
 import { useUpdateInternalUserForm } from "../_hooks/use-update-internal-user-form";
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: "ผู้ดูแลระบบ",
-};
 
 export default function EditUserPage() {
   return (
@@ -238,30 +235,17 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
       <Controller
         control={control}
         name="role"
-        render={({ field: { value, onChange, ...field } }) => (
+        render={({ field: { value, onChange } }) => (
           <InputField label="บทบาท (Role)" error={errors.role?.message}>
-            <Select
-              items={(roles ?? []).map((r) => ({ value: r.name, label: ROLE_LABELS[r.name] ?? r.name }))}
+            <RoleSelect
+              roles={roles ?? []}
               value={value}
+              ariaInvalid={!!errors.role}
               onValueChange={(next) => {
                 onChange(next);
                 setValue("permissions", (roles ?? []).find((r) => r.name === next)?.permissions ?? []);
               }}
-              {...field}
-            >
-              <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={!!errors.role}>
-                <SelectValue placeholder="เลือก role" />
-              </SelectTrigger>
-              <SelectContent side="bottom" alignItemWithTrigger={false}>
-                <SelectGroup>
-                  {(roles ?? []).map((r) => (
-                    <SelectItem key={r.name} value={r.name}>
-                      {ROLE_LABELS[r.name] ?? r.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            />
           </InputField>
         )}
       />

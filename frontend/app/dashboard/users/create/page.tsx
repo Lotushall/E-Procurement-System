@@ -18,10 +18,7 @@ import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { routes } from "@/lib/routes";
 import { useCreateUserForm } from "../_hooks/use-create-user-form";
 import { PermissionPicker } from "@/components/permission-picker";
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: "ผู้ดูแลระบบ",
-};
+import { RoleSelect } from "@/components/role-select";
 
 export default function CreateUserPage() {
   return (
@@ -129,30 +126,17 @@ function CreateUserPageContent() {
             <Controller
               control={control}
               name="role"
-              render={({ field: { value, onChange, ...field } }) => (
+              render={({ field: { value, onChange } }) => (
                 <InputField label="บทบาท (Role)" error={errors.role?.message}>
-                  <Select
-                    items={(roles ?? []).map((r) => ({ value: r.name, label: ROLE_LABELS[r.name] ?? r.name }))}
+                  <RoleSelect
+                    roles={roles ?? []}
                     value={value}
+                    ariaInvalid={!!errors.role}
                     onValueChange={(next) => {
                       onChange(next);
                       setValue("permissions", (roles ?? []).find((r) => r.name === next)?.permissions ?? []);
                     }}
-                    {...field}
-                  >
-                    <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={!!errors.role}>
-                      <SelectValue placeholder="เลือก role" />
-                    </SelectTrigger>
-                    <SelectContent side="bottom" alignItemWithTrigger={false}>
-                      <SelectGroup>
-                        {(roles ?? []).map((r) => (
-                          <SelectItem key={r.name} value={r.name}>
-                            {ROLE_LABELS[r.name] ?? r.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  />
                 </InputField>
               )}
             />
