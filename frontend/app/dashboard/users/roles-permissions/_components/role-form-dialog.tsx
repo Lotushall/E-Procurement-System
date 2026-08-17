@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { Lock, Pencil, Plus } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +9,12 @@ import {
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import type { Permission, RoleDetail } from "@/lib/user/management/types";
+import { getGroupLabel } from "../_data/group-labels";
 import { useRoleForm } from "../_hooks/use-role-form";
 
 export function RoleFormDialog({ role }: { role?: RoleDetail }) {
@@ -24,7 +24,8 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
     useRoleForm(() => setOpen(false), role);
 
   const groups = (permissions ?? []).reduce<Record<string, Permission[]>>((acc, permission) => {
-    (acc[permission.group] ??= []).push(permission);
+    const group = permission.name.split(".")[0];
+    (acc[group] ??= []).push(permission);
     return acc;
   }, {});
 
@@ -48,7 +49,7 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
         {role ? <Pencil className="w-4 h-4 text-gray-500" /> : (<><Plus /><p>สร้าง role</p></>)}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{role ? "แก้ไข role" : "สร้าง role"}</DialogTitle>
           <DialogDescription>
@@ -79,34 +80,71 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
               control={control}
               name="permissions"
               render={({ field: { value, onChange } }) => (
-                <InputField label="Permission" error={errors.permissions?.message}>
-                  <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Lock className="size-4 text-red-700" />
+                      <span className="text-sm font-semibold tracking-wider">Permission</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <button
+                        type="button"
+                        onClick={() => onChange((permissions ?? []).map((permission) => permission.name))}
+                        className="cursor-pointer font-medium text-red-700 hover:underline"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange([])}
+                        className="cursor-pointer text-muted-foreground hover:underline"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+
+                  {errors.permissions && (
+                    <p className="text-xs text-destructive">{errors.permissions.message}</p>
+                  )}
+
+                  <div className="flex flex-col gap-4">
                     {Object.entries(groups).map(([group, items]) => (
-                      <div key={group} className="flex flex-col gap-1.5">
-                        <p className="text-xs font-semibold text-muted-foreground">{group}</p>
-                        {items.map((permission) => (
-                          <Field key={permission.name} orientation="horizontal" className="w-fit">
-                            <Checkbox
-                              id={permission.name}
-                              checked={value.includes(permission.name)}
-                              onCheckedChange={(checked) =>
-                                onChange(
-                                  checked
-                                    ? [...value, permission.name]
-                                    : value.filter((name) => name !== permission.name),
-                                )
-                              }
-                              className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
-                            />
-                            <FieldLabel htmlFor={permission.name} className="font-light tracking-wide text-sm cursor-pointer">
-                              {permission.label}
-                            </FieldLabel>
-                          </Field>
-                        ))}
+                      <div key={group} className="flex flex-col gap-2">
+                        <p className="text-sm">
+                          <span className="font-bold">{group.toUpperCase()}</span>{" "}
+                          <span className="text-muted-foreground">{getGroupLabel(group)}</span>
+                        </p>
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          {items.map((permission) => (
+                            <label
+                              key={permission.name}
+                              htmlFor={permission.name}
+                              className="flex items-center gap-2.5 rounded-md border p-3 cursor-pointer hover:border-red-700/40"
+                            >
+                              <Checkbox
+                                id={permission.name}
+                                checked={value.includes(permission.name)}
+                                onCheckedChange={(checked) =>
+                                  onChange(
+                                    checked
+                                      ? [...value, permission.name]
+                                      : value.filter((name) => name !== permission.name),
+                                  )
+                                }
+                                className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
+                              />
+                              <div className="flex flex-col overflow-hidden">
+                                <span className="truncate text-sm font-semibold">{permission.label}</span>
+                                <span className="truncate text-xs text-muted-foreground">{permission.name}</span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
-                </InputField>
+                </div>
               )}
             />
 
