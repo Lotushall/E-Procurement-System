@@ -3,6 +3,8 @@ import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreateRole } from "@/lib/user/management/mutations/useCreateRole";
+import { useUpdateRole } from "@/lib/user/management/mutations/useUpdateRole";
+import type { RoleDetail } from "@/lib/user/management/types";
 import { RoleFormSchema, type RoleFormValues } from "../_schemas/schema";
 
 function getErrorMessage(error: unknown): string {
@@ -20,21 +22,33 @@ function getErrorMessage(error: unknown): string {
   return message ?? "บันทึก role ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
 
-export function useRoleForm(onSubmitted: () => void) {
+export function useRoleForm(onSubmitted: () => void, role?: RoleDetail) {
   const createRoleMutation = useCreateRole();
+  const updateRoleMutation = useUpdateRole(role?.id ?? 0);
+
+  const initialValues: RoleFormValues = role
+    ? { name: role.name, permissions: role.permissions ?? [] }
+    : { name: "", permissions: [] };
 
   const form = useForm<RoleFormValues>({
     resolver: zodResolver(RoleFormSchema),
-    defaultValues: { name: "", permissions: [] },
+    defaultValues: initialValues,
+    values: role ? initialValues : undefined,
   });
 
+  const isSubmitting = createRoleMutation.isPending || updateRoleMutation.isPending;
+
   const onSubmit = form.handleSubmit((values) => {
-    toast.promise(createRoleMutation.mutateAsync(values), {
-      loading: "กำลังสร้าง role...",
+    const promise = role
+      ? updateRoleMutation.mutateAsync(values)
+      : createRoleMutation.mutateAsync(values);
+
+    toast.promise(promise, {
+      loading: role ? "กำลังบันทึกการแก้ไข..." : "กำลังสร้าง role...",
       success: () => {
-        form.reset();
+        if (!role) form.reset();
         onSubmitted();
-        return "สร้าง role สำเร็จ";
+        return role ? "บันทึกการแก้ไขสำเร็จ" : "สร้าง role สำเร็จ";
       },
       error: getErrorMessage,
     });
@@ -43,6 +57,6 @@ export function useRoleForm(onSubmitted: () => void) {
   return {
     ...form,
     onSubmit,
-    isSubmitting: createRoleMutation.isPending,
+    isSubmitting,
   };
 }
