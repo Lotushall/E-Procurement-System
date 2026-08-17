@@ -112,10 +112,7 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
                     {Object.entries(groups).map(([group, items]) => (
                       <div key={group} className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm">
-                            <span className="font-bold">{group.toUpperCase()}</span>{" "}
-                            <span className="text-muted-foreground">{getGroupLabel(group)}</span>
-                          </p>
+                          <p className="text-sm font-bold">{getGroupLabel(group)}</p>
                           <button
                             type="button"
                             onClick={() =>
