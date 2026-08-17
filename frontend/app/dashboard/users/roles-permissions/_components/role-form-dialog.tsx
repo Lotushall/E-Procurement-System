@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
-import type { Permission, RoleDetail } from "@/lib/user/management/types";
+import type { Permission } from "@/lib/user/management/types";
 import { useRoleForm } from "../_hooks/use-role-form";
 
-export function RoleFormDialog({ role }: { role?: RoleDetail }) {
+export function RoleFormDialog() {
   const [open, setOpen] = useState(false);
   const { data: permissions, isPending: permissionsPending, isError: permissionsError } = usePermissions();
   const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } =
-    useRoleForm(() => setOpen(false), role);
+    useRoleForm(() => setOpen(false));
 
   const groups = (permissions ?? []).reduce<Record<string, Permission[]>>((acc, permission) => {
     (acc[permission.group] ??= []).push(permission);
@@ -37,23 +37,15 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
       }}
     >
       <DialogTrigger
-        render={
-          role ? (
-            <Button variant="outline" aria-label="แก้ไข role" className="size-8 px-1.5 pt-px rounded-md bg-white" />
-          ) : (
-            <Button className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10" />
-          )
-        }
+        render={<Button className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10" />}
       >
-        {role ? <Pencil className="w-4 h-4 text-gray-500" /> : (<><Plus /><p>สร้าง role</p></>)}
+        <Plus /><p>สร้าง role</p>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{role ? "แก้ไข role" : "สร้าง role"}</DialogTitle>
-          <DialogDescription>
-            {role ? `แก้ไขชื่อและ permission ของ role "${role.name}"` : "ตั้งชื่อและเลือก permission สำหรับ role ใหม่"}
-          </DialogDescription>
+          <DialogTitle>สร้าง role</DialogTitle>
+          <DialogDescription>ตั้งชื่อและเลือก permission สำหรับ role ใหม่</DialogDescription>
         </DialogHeader>
 
         {permissionsPending ? (
@@ -113,7 +105,7 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
             <DialogFooter>
               <DialogClose render={<Button type="button" variant="outline" className="h-11 md:w-20" />}>ยกเลิก</DialogClose>
               <Button type="submit" disabled={isSubmitting} className="bg-red-700 text-white hover:bg-red-600 h-11">
-                {role ? "บันทึกการแก้ไข" : "สร้าง role"}
+                สร้าง role
               </Button>
             </DialogFooter>
           </form>
