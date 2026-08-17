@@ -1,120 +1,61 @@
 "use client";
 
-import { Suspense } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { format } from "date-fns";
-import { Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { UserStatusBadge } from "@/components/user-status-badge";
-import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { useHasPermission } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
-import { getInitials } from "@/lib/utils";
+import type { UserStatus } from "@/lib/user/management/types";
+import { cn } from "@/lib/utils";
+import { ActivityTab } from "./_components/activity-tab";
+import { OverviewTab } from "./_components/overview-tab";
+import { PermissionsTab } from "./_components/permissions-tab";
+import { SessionsTab } from "./_components/sessions-tab";
+import { UserDetailHeader } from "./_components/user-detail-header";
+import { MOCK_USER_DETAIL } from "./_data/mock-user-detail";
 
-const USER_TYPE_LABEL: Record<"internal" | "company" | "individual", string> = {
-  internal: "พนักงานภายใน",
-  company: "นิติบุคคล",
-  individual: "ร้านค้า",
-};
+type ActiveTab = "overview" | "permissions" | "sessions" | "activity";
 
 export default function UserDetailPage() {
-  return (
-    <Suspense fallback={null}>
-      <UserDetailContent />
-    </Suspense>
-  );
-}
-
-function UserDetailContent() {
-  const searchParams = useSearchParams();
-  const userId = Number(searchParams.get("id"));
-  const isValidId = Number.isFinite(userId) && userId > 0;
-
-  const { data: user, isPending, isError } = useUserDetail(userId);
-  const notFound = !isValidId || (isError && !user) || (!isPending && !user);
-  const canUpdateUser = useHasPermission("users.update");
+  const user = MOCK_USER_DETAIL;
+  const [status, setStatus] = useState<UserStatus>(user.status);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
 
   useBreadcrumb([
     { label: "จัดการผู้ใช้", href: routes.dashboards.user.index },
-    isValidId && isPending ? { loading: true } : { label: user?.name ?? "ไม่พบข้อมูล" },
+    { label: user.name },
   ]);
-
-  if (isValidId && isPending) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner className="size-6" />
-      </div>
-    );
-  }
-
-  if (notFound || !user) {
-    return (
-      <p className="py-12 text-center text-sm text-muted-foreground">
-        ไม่พบข้อมูลผู้ใช้รายนี้
-      </p>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3.5">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-red-700 text-sm font-bold text-white">
-            {getInitials(user.name ?? "")}
-          </div>
+      <UserDetailHeader user={user} status={status} onStatusChange={setStatus} />
 
-          <div className="flex flex-col gap-0.5">
-            <h1 className="text-2xl font-bold">{user.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {user.username} · {user.email}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <UserStatusBadge status={user.status} />
-            <div className="h-4" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {canUpdateUser && (
-            <Button
-              variant="outline"
-              render={<Link href={routes.dashboards.user.edit(user.id)} />}
-              nativeButton={false}
-            >
-              <Pencil />
-              <p>แก้ไข</p>
-            </Button>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)}>
+        <TabsList
+          className={cn(
+            "min-h-11 w-fit border p-1 rounded-md space-x-1",
+            "*:data-active:bg-red-700 *:data-active:text-white *:data-active:hover:text-white",
+            "*:font-bold tracking-wide *:cursor-pointer *:rounded-md *:px-3"
           )}
+        >
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="sessions">Sessions</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
 
-          {user.vendorProfileId && (
-            <Button
-              variant="outline"
-              render={<Link href={routes.dashboards.vendors.detail(user.vendorProfileId)} />}
-              nativeButton={false}
-            >
-              ดูข้อมูลผู้ค้า
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 rounded-md border p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">ประเภทผู้ใช้</span>
-          <span className="text-sm font-medium">{USER_TYPE_LABEL[user.userType]}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">วันที่สร้างบัญชี</span>
-          <span className="text-sm font-medium">
-            {Number.isNaN(new Date(user.createdAt).getTime()) ? "-" : format(new Date(user.createdAt), "dd-MM-yyyy")}
-          </span>
-        </div>
-      </div>
+        <TabsContent value="overview" className="pt-4">
+          <OverviewTab user={user} status={status} />
+        </TabsContent>
+        <TabsContent value="permissions" className="pt-4">
+          <PermissionsTab user={user} />
+        </TabsContent>
+        <TabsContent value="sessions" className="pt-4">
+          <SessionsTab sessions={user.sessions} />
+        </TabsContent>
+        <TabsContent value="activity" className="pt-4">
+          <ActivityTab activity={user.activity} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

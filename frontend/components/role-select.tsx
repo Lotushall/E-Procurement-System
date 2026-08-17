@@ -30,7 +30,7 @@ export function RoleSelect({
       <SelectContent side="bottom" alignItemWithTrigger={false}>
         <SelectGroup>
           {roles.map((r) => (
-            <SelectItem key={r.name} value={r.name}>
+            <SelectItem key={r.name} value={r.name} className="capitalize">
               {r.name}
             </SelectItem>
           ))}

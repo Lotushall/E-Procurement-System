@@ -31,6 +31,12 @@ const formatWithGroups = (digits: string, groups: number[]) => {
 // เลขประจำตัวผู้เสียภาษี / เลขบัตรประชาชน: X-XXXX-XXXXX-XX-X (13 หลัก)
 export const formatCitizenId = (value: string) => formatWithGroups(digitsOnly(value).slice(0, 13), [1, 4, 5, 2, 1])
 
+// เลขบัตรประชาชนแบบปกปิดกลาง: X-XXXX-*****-XX-X
+export const maskCitizenId = (value: string) => {
+  const digits = digitsOnly(value).slice(0, 13)
+  return `${digits.slice(0, 1)}-${digits.slice(1, 5)}-*****-${digits.slice(9, 11)}-${digits.slice(11, 13)}`
+}
+
 // เบอร์ติดต่อ: 0X-XXX-XXXX (9 หลัก) หรือ 0XX-XXX-XXXX (10 หลัก)
 export const formatPhone = (value: string) => {
   const digits = digitsOnly(value).slice(0, 10)
