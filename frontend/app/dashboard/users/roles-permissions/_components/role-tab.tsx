@@ -1,8 +1,9 @@
 "use client";
 
 import { isAxiosError } from "axios";
+import { Fragment } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -27,13 +28,13 @@ function getErrorMessage(error: unknown): string {
   return message ?? "บันทึกการแก้ไขไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
 
-function RoleMatrixRow({ role, permissions }: { role: RoleDetail; permissions: Permission[] }) {
+function PermissionCell({ role, permission }: { role: RoleDetail; permission: Permission }) {
   const updateRoleMutation = useUpdateRole(role.id);
 
-  const togglePermission = (name: string, checked: boolean) => {
+  const toggle = (checked: boolean) => {
     const next = checked
-      ? [...role.permissions, name]
-      : role.permissions.filter((permission) => permission !== name);
+      ? [...role.permissions, permission.name]
+      : role.permissions.filter((name) => name !== permission.name);
 
     toast.promise(updateRoleMutation.mutateAsync({ name: role.name, permissions: next }), {
       loading: "กำลังบันทึกการแก้ไข...",
@@ -43,25 +44,13 @@ function RoleMatrixRow({ role, permissions }: { role: RoleDetail; permissions: P
   };
 
   return (
-    <TableRow>
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-1.5">
-          <span>{role.name}</span>
-          <DeleteRoleDialog role={role} />
-        </div>
-      </TableCell>
-      {permissions.map((permission) => (
-        <TableCell key={permission.name} className="text-center">
-          <Checkbox
-            checked={role.permissions.includes(permission.name)}
-            disabled={updateRoleMutation.isPending}
-            onCheckedChange={(checked) => togglePermission(permission.name, checked === true)}
-            aria-label={`${permission.label} - ${role.name}`}
-            className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
-          />
-        </TableCell>
-      ))}
-    </TableRow>
+    <Checkbox
+      checked={role.permissions.includes(permission.name)}
+      disabled={updateRoleMutation.isPending}
+      onCheckedChange={(checked) => toggle(checked === true)}
+      aria-label={`${permission.label} - ${role.name}`}
+      className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
+    />
   );
 }
 
@@ -99,35 +88,52 @@ export function RoleTab() {
           ยังไม่มี permission ในระบบ
         </p>
       ) : (
-        groupNames.map((group) => {
-          const items = [...groups[group]].sort((a, b) => a.name.localeCompare(b.name));
-          return (
-            <Card key={group} className="shadow-md">
-              <CardHeader>
-                <CardTitle>{getGroupLabel(group)}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Role</TableHead>
+        <Card className="shadow-md">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Permission</TableHead>
+                  {roles.map((role) => (
+                    <TableHead key={role.id} className="text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span>{role.name}</span>
+                        <DeleteRoleDialog role={role} />
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {groupNames.map((group) => {
+                  const items = [...groups[group]].sort((a, b) => a.name.localeCompare(b.name));
+                  return (
+                    <Fragment key={group}>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableCell
+                          colSpan={roles.length + 1}
+                          className="text-xs font-semibold text-muted-foreground"
+                        >
+                          {getGroupLabel(group)}
+                        </TableCell>
+                      </TableRow>
                       {items.map((permission) => (
-                        <TableHead key={permission.name} className="text-center">
-                          {permission.label}
-                        </TableHead>
+                        <TableRow key={permission.name}>
+                          <TableCell>{permission.label}</TableCell>
+                          {roles.map((role) => (
+                            <TableCell key={role.id} className="text-center">
+                              <PermissionCell role={role} permission={permission} />
+                            </TableCell>
+                          ))}
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {roles.map((role) => (
-                      <RoleMatrixRow key={role.id} role={role} permissions={items} />
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          );
-        })
+                    </Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
