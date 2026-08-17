@@ -13,8 +13,10 @@ import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
+import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { routes } from "@/lib/routes";
 import { useCreateUserForm } from "../_hooks/use-create-user-form";
+import { PermissionPicker } from "@/components/permission-picker";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "ผู้ดูแลระบบ",
@@ -31,7 +33,8 @@ export default function CreateUserPage() {
 function CreateUserPageContent() {
   const router = useRouter();
   const { data: roles } = useRoles();
-  const { register, control, onSubmit, isSubmitting, formState: { errors } } =
+  const { data: permissions } = usePermissions();
+  const { register, control, setValue, onSubmit, isSubmitting, formState: { errors } } =
     useCreateUserForm(() => router.push(routes.dashboards.user.index));
 
   useBreadcrumb([
@@ -121,7 +124,10 @@ function CreateUserPageContent() {
                   <Select
                     items={(roles ?? []).map((r) => ({ value: r.name, label: ROLE_LABELS[r.name] ?? r.name }))}
                     value={value}
-                    onValueChange={onChange}
+                    onValueChange={(next) => {
+                      onChange(next);
+                      setValue("permissions", (roles ?? []).find((r) => r.name === next)?.permissions ?? []);
+                    }}
                     {...field}
                   >
                     <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={!!errors.role}>
@@ -138,6 +144,19 @@ function CreateUserPageContent() {
                     </SelectContent>
                   </Select>
                 </InputField>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="permissions"
+              render={({ field: { value, onChange } }) => (
+                <div className="flex flex-col gap-4">
+                  {errors.permissions && (
+                    <p className="text-xs text-destructive">{errors.permissions.message}</p>
+                  )}
+                  <PermissionPicker permissions={permissions ?? []} value={value} onChange={onChange} />
+                </div>
               )}
             />
 
