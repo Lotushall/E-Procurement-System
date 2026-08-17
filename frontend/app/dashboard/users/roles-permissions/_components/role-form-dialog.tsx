@@ -113,17 +113,30 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
                       <div key={group} className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-bold">{getGroupLabel(group)}</p>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              onChange(
-                                Array.from(new Set([...value, ...items.map((permission) => permission.name)])),
-                              )
-                            }
-                            className="cursor-pointer text-xs font-medium text-red-700 hover:underline"
-                          >
-                            Select All
-                          </button>
+                          <div className="flex items-center gap-2.5">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onChange(
+                                  Array.from(new Set([...value, ...items.map((permission) => permission.name)])),
+                                )
+                              }
+                              className="cursor-pointer text-xs font-medium text-red-700 hover:underline"
+                            >
+                              Select All
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onChange(
+                                  value.filter((name) => !items.some((permission) => permission.name === name)),
+                                )
+                              }
+                              className="cursor-pointer text-xs text-muted-foreground hover:underline"
+                            >
+                              Clear All
+                            </button>
+                          </div>
                         </div>
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                           {items.map((permission) => (
