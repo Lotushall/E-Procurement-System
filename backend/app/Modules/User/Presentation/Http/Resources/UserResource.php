@@ -23,6 +23,20 @@ class UserResource extends JsonResource
             'userType' => $this->user_type->value,
             'status' => $this->status->getValue(),
             'createdAt' => $this->created_at?->toIso8601String(),
+            'role' => $this->whenNotNull($this->getRoleNames()->first()),
+            'internalProfile' => $this->whenNotNull($this->user_type === UserType::Internal ? [
+                'employeeNo' => $this->UserInternalProfile?->employee_no,
+                'prefix' => $this->UserInternalProfile?->prefix,
+                'firstname' => $this->UserInternalProfile?->firstname,
+                'lastname' => $this->UserInternalProfile?->lastname,
+                'department' => $this->UserInternalProfile?->department,
+                'position' => $this->UserInternalProfile?->position,
+                'phone' => $this->UserInternalProfile?->phone,
+            ] : null),
+            'permissions' => $this->getAllPermissions()->pluck('name'),
+            'emailVerifiedAt' => $this->whenNotNull($this->email_verified_at?->toIso8601String()),
+            'lastLoginAt' => $this->whenNotNull($this->last_login_at?->toIso8601String()),
+            'passwordChangedAt' => $this->whenNotNull($this->password_changed_at?->toIso8601String()),
         ];
     }
 

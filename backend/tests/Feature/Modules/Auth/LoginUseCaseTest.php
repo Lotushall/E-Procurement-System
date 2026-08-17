@@ -177,3 +177,19 @@ test('login fails when the account is inactive', function () {
 
     expect($threw)->toBeTrue();
 });
+
+test('login records last_login_at on success', function () {
+    UserModel::factory()->create([
+        'email' => 'jdoe@example.com',
+        'password' => Hash::make('secret123'),
+    ]);
+
+    $user = loginUseCase()->execute(new LoginData(
+        identifier: 'jdoe@example.com',
+        identifierField: 'email',
+        password: 'secret123',
+        remember: false,
+    ));
+
+    expect($user->lastLoginAt())->not->toBeNull();
+});

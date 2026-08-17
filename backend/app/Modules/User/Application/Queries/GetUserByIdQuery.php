@@ -13,6 +13,8 @@ final class GetUserByIdQuery
                 'UserInternalProfile',
                 'UserVendorProfile.VendorProfilesCompanyDetail',
                 'UserVendorProfile.VendorProfilesIndividualDetail',
+                'roles.permissions',
+                'permissions',
             ])
             ->findOrFail($id);
     }

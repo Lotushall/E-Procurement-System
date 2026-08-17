@@ -46,6 +46,8 @@ final class LoginUseCase
             ]);
         }
 
-        return $user;
+        $user->recordLogin();
+
+        return $this->users->save($user);
     }
 }

@@ -14,6 +14,20 @@ Route::prefix('dashboard')->group(function () {
         ->whereNumber('id')
         ->name('dashboard.users.show');
 
+    Route::get('users/{id}/sessions', [UserController::class, 'sessions'])
+        ->middleware('can:users.update')
+        ->whereNumber('id')
+        ->name('dashboard.users.sessions.index');
+    Route::delete('users/{id}/sessions/{sessionId}', [UserController::class, 'revokeSession'])
+        ->middleware('can:users.update')
+        ->whereNumber('id')
+        ->where('sessionId', '[\w-]+')
+        ->name('dashboard.users.sessions.revoke');
+    Route::delete('users/{id}/sessions', [UserController::class, 'revokeAllSessions'])
+        ->middleware('can:users.update')
+        ->whereNumber('id')
+        ->name('dashboard.users.sessions.revokeAll');
+
     Route::get('permissions', [PermissionController::class, 'index'])
         ->middleware('role:admin')
         ->name('dashboard.permissions.index');

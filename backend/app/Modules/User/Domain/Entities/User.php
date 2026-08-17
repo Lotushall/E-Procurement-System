@@ -22,6 +22,8 @@ final class User
         private readonly UserType $userType,
         private UserStatus $status,
         private ?CarbonImmutable $emailVerifiedAt,
+        private ?CarbonImmutable $lastLoginAt,
+        private ?CarbonImmutable $passwordChangedAt,
         private ?CarbonImmutable $createdAt,
         private ?CarbonImmutable $updatedAt,
     ) {}
@@ -40,6 +42,8 @@ final class User
             userType: $userType,
             status: new Pending(null),
             emailVerifiedAt: null,
+            lastLoginAt: null,
+            passwordChangedAt: null,
             createdAt: null,
             updatedAt: null,
         );
@@ -53,6 +57,8 @@ final class User
         UserType $userType,
         UserStatus $status,
         ?CarbonImmutable $emailVerifiedAt,
+        ?CarbonImmutable $lastLoginAt,
+        ?CarbonImmutable $passwordChangedAt,
         CarbonImmutable $createdAt,
         CarbonImmutable $updatedAt,
     ): self {
@@ -64,6 +70,8 @@ final class User
             userType: $userType,
             status: $status,
             emailVerifiedAt: $emailVerifiedAt,
+            lastLoginAt: $lastLoginAt,
+            passwordChangedAt: $passwordChangedAt,
             createdAt: $createdAt,
             updatedAt: $updatedAt,
         );
@@ -133,6 +141,13 @@ final class User
     public function changePassword(string $passwordHash): void
     {
         $this->password = $passwordHash;
+        $this->passwordChangedAt = CarbonImmutable::now();
+        $this->touch();
+    }
+
+    public function recordLogin(): void
+    {
+        $this->lastLoginAt = CarbonImmutable::now();
         $this->touch();
     }
 
@@ -177,6 +192,16 @@ final class User
     public function emailVerifiedAt(): ?CarbonImmutable
     {
         return $this->emailVerifiedAt;
+    }
+
+    public function lastLoginAt(): ?CarbonImmutable
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function passwordChangedAt(): ?CarbonImmutable
+    {
+        return $this->passwordChangedAt;
     }
 
     public function createdAt(): ?CarbonImmutable

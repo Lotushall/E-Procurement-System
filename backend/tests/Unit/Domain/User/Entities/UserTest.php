@@ -41,6 +41,8 @@ test('reconstitute rebuilds a user from persisted values', function () {
         userType: UserType::Internal,
         status: $status,
         emailVerifiedAt: $emailVerifiedAt,
+        lastLoginAt: null,
+        passwordChangedAt: null,
         createdAt: $createdAt,
         updatedAt: $updatedAt,
     );

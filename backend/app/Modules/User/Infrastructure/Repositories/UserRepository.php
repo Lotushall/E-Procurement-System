@@ -22,6 +22,8 @@ class UserRepository implements UserRepositoryInterface
         $model->user_type = $user->userType();
         $model->status = $user->status();
         $model->email_verified_at = $user->emailVerifiedAt();
+        $model->last_login_at = $user->lastLoginAt();
+        $model->password_changed_at = $user->passwordChangedAt();
         $model->save();
 
         return $this->toDomain($model);
@@ -64,6 +66,12 @@ class UserRepository implements UserRepositoryInterface
             status: $model->status,
             emailVerifiedAt: $model->email_verified_at !== null
                 ? CarbonImmutable::instance($model->email_verified_at)
+                : null,
+            lastLoginAt: $model->last_login_at !== null
+                ? CarbonImmutable::instance($model->last_login_at)
+                : null,
+            passwordChangedAt: $model->password_changed_at !== null
+                ? CarbonImmutable::instance($model->password_changed_at)
                 : null,
             createdAt: CarbonImmutable::instance($model->created_at),
             updatedAt: CarbonImmutable::instance($model->updated_at),

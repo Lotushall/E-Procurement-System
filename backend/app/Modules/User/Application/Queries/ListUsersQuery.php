@@ -23,6 +23,8 @@ final class ListUsersQuery
                 'UserInternalProfile',
                 'UserVendorProfile.VendorProfilesCompanyDetail',
                 'UserVendorProfile.VendorProfilesIndividualDetail',
+                'roles.permissions',
+                'permissions',
             ])
             ->type($type)
             ->status($status)
