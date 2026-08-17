@@ -1,19 +1,12 @@
 "use client";
 
 import { isAxiosError } from "axios";
-import { Fragment } from "react";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useUpdateRole } from "@/lib/user/management/mutations/useUpdateRole";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
@@ -28,15 +21,23 @@ function getErrorMessage(error: unknown): string {
   return message ?? "บันทึกการแก้ไขไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
 
-function PermissionCell({ role, permission }: { role: RoleDetail; permission: Permission }) {
+function RoleCard({
+  role,
+  groupNames,
+  groups,
+}: {
+  role: RoleDetail;
+  groupNames: string[];
+  groups: Record<string, Permission[]>;
+}) {
   const updateRoleMutation = useUpdateRole(role.id);
 
-  const toggle = (checked: boolean) => {
-    const next = checked
-      ? [...role.permissions, permission.name]
-      : role.permissions.filter((name) => name !== permission.name);
+  const togglePermission = (name: string, checked: boolean) => {
+    const permissions = checked
+      ? [...role.permissions, name]
+      : role.permissions.filter((permission) => permission !== name);
 
-    toast.promise(updateRoleMutation.mutateAsync({ name: role.name, permissions: next }), {
+    toast.promise(updateRoleMutation.mutateAsync({ name: role.name, permissions }), {
       loading: "กำลังบันทึกการแก้ไข...",
       success: "บันทึกการแก้ไขสำเร็จ",
       error: getErrorMessage,
@@ -44,13 +45,45 @@ function PermissionCell({ role, permission }: { role: RoleDetail; permission: Pe
   };
 
   return (
-    <Checkbox
-      checked={role.permissions.includes(permission.name)}
-      disabled={updateRoleMutation.isPending}
-      onCheckedChange={(checked) => toggle(checked === true)}
-      aria-label={`${permission.label} - ${role.name}`}
-      className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
-    />
+    <Card className="shadow-md">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span className="truncate">{role.name}</span>
+          <DeleteRoleDialog role={role} />
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{role.permissions?.length ?? 0} permissions</Badge>
+          <Badge variant="outline">{role.userCount} คน</Badge>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {groupNames.map((group) => {
+            const items = [...groups[group]].sort((a, b) => a.name.localeCompare(b.name));
+            return (
+              <div key={group} className="flex flex-col gap-1.5">
+                <p className="text-xs font-semibold text-muted-foreground">{getGroupLabel(group)}</p>
+                {items.map((permission) => (
+                  <Field key={permission.name} orientation="horizontal" className="w-fit">
+                    <Checkbox
+                      id={`${role.id}-${permission.name}`}
+                      checked={role.permissions.includes(permission.name)}
+                      disabled={updateRoleMutation.isPending}
+                      onCheckedChange={(checked) => togglePermission(permission.name, checked === true)}
+                      className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
+                    />
+                    <FieldLabel htmlFor={`${role.id}-${permission.name}`} className="font-light tracking-wide text-sm cursor-pointer">
+                      {permission.label}
+                    </FieldLabel>
+                  </Field>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -83,57 +116,12 @@ export function RoleTab() {
         <p className="py-12 text-center text-sm text-muted-foreground">
           ยังไม่มี role ในระบบ
         </p>
-      ) : groupNames.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          ยังไม่มี permission ในระบบ
-        </p>
       ) : (
-        <Card className="shadow-md">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Permission</TableHead>
-                  {roles.map((role) => (
-                    <TableHead key={role.id} className="text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span>{role.name}</span>
-                        <DeleteRoleDialog role={role} />
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {groupNames.map((group) => {
-                  const items = [...groups[group]].sort((a, b) => a.name.localeCompare(b.name));
-                  return (
-                    <Fragment key={group}>
-                      <TableRow className="bg-muted/50 hover:bg-muted/50">
-                        <TableCell
-                          colSpan={roles.length + 1}
-                          className="text-xs font-semibold text-muted-foreground"
-                        >
-                          {getGroupLabel(group)}
-                        </TableCell>
-                      </TableRow>
-                      {items.map((permission) => (
-                        <TableRow key={permission.name}>
-                          <TableCell>{permission.label}</TableCell>
-                          {roles.map((role) => (
-                            <TableCell key={role.id} className="text-center">
-                              <PermissionCell role={role} permission={permission} />
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </Fragment>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {roles.map((role) => (
+            <RoleCard key={role.id} role={role} groupNames={groupNames} groups={groups} />
+          ))}
+        </div>
       )}
     </div>
   );
