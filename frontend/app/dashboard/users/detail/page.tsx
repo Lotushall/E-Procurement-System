@@ -84,9 +84,9 @@ function UserDetailContent() {
 
           {user.vendorProfileId && (
             <Button
-              type="button"
               variant="outline"
               render={<Link href={routes.dashboards.vendors.detail(user.vendorProfileId)} />}
+              nativeButton={false}
             >
               ดูข้อมูลผู้ค้า
             </Button>

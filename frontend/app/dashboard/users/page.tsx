@@ -86,7 +86,7 @@ function UsersPageContent() {
         </div>
         <div className="flex items-center gap-2">
           {canManageRoles && (
-            <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} className="h-10">
+            <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} nativeButton={false} className="h-10">
               จัดการ Role และ Permission
             </Button>
           )}

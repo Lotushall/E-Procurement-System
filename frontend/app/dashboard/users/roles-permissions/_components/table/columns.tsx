@@ -11,7 +11,7 @@ export const columns: ColumnDef<RoleDetail>[] = [
         id: "name",
         header: "ชื่อ Role",
         accessorFn: (role) => role.name,
-        cell: ({ getValue }) => <span className="font-bold">{getValue<string>()}</span>,
+        cell: ({ getValue }) => <span className="font-bold capitalize">{getValue<string>()}</span>,
     },
     {
         id: "permissions",

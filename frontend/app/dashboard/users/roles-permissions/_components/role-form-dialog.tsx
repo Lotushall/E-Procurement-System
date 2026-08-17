@@ -51,10 +51,9 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
 
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{role ? "แก้ไข role" : "สร้าง role"}</DialogTitle>
-          <DialogDescription>
-            {role ? `แก้ไขชื่อและ permission ของ role "${role.name}"` : "ตั้งชื่อและเลือก permission สำหรับ role ใหม่"}
-          </DialogDescription>
+          <DialogTitle className="text-lg font-bold">
+            {role ? "แก้ไข role" : "สร้าง role"}
+          </DialogTitle>
         </DialogHeader>
 
         {permissionsPending ? (
@@ -85,11 +84,11 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
                     <p className="text-xs text-destructive">{errors.permissions.message}</p>
                   )}
 
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-6 mt-2">
                     {Object.entries(groups).map(([group, items]) => (
                       <div key={group} className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-bold">{getGroupLabel(group)}</p>
+                          <p className="text-base font-bold">{getGroupLabel(group)}</p>
                           <div className="flex items-center gap-2.5">
                             <button
                               type="button"
@@ -98,7 +97,7 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
                                   Array.from(new Set([...value, ...items.map((permission) => permission.name)])),
                                 )
                               }
-                              className="cursor-pointer text-xs font-medium text-red-700 hover:underline"
+                              className="cursor-pointer text-sm font-medium text-red-700 hover:underline"
                             >
                               Select All
                             </button>
@@ -109,7 +108,7 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
                                   value.filter((name) => !items.some((permission) => permission.name === name)),
                                 )
                               }
-                              className="cursor-pointer text-xs text-muted-foreground hover:underline"
+                              className="cursor-pointer text-sm text-muted-foreground hover:underline"
                             >
                               Clear All
                             </button>

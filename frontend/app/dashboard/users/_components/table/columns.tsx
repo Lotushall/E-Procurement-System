@@ -103,6 +103,7 @@ export function createColumns(canUpdateStatus: boolean, canUpdateUser: boolean):
                     <Button
                         variant="outline"
                         render={<Link href={routes.dashboards.user.detail(row.original.id)} />}
+                        nativeButton={false}
                         className="size-8 px-1.5 pt-px rounded-md bg-white"
                     >
                         <Eye className="w-4 h-4 text-gray-500" />
