@@ -111,10 +111,23 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
                   <div className="flex flex-col gap-4">
                     {Object.entries(groups).map(([group, items]) => (
                       <div key={group} className="flex flex-col gap-2">
-                        <p className="text-sm">
-                          <span className="font-bold">{group.toUpperCase()}</span>{" "}
-                          <span className="text-muted-foreground">{getGroupLabel(group)}</span>
-                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm">
+                            <span className="font-bold">{group.toUpperCase()}</span>{" "}
+                            <span className="text-muted-foreground">{getGroupLabel(group)}</span>
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onChange(
+                                Array.from(new Set([...value, ...items.map((permission) => permission.name)])),
+                              )
+                            }
+                            className="cursor-pointer text-xs font-medium text-red-700 hover:underline"
+                          >
+                            Select All
+                          </button>
+                        </div>
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                           {items.map((permission) => (
                             <label
