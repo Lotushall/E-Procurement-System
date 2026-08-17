@@ -53,17 +53,6 @@ export function UserDetailHeader({
 
   return (
     <div className="flex flex-col gap-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        render={<Link href={routes.dashboards.user.index} />}
-        nativeButton={false}
-        className="w-fit gap-1.5 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" />
-        กลับไปหน้าผู้ใช้ทั้งหมด
-      </Button>
-
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3.5">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-red-700 text-sm font-bold text-white">
@@ -78,10 +67,8 @@ export function UserDetailHeader({
           </div>
 
           <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <UserStatusBadge status={status} />
-            </div>
-            <span className="text-xs text-muted-foreground">{USER_TYPE_LABEL[user.userType]}</span>
+            <UserStatusBadge status={status} />
+            <div className="h-4" />
           </div>
         </div>
 
