@@ -18,11 +18,13 @@ Route::prefix('dashboard')->group(function () {
         ->middleware('can:users.update')
         ->whereNumber('id')
         ->name('dashboard.users.sessions.index');
+
     Route::delete('users/{id}/sessions/{sessionId}', [UserController::class, 'revokeSession'])
         ->middleware('can:users.update')
         ->whereNumber('id')
         ->where('sessionId', '[\w-]+')
         ->name('dashboard.users.sessions.revoke');
+
     Route::delete('users/{id}/sessions', [UserController::class, 'revokeAllSessions'])
         ->middleware('can:users.update')
         ->whereNumber('id')
