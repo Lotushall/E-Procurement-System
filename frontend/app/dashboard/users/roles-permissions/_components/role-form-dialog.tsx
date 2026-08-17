@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Lock, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,29 +81,6 @@ export function RoleFormDialog({ role }: { role?: RoleDetail }) {
               name="permissions"
               render={({ field: { value, onChange } }) => (
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Lock className="size-4 text-red-700" />
-                      <span className="text-sm font-semibold tracking-wider">Permission</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <button
-                        type="button"
-                        onClick={() => onChange((permissions ?? []).map((permission) => permission.name))}
-                        className="cursor-pointer font-medium text-red-700 hover:underline"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onChange([])}
-                        className="cursor-pointer text-muted-foreground hover:underline"
-                      >
-                        Clear All
-                      </button>
-                    </div>
-                  </div>
-
                   {errors.permissions && (
                     <p className="text-xs text-destructive">{errors.permissions.message}</p>
                   )}
