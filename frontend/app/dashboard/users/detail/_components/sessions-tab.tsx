@@ -10,23 +10,45 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { formatNotificationTime } from "@/lib/notification/utils";
-import type { MockSession } from "../_data/mock-user-detail";
+import { useUserSessions } from "@/lib/user/management/queries/useUserSessions";
+import { useRevokeUserSession } from "@/lib/user/management/mutations/useRevokeUserSession";
+import { useRevokeAllUserSessions } from "@/lib/user/management/mutations/useRevokeAllUserSessions";
+import type { SessionInfo } from "@/lib/user/management/types";
 
 type ConfirmState =
-  | { type: "single"; session: MockSession }
+  | { type: "single"; session: SessionInfo }
   | { type: "others" }
   | { type: "all" }
   | null;
 
-function DeviceIcon({ device }: { device: string }) {
-  if (/iphone|android|smartphone/i.test(device)) return <Smartphone className="size-5" />;
+function DeviceIcon({ device }: { device: SessionInfo["device"] }) {
+  if (device === "Mobile" || device === "Tablet") return <Smartphone className="size-5" />;
   return <Laptop className="size-5" />;
 }
 
-export function SessionsTab({ sessions: initialSessions }: { sessions: MockSession[] }) {
-  const [sessions, setSessions] = useState(initialSessions);
+export function SessionsTab({ userId }: { userId: number }) {
+  const { data: sessions, isPending, isError } = useUserSessions(userId);
+  const revokeOne = useRevokeUserSession(userId);
+  const revokeAll = useRevokeAllUserSessions(userId);
   const [confirm, setConfirm] = useState<ConfirmState>(null);
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center py-8">
+        <Spinner className="size-6" />
+      </div>
+    );
+  }
+
+  if (isError || !sessions) {
+    return (
+      <p className="py-8 text-center text-sm text-muted-foreground">
+        ไม่สามารถโหลดรายการ session ได้ กรุณาลองใหม่อีกครั้ง
+      </p>
+    );
+  }
 
   const otherSessionsCount = sessions.filter((session) => !session.current).length;
 
@@ -34,14 +56,23 @@ export function SessionsTab({ sessions: initialSessions }: { sessions: MockSessi
     if (!confirm) return;
 
     if (confirm.type === "single") {
-      setSessions((prev) => prev.filter((session) => session.id !== confirm.session.id));
-      toast.success("เพิกถอน session แล้ว");
+      toast.promise(revokeOne.mutateAsync(confirm.session.id), {
+        loading: "กำลังเพิกถอน session...",
+        success: "เพิกถอน session แล้ว",
+        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+      });
     } else if (confirm.type === "others") {
-      setSessions((prev) => prev.filter((session) => session.current));
-      toast.success("เพิกถอน session อื่นทั้งหมดแล้ว");
+      toast.promise(revokeAll.mutateAsync(true), {
+        loading: "กำลังเพิกถอน session อื่นทั้งหมด...",
+        success: "เพิกถอน session อื่นทั้งหมดแล้ว",
+        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+      });
     } else {
-      setSessions([]);
-      toast.success("เพิกถอน session ทั้งหมดแล้ว");
+      toast.promise(revokeAll.mutateAsync(false), {
+        loading: "กำลังเพิกถอน session ทั้งหมด...",
+        success: "เพิกถอน session ทั้งหมดแล้ว",
+        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+      });
     }
     setConfirm(null);
   };
@@ -94,16 +125,12 @@ export function SessionsTab({ sessions: initialSessions }: { sessions: MockSessi
                         <Badge className="bg-green-700/15 text-green-800">เซสชันปัจจุบัน</Badge>
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {session.device} · {session.ip}
-                    </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <MapPin className="size-3" />
-                      {session.location}
+                      {session.ipAddress}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      ใช้งานล่าสุด {formatNotificationTime(session.lastActiveAt)} · เข้าสู่ระบบ{" "}
-                      {formatNotificationTime(session.loginAt)}
+                      ใช้งานล่าสุด {formatNotificationTime(session.lastActiveAt)}
                     </span>
                   </div>
                 </div>
@@ -131,7 +158,7 @@ export function SessionsTab({ sessions: initialSessions }: { sessions: MockSessi
                 <AlertDialogTitle>เพิกถอน Session</AlertDialogTitle>
                 <AlertDialogDescription>
                   ต้องการเพิกถอน session นี้ใช่หรือไม่? ({confirm.session.browser} · {confirm.session.os} ·{" "}
-                  {confirm.session.ip}) ผู้ใช้จะต้องเข้าสู่ระบบใหม่บนอุปกรณ์นี้
+                  {confirm.session.ipAddress}) ผู้ใช้จะต้องเข้าสู่ระบบใหม่บนอุปกรณ์นี้
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

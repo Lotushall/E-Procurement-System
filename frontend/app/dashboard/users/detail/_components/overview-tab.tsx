@@ -4,9 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNotificationTime } from "@/lib/notification/utils";
-import type { UserStatus, UserType } from "@/lib/user/management/types";
-import { formatCitizenId, maskCitizenId } from "@/lib/utils";
-import type { MockUserDetail } from "../_data/mock-user-detail";
+import type { UserDetail, UserStatus, UserType } from "@/lib/user/management/types";
 
 const USER_TYPE_LABEL: Record<UserType, string> = {
   internal: "พนักงานภายใน",
@@ -36,7 +34,7 @@ function VerifiedBadge({ verified }: { verified: boolean }) {
   );
 }
 
-export function OverviewTab({ user, status }: { user: MockUserDetail; status: UserStatus }) {
+export function OverviewTab({ user, status }: { user: UserDetail; status: UserStatus }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 md:grid-cols-2">
@@ -49,9 +47,8 @@ export function OverviewTab({ user, status }: { user: MockUserDetail; status: Us
             <InfoRow label="อีเมล" value={user.email} />
             <InfoRow label="ประเภทผู้ใช้" value={USER_TYPE_LABEL[user.userType]} />
             <InfoRow label="สถานะ" value={<Badge variant="outline" className="capitalize">{status}</Badge>} />
-            <InfoRow label="การยืนยันอีเมล" value={<VerifiedBadge verified={user.emailVerified} />} />
+            <InfoRow label="การยืนยันอีเมล" value={<VerifiedBadge verified={user.emailVerifiedAt !== null} />} />
             <InfoRow label="วันที่สร้างบัญชี" value={formatDate(user.createdAt)} />
-            <InfoRow label="แก้ไขล่าสุด" value={formatDate(user.updatedAt)} />
           </CardContent>
         </Card>
 
@@ -60,32 +57,19 @@ export function OverviewTab({ user, status }: { user: MockUserDetail; status: Us
             <CardTitle>ข้อมูลส่วนตัว</CardTitle>
           </CardHeader>
           <CardContent className="divide-y">
-            {user.userType === "internal" && (
+            {user.userType === "internal" && user.internalProfile ? (
               <>
-                <InfoRow label="รหัสพนักงาน" value={user.profile.employeeNo} />
+                <InfoRow label="รหัสพนักงาน" value={user.internalProfile.employeeNo ?? "-"} />
                 <InfoRow
                   label="ชื่อ-นามสกุล"
-                  value={`${user.profile.prefix}${user.profile.firstname} ${user.profile.lastname}`}
+                  value={`${user.internalProfile.prefix ?? ""}${user.internalProfile.firstname} ${user.internalProfile.lastname}`}
                 />
-                <InfoRow label="แผนก" value={user.profile.department} />
-                <InfoRow label="ตำแหน่ง" value={user.profile.position} />
-                <InfoRow label="เบอร์โทร" value={user.profile.phone} />
+                <InfoRow label="แผนก" value={user.internalProfile.department ?? "-"} />
+                <InfoRow label="ตำแหน่ง" value={user.internalProfile.position ?? "-"} />
+                <InfoRow label="เบอร์โทร" value={user.internalProfile.phone ?? "-"} />
               </>
-            )}
-            {user.userType === "company" && (
-              <>
-                <InfoRow label="ชื่อบริษัท" value={user.profile.companyName} />
-                <InfoRow label="เลขประจำตัวผู้เสียภาษี" value={formatCitizenId(user.profile.taxId)} />
-                <InfoRow label="ผู้ติดต่อ" value={user.profile.contactName} />
-                <InfoRow label="เบอร์โทรผู้ติดต่อ" value={user.profile.contactPhone} />
-              </>
-            )}
-            {user.userType === "individual" && (
-              <>
-                <InfoRow label="ชื่อ-นามสกุล" value={user.profile.fullName} />
-                <InfoRow label="เลขบัตรประชาชน" value={maskCitizenId(user.profile.nationalId)} />
-                <InfoRow label="เบอร์โทร" value={user.profile.phone} />
-              </>
+            ) : (
+              <p className="py-2 text-sm text-muted-foreground">ไม่มีข้อมูลส่วนตัวเพิ่มเติมสำหรับผู้ใช้ประเภทนี้</p>
             )}
           </CardContent>
         </Card>
@@ -96,31 +80,25 @@ export function OverviewTab({ user, status }: { user: MockUserDetail; status: Us
           <CardTitle>ความปลอดภัย</CardTitle>
         </CardHeader>
         <CardContent className="divide-y">
-          <InfoRow label="การยืนยันอีเมล" value={<VerifiedBadge verified={user.emailVerified} />} />
+          <InfoRow label="การยืนยันอีเมล" value={<VerifiedBadge verified={user.emailVerifiedAt !== null} />} />
           <InfoRow
             label="เข้าสู่ระบบล่าสุด"
             value={
-              <Tooltip>
-                <TooltipTrigger render={<span className="cursor-default" />}>
-                  {formatNotificationTime(user.lastLoginAt)}
-                </TooltipTrigger>
-                <TooltipContent>{formatDate(user.lastLoginAt)}</TooltipContent>
-              </Tooltip>
+              user.lastLoginAt ? (
+                <Tooltip>
+                  <TooltipTrigger render={<span className="cursor-default" />}>
+                    {formatNotificationTime(user.lastLoginAt)}
+                  </TooltipTrigger>
+                  <TooltipContent>{formatDate(user.lastLoginAt)}</TooltipContent>
+                </Tooltip>
+              ) : (
+                "ยังไม่เคยเข้าสู่ระบบ"
+              )
             }
           />
           <InfoRow
             label="เปลี่ยนรหัสผ่านล่าสุด"
-            value={formatNotificationTime(user.passwordChangedAt)}
-          />
-          <InfoRow
-            label="ยืนยันตัวตนสองขั้นตอน (2FA)"
-            value={
-              user.twoFactorEnabled ? (
-                <Badge className="bg-green-700/15 text-green-800">เปิดใช้งาน</Badge>
-              ) : (
-                <Badge variant="outline" className="text-muted-foreground">ปิดใช้งาน</Badge>
-              )
-            }
+            value={user.passwordChangedAt ? formatNotificationTime(user.passwordChangedAt) : "ยังไม่เคยเปลี่ยนรหัสผ่าน"}
           />
         </CardContent>
       </Card>

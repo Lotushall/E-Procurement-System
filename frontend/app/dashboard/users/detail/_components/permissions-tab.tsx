@@ -3,9 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import type { MockUserDetail } from "../_data/mock-user-detail";
+import { useRoles } from "@/lib/user/management/queries/useRoles";
+import type { UserDetail } from "@/lib/user/management/types";
 
-export function PermissionsTab({ user }: { user: MockUserDetail }) {
+export function PermissionsTab({ user }: { user: UserDetail }) {
+  const { data: roles } = useRoles();
+  const matchedRole = roles?.find((role) => role.name === user.role);
+  const rolePermissions = new Set(matchedRole?.permissions ?? []);
+  const permissions = user.permissions ?? [];
+
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -13,15 +19,11 @@ export function PermissionsTab({ user }: { user: MockUserDetail }) {
           <CardTitle>Role</CardTitle>
         </CardHeader>
         <CardContent>
-          {user.roles.length === 0 ? (
+          {!user.role ? (
             <p className="text-sm text-muted-foreground">ผู้ใช้นี้ยังไม่ได้กำหนด role</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {user.roles.map((role) => (
-                <Badge key={role} className="bg-red-700 text-white capitalize">
-                  {role}
-                </Badge>
-              ))}
+              <Badge className="bg-red-700 text-white capitalize">{user.role}</Badge>
             </div>
           )}
         </CardContent>
@@ -32,7 +34,7 @@ export function PermissionsTab({ user }: { user: MockUserDetail }) {
           <CardTitle>สิทธิ์การใช้งาน (Permissions)</CardTitle>
         </CardHeader>
         <CardContent>
-          {user.permissions.length === 0 ? (
+          {permissions.length === 0 ? (
             <p className="text-sm text-muted-foreground">ผู้ใช้นี้ยังไม่มีสิทธิ์การใช้งาน</p>
           ) : (
             <Table>
@@ -44,16 +46,13 @@ export function PermissionsTab({ user }: { user: MockUserDetail }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {user.permissions.map((permission) => (
-                  <TableRow key={permission.name}>
+                {permissions.map((name) => (
+                  <TableRow key={name}>
                     <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{permission.label}</span>
-                        <span className="text-xs text-muted-foreground">{permission.name}</span>
-                      </div>
+                      <span className="text-sm font-medium">{name}</span>
                     </TableCell>
                     <TableCell>
-                      {permission.source === "role" ? (
+                      {rolePermissions.has(name) ? (
                         <Badge variant="outline">Role</Badge>
                       ) : (
                         <Badge variant="secondary">กำหนดเอง (Direct)</Badge>

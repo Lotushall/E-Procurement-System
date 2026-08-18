@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ArrowLeft, KeyRound, MoreHorizontal, Pencil, PlayCircle, ShieldOff } from "lucide-react";
+import { KeyRound, MoreHorizontal, Pencil, PlayCircle, ShieldOff } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -13,23 +13,16 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserStatusBadge } from "@/components/user-status-badge";
-import type { UserStatus, UserType } from "@/lib/user/management/types";
-import type { MockUserDetail } from "../_data/mock-user-detail";
+import type { UserDetail, UserStatus } from "@/lib/user/management/types";
 import { routes } from "@/lib/routes";
 import { getInitials } from "@/lib/utils";
-
-const USER_TYPE_LABEL: Record<UserType, string> = {
-  internal: "พนักงานภายใน",
-  company: "นิติบุคคล",
-  individual: "ร้านค้า",
-};
 
 export function UserDetailHeader({
   user,
   status,
   onStatusChange,
 }: {
-  user: MockUserDetail;
+  user: UserDetail;
   status: UserStatus;
   onStatusChange: (status: UserStatus) => void;
 }) {

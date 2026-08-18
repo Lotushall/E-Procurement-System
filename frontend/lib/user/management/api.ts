@@ -10,6 +10,7 @@ import type {
   PermissionFormPayload,
   RoleDetail,
   RoleFormPayload,
+  SessionInfo,
   UpdateUserPayload,
   UserDetail,
   UserSortBy,
@@ -51,7 +52,30 @@ export async function fetchUserList(
 
 export async function fetchUserDetail(id: number): Promise<UserDetail> {
   const { data } = await api.get<{ data: UserDetail }>(`/api/v1/dashboard/users/${id}`);
+  return {
+    ...data.data,
+    role: data.data.role ?? null,
+    internalProfile: data.data.internalProfile ?? null,
+    permissions: data.data.permissions ?? [],
+    emailVerifiedAt: data.data.emailVerifiedAt ?? null,
+    lastLoginAt: data.data.lastLoginAt ?? null,
+    passwordChangedAt: data.data.passwordChangedAt ?? null,
+  };
+}
+
+export async function fetchUserSessions(id: number): Promise<SessionInfo[]> {
+  const { data } = await api.get<{ data: SessionInfo[] }>(`/api/v1/dashboard/users/${id}/sessions`);
   return data.data;
+}
+
+export async function revokeUserSession(userId: number, sessionId: string): Promise<void> {
+  await api.delete(`/api/v1/dashboard/users/${userId}/sessions/${sessionId}`);
+}
+
+export async function revokeAllUserSessions(userId: number, keepCurrent: boolean): Promise<void> {
+  await api.delete(`/api/v1/dashboard/users/${userId}/sessions`, {
+    params: keepCurrent ? { keep_current: 1 } : undefined,
+  });
 }
 
 export async function createUser(payload: CreateUserPayload): Promise<UserDetail> {

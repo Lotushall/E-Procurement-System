@@ -28,6 +28,9 @@ export interface UserDetail extends UserListItem {
   role: string | null;
   internalProfile: InternalProfileFields | null;
   permissions: string[] | null;
+  emailVerifiedAt: string | null;
+  lastLoginAt: string | null;
+  passwordChangedAt: string | null;
 }
 
 export interface UserListPagination {
@@ -99,3 +102,13 @@ export interface UpdateInternalUserPayload extends UpdateAccountPayload {
 }
 
 export type UpdateUserPayload = UpdateAccountPayload | UpdateInternalUserPayload;
+
+export interface SessionInfo {
+  id: string;
+  device: "Desktop" | "Mobile" | "Tablet" | "Unknown";
+  browser: string;
+  os: string;
+  ipAddress: string;
+  lastActiveAt: string;
+  current: boolean;
+}
