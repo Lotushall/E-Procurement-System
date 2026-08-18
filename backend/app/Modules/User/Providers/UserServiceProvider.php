@@ -5,11 +5,15 @@ namespace App\Modules\User\Providers;
 use App\Modules\User\Domain\Contracts\EmailVerificationSenderInterface;
 use App\Modules\User\Domain\Contracts\PasswordResetLinkSenderInterface;
 use App\Modules\User\Domain\Repositories\InternalProfilesRepositoryInterface;
+use App\Modules\User\Domain\Repositories\PermissionRepositoryInterface;
+use App\Modules\User\Domain\Repositories\RoleRepositoryInterface;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\User\Domain\Repositories\UserSessionRepositoryInterface;
 use App\Modules\User\Infrastructure\Notifications\EmailVerificationSender;
 use App\Modules\User\Infrastructure\Notifications\PasswordResetLinkSender;
 use App\Modules\User\Infrastructure\Repositories\InternalProfilesRepository;
+use App\Modules\User\Infrastructure\Repositories\PermissionRepository;
+use App\Modules\User\Infrastructure\Repositories\RoleRepository;
 use App\Modules\User\Infrastructure\Repositories\UserRepository;
 use App\Modules\User\Infrastructure\Repositories\UserSessionRepository;
 use App\Modules\User\Presentation\Policies\UserPolicy;
@@ -35,6 +39,8 @@ class UserServiceProvider extends ModuleServiceProvider
         $this->app->bind(InternalProfilesRepositoryInterface::class, InternalProfilesRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(UserSessionRepositoryInterface::class, UserSessionRepository::class);
+        $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+        $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
         $this->app->bind(EmailVerificationSenderInterface::class, EmailVerificationSender::class);
         $this->app->bind(PasswordResetLinkSenderInterface::class, PasswordResetLinkSender::class);
     }

@@ -33,6 +33,15 @@ Route::prefix('dashboard')->group(function () {
     Route::get('permissions', [PermissionController::class, 'index'])
         ->middleware('role:admin')
         ->name('dashboard.permissions.index');
+    Route::post('permissions', [PermissionController::class, 'store'])
+        ->middleware('role:admin')
+        ->name('dashboard.permissions.store');
+    Route::patch('permissions/{name}', [PermissionController::class, 'update'])
+        ->middleware('role:admin')
+        ->name('dashboard.permissions.update');
+    Route::delete('permissions/{name}', [PermissionController::class, 'destroy'])
+        ->middleware('role:admin')
+        ->name('dashboard.permissions.destroy');
 
     Route::get('roles', [RoleController::class, 'index'])
         ->middleware('can:users.viewAny')
@@ -40,4 +49,12 @@ Route::prefix('dashboard')->group(function () {
     Route::post('roles', [RoleController::class, 'store'])
         ->middleware('role:admin')
         ->name('dashboard.roles.store');
+    Route::patch('roles/{id}', [RoleController::class, 'update'])
+        ->middleware('role:admin')
+        ->whereNumber('id')
+        ->name('dashboard.roles.update');
+    Route::delete('roles/{id}', [RoleController::class, 'destroy'])
+        ->middleware('role:admin')
+        ->whereNumber('id')
+        ->name('dashboard.roles.destroy');
 });
