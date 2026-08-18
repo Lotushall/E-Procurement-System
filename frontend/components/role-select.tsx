@@ -25,7 +25,7 @@ export function RoleSelect({
       }}
     >
       <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={ariaInvalid}>
-        <SelectValue placeholder="เลือก role" />
+        <SelectValue className="capitalize" placeholder="เลือก role" />
       </SelectTrigger>
       <SelectContent side="bottom" alignItemWithTrigger={false}>
         <SelectGroup>

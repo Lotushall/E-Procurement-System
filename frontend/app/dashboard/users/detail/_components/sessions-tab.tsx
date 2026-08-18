@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "sonner";
 import { Laptop, MapPin, MonitorSmartphone, ShieldOff, Smartphone } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -13,15 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { formatNotificationTime } from "@/lib/notification/utils";
 import { useUserSessions } from "@/lib/user/management/queries/useUserSessions";
-import { useRevokeUserSession } from "@/lib/user/management/mutations/useRevokeUserSession";
-import { useRevokeAllUserSessions } from "@/lib/user/management/mutations/useRevokeAllUserSessions";
 import type { SessionInfo } from "@/lib/user/management/types";
-
-type ConfirmState =
-  | { type: "single"; session: SessionInfo }
-  | { type: "others" }
-  | { type: "all" }
-  | null;
+import { useSessionRevocation } from "../_hooks/use-session-revocation";
 
 function DeviceIcon({ device }: { device: SessionInfo["device"] }) {
   if (device === "Mobile" || device === "Tablet") return <Smartphone className="size-5" />;
@@ -30,9 +21,7 @@ function DeviceIcon({ device }: { device: SessionInfo["device"] }) {
 
 export function SessionsTab({ userId }: { userId: number }) {
   const { data: sessions, isPending, isError } = useUserSessions(userId);
-  const revokeOne = useRevokeUserSession(userId);
-  const revokeAll = useRevokeAllUserSessions(userId);
-  const [confirm, setConfirm] = useState<ConfirmState>(null);
+  const { confirm, setConfirm, handleConfirm } = useSessionRevocation(userId, sessions);
 
   if (isPending) {
     return (
@@ -51,31 +40,6 @@ export function SessionsTab({ userId }: { userId: number }) {
   }
 
   const otherSessionsCount = sessions.filter((session) => !session.current).length;
-
-  const handleConfirm = () => {
-    if (!confirm) return;
-
-    if (confirm.type === "single") {
-      toast.promise(revokeOne.mutateAsync(confirm.session.id), {
-        loading: "กำลังเพิกถอน session...",
-        success: "เพิกถอน session แล้ว",
-        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
-      });
-    } else if (confirm.type === "others") {
-      toast.promise(revokeAll.mutateAsync(true), {
-        loading: "กำลังเพิกถอน session อื่นทั้งหมด...",
-        success: "เพิกถอน session อื่นทั้งหมดแล้ว",
-        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
-      });
-    } else {
-      toast.promise(revokeAll.mutateAsync(false), {
-        loading: "กำลังเพิกถอน session ทั้งหมด...",
-        success: "เพิกถอน session ทั้งหมดแล้ว",
-        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
-      });
-    }
-    setConfirm(null);
-  };
 
   return (
     <div className="flex flex-col gap-4">

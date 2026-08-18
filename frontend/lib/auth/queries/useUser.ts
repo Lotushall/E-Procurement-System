@@ -9,5 +9,6 @@ export function useUser() {
     queryFn: fetchCurrentUser,
     retry: false,
     staleTime: 5 * 60 * 1000,
+    refetchInterval: 30 * 1000,
   });
 }
