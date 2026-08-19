@@ -7,4 +7,6 @@ use App\Modules\User\Domain\Entities\InternalProfile;
 interface InternalProfilesRepositoryInterface
 {
     public function saveProfile(InternalProfile $profile): InternalProfile;
+
+    public function findByUserId(int $userId): ?InternalProfile;
 }

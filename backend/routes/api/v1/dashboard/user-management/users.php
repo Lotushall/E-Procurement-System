@@ -11,6 +11,15 @@ Route::prefix('dashboard')->group(function () {
             ->middleware('can:users.viewAny')
             ->name('dashboard.users.index');
 
+        Route::post('/', [UserController::class, 'store'])
+            ->middleware('can:users.create')
+            ->name('dashboard.users.store');
+
+        Route::patch('/{id}', [UserController::class, 'update'])
+            ->middleware('can:users.update')
+            ->whereNumber('id')
+            ->name('dashboard.users.update');
+
         Route::get('/{id}', [UserController::class, 'show'])
             ->middleware('can:users.viewAny')
             ->whereNumber('id')

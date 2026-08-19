@@ -8,6 +8,7 @@ use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus\Active;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -59,6 +60,17 @@ test('execute assigns the given role to the created user', function () {
     $user = createInternalUserUseCase()->execute(internalUserData());
 
     expect(UserModel::find($user->id())->hasRole('admin'))->toBeTrue();
+});
+
+test('execute syncs the given direct permissions to the created user', function () {
+    Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']);
+
+    $user = createInternalUserUseCase()->execute(internalUserData([
+        'permissions' => ['vendors.view'],
+    ]));
+
+    expect(UserModel::find($user->id())->hasDirectPermission('vendors.view'))->toBeTrue();
 });
 
 test('execute saves the optional internal profile fields', function () {

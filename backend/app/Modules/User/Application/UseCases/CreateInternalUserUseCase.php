@@ -39,6 +39,7 @@ final class CreateInternalUserUseCase
             $user = $this->users->save($user);
 
             $this->users->assignRole($user->id(), $data->role);
+            $this->users->syncPermissions($user->id(), $data->permissions);
 
             $this->internalProfiles->saveProfile(InternalProfile::create(
                 userId: $user->id(),

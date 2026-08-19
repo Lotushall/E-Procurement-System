@@ -6,6 +6,9 @@ use Spatie\LaravelData\Data;
 
 final class CreateInternalUserData extends Data
 {
+    /**
+     * @param  array<int, string>  $permissions
+     */
     public function __construct(
         public readonly string $username,
         public readonly string $email,
@@ -18,5 +21,6 @@ final class CreateInternalUserData extends Data
         public readonly ?string $department = null,
         public readonly ?string $position = null,
         public readonly ?string $phone = null,
+        public readonly array $permissions = [],
     ) {}
 }

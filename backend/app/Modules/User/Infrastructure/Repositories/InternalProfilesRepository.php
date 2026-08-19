@@ -28,6 +28,13 @@ class InternalProfilesRepository implements InternalProfilesRepositoryInterface
         return $this->mapToEntity($model);
     }
 
+    public function findByUserId(int $userId): ?InternalProfile
+    {
+        $model = InternalProfiles::where('user_id', $userId)->first();
+
+        return $model !== null ? $this->mapToEntity($model) : null;
+    }
+
     private function mapToEntity(InternalProfiles $model): InternalProfile
     {
         return InternalProfile::reconstitute(

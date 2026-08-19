@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Modules\User\Presentation\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class StoreUserRequest extends FormRequest
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'username' => ['required', 'string', Rule::unique('users', 'username')],
+            'email' => ['required', 'email', Rule::unique('users', 'email')],
+            'password' => ['required', 'string', 'min:8'],
+            'prefix' => ['nullable', 'string'],
+            'firstname' => ['required', 'string'],
+            'lastname' => ['required', 'string'],
+            'employeeNo' => ['nullable', 'string'],
+            'department' => ['nullable', 'string'],
+            'position' => ['nullable', 'string'],
+            'phone' => ['nullable', 'string'],
+            'role' => ['required', 'string', Rule::exists('roles', 'name')],
+            'permissions' => ['present', 'array'],
+            'permissions.*' => ['string', Rule::exists('permissions', 'name')],
+        ];
+    }
+}

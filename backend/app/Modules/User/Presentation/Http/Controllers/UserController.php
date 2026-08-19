@@ -3,14 +3,23 @@
 namespace App\Modules\User\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\User\Application\DTOs\CreateInternalUserData;
+use App\Modules\User\Application\DTOs\UpdateAccountData;
+use App\Modules\User\Application\DTOs\UpdateInternalUserData;
 use App\Modules\User\Application\Queries\GetUserByIdQuery;
 use App\Modules\User\Application\Queries\ListUserSessionsQuery;
 use App\Modules\User\Application\Queries\ListUsersQuery;
+use App\Modules\User\Application\UseCases\CreateInternalUserUseCase;
 use App\Modules\User\Application\UseCases\DeleteUserUseCase;
 use App\Modules\User\Application\UseCases\RevokeAllUserSessionsUseCase;
 use App\Modules\User\Application\UseCases\RevokeUserSessionUseCase;
+use App\Modules\User\Application\UseCases\UpdateAccountUseCase;
+use App\Modules\User\Application\UseCases\UpdateInternalUserUseCase;
 use App\Modules\User\Application\UseCases\UpdateUserStatusUseCase;
+use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Presentation\Http\Requests\ListUsersRequest;
+use App\Modules\User\Presentation\Http\Requests\StoreUserRequest;
+use App\Modules\User\Presentation\Http\Requests\UpdateUserRequest;
 use App\Modules\User\Presentation\Http\Requests\UpdateUserStatusRequest;
 use App\Modules\User\Presentation\Http\Resources\SessionResource;
 use App\Modules\User\Presentation\Http\Resources\UserDetailResource;
@@ -28,6 +37,9 @@ class UserController extends Controller
         private readonly RevokeAllUserSessionsUseCase $revokeAllUserSessions,
         private readonly DeleteUserUseCase $deleteUser,
         private readonly UpdateUserStatusUseCase $updateUserStatus,
+        private readonly CreateInternalUserUseCase $createInternalUser,
+        private readonly UpdateAccountUseCase $updateAccount,
+        private readonly UpdateInternalUserUseCase $updateInternalUser,
     ) {}
 
     public function index(ListUsersRequest $request): JsonResponse
@@ -50,6 +62,30 @@ class UserController extends Controller
                 'perPage' => $users->perPage(),
                 'total' => $users->total(),
             ],
+        ]);
+    }
+
+    public function store(StoreUserRequest $request): JsonResponse
+    {
+        $user = $this->createInternalUser->execute(CreateInternalUserData::from($request->validated()));
+
+        return response()->json([
+            'data' => new UserDetailResource($this->getUserById->execute($user->id())),
+        ], 201);
+    }
+
+    public function update(UpdateUserRequest $request, int $id): JsonResponse
+    {
+        $target = $this->getUserById->execute($id);
+
+        if ($target->user_type === UserType::Internal) {
+            $this->updateInternalUser->execute($id, UpdateInternalUserData::from($request->validated()));
+        } else {
+            $this->updateAccount->execute($id, UpdateAccountData::from($request->validated()));
+        }
+
+        return response()->json([
+            'data' => new UserDetailResource($this->getUserById->execute($id)),
         ]);
     }
 

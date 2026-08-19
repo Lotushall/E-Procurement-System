@@ -17,6 +17,18 @@ interface UserRepositoryInterface
 
     public function assignRole(int $userId, string $role): void;
 
+    /**
+     * Replace the user's role with the given one.
+     */
+    public function syncRole(int $userId, string $role): void;
+
+    /**
+     * Replace the user's direct (non-role) permissions with the given ones.
+     *
+     * @param  array<int, string>  $permissions
+     */
+    public function syncPermissions(int $userId, array $permissions): void;
+
     public function delete(int $id): void;
 
     /**

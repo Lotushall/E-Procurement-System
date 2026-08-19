@@ -55,6 +55,16 @@ class UserRepository implements UserRepositoryInterface
         UserModel::findOrFail($userId)->assignRole($role);
     }
 
+    public function syncRole(int $userId, string $role): void
+    {
+        UserModel::findOrFail($userId)->syncRoles([$role]);
+    }
+
+    public function syncPermissions(int $userId, array $permissions): void
+    {
+        UserModel::findOrFail($userId)->syncPermissions($permissions);
+    }
+
     public function delete(int $id): void
     {
         UserModel::findOrFail($id)->delete();
