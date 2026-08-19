@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\User\Application\Queries\GetUserByIdQuery;
 use App\Modules\User\Application\Queries\ListUserSessionsQuery;
 use App\Modules\User\Application\Queries\ListUsersQuery;
+use App\Modules\User\Application\UseCases\DeleteUserUseCase;
 use App\Modules\User\Application\UseCases\RevokeAllUserSessionsUseCase;
 use App\Modules\User\Application\UseCases\RevokeUserSessionUseCase;
 use App\Modules\User\Presentation\Http\Requests\ListUsersRequest;
@@ -23,6 +24,7 @@ class UserController extends Controller
         private readonly ListUserSessionsQuery $listUserSessions,
         private readonly RevokeUserSessionUseCase $revokeUserSession,
         private readonly RevokeAllUserSessionsUseCase $revokeAllUserSessions,
+        private readonly DeleteUserUseCase $deleteUser,
     ) {}
 
     public function index(ListUsersRequest $request): JsonResponse
@@ -77,5 +79,16 @@ class UserController extends Controller
         );
 
         return response()->json(['message' => 'เพิกถอน session สำเร็จ']);
+    }
+
+    public function destroy(int $id, Request $request): JsonResponse
+    {
+        $message = $this->deleteUser->execute($id, $request->user()->id);
+
+        if ($message !== null) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return response()->json(null, 204);
     }
 }
