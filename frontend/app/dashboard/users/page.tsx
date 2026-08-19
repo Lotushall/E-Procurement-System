@@ -49,10 +49,11 @@ function UsersPageContent() {
   const canCreateUser = useHasPermission("users.create");
   const canUpdateStatus = useHasPermission("users.updateStatus");
   const canUpdateUser = useHasPermission("users.update");
+  const canDeleteUser = useHasPermission("users.delete");
   const canManageRoles = useHasRole("admin");
   const columns = useMemo(
-    () => createColumns(canUpdateStatus, canUpdateUser),
-    [canUpdateStatus, canUpdateUser],
+    () => createColumns(canUpdateStatus, canUpdateUser, canDeleteUser),
+    [canUpdateStatus, canUpdateUser, canDeleteUser],
   );
 
   const {

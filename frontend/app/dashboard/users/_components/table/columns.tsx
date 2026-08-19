@@ -11,6 +11,7 @@ import { UserStatusBadge } from "@/components/user-status-badge"
 import { UserStatusSelect } from "@/components/user-status-select"
 import { routes } from "@/lib/routes"
 import { getInitials } from "@/lib/utils"
+import { DeleteUserDialog } from "./delete-user-dialog"
 
 const USER_TYPE_LABEL: Record<UserType, string> = {
     internal: "พนักงานภายใน",
@@ -24,7 +25,11 @@ const USER_TYPE_ICON: Record<UserType, LucideIcon> = {
     individual: Store,
 }
 
-export function createColumns(canUpdateStatus: boolean, canUpdateUser: boolean): ColumnDef<UserListItem>[] {
+export function createColumns(
+    canUpdateStatus: boolean,
+    canUpdateUser: boolean,
+    canDeleteUser: boolean,
+): ColumnDef<UserListItem>[] {
     return [
         {
             id: "name",
@@ -118,6 +123,7 @@ export function createColumns(canUpdateStatus: boolean, canUpdateUser: boolean):
                             <Pencil className="w-4 h-4 text-gray-500" />
                         </Button>
                     )}
+                    {canDeleteUser && <DeleteUserDialog user={row.original} />}
                 </div>
             ),
         },
