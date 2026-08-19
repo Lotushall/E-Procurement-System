@@ -10,7 +10,8 @@ final class GetUserByIdQuery
     {
         return User::query()
             ->with([
-                'UserInternalProfile',
+                'UserInternalProfile.department',
+                'UserInternalProfile.position',
                 'UserVendorProfile.VendorProfilesCompanyDetail',
                 'UserVendorProfile.VendorProfilesIndividualDetail',
                 'roles.permissions',

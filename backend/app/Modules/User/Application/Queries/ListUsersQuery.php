@@ -21,7 +21,8 @@ final class ListUsersQuery
         return User::query()
             ->select(['id', 'username', 'email', 'user_type', 'status', 'created_at'])
             ->with([
-                'UserInternalProfile',
+                'UserInternalProfile.department',
+                'UserInternalProfile.position',
                 'UserVendorProfile.VendorProfilesCompanyDetail',
                 'UserVendorProfile.VendorProfilesIndividualDetail',
             ])

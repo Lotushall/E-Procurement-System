@@ -39,6 +39,9 @@ export const routes = {
       edit: (id: number | string) => `/dashboard/users/edit?id=${id}`,
       roles: "/dashboard/users/roles-permissions",
     },
+    internal_employees: {
+      index: "/dashboard/internal-employees",
+    },
     setting: {
       index: "/dashboard/settings",
     },

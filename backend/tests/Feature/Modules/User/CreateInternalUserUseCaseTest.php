@@ -2,6 +2,8 @@
 
 use App\Modules\Auth\Application\DTOs\LoginData;
 use App\Modules\Auth\Application\UseCases\LoginUseCase;
+use App\Modules\InternalProfiles\Infrastructure\Models\Department;
+use App\Modules\InternalProfiles\Infrastructure\Models\Position;
 use App\Modules\User\Application\DTOs\CreateInternalUserData;
 use App\Modules\User\Application\UseCases\CreateInternalUserUseCase;
 use App\Modules\User\Domain\Enums\UserType;
@@ -75,20 +77,22 @@ test('execute syncs the given direct permissions to the created user', function 
 
 test('execute saves the optional internal profile fields', function () {
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $department = Department::create(['name' => 'IT']);
+    $position = Position::create(['name' => 'Manager']);
 
     createInternalUserUseCase()->execute(internalUserData([
         'employeeNo' => 'EMP-001',
         'prefix' => 'Mr.',
-        'department' => 'IT',
-        'position' => 'Manager',
+        'departmentId' => $department->id,
+        'positionId' => $position->id,
         'phone' => '0812345678',
     ]));
 
     $this->assertDatabaseHas('internal_profiles', [
         'employee_no' => 'EMP-001',
         'prefix' => 'Mr.',
-        'department' => 'IT',
-        'position' => 'Manager',
+        'department_id' => $department->id,
+        'position_id' => $position->id,
         'phone' => '0812345678',
     ]);
 });

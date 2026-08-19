@@ -1,6 +1,8 @@
 <?php
 
-use App\Modules\User\Infrastructure\Models\InternalProfiles;
+use App\Modules\InternalProfiles\Infrastructure\Models\Department;
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
+use App\Modules\InternalProfiles\Infrastructure\Models\Position;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -23,14 +25,16 @@ test('user detail exposes role, internalProfile, and permissions for an internal
     $this->actingAs($admin, 'web');
 
     $target = User::factory()->create(['user_type' => 'internal']);
+    $department = Department::create(['name' => 'ฝ่ายจัดซื้อ']);
+    $position = Position::create(['name' => 'เจ้าหน้าที่']);
     InternalProfiles::create([
         'user_id' => $target->id,
         'employee_no' => 'EMP-001',
         'prefix' => 'นาย',
         'firstname' => 'สมชาย',
         'lastname' => 'ใจดี',
-        'department' => 'ฝ่ายจัดซื้อ',
-        'position' => 'เจ้าหน้าที่',
+        'department_id' => $department->id,
+        'position_id' => $position->id,
         'phone' => '0812345678',
     ]);
     $staffRole = Role::create(['name' => 'staff', 'guard_name' => 'web']);
@@ -43,6 +47,10 @@ test('user detail exposes role, internalProfile, and permissions for an internal
         ->assertJsonPath('data.role', 'staff')
         ->assertJsonPath('data.internalProfile.employeeNo', 'EMP-001')
         ->assertJsonPath('data.internalProfile.firstname', 'สมชาย')
+        ->assertJsonPath('data.internalProfile.positionId', $position->id)
+        ->assertJsonPath('data.internalProfile.position', 'เจ้าหน้าที่')
+        ->assertJsonPath('data.internalProfile.departmentId', $department->id)
+        ->assertJsonPath('data.internalProfile.department', 'ฝ่ายจัดซื้อ')
         ->assertJsonPath('data.permissions', ['vendors.view']);
 });
 

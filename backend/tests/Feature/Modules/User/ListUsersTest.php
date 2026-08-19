@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\User\Infrastructure\Models\InternalProfiles;
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;

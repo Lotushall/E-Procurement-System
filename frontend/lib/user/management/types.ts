@@ -74,13 +74,6 @@ export interface CreateUserPayload {
   password: string;
   role: string;
   permissions: string[];
-  prefix?: string;
-  firstname: string;
-  lastname: string;
-  employeeNo?: string;
-  department?: string;
-  position?: string;
-  phone?: string;
 }
 
 export interface UpdateAccountPayload {
@@ -92,16 +85,11 @@ export interface UpdateAccountPayload {
 export interface UpdateInternalUserPayload extends UpdateAccountPayload {
   role: string;
   permissions: string[];
-  prefix?: string;
-  firstname: string;
-  lastname: string;
-  employeeNo?: string;
-  department?: string;
-  position?: string;
-  phone?: string;
 }
 
-export type UpdateUserPayload = UpdateAccountPayload | UpdateInternalUserPayload;
+export type UpdateUserPayload =
+  | UpdateAccountPayload
+  | UpdateInternalUserPayload;
 
 export interface SessionInfo {
   id: string;

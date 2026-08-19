@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\User\Domain\Repositories;
+namespace App\Modules\InternalProfiles\Domain\Repositories;
 
-use App\Modules\User\Domain\Entities\InternalProfile;
+use App\Modules\InternalProfiles\Domain\Entities\InternalProfile;
 
 interface InternalProfilesRepositoryInterface
 {

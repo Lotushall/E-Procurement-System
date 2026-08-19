@@ -1,7 +1,7 @@
 <?php
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Application\Queries\ListUsersQuery;
-use App\Modules\User\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChartColumn, ClipboardList, FileText, FolderKanban, LayoutDashboard, Settings, Store, UserRound, type LucideIcon } from "lucide-react";
+import { ChartColumn, ClipboardList, FileText, FolderKanban, IdCardLanyard, LayoutDashboard, Settings, Store, UserRound, type LucideIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -66,6 +66,11 @@ const navItems: NavItem[] = [
     href: routes.dashboards.user.index,
     label: "จัดการผู้ใช้",
     icon: UserRound,
+  },
+  {
+    href: routes.dashboards.internal_employees.index,
+    label: "พนักงานภายใน",
+    icon: IdCardLanyard,
   },
   {
     href: routes.dashboards.setting.index,

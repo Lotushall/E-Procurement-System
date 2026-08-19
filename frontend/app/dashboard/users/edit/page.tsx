@@ -142,13 +142,6 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
       username: user.username,
       email: user.email,
       password: "",
-      prefix: user.internalProfile?.prefix ?? "นาย",
-      firstname: user.internalProfile?.firstname ?? "",
-      lastname: user.internalProfile?.lastname ?? "",
-      employeeNo: user.internalProfile?.employeeNo ?? "",
-      department: user.internalProfile?.department ?? "",
-      position: user.internalProfile?.position ?? "",
-      phone: user.internalProfile?.phone ?? "",
       role: user.role ?? "",
       permissions: user.permissions ?? (roles ?? []).find((r) => r.name === user.role)?.permissions ?? [],
     });
@@ -182,55 +175,6 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
           className="h-11 rounded-sm"
         />
       </InputField>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Controller
-          control={control}
-          name="prefix"
-          render={({ field: { value, onChange, ...field } }) => (
-            <InputField label="คำนำหน้า">
-              <Select value={value || "นาย"} onValueChange={onChange} {...field}>
-                <SelectTrigger className="w-full h-11! rounded-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent side="bottom" alignItemWithTrigger={false}>
-                  <SelectGroup>
-                    <SelectItem value="นาย">นาย</SelectItem>
-                    <SelectItem value="นาง">นาง</SelectItem>
-                    <SelectItem value="นางสาว">นางสาว</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </InputField>
-          )}
-        />
-
-        <InputField label="ชื่อ" error={errors.firstname?.message}>
-          <Input {...register("firstname")} aria-invalid={!!errors.firstname} className="h-11 rounded-sm" />
-        </InputField>
-
-        <InputField label="นามสกุล" error={errors.lastname?.message}>
-          <Input {...register("lastname")} aria-invalid={!!errors.lastname} className="h-11 rounded-sm" />
-        </InputField>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <InputField label="รหัสพนักงาน" error={errors.employeeNo?.message}>
-          <Input {...register("employeeNo")} className="h-11 rounded-sm" />
-        </InputField>
-        <InputField label="เบอร์โทร" error={errors.phone?.message}>
-          <Input {...register("phone")} inputMode="numeric" className="h-11 rounded-sm" />
-        </InputField>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <InputField label="แผนก" error={errors.department?.message}>
-          <Input {...register("department")} className="h-11 rounded-sm" />
-        </InputField>
-        <InputField label="ตำแหน่ง" error={errors.position?.message}>
-          <Input {...register("position")} className="h-11 rounded-sm" />
-        </InputField>
-      </div>
 
       <Controller
         control={control}

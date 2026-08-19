@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\User\Infrastructure\Repositories;
+namespace App\Modules\InternalProfiles\Infrastructure\Repositories;
 
+use App\Modules\InternalProfiles\Domain\Entities\InternalProfile;
+use App\Modules\InternalProfiles\Domain\Repositories\InternalProfilesRepositoryInterface;
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
-use App\Modules\User\Domain\Entities\InternalProfile;
-use App\Modules\User\Domain\Repositories\InternalProfilesRepositoryInterface;
-use App\Modules\User\Infrastructure\Models\InternalProfiles;
 
 class InternalProfilesRepository implements InternalProfilesRepositoryInterface
 {
@@ -20,8 +20,8 @@ class InternalProfilesRepository implements InternalProfilesRepositoryInterface
         $model->prefix = $profile->prefix();
         $model->firstname = $profile->firstname();
         $model->lastname = $profile->lastname();
-        $model->department = $profile->department();
-        $model->position = $profile->position();
+        $model->department_id = $profile->departmentId();
+        $model->position_id = $profile->positionId();
         $model->phone = $profile->phone()?->value;
         $model->save();
 
@@ -44,8 +44,8 @@ class InternalProfilesRepository implements InternalProfilesRepositoryInterface
             prefix: $model->prefix,
             firstname: $model->firstname,
             lastname: $model->lastname,
-            department: $model->department,
-            position: $model->position,
+            departmentId: $model->department_id,
+            positionId: $model->position_id,
             phone: $model->phone !== null ? PhoneNumber::fromString($model->phone) : null,
         );
     }

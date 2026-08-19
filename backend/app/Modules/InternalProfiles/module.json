@@ -1,0 +1,11 @@
+{
+    "name": "InternalProfiles",
+    "alias": "internalprofiles",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "App\\Modules\\InternalProfiles\\Providers\\InternalProfilesServiceProvider"
+    ],
+    "files": []
+}

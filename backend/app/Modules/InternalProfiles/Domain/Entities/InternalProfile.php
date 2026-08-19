@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\User\Domain\Entities;
+namespace App\Modules\InternalProfiles\Domain\Entities;
 
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 
@@ -13,8 +13,8 @@ final class InternalProfile
         private ?string $prefix,
         private string $firstname,
         private string $lastname,
-        private ?string $department,
-        private ?string $position,
+        private ?int $departmentId,
+        private ?int $positionId,
         private ?PhoneNumber $phone,
     ) {}
 
@@ -24,8 +24,8 @@ final class InternalProfile
         ?string $prefix,
         string $firstname,
         string $lastname,
-        ?string $department,
-        ?string $position,
+        ?int $departmentId,
+        ?int $positionId,
         ?PhoneNumber $phone,
     ): self {
         return new self(
@@ -35,8 +35,8 @@ final class InternalProfile
             prefix: $prefix,
             firstname: $firstname,
             lastname: $lastname,
-            department: $department,
-            position: $position,
+            departmentId: $departmentId,
+            positionId: $positionId,
             phone: $phone,
         );
     }
@@ -48,8 +48,8 @@ final class InternalProfile
         ?string $prefix,
         string $firstname,
         string $lastname,
-        ?string $department,
-        ?string $position,
+        ?int $departmentId,
+        ?int $positionId,
         ?PhoneNumber $phone,
     ): self {
         return new self(
@@ -59,8 +59,8 @@ final class InternalProfile
             prefix: $prefix,
             firstname: $firstname,
             lastname: $lastname,
-            department: $department,
-            position: $position,
+            departmentId: $departmentId,
+            positionId: $positionId,
             phone: $phone,
         );
     }
@@ -70,16 +70,16 @@ final class InternalProfile
         ?string $prefix,
         string $firstname,
         string $lastname,
-        ?string $department,
-        ?string $position,
+        ?int $departmentId,
+        ?int $positionId,
         ?PhoneNumber $phone,
     ): void {
         $this->employeeNo = $employeeNo;
         $this->prefix = $prefix;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
-        $this->department = $department;
-        $this->position = $position;
+        $this->departmentId = $departmentId;
+        $this->positionId = $positionId;
         $this->phone = $phone;
     }
 
@@ -116,14 +116,14 @@ final class InternalProfile
         return $this->lastname;
     }
 
-    public function department(): ?string
+    public function departmentId(): ?int
     {
-        return $this->department;
+        return $this->departmentId;
     }
 
-    public function position(): ?string
+    public function positionId(): ?int
     {
-        return $this->position;
+        return $this->positionId;
     }
 
     public function phone(): ?PhoneNumber

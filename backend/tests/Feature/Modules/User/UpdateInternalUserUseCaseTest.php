@@ -1,8 +1,8 @@
 <?php
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Application\DTOs\UpdateInternalUserData;
 use App\Modules\User\Application\UseCases\UpdateInternalUserUseCase;
-use App\Modules\User\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;

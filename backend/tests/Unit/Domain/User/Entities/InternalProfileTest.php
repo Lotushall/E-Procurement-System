@@ -1,7 +1,7 @@
 <?php
 
+use App\Modules\InternalProfiles\Domain\Entities\InternalProfile;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
-use App\Modules\User\Domain\Entities\InternalProfile;
 
 test('create builds a new profile with no id', function () {
     $phone = PhoneNumber::fromString('0812345678');
@@ -12,8 +12,8 @@ test('create builds a new profile with no id', function () {
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        department: 'IT',
-        position: 'Developer',
+        departmentId: 3,
+        positionId: 5,
         phone: $phone,
     );
 
@@ -23,8 +23,8 @@ test('create builds a new profile with no id', function () {
         ->and($profile->prefix())->toBe('Mr.')
         ->and($profile->firstname())->toBe('John')
         ->and($profile->lastname())->toBe('Doe')
-        ->and($profile->department())->toBe('IT')
-        ->and($profile->position())->toBe('Developer')
+        ->and($profile->departmentId())->toBe(3)
+        ->and($profile->positionId())->toBe(5)
         ->and($profile->phone())->toBe($phone);
 });
 
@@ -38,8 +38,8 @@ test('reconstitute rebuilds a profile from persisted values', function () {
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        department: 'IT',
-        position: 'Developer',
+        departmentId: 3,
+        positionId: 5,
         phone: $phone,
     );
 
@@ -55,8 +55,8 @@ test('update replaces the editable profile fields', function () {
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        department: 'IT',
-        position: 'Developer',
+        departmentId: 3,
+        positionId: 5,
         phone: PhoneNumber::fromString('0812345678'),
     );
     $newPhone = PhoneNumber::fromString('0898765432');
@@ -66,8 +66,8 @@ test('update replaces the editable profile fields', function () {
         prefix: 'Dr.',
         firstname: 'Jane',
         lastname: 'Smith',
-        department: 'HR',
-        position: 'Manager',
+        departmentId: 7,
+        positionId: 9,
         phone: $newPhone,
     );
 
@@ -75,7 +75,7 @@ test('update replaces the editable profile fields', function () {
         ->and($profile->prefix())->toBe('Dr.')
         ->and($profile->firstname())->toBe('Jane')
         ->and($profile->lastname())->toBe('Smith')
-        ->and($profile->department())->toBe('HR')
-        ->and($profile->position())->toBe('Manager')
+        ->and($profile->departmentId())->toBe(7)
+        ->and($profile->positionId())->toBe(9)
         ->and($profile->phone())->toBe($newPhone);
 });

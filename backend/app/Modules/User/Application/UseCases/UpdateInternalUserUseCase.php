@@ -2,12 +2,12 @@
 
 namespace App\Modules\User\Application\UseCases;
 
+use App\Modules\InternalProfiles\Domain\Entities\InternalProfile;
+use App\Modules\InternalProfiles\Domain\Repositories\InternalProfilesRepositoryInterface;
 use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Application\DTOs\UpdateInternalUserData;
-use App\Modules\User\Domain\Entities\InternalProfile;
 use App\Modules\User\Domain\Entities\User;
-use App\Modules\User\Domain\Repositories\InternalProfilesRepositoryInterface;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -46,8 +46,8 @@ final class UpdateInternalUserUseCase
                     prefix: $data->prefix,
                     firstname: $data->firstname,
                     lastname: $data->lastname,
-                    department: $data->department,
-                    position: $data->position,
+                    departmentId: $data->departmentId,
+                    positionId: $data->positionId,
                     phone: $phone,
                 );
             } else {
@@ -57,8 +57,8 @@ final class UpdateInternalUserUseCase
                     prefix: $data->prefix,
                     firstname: $data->firstname,
                     lastname: $data->lastname,
-                    department: $data->department,
-                    position: $data->position,
+                    departmentId: $data->departmentId,
+                    positionId: $data->positionId,
                     phone: $phone,
                 );
             }

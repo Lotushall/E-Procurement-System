@@ -4,5 +4,6 @@
     "Test": true,
     "Vendor": true,
     "Shared": true,
-    "Notification": true
+    "Notification": true,
+    "InternalProfiles": true
 }

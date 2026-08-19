@@ -2,6 +2,7 @@
 
 namespace App\Modules\User\Infrastructure\Models;
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus;
 use App\Modules\User\Infrastructure\Notifications\QueuedResetPassword;

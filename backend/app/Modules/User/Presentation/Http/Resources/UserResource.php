@@ -32,8 +32,10 @@ class UserResource extends JsonResource
                 'prefix' => $this->whenNotNull($this->UserInternalProfile?->prefix),
                 'firstname' => $this->whenNotNull($this->UserInternalProfile?->firstname),
                 'lastname' => $this->whenNotNull($this->UserInternalProfile?->lastname),
-                'department' => $this->whenNotNull($this->UserInternalProfile?->department),
-                'position' => $this->whenNotNull($this->UserInternalProfile?->position),
+                'departmentId' => $this->whenNotNull($this->UserInternalProfile?->department_id),
+                'department' => $this->whenNotNull($this->UserInternalProfile?->department?->name),
+                'positionId' => $this->whenNotNull($this->UserInternalProfile?->position_id),
+                'position' => $this->whenNotNull($this->UserInternalProfile?->position?->name),
                 'phone' => $this->whenNotNull($this->UserInternalProfile?->phone),
             ] : null),
             'permissions' => $this->when(

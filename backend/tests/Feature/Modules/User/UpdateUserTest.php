@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\User\Infrastructure\Models\InternalProfiles;
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
