@@ -24,9 +24,16 @@ abstract class UserStatus extends State
                 Inactive::class,
             ])
             ->allowTransition(Pending::class, Active::class)
+            ->allowTransition(Pending::class, Suspended::class)
+            ->allowTransition(Pending::class, Inactive::class)
+            ->allowTransition(Active::class, Pending::class)
             ->allowTransition(Active::class, Suspended::class)
-            ->allowTransition(Suspended::class, Active::class)
             ->allowTransition(Active::class, Inactive::class)
-            ->allowTransition(Inactive::class, Active::class);
+            ->allowTransition(Suspended::class, Pending::class)
+            ->allowTransition(Suspended::class, Active::class)
+            ->allowTransition(Suspended::class, Inactive::class)
+            ->allowTransition(Inactive::class, Pending::class)
+            ->allowTransition(Inactive::class, Active::class)
+            ->allowTransition(Inactive::class, Suspended::class);
     }
 }

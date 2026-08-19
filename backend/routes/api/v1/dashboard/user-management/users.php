@@ -16,6 +16,11 @@ Route::prefix('dashboard')->group(function () {
             ->whereNumber('id')
             ->name('dashboard.users.show');
 
+        Route::patch('/{id}/status', [UserController::class, 'updateStatus'])
+            ->middleware('can:users.updateStatus')
+            ->whereNumber('id')
+            ->name('dashboard.users.status.update');
+
         Route::delete('/{id}', [UserController::class, 'destroy'])
             ->middleware('can:users.delete')
             ->whereNumber('id')
@@ -38,6 +43,6 @@ Route::prefix('dashboard')->group(function () {
             ->name('dashboard.users.sessions.revokeAll');
     });
 
-    require __DIR__ . '/roles.php';
-    require __DIR__ . '/permissions.php';
+    require __DIR__.'/roles.php';
+    require __DIR__.'/permissions.php';
 });

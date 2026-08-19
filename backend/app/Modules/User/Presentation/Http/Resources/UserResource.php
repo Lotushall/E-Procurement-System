@@ -23,17 +23,23 @@ class UserResource extends JsonResource
             'userType' => $this->user_type->value,
             'status' => $this->status->getValue(),
             'createdAt' => $this->created_at?->toIso8601String(),
-            'role' => $this->whenNotNull($this->getRoleNames()->first()),
+            'role' => $this->when(
+                $this->relationLoaded('roles'),
+                fn () => $this->getRoleNames()->first()
+            ),
             'internalProfile' => $this->whenNotNull($this->user_type === UserType::Internal ? [
-                'employeeNo' => $this->UserInternalProfile?->employee_no,
-                'prefix' => $this->UserInternalProfile?->prefix,
-                'firstname' => $this->UserInternalProfile?->firstname,
-                'lastname' => $this->UserInternalProfile?->lastname,
-                'department' => $this->UserInternalProfile?->department,
-                'position' => $this->UserInternalProfile?->position,
-                'phone' => $this->UserInternalProfile?->phone,
+                'employeeNo' => $this->whenNotNull($this->UserInternalProfile?->employee_no),
+                'prefix' => $this->whenNotNull($this->UserInternalProfile?->prefix),
+                'firstname' => $this->whenNotNull($this->UserInternalProfile?->firstname),
+                'lastname' => $this->whenNotNull($this->UserInternalProfile?->lastname),
+                'department' => $this->whenNotNull($this->UserInternalProfile?->department),
+                'position' => $this->whenNotNull($this->UserInternalProfile?->position),
+                'phone' => $this->whenNotNull($this->UserInternalProfile?->phone),
             ] : null),
-            'permissions' => $this->getAllPermissions()->pluck('name'),
+            'permissions' => $this->when(
+                $this->relationLoaded('permissions'),
+                fn () => $this->getAllPermissions()->pluck('name')
+            ),
             'emailVerifiedAt' => $this->whenNotNull($this->email_verified_at?->toIso8601String()),
             'lastLoginAt' => $this->whenNotNull($this->last_login_at?->toIso8601String()),
             'passwordChangedAt' => $this->whenNotNull($this->password_changed_at?->toIso8601String()),

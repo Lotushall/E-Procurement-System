@@ -17,12 +17,7 @@ const STATUS_STYLE: Record<UserStatus, { label: string; badge: string; dot: stri
   inactive: { label: "ปิดใช้งาน", badge: "text-gray-600 bg-gray-400/15", dot: "bg-gray-500" },
 };
 
-const VALID_TRANSITIONS: Record<UserStatus, UserStatus[]> = {
-  pending: ["active"],
-  active: ["suspended", "inactive"],
-  suspended: ["active"],
-  inactive: ["active"],
-};
+const ALL_STATUSES: UserStatus[] = ["pending", "active", "suspended", "inactive"];
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -33,7 +28,6 @@ function getErrorMessage(error: unknown): string {
 
 export function UserStatusSelect({ id, status }: { id: number; status: UserStatus }) {
   const updateStatus = useUpdateUserStatus(id);
-  const options: UserStatus[] = [status, ...VALID_TRANSITIONS[status]];
   const style = STATUS_STYLE[status];
 
   const handleChange = (next: string | null) => {
@@ -47,7 +41,7 @@ export function UserStatusSelect({ id, status }: { id: number; status: UserStatu
 
   return (
     <Select
-      items={options.map((value) => ({ value, label: STATUS_STYLE[value].label }))}
+      items={ALL_STATUSES.map((value) => ({ value, label: STATUS_STYLE[value].label }))}
       value={status}
       onValueChange={handleChange}
     >
@@ -61,7 +55,7 @@ export function UserStatusSelect({ id, status }: { id: number; status: UserStatu
       </SelectTrigger>
       <SelectContent side="bottom" alignItemWithTrigger={false}>
         <SelectGroup>
-          {options.map((value) => (
+          {ALL_STATUSES.map((value) => (
             <SelectItem key={value} value={value}>
               {STATUS_STYLE[value].label}
             </SelectItem>

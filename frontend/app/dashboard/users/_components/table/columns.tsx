@@ -32,10 +32,9 @@ export function createColumns(
 ): ColumnDef<UserListItem>[] {
     return [
         {
-            id: "name",
-            header: "ผู้ใช้",
-            enableSorting: false,
-            accessorFn: (user) => user.name,
+            id: "username",
+            header: ({ column }) => <SortableHeader column={column} label="ผู้ใช้" />,
+            accessorFn: (user) => user.username,
             cell: ({ row }) => (
                 <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center size-8.5 rounded-md bg-red-700 text-white text-xs font-bold tracking-wider">

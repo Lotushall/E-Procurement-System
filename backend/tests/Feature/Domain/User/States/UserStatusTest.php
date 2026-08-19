@@ -17,32 +17,34 @@ test('morph class values match the existing users.status enum column values', fu
         ->and(Inactive::getMorphClass())->toBe('inactive');
 });
 
-test('pending can only transition to active', function () {
+test('pending can transition to any other status', function () {
     $state = (new Pending(null))->setField('status');
 
     expect($state->canTransitionTo(Active::class))->toBeTrue()
-        ->and($state->canTransitionTo(Suspended::class))->toBeFalse()
-        ->and($state->canTransitionTo(Inactive::class))->toBeFalse();
+        ->and($state->canTransitionTo(Suspended::class))->toBeTrue()
+        ->and($state->canTransitionTo(Inactive::class))->toBeTrue();
 });
 
-test('active can transition to suspended or inactive', function () {
+test('active can transition to any other status', function () {
     $state = (new Active(null))->setField('status');
 
     expect($state->canTransitionTo(Suspended::class))->toBeTrue()
         ->and($state->canTransitionTo(Inactive::class))->toBeTrue()
-        ->and($state->canTransitionTo(Pending::class))->toBeFalse();
+        ->and($state->canTransitionTo(Pending::class))->toBeTrue();
 });
 
-test('suspended can only transition back to active', function () {
+test('suspended can transition to any other status', function () {
     $state = (new Suspended(null))->setField('status');
 
     expect($state->canTransitionTo(Active::class))->toBeTrue()
-        ->and($state->canTransitionTo(Inactive::class))->toBeFalse();
+        ->and($state->canTransitionTo(Inactive::class))->toBeTrue()
+        ->and($state->canTransitionTo(Pending::class))->toBeTrue();
 });
 
-test('inactive can only transition back to active', function () {
+test('inactive can transition to any other status', function () {
     $state = (new Inactive(null))->setField('status');
 
     expect($state->canTransitionTo(Active::class))->toBeTrue()
-        ->and($state->canTransitionTo(Suspended::class))->toBeFalse();
+        ->and($state->canTransitionTo(Suspended::class))->toBeTrue()
+        ->and($state->canTransitionTo(Pending::class))->toBeTrue();
 });

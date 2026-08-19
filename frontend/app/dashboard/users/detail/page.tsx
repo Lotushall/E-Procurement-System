@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
 import { routes } from "@/lib/routes";
-import type { UserStatus } from "@/lib/user/management/types";
 import { cn } from "@/lib/utils";
 import { OverviewTab } from "./_components/overview-tab";
 import { PermissionsTab } from "./_components/permissions-tab";
@@ -32,7 +31,6 @@ function UserDetailContent() {
   const { data: user, isPending, isError } = useUserDetail(userId);
   const notFound = !isValidId || (isError && !user) || (!isPending && !user);
 
-  const [status, setStatus] = useState<UserStatus | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
 
   useBreadcrumb([
@@ -56,11 +54,9 @@ function UserDetailContent() {
     );
   }
 
-  const currentStatus = status ?? user.status;
-
   return (
     <div className="flex flex-col gap-6">
-      <UserDetailHeader user={user} status={currentStatus} onStatusChange={setStatus} />
+      <UserDetailHeader user={user} status={user.status} />
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)}>
         <TabsList
@@ -76,7 +72,7 @@ function UserDetailContent() {
         </TabsList>
 
         <TabsContent value="overview" className="pt-4">
-          <OverviewTab user={user} status={currentStatus} />
+          <OverviewTab user={user} status={user.status} />
         </TabsContent>
         <TabsContent value="permissions" className="pt-4">
           <PermissionsTab user={user} />

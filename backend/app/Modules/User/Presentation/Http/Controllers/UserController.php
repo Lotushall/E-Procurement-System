@@ -9,7 +9,9 @@ use App\Modules\User\Application\Queries\ListUsersQuery;
 use App\Modules\User\Application\UseCases\DeleteUserUseCase;
 use App\Modules\User\Application\UseCases\RevokeAllUserSessionsUseCase;
 use App\Modules\User\Application\UseCases\RevokeUserSessionUseCase;
+use App\Modules\User\Application\UseCases\UpdateUserStatusUseCase;
 use App\Modules\User\Presentation\Http\Requests\ListUsersRequest;
+use App\Modules\User\Presentation\Http\Requests\UpdateUserStatusRequest;
 use App\Modules\User\Presentation\Http\Resources\SessionResource;
 use App\Modules\User\Presentation\Http\Resources\UserDetailResource;
 use App\Modules\User\Presentation\Http\Resources\UserResource;
@@ -25,6 +27,7 @@ class UserController extends Controller
         private readonly RevokeUserSessionUseCase $revokeUserSession,
         private readonly RevokeAllUserSessionsUseCase $revokeAllUserSessions,
         private readonly DeleteUserUseCase $deleteUser,
+        private readonly UpdateUserStatusUseCase $updateUserStatus,
     ) {}
 
     public function index(ListUsersRequest $request): JsonResponse
@@ -79,6 +82,17 @@ class UserController extends Controller
         );
 
         return response()->json(['message' => 'เพิกถอน session สำเร็จ']);
+    }
+
+    public function updateStatus(UpdateUserStatusRequest $request, int $id): JsonResponse
+    {
+        $message = $this->updateUserStatus->execute($id, $request->validated('status'), $request->user()->id);
+
+        if ($message !== null) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return response()->json(['data' => ['status' => $request->validated('status')]]);
     }
 
     public function destroy(int $id, Request $request): JsonResponse

@@ -19,12 +19,11 @@ final class ListUsersQuery
         ?int $perPage = null,
     ): LengthAwarePaginator {
         return User::query()
+            ->select(['id', 'username', 'email', 'user_type', 'status', 'created_at'])
             ->with([
                 'UserInternalProfile',
                 'UserVendorProfile.VendorProfilesCompanyDetail',
                 'UserVendorProfile.VendorProfilesIndividualDetail',
-                'roles.permissions',
-                'permissions',
             ])
             ->type($type)
             ->status($status)

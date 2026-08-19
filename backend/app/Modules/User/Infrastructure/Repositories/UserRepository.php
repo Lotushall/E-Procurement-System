@@ -60,6 +60,11 @@ class UserRepository implements UserRepositoryInterface
         UserModel::findOrFail($id)->delete();
     }
 
+    public function updateStatus(int $id, string $status): void
+    {
+        UserModel::findOrFail($id)->status->transitionTo($status);
+    }
+
     private function toDomain(UserModel $model): User
     {
         return User::reconstitute(

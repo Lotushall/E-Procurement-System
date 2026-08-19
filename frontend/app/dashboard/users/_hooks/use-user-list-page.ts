@@ -49,7 +49,8 @@ export function useUserListPage() {
     : undefined;
 
   const [search, setSearch] = useState(debouncedSearch);
-  const [skipSkeleton, setSkipSkeleton] = useState(false);
+  const [skipSkeleton, setSkipSkeleton] = useState(true);
+  const [wasFetching, setWasFetching] = useState(false);
 
   const updateParams = useCallback(
     (updates: Record<string, string | number | null>, resetPage = false) => {
@@ -123,6 +124,11 @@ export function useUserListPage() {
     sortBy,
     sortDirection,
   );
+
+  if (list.isFetching !== wasFetching) {
+    setWasFetching(list.isFetching);
+    if (!list.isFetching) setSkipSkeleton(true);
+  }
 
   const isFetching = list.isFetching && !skipSkeleton;
 
