@@ -15,4 +15,6 @@ interface UserRepositoryInterface
     public function findByUsername(string $username): ?User;
 
     public function assignRole(int $userId, string $role): void;
+
+    public function delete(int $id): void;
 }

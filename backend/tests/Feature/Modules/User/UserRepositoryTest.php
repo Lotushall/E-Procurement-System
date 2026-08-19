@@ -6,6 +6,7 @@ use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus\Active;
 use App\Modules\User\Domain\States\UserStatus\Pending;
 use App\Modules\User\Infrastructure\Repositories\UserRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -64,3 +65,20 @@ test('findByUsername returns null when no user matches', function () {
 
     expect($repository->findByUsername('missing'))->toBeNull();
 });
+
+test('delete soft-deletes the user and excludes them from default queries', function () {
+    $repository = new UserRepository;
+    $user = User::register('todelete', Email::fromString('todelete@example.com'), 'hashed-password', UserType::Internal);
+    $saved = $repository->save($user);
+
+    $repository->delete($saved->id());
+
+    $this->assertSoftDeleted('users', ['id' => $saved->id()]);
+    expect($repository->findByUsername('todelete'))->toBeNull();
+});
+
+test('delete throws when the user does not exist', function () {
+    $repository = new UserRepository;
+
+    $repository->delete(999999);
+})->throws(ModelNotFoundException::class);

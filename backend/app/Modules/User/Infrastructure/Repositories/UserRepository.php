@@ -55,6 +55,11 @@ class UserRepository implements UserRepositoryInterface
         UserModel::findOrFail($userId)->assignRole($role);
     }
 
+    public function delete(int $id): void
+    {
+        UserModel::findOrFail($id)->delete();
+    }
+
     private function toDomain(UserModel $model): User
     {
         return User::reconstitute(
