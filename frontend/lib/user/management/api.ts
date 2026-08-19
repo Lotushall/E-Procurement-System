@@ -136,3 +136,7 @@ export async function updatePermission(name: string, payload: PermissionFormPayl
 export async function deletePermission(name: string): Promise<void> {
   await api.delete(`/api/v1/dashboard/permissions/${encodeURIComponent(name)}`);
 }
+
+export async function deleteUser(id: number): Promise<void> {
+  await api.delete(`/api/v1/dashboard/users/${id}`);
+}
