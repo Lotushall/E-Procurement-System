@@ -13,13 +13,6 @@ export interface VendorStatusCounts {
   rejected: number;
 }
 
-export interface VendorListPagination {
-  currentPage: number;
-  perPage: number;
-  total: number;
-  lastPage: number;
-}
-
 export type VendorSortBy =
   | "created_at"
   | "verification_status"

@@ -1,10 +1,31 @@
 <?php
 
 use App\Modules\InternalProfiles\Presentation\Http\Controllers\DepartmentController;
+use App\Modules\InternalProfiles\Presentation\Http\Controllers\InternalProfilesController;
 use App\Modules\InternalProfiles\Presentation\Http\Controllers\PositionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('dashboard')->group(function () {
+
+    Route::prefix('internal-profiles')->group(function () {
+        Route::get('/', [InternalProfilesController::class, 'index'])
+            ->middleware('role:admin')
+            ->name('dashboard.internal-profiles.index');
+
+        Route::post('/', [InternalProfilesController::class, 'store'])
+            ->middleware('role:admin')
+            ->name('dashboard.internal-profiles.store');
+
+        Route::patch('/{id}', [InternalProfilesController::class, 'update'])
+            ->middleware('role:admin')
+            ->whereNumber('id')
+            ->name('dashboard.internal-profiles.update');
+
+        Route::delete('/{id}', [InternalProfilesController::class, 'destroy'])
+            ->middleware('role:admin')
+            ->whereNumber('id')
+            ->name('dashboard.internal-profiles.destroy');
+    });
 
     Route::prefix('departments')->group(function () {
         Route::get('/', [DepartmentController::class, 'index'])

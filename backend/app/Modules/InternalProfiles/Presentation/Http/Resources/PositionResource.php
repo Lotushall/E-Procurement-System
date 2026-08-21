@@ -15,9 +15,9 @@ class PositionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'internalProfilesCount' => $this->internal_profiles_count,
+            'id' => $this->whenNotNull($this->id),
+            'name' => $this->whenNotNull($this->name),
+            'internalProfilesCount' => $this->whenNotNull($this->internal_profiles_count),
         ];
     }
 }

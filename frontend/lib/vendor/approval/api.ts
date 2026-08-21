@@ -1,7 +1,7 @@
 import { api } from "@/lib/api";
+import type { PaginationMeta } from "@/lib/pagination";
 import type {
   VendorDetail,
-  VendorListPagination,
   VendorSortBy,
   VendorSortDirection,
   VendorStatusCounts,
@@ -12,7 +12,7 @@ import { VendorProfile } from "../profile/types";
 export interface VendorListResult {
   vendors: VendorProfile[];
   counts: VendorStatusCounts;
-  pagination: VendorListPagination;
+  pagination: PaginationMeta;
 }
 
 export async function fetchVendorList(

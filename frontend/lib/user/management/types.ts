@@ -1,3 +1,5 @@
+import type { PaginationMeta } from "@/lib/pagination";
+
 export type UserType = "internal" | "company" | "individual";
 export type UserStatus = "pending" | "active" | "suspended" | "inactive";
 export type UserSortBy = "created_at" | "username" | "email";
@@ -33,16 +35,9 @@ export interface UserDetail extends UserListItem {
   passwordChangedAt: string | null;
 }
 
-export interface UserListPagination {
-  currentPage: number;
-  lastPage: number;
-  perPage: number;
-  total: number;
-}
-
 export interface PaginatedUserList {
   data: UserListItem[];
-  meta: UserListPagination;
+  meta: PaginationMeta;
 }
 
 export interface Permission {
