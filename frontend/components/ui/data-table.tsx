@@ -19,6 +19,15 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { DataTablePagination } from "@/components/ui/data-table-pagination"
+import { cn } from "@/lib/utils"
+
+declare module "@tanstack/react-table" {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- required to match the augmented interface's signature
+    interface ColumnMeta<TData, TValue> {
+        // Tailwind width class (e.g. "w-32"), applied to both the header and cells.
+        className?: string
+    }
+}
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -63,7 +72,13 @@ export function DataTable<TData, TValue>({
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id} className="px-4 py-3 font-bold text-gray-600 tracking-wide">
+                                        <TableHead
+                                            key={header.id}
+                                            className={cn(
+                                                "px-4 py-3 font-bold text-gray-600 tracking-wide",
+                                                header.column.columnDef.meta?.className,
+                                            )}
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -85,7 +100,13 @@ export function DataTable<TData, TValue>({
                                     className="even:bg-[#F7F8FA] odd:bg-white"
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id} className="px-4 py-3 text-gray-700">
+                                        <TableCell
+                                            key={cell.id}
+                                            className={cn(
+                                                "px-4 py-3 text-gray-700",
+                                                cell.column.columnDef.meta?.className,
+                                            )}
+                                        >
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}

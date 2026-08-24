@@ -1,4 +1,3 @@
-import { User } from "../user/types";
 import type { PaginationMeta } from "@/lib/pagination";
 
 export type InternalProfileSortBy =
@@ -12,30 +11,25 @@ export type InternalProfileSortDirection = "asc" | "desc";
 export interface InternalProfile {
   id: number;
   userId: number;
-  user: User;
-  employee_no: string;
+  employeeNo: string;
   prefix: "นาย" | "นาง";
   firstname: string;
   lastname: string;
-  department: Department;
-  position: Position;
+  department: Department | null;
+  position: Position | null;
   phone: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Department {
   id: number;
   name: string;
-  created_at: string;
-  updated_at: string;
+  internalProfilesCount?: number;
 }
 
 export interface Position {
   id: number;
   name: string;
-  created_at: string;
-  updated_at: string;
+  internalProfilesCount?: number;
 }
 
 export interface PaginatedUserList {
