@@ -75,3 +75,39 @@ test('the internal profiles list can be sorted by position name', function () {
         ->assertJsonPath('data.0.position.name', 'Lead')
         ->assertJsonPath('data.1.position.name', 'Staff');
 });
+
+test('the internal profiles list can be filtered by department', function () {
+    $it = Department::create(['name' => 'IT']);
+    $hr = Department::create(['name' => 'HR']);
+    $userInIt = User::factory()->create(['user_type' => 'internal']);
+    InternalProfiles::create(['user_id' => $userInIt->id, 'firstname' => 'A', 'lastname' => 'A', 'department_id' => $it->id]);
+    $userInHr = User::factory()->create(['user_type' => 'internal']);
+    InternalProfiles::create(['user_id' => $userInHr->id, 'firstname' => 'B', 'lastname' => 'B', 'department_id' => $hr->id]);
+    $admin = User::factory()->create(['user_type' => 'internal']);
+    $admin->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+    $this->actingAs($admin, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/internal-profiles?department_id='.$it->id);
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.firstname', 'A');
+});
+
+test('the internal profiles list can be filtered by position', function () {
+    $lead = Position::create(['name' => 'Lead']);
+    $staff = Position::create(['name' => 'Staff']);
+    $userLead = User::factory()->create(['user_type' => 'internal']);
+    InternalProfiles::create(['user_id' => $userLead->id, 'firstname' => 'A', 'lastname' => 'A', 'position_id' => $lead->id]);
+    $userStaff = User::factory()->create(['user_type' => 'internal']);
+    InternalProfiles::create(['user_id' => $userStaff->id, 'firstname' => 'B', 'lastname' => 'B', 'position_id' => $staff->id]);
+    $admin = User::factory()->create(['user_type' => 'internal']);
+    $admin->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+    $this->actingAs($admin, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/internal-profiles?position_id='.$lead->id);
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.firstname', 'A');
+});

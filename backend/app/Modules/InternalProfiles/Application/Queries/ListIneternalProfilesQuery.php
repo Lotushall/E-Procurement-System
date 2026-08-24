@@ -11,6 +11,8 @@ final class ListIneternalProfilesQuery
 
     public function execute(
         ?string $search = null,
+        ?int $departmentId = null,
+        ?int $positionId = null,
         ?string $sortBy = null,
         ?string $sortDirection = null,
         ?int $page = null,
@@ -22,6 +24,8 @@ final class ListIneternalProfilesQuery
                 'InternalProfilePosition',
             ])
             ->search($search)
+            ->department($departmentId)
+            ->position($positionId)
             ->sort($sortBy, $sortDirection)
             ->paginate(perPage: $perPage ?? self::DEFAULT_PER_PAGE, page: $page ?? 1);
     }

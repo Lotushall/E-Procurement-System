@@ -17,6 +17,8 @@ class InternalProfilesController extends Controller
     {
         $internal_profiles = $this->listIneternalProfilesQuery->execute(
             search: $request->validated('search'),
+            departmentId: $request->validated('department_id'),
+            positionId: $request->validated('position_id'),
             sortBy: $request->validated('sort_by'),
             sortDirection: $request->validated('sort_direction'),
             page: $request->validated('page'),
