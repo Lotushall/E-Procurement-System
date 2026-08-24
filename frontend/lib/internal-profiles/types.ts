@@ -23,13 +23,13 @@ export interface InternalProfile {
 export interface Department {
   id: number;
   name: string;
-  internalProfilesCount?: number;
+  internalProfilesCount?: number | null;
 }
 
 export interface Position {
   id: number;
   name: string;
-  internalProfilesCount?: number;
+  internalProfilesCount?: number | null;
 }
 
 export interface PaginatedUserList {

@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { InputField } from "../../_components/input-field";
-import { BUSINESS_TYPES } from "../../data/business-types";
 import { PROVINCES } from "../../data/provinces";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput,
-  ComboboxItem, ComboboxList, ComboboxSeparator, ComboboxTrigger, ComboboxValue,
+  ComboboxItem, ComboboxList, ComboboxTrigger, ComboboxValue,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
@@ -17,14 +15,10 @@ import type { ChangeEvent } from "react";
 import { formatThaiId } from "../_lib/format-thai-id";
 import { useVendorIndividualInfoForm } from "../_hooks/use-vendor-info-form";
 import type { VendorIndividualInfoValues } from "../_schemas/schema";
+import { BusinessTypeCombobox } from "./business-type-combobox";
 
 export default function IndividualInfoForm({ detail }: { detail: VendorIndividualInfoValues }) {
   const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } = useVendorIndividualInfoForm(detail);
-  const [businessTypeQuery, setBusinessTypeQuery] = useState("");
-
-  const canAddBusinessType = businessTypeQuery.trim().length > 0 && !BUSINESS_TYPES.some(
-    (type) => type.toLowerCase() === businessTypeQuery.trim().toLowerCase()
-  );
 
   function handleThaiIdChange(onChange: (value: string) => void) {
     return (e: ChangeEvent<HTMLInputElement>) => onChange(formatThaiId(e.target.value));
@@ -43,57 +37,7 @@ export default function IndividualInfoForm({ detail }: { detail: VendorIndividua
               control={control}
               name="businessType"
               render={({ field: { value, onChange, ...field } }) => (
-                <Combobox
-                  items={BUSINESS_TYPES}
-                  value={value}
-                  onValueChange={onChange}
-                  onInputValueChange={setBusinessTypeQuery}
-                  {...field}
-                >
-                  <ComboboxTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
-                      >
-                        <span className="min-w-0 truncate">
-                          <ComboboxValue placeholder="เลือกประเภทธุรกิจ" />
-                        </span>
-                        <ChevronDown />
-                      </Button>
-                    }
-                    className="h-11 rounded-sm bg-transparent"
-                  />
-                  <ComboboxContent>
-                    <ComboboxInput
-                      showTrigger={false}
-                      placeholder="ค้นหาประเภทธุรกิจ"
-                      className="
-                    bg-transparent! border-0 border-b! border-gray-300! rounded-none ring-0 shadow-none focus-visible:outline-none focus-visible:ring-0
-                    has-[[data-slot=input-group-control]:focus-visible]:border-transparent
-                    has-[[data-slot=input-group-control]:focus-visible]:ring-0
-                    "
-                    />
-                    <ComboboxEmpty>ไม่พบตัวเลือกที่ตรงกัน</ComboboxEmpty>
-                    <ComboboxList>
-                      {(item: string) => (
-                        <ComboboxItem key={item} value={item}>
-                          {item}
-                        </ComboboxItem>
-                      )}
-                    </ComboboxList>
-                    {canAddBusinessType && (
-                      <>
-                        <ComboboxSeparator />
-                        <ComboboxList>
-                          <ComboboxItem value={businessTypeQuery.trim()} className="cursor-pointer">
-                            {`+ เพิ่ม "${businessTypeQuery.trim()}"`}
-                          </ComboboxItem>
-                        </ComboboxList>
-                      </>
-                    )}
-                  </ComboboxContent>
-                </Combobox>
+                <BusinessTypeCombobox value={value} onValueChange={onChange} {...field} />
               )}
             />
           </InputField>

@@ -8,10 +8,30 @@ export function useInternalProfileList(
   search?: string,
   sortBy?: InternalProfileSortBy,
   sortDirection?: InternalProfileSortDirection,
+  departmentId?: number,
+  positionId?: number,
 ) {
   return useQuery({
-    queryKey: ["internal_profiles", page, perPage, search ?? "", sortBy ?? "", sortDirection ?? ""],
-    queryFn: () => fetchInternalProfileList(page, perPage, search, sortBy, sortDirection),
+    queryKey: [
+      "internal_profiles",
+      page,
+      perPage,
+      search ?? "",
+      sortBy ?? "",
+      sortDirection ?? "",
+      departmentId ?? "",
+      positionId ?? "",
+    ],
+    queryFn: () =>
+      fetchInternalProfileList(
+        page,
+        perPage,
+        search,
+        sortBy,
+        sortDirection,
+        departmentId,
+        positionId,
+      ),
     placeholderData: keepPreviousData,
   });
 }

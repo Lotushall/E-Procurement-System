@@ -7,6 +7,7 @@ import type { InternalProfile } from "@/lib/internal-profiles/types";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/ui/data-table-sortable-header";
 import { routes } from "@/lib/routes";
+import DeleteInternalProfileDialog from "../delete-internal-profile-dialog";
 
 export const columns: ColumnDef<InternalProfile>[] = [
     {
@@ -67,6 +68,8 @@ export const columns: ColumnDef<InternalProfile>[] = [
                 >
                     <Pencil className="w-4 h-4 text-gray-500" />
                 </Button>
+
+                <DeleteInternalProfileDialog internal_profile={row.original} />
             </div>
         ),
     },
