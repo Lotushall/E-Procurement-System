@@ -28,6 +28,10 @@ Route::prefix('dashboard')->group(function () {
     });
 
     Route::prefix('departments')->group(function () {
+        Route::get('/select', [DepartmentController::class, 'select'])
+            ->middleware('role:admin')
+            ->name('dashboard.departments.select');
+
         Route::get('/', [DepartmentController::class, 'index'])
             ->middleware('role:admin')
             ->name('dashboard.departments.index');
@@ -48,6 +52,10 @@ Route::prefix('dashboard')->group(function () {
     });
 
     Route::prefix('positions')->group(function () {
+        Route::get('/select', [PositionController::class, 'select'])
+            ->middleware('role:admin')
+            ->name('dashboard.positions.select');
+
         Route::get('/', [PositionController::class, 'index'])
             ->middleware('role:admin')
             ->name('dashboard.positions.index');

@@ -4,6 +4,7 @@ namespace App\Modules\InternalProfiles\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\InternalProfiles\Application\DTOs\DepartmentData;
+use App\Modules\InternalProfiles\Application\Queries\ListDepartmentOptionsQuery;
 use App\Modules\InternalProfiles\Application\Queries\ListDepartmentsQuery;
 use App\Modules\InternalProfiles\Application\UseCases\CreateDepartmentUseCase;
 use App\Modules\InternalProfiles\Application\UseCases\DeleteDepartmentUseCase;
@@ -17,6 +18,7 @@ class DepartmentController extends Controller
 {
     public function __construct(
         private readonly ListDepartmentsQuery $listDepartments,
+        private readonly ListDepartmentOptionsQuery $listDepartmentOptions,
         private readonly CreateDepartmentUseCase $createDepartment,
         private readonly UpdateDepartmentUseCase $updateDepartment,
         private readonly DeleteDepartmentUseCase $deleteDepartment,
@@ -26,6 +28,13 @@ class DepartmentController extends Controller
     {
         return response()->json([
             'data' => DepartmentResource::collection($this->listDepartments->execute()),
+        ]);
+    }
+
+    public function select(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->listDepartmentOptions->execute(),
         ]);
     }
 

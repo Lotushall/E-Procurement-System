@@ -4,6 +4,7 @@ namespace App\Modules\InternalProfiles\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\InternalProfiles\Application\DTOs\PositionData;
+use App\Modules\InternalProfiles\Application\Queries\ListPositionOptionsQuery;
 use App\Modules\InternalProfiles\Application\Queries\ListPositionsQuery;
 use App\Modules\InternalProfiles\Application\UseCases\CreatePositionUseCase;
 use App\Modules\InternalProfiles\Application\UseCases\DeletePositionUseCase;
@@ -17,6 +18,7 @@ class PositionController extends Controller
 {
     public function __construct(
         private readonly ListPositionsQuery $listPositions,
+        private readonly ListPositionOptionsQuery $listPositionOptions,
         private readonly CreatePositionUseCase $createPosition,
         private readonly UpdatePositionUseCase $updatePosition,
         private readonly DeletePositionUseCase $deletePosition,
@@ -26,6 +28,13 @@ class PositionController extends Controller
     {
         return response()->json([
             'data' => PositionResource::collection($this->listPositions->execute()),
+        ]);
+    }
+
+    public function select(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->listPositionOptions->execute(),
         ]);
     }
 
