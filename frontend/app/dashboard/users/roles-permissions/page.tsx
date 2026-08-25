@@ -26,7 +26,7 @@ export default function RolesPermissionsPage() {
       <div className="flex flex-col gap-3 md:gap-5">
 
         <div className="flex flex-col md:flex-row gap-3 justify-between">
-          <div className="space-y-2">
+          <div className="">
             <h1 className="text-2xl font-bold">จัดการ Role และ Permission</h1>
             <p className="text-sm text-gray-600 tracking-wide">
               กำหนด role, permission และความสัมพันธ์ระหว่างกันสำหรับพนักงานภายใน
