@@ -73,7 +73,7 @@ function InternalProfilesPageContent() {
                         nativeButton={false}
                         className="h-10 flex-1"
                     >
-                        จัดการ แผนก และ ตำแหน่ง
+                        จัดการแผนก และตำแหน่ง
                     </Button>
 
                     <InternalProfileFormDialog />
