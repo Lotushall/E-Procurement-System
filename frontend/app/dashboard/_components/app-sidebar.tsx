@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { hasPermission, hasRole } from "@/lib/auth/permissions";
 import { useUser } from "@/lib/auth/queries/useUser";
@@ -82,6 +83,7 @@ const navItems: NavItem[] = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: user } = useUser();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const visibleItems = navItems.filter((item) => {
     if (!item.permission && !item.role) return true;
@@ -107,7 +109,14 @@ export function AppSidebar() {
                     className="mx-2.5 my-0.5"
                   >
                     <SidebarMenuButton
-                      render={<Link href={item.href} />}
+                      render={
+                        <Link
+                          href={item.href}
+                          onClick={() => {
+                            if (isMobile) setOpenMobile(false);
+                          }}
+                        />
+                      }
                       isActive={isActive}
                       tooltip={item.label}
                       className={cn(

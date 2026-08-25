@@ -1,10 +1,12 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import DepartmentTab from "./_components/department-tab";
+import PositionTab from "./_components/position-tab";
 
 type ActiveTab = "department" | "position";
 
@@ -39,7 +41,14 @@ export default function DepartmentsPositions() {
                     <TabsTrigger value="department">แผนก</TabsTrigger>
                     <TabsTrigger value="position">ตำแหน่ง</TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="department">
+                    <DepartmentTab />
+                </TabsContent>
+                <TabsContent value="position">
+                    <PositionTab />
+                </TabsContent>
             </Tabs>
-        </div>
+        </div >
     )
 }
