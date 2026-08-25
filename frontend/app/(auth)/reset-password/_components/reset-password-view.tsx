@@ -8,7 +8,7 @@ import { CircleCheck, Eye, EyeOff, OctagonX } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { InputField } from "../../_components/input-field";
+import { InputField } from "@/components/input-field";
 import { useResetPasswordForm } from "../_hooks/use-reset-password-form";
 
 export function ResetPasswordView() {

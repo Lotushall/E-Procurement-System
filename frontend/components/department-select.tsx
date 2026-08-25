@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import type { Department } from "@/lib/internal-profiles/types";
 import { cn } from "@/lib/utils";
 
+const EMPTY_OPTION = { value: "", label: "---" };
+
 export function DepartmentSelect({
   departments,
   value,
@@ -30,11 +32,14 @@ export function DepartmentSelect({
   if (allOption) {
     idByLabel.set(allOption.label, allOption.value);
     labelById.set(allOption.value, allOption.label);
+  } else {
+    idByLabel.set(EMPTY_OPTION.label, EMPTY_OPTION.value);
+    labelById.set(EMPTY_OPTION.value, EMPTY_OPTION.label);
   }
 
   const items = allOption
     ? [allOption.label, ...departments.map((d) => d.name)]
-    : departments.map((d) => d.name);
+    : [EMPTY_OPTION.label, ...departments.map((d) => d.name)];
 
   return (
     <Combobox

@@ -16,7 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
-import { InputField } from "../_components/input-field";
+import { InputField } from "@/components/input-field";
 import { MaskedInput } from "./_components/masked-input";
 import { formatCitizenId, formatPhone } from "@/lib/utils";
 import { useRegisterForm } from "./_hooks/use-register-form";

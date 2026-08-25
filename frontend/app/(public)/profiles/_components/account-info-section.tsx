@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InputField } from "./input-field";
+import { InputField } from "@/components/input-field";
 import SectionTitle from "./section-title";
 import { useAccountInfoForm } from "../_hooks/use-account-info-form";
 

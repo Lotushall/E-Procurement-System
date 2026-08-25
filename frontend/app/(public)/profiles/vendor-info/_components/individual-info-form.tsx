@@ -1,7 +1,7 @@
 "use client";
 
 import { Controller } from "react-hook-form";
-import { InputField } from "../../_components/input-field";
+import { InputField } from "@/components/input-field";
 import { PROVINCES } from "../../data/provinces";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

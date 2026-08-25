@@ -12,6 +12,11 @@ Route::prefix('dashboard')->group(function () {
             ->middleware('role:admin')
             ->name('dashboard.internal-profiles.index');
 
+        Route::get('/{id}', [InternalProfilesController::class, 'show'])
+            ->middleware('role:admin')
+            ->whereNumber('id')
+            ->name('dashboard.internal-profiles.show');
+
         Route::post('/', [InternalProfilesController::class, 'store'])
             ->middleware('role:admin')
             ->name('dashboard.internal-profiles.store');

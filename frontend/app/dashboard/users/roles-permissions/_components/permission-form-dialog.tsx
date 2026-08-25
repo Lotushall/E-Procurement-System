@@ -8,7 +8,7 @@ import {
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputField } from "@/app/(public)/profiles/_components/input-field";
+import { InputField } from "@/components/input-field";
 import type { Permission } from "@/lib/user/management/types";
 import { getGroupLabel } from "../_data/group-labels";
 import { usePermissionForm } from "../_hooks/use-permission-form";

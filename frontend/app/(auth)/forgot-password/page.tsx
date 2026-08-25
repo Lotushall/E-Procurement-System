@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { routes } from "@/lib/routes";
 import Image from "next/image";
 import Link from "next/link";
-import { InputField } from "../_components/input-field";
+import { InputField } from "@/components/input-field";
 import { useForgotPasswordForm } from "./_hooks/use-forgot-password-form";
 
 export default function ForgotPassword() {

@@ -5,12 +5,12 @@ import { Pencil, Plus } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog, DialogClose, DialogContent, DialogDescription,
+  Dialog, DialogClose, DialogContent,
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { InputField } from "@/app/(public)/profiles/_components/input-field";
+import { InputField } from "@/components/input-field";
 import { PermissionPicker } from "@/components/permission-picker";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import type { RoleDetail } from "@/lib/user/management/types";

@@ -2,20 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { InputField } from "@/app/(public)/profiles/_components/input-field";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
+import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
+import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
 import { routes } from "@/lib/routes";
 import { useCreateUserForm } from "../_hooks/use-create-user-form";
-import { PermissionPicker } from "@/components/permission-picker";
-import { RoleSelect } from "@/components/role-select";
+import { CreateInternalUserFields } from "../_components/create-internal-user-fields";
 
 export default function CreateUserPage() {
   return (
@@ -29,6 +27,8 @@ function CreateUserPageContent() {
   const router = useRouter();
   const { data: roles } = useRoles();
   const { data: permissions, isPending: permissionsPending, isError: permissionsError } = usePermissions();
+  const { data: departments } = useDepartmentOptions();
+  const { data: positions } = usePositionOptions();
   const { register, control, setValue, onSubmit, isSubmitting, formState: { errors } } = useCreateUserForm(() => router.push(routes.dashboards.user.index));
 
   useBreadcrumb([
@@ -57,48 +57,15 @@ function CreateUserPageContent() {
             </p>
           ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <InputField label="Username" error={errors.username?.message}>
-                  <Input {...register("username")} aria-invalid={!!errors.username} className="h-11 rounded-sm" />
-                </InputField>
-                <InputField label="อีเมล" error={errors.email?.message}>
-                  <Input {...register("email")} type="email" aria-invalid={!!errors.email} className="h-11 rounded-sm" />
-                </InputField>
-              </div>
-
-              <InputField label="รหัสผ่าน" error={errors.password?.message}>
-                <Input {...register("password")} type="password" aria-invalid={!!errors.password} className="h-11 rounded-sm" />
-              </InputField>
-
-              <Controller
+              <CreateInternalUserFields
+                register={register}
                 control={control}
-                name="role"
-                render={({ field: { value, onChange } }) => (
-                  <InputField label="บทบาท (Role)" error={errors.role?.message}>
-                    <RoleSelect
-                      roles={roles ?? []}
-                      value={value}
-                      ariaInvalid={!!errors.role}
-                      onValueChange={(next) => {
-                        onChange(next);
-                        setValue("permissions", (roles ?? []).find((r) => r.name === next)?.permissions ?? []);
-                      }}
-                    />
-                  </InputField>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="permissions"
-                render={({ field: { value, onChange } }) => (
-                  <div className="flex flex-col gap-4">
-                    {errors.permissions && (
-                      <p className="text-xs text-destructive">{errors.permissions.message}</p>
-                    )}
-                    <PermissionPicker permissions={permissions ?? []} value={value} onChange={onChange} />
-                  </div>
-                )}
+                errors={errors}
+                setValue={setValue}
+                roles={roles ?? []}
+                permissions={permissions ?? []}
+                departments={departments ?? []}
+                positions={positions ?? []}
               />
 
               <div className="flex justify-end gap-2 pt-2">

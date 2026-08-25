@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
-import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { useInternalProfileListPage } from "./_hooks/use-internal-profile-list-page";
@@ -14,10 +13,11 @@ import {
     InternalProfileListSkeleton,
     InternalProfileTableSkeleton,
 } from "./_components/internal-profile-list-skeleton";
-import { PositionSelect } from "./_components/position-select";
-import { DepartmentSelect } from "./_components/department-select";
+import { PositionSelect } from "@/components/position-select";
+import { DepartmentSelect } from "@/components/department-select";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
 import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
+import InternalProfileFormDialog from "./_components/internal-profile-form-dialog";
 
 const ALL_DEPARTMENTS_OPTION = { value: "all", label: "ทุกแผนก" };
 const ALL_POSITIONS_OPTION = { value: "all", label: "ทุกตำแหน่ง" };
@@ -75,14 +75,7 @@ function InternalProfilesPageContent() {
                         จัดการ แผนก และ ตำแหน่ง
                     </Button>
 
-                    <Button
-                        render={<Link href={routes.dashboards.internal_employees.create} />}
-                        nativeButton={false}
-                        className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-700 h-10"
-                    >
-                        <Plus />
-                        <p>เพิ่มพนักงาน</p>
-                    </Button>
+                    <InternalProfileFormDialog />
                 </div>
             </div>
 

@@ -41,11 +41,6 @@ export const routes = {
     },
     internal_employees: {
       index: "/dashboard/internal-employees",
-      create: "/dashboard/internal-employees/create",
-      detail: (id: number | string) =>
-        `/dashboard/internal-employees/detail?id=${id}`,
-      edit: (id: number | string) =>
-        `/dashboard/internal-employees/edit?id=${id}`,
     },
     setting: {
       index: "/dashboard/settings",

@@ -1,10 +1,13 @@
 import { api } from "../api";
 import {
+  CreateInternalProfilePayload,
   Department,
+  InternalProfile,
   InternalProfileSortBy,
   InternalProfileSortDirection,
   PaginatedUserList,
   Position,
+  UpdateInternalProfilePayload,
 } from "./types";
 
 export async function fetchInternalProfileList(
@@ -36,6 +39,19 @@ export async function fetchInternalProfileList(
       total: data.meta.total,
     },
   };
+}
+
+export async function createInternalProfile(payload: CreateInternalProfilePayload): Promise<InternalProfile> {
+  const { data } = await api.post<{ data: InternalProfile }>("/api/v1/dashboard/internal-profiles", payload);
+  return data.data;
+}
+
+export async function updateInternalProfile(
+  id: number,
+  payload: UpdateInternalProfilePayload,
+): Promise<InternalProfile> {
+  const { data } = await api.patch<{ data: InternalProfile }>(`/api/v1/dashboard/internal-profiles/${id}`, payload);
+  return data.data;
 }
 
 export async function deleteInternalProfile(id: number): Promise<void> {

@@ -5,7 +5,7 @@ import { Controller, type Control, type FieldErrors, type UseFormRegister } from
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { InputField } from "../../_components/input-field";
+import { InputField } from "@/components/input-field";
 import { formatPhone } from "@/lib/utils";
 import type { AddContactValues } from "../_schemas/schema";
 

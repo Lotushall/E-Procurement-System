@@ -78,7 +78,7 @@ function UsersPageContent() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold">จัดการผู้ใช้</h1>
           <p className="text-sm text-gray-600 tracking-wide">
@@ -87,7 +87,7 @@ function UsersPageContent() {
         </div>
         <div className="flex items-center gap-2">
           {canManageRoles && (
-            <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} nativeButton={false} className="h-10">
+            <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} nativeButton={false} className="h-10 flex-1">
               จัดการ Role และ Permission
             </Button>
           )}
@@ -95,7 +95,7 @@ function UsersPageContent() {
             <Button
               render={<Link href={routes.dashboards.user.create} />}
               nativeButton={false}
-              className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10"
+              className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10 flex-1"
             >
               <Plus />
               <p>เพิ่ม user</p>
@@ -108,7 +108,7 @@ function UsersPageContent() {
         <UserListSkeleton />
       ) : (
         <>
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 lg:flex-row">
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -116,39 +116,41 @@ function UsersPageContent() {
               className="bg-white h-10 rounded-sm"
             />
 
-            <Select
-              items={TYPE_OPTIONS}
-              value={typeFilter}
-              onValueChange={(value) => setTypeFilter(value as UserTypeFilter)}
-            >
-              <SelectTrigger className="sm:w-44 h-10! bg-white rounded-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent side="bottom" alignItemWithTrigger={false}>
-                {TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-3">
+              <Select
+                items={TYPE_OPTIONS}
+                value={typeFilter}
+                onValueChange={(value) => setTypeFilter(value as UserTypeFilter)}
+              >
+                <SelectTrigger className="lg:w-44 h-10! bg-white rounded-sm flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side="bottom" alignItemWithTrigger={false}>
+                  {TYPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select
-              items={STATUS_OPTIONS}
-              value={statusFilter}
-              onValueChange={(value) => setStatusFilter(value as UserStatusFilter)}
-            >
-              <SelectTrigger className="sm:w-44 h-10! bg-white rounded-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent side="bottom" alignItemWithTrigger={false}>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select
+                items={STATUS_OPTIONS}
+                value={statusFilter}
+                onValueChange={(value) => setStatusFilter(value as UserStatusFilter)}
+              >
+                <SelectTrigger className="lg:w-44 h-10! bg-white rounded-sm flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side="bottom" alignItemWithTrigger={false}>
+                  {STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {isError ? (

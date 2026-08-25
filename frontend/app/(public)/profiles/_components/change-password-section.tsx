@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
-import { InputField } from "./input-field";
+import { InputField } from "@/components/input-field";
 import SectionTitle from "./section-title";
 import { useChangePasswordForm } from "../_hooks/use-change-password-form";
 

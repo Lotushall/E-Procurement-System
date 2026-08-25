@@ -8,7 +8,7 @@ final class InternalProfile
 {
     private function __construct(
         private readonly ?int $id,
-        private readonly int $userId,
+        private readonly ?int $userId,
         private ?string $employeeNo,
         private ?string $prefix,
         private string $firstname,
@@ -19,7 +19,7 @@ final class InternalProfile
     ) {}
 
     public static function create(
-        int $userId,
+        ?int $userId,
         ?string $employeeNo,
         ?string $prefix,
         string $firstname,
@@ -43,7 +43,7 @@ final class InternalProfile
 
     public static function reconstitute(
         int $id,
-        int $userId,
+        ?int $userId,
         ?string $employeeNo,
         ?string $prefix,
         string $firstname,
@@ -91,7 +91,7 @@ final class InternalProfile
         return $this->id;
     }
 
-    public function userId(): int
+    public function userId(): ?int
     {
         return $this->userId;
     }

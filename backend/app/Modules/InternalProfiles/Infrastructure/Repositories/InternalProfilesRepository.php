@@ -28,11 +28,23 @@ class InternalProfilesRepository implements InternalProfilesRepositoryInterface
         return $this->mapToEntity($model);
     }
 
+    public function findById(int $id): ?InternalProfile
+    {
+        $model = InternalProfiles::find($id);
+
+        return $model !== null ? $this->mapToEntity($model) : null;
+    }
+
     public function findByUserId(int $userId): ?InternalProfile
     {
         $model = InternalProfiles::where('user_id', $userId)->first();
 
         return $model !== null ? $this->mapToEntity($model) : null;
+    }
+
+    public function delete(int $id): void
+    {
+        InternalProfiles::findOrFail($id)->delete();
     }
 
     private function mapToEntity(InternalProfiles $model): InternalProfile

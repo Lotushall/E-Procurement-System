@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
-import { InputField } from "../_components/input-field";
+import { InputField } from "@/components/input-field";
 import { useLoginForm } from "./_hooks/use-login-form";
 
 export default function Login() {

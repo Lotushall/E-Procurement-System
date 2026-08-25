@@ -10,7 +10,7 @@ export type InternalProfileSortDirection = "asc" | "desc";
 
 export interface InternalProfile {
   id: number;
-  userId: number;
+  userId: number | null;
   employeeNo: string;
   prefix: "นาย" | "นาง";
   firstname: string;
@@ -36,3 +36,15 @@ export interface PaginatedUserList {
   data: InternalProfile[];
   meta: PaginationMeta;
 }
+
+export interface CreateInternalProfilePayload {
+  prefix?: string;
+  firstname: string;
+  lastname: string;
+  employeeNo?: string;
+  departmentId?: number;
+  positionId?: number;
+  phone?: string;
+}
+
+export type UpdateInternalProfilePayload = CreateInternalProfilePayload;

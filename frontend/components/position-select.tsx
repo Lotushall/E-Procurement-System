@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import type { Position } from "@/lib/internal-profiles/types";
 import { cn } from "@/lib/utils";
 
+const EMPTY_OPTION = { value: "", label: "---" };
+
 export function PositionSelect({
   positions,
   value,
@@ -30,11 +32,14 @@ export function PositionSelect({
   if (allOption) {
     idByLabel.set(allOption.label, allOption.value);
     labelById.set(allOption.value, allOption.label);
+  } else {
+    idByLabel.set(EMPTY_OPTION.label, EMPTY_OPTION.value);
+    labelById.set(EMPTY_OPTION.value, EMPTY_OPTION.label);
   }
 
   const items = allOption
     ? [allOption.label, ...positions.map((p) => p.name)]
-    : positions.map((p) => p.name);
+    : [EMPTY_OPTION.label, ...positions.map((p) => p.name)];
 
   return (
     <Combobox

@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { InputField } from "@/app/(public)/profiles/_components/input-field";
+import { InputField } from "@/components/input-field";
 import { PermissionPicker } from "@/components/permission-picker";
 import { RoleSelect } from "@/components/role-select";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
