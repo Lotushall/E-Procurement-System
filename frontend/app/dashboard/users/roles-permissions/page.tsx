@@ -23,9 +23,9 @@ export default function RolesPermissionsPage() {
 
   return (
     <RequireRole role="admin">
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3 md:gap-5">
 
-        <div className="flex justify-between">
+        <div className="flex flex-col md:flex-row gap-3 justify-between">
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">จัดการ Role และ Permission</h1>
             <p className="text-sm text-gray-600 tracking-wide">
@@ -38,7 +38,7 @@ export default function RolesPermissionsPage() {
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)}>
           <TabsList className={cn(
-            "w-85 min-h-12 border p-1 rounded-md space-x-1",
+            "w-full lg:w-85 min-h-12 border p-1 rounded-md space-x-1",
             "*:data-active:bg-red-700 *:data-active:text-white *:data-active:hover:text-white",
             "*:font-bold tracking-wide *:cursor-pointer *:rounded-md"
           )}>

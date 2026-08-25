@@ -2,7 +2,7 @@
 
 import { Suspense, useMemo } from "react";
 import { Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/search-input";
 import {
   Select,
   SelectContent,
@@ -109,11 +109,10 @@ function UsersPageContent() {
       ) : (
         <>
           <div className="flex flex-col gap-3 lg:flex-row">
-            <Input
+            <SearchInput
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onValueChange={setSearch}
               placeholder="ค้นหาชื่อ | username | อีเมล"
-              className="bg-white h-10 rounded-sm"
             />
 
             <div className="flex gap-3">

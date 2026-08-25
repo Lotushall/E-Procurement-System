@@ -40,7 +40,7 @@ export default function InternalProfileFormDialog() {
                 if (!next) reset();
             }}
         >
-            <DialogTrigger render={<Button className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-700 h-10" />}>
+            <DialogTrigger render={<Button className="font-bold tracking-wider bg-red-700 text-white flex-1 hover:bg-red-700 h-10" />}>
                 <Plus />
                 <p>เพิ่มพนักงาน</p>
             </DialogTrigger>

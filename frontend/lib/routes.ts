@@ -41,6 +41,7 @@ export const routes = {
     },
     internal_employees: {
       index: "/dashboard/internal-employees",
+      departments_positions: "/dashboard/internal-employees/departments-positions",
     },
     setting: {
       index: "/dashboard/settings",

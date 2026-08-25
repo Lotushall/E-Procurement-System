@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/search-input";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
@@ -58,19 +58,20 @@ function InternalProfilesPageContent() {
 
     return (
         <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-2">
                     <h1 className="text-2xl font-bold">จัดการพนักงานภายใน</h1>
                     <p className="text-sm text-gray-600 tracking-wide">
                         รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
                     </p>
                 </div>
+
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
-                        render={<Link href={routes.dashboards.user.roles} />}
+                        render={<Link href={routes.dashboards.internal_employees.departments_positions} />}
                         nativeButton={false}
-                        className="h-10"
+                        className="h-10 flex-1"
                     >
                         จัดการ แผนก และ ตำแหน่ง
                     </Button>
@@ -83,29 +84,30 @@ function InternalProfilesPageContent() {
                 <InternalProfileListSkeleton />
             ) : (
                 <>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                        <Input
+                    <div className="flex flex-col gap-3 lg:flex-row">
+                        <SearchInput
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onValueChange={setSearch}
                             placeholder="ค้นหารหัสพนักงาน | ชื่อ | นามสกุล | เบอร์โทร"
-                            className="bg-white h-10 rounded-sm"
                         />
 
-                        <DepartmentSelect
-                            departments={departments ?? []}
-                            value={departmentFilter}
-                            onValueChange={setDepartmentFilter}
-                            allOption={ALL_DEPARTMENTS_OPTION}
-                            className="sm:w-44"
-                        />
+                        <div className="flex gap-3">
+                            <DepartmentSelect
+                                departments={departments ?? []}
+                                value={departmentFilter}
+                                onValueChange={setDepartmentFilter}
+                                allOption={ALL_DEPARTMENTS_OPTION}
+                                className="sm:w-44 flex-1"
+                            />
 
-                        <PositionSelect
-                            positions={positions ?? []}
-                            value={positionFilter}
-                            onValueChange={setPositionFilter}
-                            allOption={ALL_POSITIONS_OPTION}
-                            className="sm:w-44"
-                        />
+                            <PositionSelect
+                                positions={positions ?? []}
+                                value={positionFilter}
+                                onValueChange={setPositionFilter}
+                                allOption={ALL_POSITIONS_OPTION}
+                                className="sm:w-44 flex-1"
+                            />
+                        </div>
                     </div>
 
                     {isError ? (

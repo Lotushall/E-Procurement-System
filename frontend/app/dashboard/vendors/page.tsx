@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/search-input";
 import {
   Select,
   SelectContent,
@@ -78,11 +78,10 @@ function VendorListPageContent() {
           <VendorStatsCards counts={counts} active={filter} onSelect={setFilter} />
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Input
+            <SearchInput
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onValueChange={setSearch}
               placeholder="ค้นหาชื่อผู้ค้า | ชื่อร้านค้า | หมวดสินค้า/บริการ | เบอร์โทรศัพท์/อีเมล"
-              className="bg-white h-10 rounded-sm"
             />
 
             <Select
