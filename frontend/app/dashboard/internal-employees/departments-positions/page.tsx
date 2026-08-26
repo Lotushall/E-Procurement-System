@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import DepartmentTab from "./_components/department-tab";
 import PositionTab from "./_components/position-tab";
+import DepartmentFormDialog from "./_components/department-form-dialog";
+import PositionFormDialog from "./_components/position-form-dialog";
 
 type ActiveTab = "department" | "position";
 
@@ -29,7 +31,7 @@ export default function DepartmentsPositions() {
                     </p>
                 </div>
 
-                {activeTab === "department" ? "<RoleFormDialog />" : "<PermissionFormDialog />"}
+                {activeTab === "department" ? <DepartmentFormDialog /> : <PositionFormDialog />}
             </div>
 
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)}>

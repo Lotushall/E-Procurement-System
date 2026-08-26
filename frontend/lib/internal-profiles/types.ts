@@ -48,3 +48,15 @@ export interface CreateInternalProfilePayload {
 }
 
 export type UpdateInternalProfilePayload = CreateInternalProfilePayload;
+
+export interface CreateDepartmentPayload {
+  name: string;
+}
+
+export type UpdateDepartmentPayload = CreateDepartmentPayload;
+
+export interface CreatePositionPayload {
+  name: string;
+}
+
+export type UpdatePositionPayload = CreatePositionPayload;
