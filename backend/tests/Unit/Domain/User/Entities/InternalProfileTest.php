@@ -111,3 +111,20 @@ test('linkToUser throws when the profile is already linked', function () {
 
     $profile->linkToUser(99);
 })->throws(DomainException::class, 'Internal profile is already linked to a user.');
+
+test('unlinkFromUser clears the user id', function () {
+    $profile = InternalProfile::create(
+        userId: 10,
+        employeeNo: null,
+        prefix: null,
+        firstname: 'John',
+        lastname: 'Doe',
+        departmentId: null,
+        positionId: null,
+        phone: null,
+    );
+
+    $profile->unlinkFromUser();
+
+    expect($profile->userId())->toBeNull();
+});

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Application\UseCases\DeleteUserUseCase;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -45,3 +46,17 @@ test('execute throws when the target user does not exist', function () {
 
     app(DeleteUserUseCase::class)->execute(999999, $actor->id);
 })->throws(ModelNotFoundException::class);
+
+test('execute unlinks the internal profile from the deleted user', function () {
+    $actor = User::factory()->create(['user_type' => 'internal']);
+    $target = User::factory()->create(['user_type' => 'internal']);
+    $profile = InternalProfiles::create([
+        'user_id' => $target->id,
+        'firstname' => 'Jane',
+        'lastname' => 'Doe',
+    ]);
+
+    app(DeleteUserUseCase::class)->execute($target->id, $actor->id);
+
+    $this->assertDatabaseHas('internal_profiles', ['id' => $profile->id, 'user_id' => null]);
+});

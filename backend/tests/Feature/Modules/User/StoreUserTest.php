@@ -134,6 +134,17 @@ test('internalProfileId must reference an existing internal profile', function (
     $response->assertStatus(422)->assertJsonValidationErrors('internalProfileId');
 });
 
+test('username and email of a soft-deleted user can be reused on create', function () {
+    User::factory()->create(['username' => 'jdoe', 'email' => 'jdoe@example.com', 'deleted_at' => now()]);
+    Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+    $this->actingAs(internalAdminUserForStoreUser(), 'web');
+
+    $response = $this->postJson('/api/v1/dashboard/users', validCreateUserPayload());
+
+    $response->assertStatus(201);
+    $this->assertDatabaseHas('users', ['username' => 'jdoe', 'email' => 'jdoe@example.com', 'deleted_at' => null]);
+});
+
 test('internalProfileId must not already be linked to another user', function () {
     Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
     $this->actingAs(internalAdminUserForStoreUser(), 'web');

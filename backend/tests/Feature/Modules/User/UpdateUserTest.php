@@ -112,6 +112,20 @@ test('username must stay unique on update, ignoring itself', function () {
     $sameNameResponse->assertOk();
 });
 
+test('username and email of a soft-deleted user can be reused on update', function () {
+    User::factory()->create(['username' => 'taken', 'email' => 'taken@example.com', 'deleted_at' => now()]);
+    $target = User::factory()->create(['user_type' => 'company', 'username' => 'original', 'email' => 'original@example.com']);
+    $this->actingAs(internalAdminUserForUpdateUser(), 'web');
+
+    $response = $this->patchJson("/api/v1/dashboard/users/{$target->id}", [
+        'username' => 'taken',
+        'email' => 'taken@example.com',
+    ]);
+
+    $response->assertOk();
+    $this->assertDatabaseHas('users', ['id' => $target->id, 'username' => 'taken', 'email' => 'taken@example.com']);
+});
+
 test('updating a nonexistent user returns 404', function () {
     $this->actingAs(internalAdminUserForUpdateUser(), 'web');
 

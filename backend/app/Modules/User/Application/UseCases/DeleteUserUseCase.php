@@ -2,6 +2,7 @@
 
 namespace App\Modules\User\Application\UseCases;
 
+use App\Modules\InternalProfiles\Domain\Repositories\InternalProfilesRepositoryInterface;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -9,6 +10,7 @@ final class DeleteUserUseCase
 {
     public function __construct(
         private readonly UserRepositoryInterface $users,
+        private readonly InternalProfilesRepositoryInterface $internalProfiles,
         private readonly RevokeAllUserSessionsUseCase $revokeAllSessions,
     ) {}
 
@@ -23,6 +25,13 @@ final class DeleteUserUseCase
 
         return DB::transaction(function () use ($id, $actingUserId): ?string {
             $this->users->delete($id);
+
+            $profile = $this->internalProfiles->findByUserId($id);
+
+            if ($profile !== null) {
+                $profile->unlinkFromUser();
+                $this->internalProfiles->saveProfile($profile);
+            }
 
             $this->revokeAllSessions->execute($id);
 

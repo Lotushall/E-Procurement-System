@@ -16,6 +16,7 @@ use App\Modules\InternalProfiles\Presentation\Http\Requests\StoreInternalProfile
 use App\Modules\InternalProfiles\Presentation\Http\Requests\UpdateInternalProfileRequest;
 use App\Modules\InternalProfiles\Presentation\Http\Resources\InternalProfileResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class InternalProfilesController extends Controller
 {
@@ -83,9 +84,13 @@ class InternalProfilesController extends Controller
         ]);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id, Request $request): JsonResponse
     {
-        $this->deleteInternalProfile->execute($id);
+        $message = $this->deleteInternalProfile->execute($id, $request->user()->id);
+
+        if ($message !== null) {
+            return response()->json(['message' => $message], 422);
+        }
 
         return response()->json(null, 204);
     }

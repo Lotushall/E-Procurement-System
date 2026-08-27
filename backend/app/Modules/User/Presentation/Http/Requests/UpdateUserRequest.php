@@ -17,8 +17,8 @@ class UpdateUserRequest extends FormRequest
         $userId = (int) $this->route('id');
 
         $rules = [
-            'username' => ['required', 'string', Rule::unique('users', 'username')->ignore($userId)],
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($userId)],
+            'username' => ['required', 'string', Rule::unique('users', 'username')->ignore($userId)->whereNull('deleted_at')],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($userId)->whereNull('deleted_at')],
             'password' => ['nullable', 'string', 'min:8'],
         ];
 

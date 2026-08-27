@@ -93,6 +93,11 @@ final class InternalProfile
         $this->userId = $userId;
     }
 
+    public function unlinkFromUser(): void
+    {
+        $this->userId = null;
+    }
+
     // -----------------------------
     // Getters
     // -----------------------------
