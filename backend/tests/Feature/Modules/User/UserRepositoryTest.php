@@ -82,3 +82,21 @@ test('delete throws when the user does not exist', function () {
 
     $repository->delete(999999);
 })->throws(ModelNotFoundException::class);
+
+test('delete mutates the username and email so the originals become free to reuse', function () {
+    $repository = new UserRepository;
+    $user = User::register('todelete', Email::fromString('todelete@example.com'), 'hashed-password', UserType::Internal);
+    $saved = $repository->save($user);
+
+    $repository->delete($saved->id());
+
+    $this->assertDatabaseMissing('users', ['id' => $saved->id(), 'username' => 'todelete']);
+    $this->assertDatabaseMissing('users', ['id' => $saved->id(), 'email' => 'todelete@example.com']);
+
+    $newUser = User::register('todelete', Email::fromString('todelete@example.com'), 'hashed-password', UserType::Internal);
+    $newSaved = $repository->save($newUser);
+
+    expect($newSaved->id())->not->toBe($saved->id())
+        ->and($newSaved->username())->toBe('todelete')
+        ->and($newSaved->email()->value)->toBe('todelete@example.com');
+});

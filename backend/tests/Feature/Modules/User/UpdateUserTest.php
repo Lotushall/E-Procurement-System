@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -112,8 +113,9 @@ test('username must stay unique on update, ignoring itself', function () {
     $sameNameResponse->assertOk();
 });
 
-test('username and email of a soft-deleted user can be reused on update', function () {
-    User::factory()->create(['username' => 'taken', 'email' => 'taken@example.com', 'deleted_at' => now()]);
+test('username and email of a deleted user can be reused on update', function () {
+    $deletedUser = User::factory()->create(['username' => 'taken', 'email' => 'taken@example.com']);
+    app(UserRepositoryInterface::class)->delete($deletedUser->id);
     $target = User::factory()->create(['user_type' => 'company', 'username' => 'original', 'email' => 'original@example.com']);
     $this->actingAs(internalAdminUserForUpdateUser(), 'web');
 

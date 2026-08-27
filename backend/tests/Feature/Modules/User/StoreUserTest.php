@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
+use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -134,8 +135,9 @@ test('internalProfileId must reference an existing internal profile', function (
     $response->assertStatus(422)->assertJsonValidationErrors('internalProfileId');
 });
 
-test('username and email of a soft-deleted user can be reused on create', function () {
-    User::factory()->create(['username' => 'jdoe', 'email' => 'jdoe@example.com', 'deleted_at' => now()]);
+test('username and email of a deleted user can be reused on create', function () {
+    $deletedUser = User::factory()->create(['username' => 'jdoe', 'email' => 'jdoe@example.com']);
+    app(UserRepositoryInterface::class)->delete($deletedUser->id);
     Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
     $this->actingAs(internalAdminUserForStoreUser(), 'web');
 

@@ -13,8 +13,8 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string', Rule::unique('users', 'username')->whereNull('deleted_at')],
-            'email' => ['required', 'email', Rule::unique('users', 'email')->whereNull('deleted_at')],
+            'username' => ['required', 'string', Rule::unique('users', 'username')],
+            'email' => ['required', 'email', Rule::unique('users', 'email')],
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'string', Rule::exists('roles', 'name')],
             'permissions' => ['present', 'array'],

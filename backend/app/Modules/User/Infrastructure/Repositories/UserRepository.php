@@ -67,7 +67,19 @@ class UserRepository implements UserRepositoryInterface
 
     public function delete(int $id): void
     {
-        UserModel::findOrFail($id)->delete();
+        $model = UserModel::findOrFail($id);
+        $model->username = "{$model->username}+deleted-{$model->id}";
+        $model->email = $this->mutateEmailForDeletion($model->email, $model->id);
+        $model->save();
+
+        $model->delete();
+    }
+
+    private function mutateEmailForDeletion(string $email, int $id): string
+    {
+        [$local, $domain] = explode('@', $email, 2);
+
+        return "{$local}+deleted-{$id}@{$domain}";
     }
 
     public function updateStatus(int $id, string $status): void
