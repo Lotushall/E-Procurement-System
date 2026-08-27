@@ -30,19 +30,6 @@ export function CreateInternalUserFields({
 }) {
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2">
-        <InputField label="Username" error={errors.username?.message}>
-          <Input {...register("username")} aria-invalid={!!errors.username} className="h-11 rounded-sm" />
-        </InputField>
-        <InputField label="อีเมล" error={errors.email?.message}>
-          <Input {...register("email")} type="email" aria-invalid={!!errors.email} className="h-11 rounded-sm" />
-        </InputField>
-      </div>
-
-      <InputField label="รหัสผ่าน" error={errors.password?.message}>
-        <Input {...register("password")} type="password" aria-invalid={!!errors.password} className="h-11 rounded-sm" />
-      </InputField>
-
       <Controller
         control={control}
         name="internalProfileId"
@@ -58,6 +45,19 @@ export function CreateInternalUserFields({
           </InputField>
         )}
       />
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <InputField label="Username" error={errors.username?.message}>
+          <Input {...register("username")} aria-invalid={!!errors.username} className="h-11 rounded-sm" />
+        </InputField>
+        <InputField label="อีเมล" error={errors.email?.message}>
+          <Input {...register("email")} type="email" aria-invalid={!!errors.email} className="h-11 rounded-sm" />
+        </InputField>
+      </div>
+
+      <InputField label="รหัสผ่าน" error={errors.password?.message}>
+        <Input {...register("password")} type="password" aria-invalid={!!errors.password} className="h-11 rounded-sm" />
+      </InputField>
 
       <Controller
         control={control}

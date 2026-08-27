@@ -16,4 +16,14 @@ class UpdatePositionRequest extends FormRequest
             'name' => ['required', 'string', Rule::unique('positions', 'name')->ignore($this->route('id'))],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'มีตำแหน่งชื่อนี้อยู่แล้ว',
+        ];
+    }
 }

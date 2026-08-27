@@ -1,10 +1,3 @@
-// These endpoints are a designed-but-not-yet-implemented backend contract.
-// See docs/superpowers/specs/2026-08-13-user-management-list-design.md (list/detail)
-// and docs/superpowers/specs/2026-08-14-user-management-create-edit-design.md (create/edit/status/roles),
-// plus docs/superpowers/specs/2026-08-27-internal-user-select-existing-profile-design.md
-// (create: internalProfileId replaces direct profile fields; backend + this frontend
-// counterpart in docs/superpowers/specs/2026-08-27-internal-user-select-existing-profile-frontend-design.md).
-// Requests will fail until the backend API plan(s) ship.
 import { api } from "@/lib/api";
 import type {
   CreateUserPayload,

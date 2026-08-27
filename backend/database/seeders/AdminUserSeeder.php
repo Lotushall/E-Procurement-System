@@ -22,10 +22,6 @@ class AdminUserSeeder extends Seeder
         $admin->givePermissionTo([
             Permission::updateOrCreate(['name' => 'vendors.view', 'guard_name' => 'web'], ['label' => 'ดูรายชื่อผู้ค้า']),
             Permission::updateOrCreate(['name' => 'vendors.review', 'guard_name' => 'web'], ['label' => 'อนุมัติ/ปฏิเสธผู้ค้า']),
-            // Temporary: the users.create/update/updateStatus API endpoints don't exist yet
-            // (see docs/superpowers/specs/2026-08-14-user-management-create-edit-design.md) —
-            // granted early so the already-shipped frontend UI is visible for local QA. The
-            // real backend plan for that spec should revisit this grant once the endpoints ship.
             Permission::updateOrCreate(['name' => 'users.create', 'guard_name' => 'web'], ['label' => 'เพิ่ม user']),
             Permission::updateOrCreate(['name' => 'users.update', 'guard_name' => 'web'], ['label' => 'แก้ไข user']),
             Permission::updateOrCreate(['name' => 'users.updateStatus', 'guard_name' => 'web'], ['label' => 'เปลี่ยนสถานะ user']),

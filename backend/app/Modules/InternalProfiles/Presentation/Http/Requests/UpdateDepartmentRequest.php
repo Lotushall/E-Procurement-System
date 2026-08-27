@@ -16,4 +16,14 @@ class UpdateDepartmentRequest extends FormRequest
             'name' => ['required', 'string', Rule::unique('departments', 'name')->ignore($this->route('id'))],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'มีแผนกชื่อนี้อยู่แล้ว',
+        ];
+    }
 }

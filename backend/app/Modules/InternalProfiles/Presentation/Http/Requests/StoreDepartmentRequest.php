@@ -16,4 +16,14 @@ class StoreDepartmentRequest extends FormRequest
             'name' => ['required', 'string', Rule::unique('departments', 'name')],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'มีแผนกชื่อนี้อยู่แล้ว',
+        ];
+    }
 }

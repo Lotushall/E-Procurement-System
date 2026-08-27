@@ -32,7 +32,7 @@ final class User
         string $username,
         Email $email,
         string $passwordHash,
-        UserType $userType
+        UserType $userType,
     ): self {
         return new self(
             id: null,
