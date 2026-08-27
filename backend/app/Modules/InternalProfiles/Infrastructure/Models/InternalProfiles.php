@@ -28,14 +28,18 @@ class InternalProfiles extends Model
             return;
         }
 
-        $term = '%'.$search.'%';
+        $words = preg_split('/\s+/', trim($search), -1, PREG_SPLIT_NO_EMPTY);
 
-        $query->where(function (Builder $query) use ($term) {
-            $query->where('employee_no', 'like', $term)
-                ->orWhere('firstname', 'like', $term)
-                ->orWhere('lastname', 'like', $term)
-                ->orWhere('phone', 'like', $term);
-        });
+        foreach ($words as $word) {
+            $term = '%'.$word.'%';
+
+            $query->where(function (Builder $query) use ($term) {
+                $query->where('employee_no', 'like', $term)
+                    ->orWhere('firstname', 'like', $term)
+                    ->orWhere('lastname', 'like', $term)
+                    ->orWhere('phone', 'like', $term);
+            });
+        }
     }
 
     #[Scope]

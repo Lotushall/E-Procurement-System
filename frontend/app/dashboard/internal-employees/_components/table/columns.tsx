@@ -1,8 +1,12 @@
 "use client";
 
+import Link from "next/link";
+import { UserRound } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { InternalProfile } from "@/lib/internal-profiles/types";
+import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/ui/data-table-sortable-header";
+import { routes } from "@/lib/routes";
 import DeleteInternalProfileDialog from "../delete-internal-profile-dialog";
 import EditInternalProfileDialog from "../edit-internal-profile-dialog";
 
@@ -56,6 +60,18 @@ export const columns: ColumnDef<InternalProfile>[] = [
         meta: { className: "w-20" },
         cell: ({ row }) => (
             <div className="flex justify-center gap-1.5">
+                {typeof row.original.userId === "number" && (
+                    <Button
+                        variant="outline"
+                        render={<Link href={routes.dashboards.user.detail(row.original.userId)} />}
+                        nativeButton={false}
+                        aria-label="ดูข้อมูล user"
+                        className="size-8 px-1.5 pt-px rounded-md bg-white"
+                    >
+                        <UserRound className="w-4 h-4 text-gray-500" />
+                    </Button>
+                )}
+
                 <EditInternalProfileDialog internal_profile={row.original} />
 
                 <DeleteInternalProfileDialog internal_profile={row.original} />

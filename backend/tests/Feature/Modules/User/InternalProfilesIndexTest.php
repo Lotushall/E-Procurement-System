@@ -40,6 +40,22 @@ test('the internal profiles list can be filtered by search', function () {
         ->assertJsonPath('data.0.firstname', 'Somchai');
 });
 
+test('the internal profiles list can be searched by full name across firstname and lastname', function () {
+    $target = User::factory()->create(['user_type' => 'internal']);
+    InternalProfiles::create(['user_id' => $target->id, 'employee_no' => 'EMP001', 'firstname' => 'Somchai', 'lastname' => 'Jaidee']);
+    $other = User::factory()->create(['user_type' => 'internal']);
+    InternalProfiles::create(['user_id' => $other->id, 'employee_no' => 'EMP002', 'firstname' => 'Somsri', 'lastname' => 'Somboon']);
+    $admin = User::factory()->create(['user_type' => 'internal']);
+    $admin->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+    $this->actingAs($admin, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/internal-profiles?search='.urlencode('Somchai Jaidee'));
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.firstname', 'Somchai');
+});
+
 test('the internal profiles list can be sorted by department name', function () {
     $it = Department::create(['name' => 'IT']);
     $hr = Department::create(['name' => 'HR']);

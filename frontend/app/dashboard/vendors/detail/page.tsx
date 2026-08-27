@@ -78,6 +78,7 @@ function VendorDetailContent() {
             <h1 className="text-2xl font-bold">{displayName}</h1>
             <p className="text-sm text-muted-foreground">
               {vendor.user?.email}
+
               {vendor.user?.id && (
                 <Link
                   href={routes.dashboards.user.detail(vendor.user.id)}

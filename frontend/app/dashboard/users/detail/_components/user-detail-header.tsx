@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Store } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { IdCardLanyard, Pencil, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserStatusBadge } from "@/components/user-status-badge";
+import { useHasPermission } from "@/lib/auth/permissions";
 import type { UserDetail, UserStatus } from "@/lib/user/management/types";
 import { routes } from "@/lib/routes";
 import { getInitials } from "@/lib/utils";
+import { DeleteUserDialog } from "../../_components/table/delete-user-dialog";
 
 export function UserDetailHeader({
   user,
@@ -15,6 +18,9 @@ export function UserDetailHeader({
   user: UserDetail;
   status: UserStatus;
 }) {
+  const router = useRouter();
+  const canDeleteUser = useHasPermission("users.delete");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -37,16 +43,35 @@ export function UserDetailHeader({
         </div>
 
         <div className="flex items-center gap-2">
-          {user.vendorProfileId !== null && (
+          {user.userType === "company" || user.userType === "individual" ? (
             <Button
               variant="outline"
-              render={<Link href={routes.dashboards.vendors.detail(user.vendorProfileId)} />}
+              render={
+                <Link href={routes.dashboards.vendors.detail(user.vendorProfileId!)} />
+              }
               nativeButton={false}
             >
               <Store />
               ดูข้อมูลผู้ค้า
             </Button>
-          )}
+          ) : user.userType === "internal" ? (
+            <Button
+              variant="outline"
+              render={
+                <Link
+                  href={routes.dashboards.internal_employees.index(
+                    [user.internalProfile?.firstname, user.internalProfile?.lastname]
+                      .filter(Boolean)
+                      .join(" "),
+                  )}
+                />
+              }
+              nativeButton={false}
+            >
+              <IdCardLanyard />
+              ดูข้อมูลพนักงานภายใน
+            </Button>
+          ) : null}
 
           <Button
             variant="outline"
@@ -57,7 +82,12 @@ export function UserDetailHeader({
             แก้ไข
           </Button>
 
-
+          {canDeleteUser && (
+            <DeleteUserDialog
+              user={user}
+              onDeleted={() => router.push(routes.dashboards.user.index)}
+            />
+          )}
         </div>
       </div>
     </div>

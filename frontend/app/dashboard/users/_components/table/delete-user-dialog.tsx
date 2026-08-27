@@ -21,7 +21,13 @@ function getErrorMessage(error: unknown): string {
   return message ?? "ลบผู้ใช้ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 }
 
-export function DeleteUserDialog({ user }: { user: UserListItem }) {
+export function DeleteUserDialog({
+  user,
+  onDeleted,
+}: {
+  user: UserListItem;
+  onDeleted?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const { data: currentUser } = useUser();
   const deleteUserMutation = useDeleteUser();
@@ -33,6 +39,7 @@ export function DeleteUserDialog({ user }: { user: UserListItem }) {
       loading: "กำลังลบผู้ใช้...",
       success: () => {
         setOpen(false);
+        onDeleted?.();
         return "ลบผู้ใช้สำเร็จ";
       },
       error: getErrorMessage,

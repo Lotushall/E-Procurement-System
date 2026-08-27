@@ -40,8 +40,10 @@ export const routes = {
       roles: "/dashboard/users/roles-permissions",
     },
     internal_employees: {
-      index: "/dashboard/internal-employees",
-      departments_positions: "/dashboard/internal-employees/departments-positions",
+      index: (search?: string) =>
+        `/dashboard/internal-employees${search ? `?search=${encodeURIComponent(search)}` : ""}`,
+      departments_positions:
+        "/dashboard/internal-employees/departments-positions",
     },
     setting: {
       index: "/dashboard/settings",

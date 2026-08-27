@@ -69,7 +69,7 @@ const navItems: NavItem[] = [
     icon: UserRound,
   },
   {
-    href: routes.dashboards.internal_employees.index,
+    href: routes.dashboards.internal_employees.index(),
     label: "พนักงานภายใน",
     icon: IdCardLanyard,
   },
