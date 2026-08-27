@@ -16,16 +16,10 @@ class StoreUserRequest extends FormRequest
             'username' => ['required', 'string', Rule::unique('users', 'username')],
             'email' => ['required', 'email', Rule::unique('users', 'email')],
             'password' => ['required', 'string', 'min:8'],
-            'prefix' => ['nullable', 'string'],
-            'firstname' => ['required', 'string'],
-            'lastname' => ['required', 'string'],
-            'employeeNo' => ['nullable', 'string'],
-            'departmentId' => ['nullable', 'integer', Rule::exists('departments', 'id')],
-            'positionId' => ['nullable', 'integer', Rule::exists('positions', 'id')],
-            'phone' => ['nullable', 'string'],
             'role' => ['required', 'string', Rule::exists('roles', 'name')],
             'permissions' => ['present', 'array'],
             'permissions.*' => ['string', Rule::exists('permissions', 'name')],
+            'internalProfileId' => ['required', 'integer', Rule::exists('internal_profiles', 'id')->whereNull('user_id')],
         ];
     }
 }

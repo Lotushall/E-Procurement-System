@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\InternalProfiles\Application\DTOs\CreateInternalProfileData;
 use App\Modules\InternalProfiles\Application\DTOs\UpdateInternalProfileData;
 use App\Modules\InternalProfiles\Application\Queries\GetInternalProfileByIdQuery;
+use App\Modules\InternalProfiles\Application\Queries\ListAvailableInternalProfilesQuery;
 use App\Modules\InternalProfiles\Application\Queries\ListIneternalProfilesQuery;
 use App\Modules\InternalProfiles\Application\UseCases\CreateInternalProfileUseCase;
 use App\Modules\InternalProfiles\Application\UseCases\DeleteInternalProfileUseCase;
@@ -20,11 +21,19 @@ class InternalProfilesController extends Controller
 {
     public function __construct(
         private readonly ListIneternalProfilesQuery $listIneternalProfilesQuery,
+        private readonly ListAvailableInternalProfilesQuery $listAvailableInternalProfiles,
         private readonly GetInternalProfileByIdQuery $getInternalProfileById,
         private readonly CreateInternalProfileUseCase $createInternalProfile,
         private readonly UpdateInternalProfileUseCase $updateInternalProfile,
         private readonly DeleteInternalProfileUseCase $deleteInternalProfile,
     ) {}
+
+    public function selectAvailable(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->listAvailableInternalProfiles->execute(),
+        ]);
+    }
 
     public function index(ListInternalProfilesRequest $request)
     {

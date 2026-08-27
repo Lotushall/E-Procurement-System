@@ -14,13 +14,7 @@ final class CreateInternalUserData extends Data
         public readonly string $email,
         public readonly string $password,
         public readonly string $role,
-        public readonly string $firstname,
-        public readonly string $lastname,
-        public readonly ?string $employeeNo = null,
-        public readonly ?string $prefix = null,
-        public readonly ?int $departmentId = null,
-        public readonly ?int $positionId = null,
-        public readonly ?string $phone = null,
+        public readonly int $internalProfileId,
         public readonly array $permissions = [],
     ) {}
 }

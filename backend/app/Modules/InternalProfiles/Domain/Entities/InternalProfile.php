@@ -3,12 +3,13 @@
 namespace App\Modules\InternalProfiles\Domain\Entities;
 
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
+use DomainException;
 
 final class InternalProfile
 {
     private function __construct(
         private readonly ?int $id,
-        private readonly ?int $userId,
+        private ?int $userId,
         private ?string $employeeNo,
         private ?string $prefix,
         private string $firstname,
@@ -81,6 +82,15 @@ final class InternalProfile
         $this->departmentId = $departmentId;
         $this->positionId = $positionId;
         $this->phone = $phone;
+    }
+
+    public function linkToUser(int $userId): void
+    {
+        if ($this->userId !== null) {
+            throw new DomainException('Internal profile is already linked to a user.');
+        }
+
+        $this->userId = $userId;
     }
 
     // -----------------------------

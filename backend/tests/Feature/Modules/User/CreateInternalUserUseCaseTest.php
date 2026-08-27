@@ -2,13 +2,13 @@
 
 use App\Modules\Auth\Application\DTOs\LoginData;
 use App\Modules\Auth\Application\UseCases\LoginUseCase;
-use App\Modules\InternalProfiles\Infrastructure\Models\Department;
-use App\Modules\InternalProfiles\Infrastructure\Models\Position;
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Application\DTOs\CreateInternalUserData;
 use App\Modules\User\Application\UseCases\CreateInternalUserUseCase;
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus\Active;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -20,6 +20,14 @@ function createInternalUserUseCase(): CreateInternalUserUseCase
     return app(CreateInternalUserUseCase::class);
 }
 
+function unlinkedInternalProfile(array $overrides = []): InternalProfiles
+{
+    return InternalProfiles::create(array_merge([
+        'firstname' => 'Jane',
+        'lastname' => 'Doe',
+    ], $overrides));
+}
+
 function internalUserData(array $overrides = []): CreateInternalUserData
 {
     return CreateInternalUserData::from(array_merge([
@@ -27,15 +35,15 @@ function internalUserData(array $overrides = []): CreateInternalUserData
         'email' => 'jdoe@example.com',
         'password' => 'super-secret',
         'role' => 'admin',
-        'firstname' => 'Jane',
-        'lastname' => 'Doe',
+        'internalProfileId' => unlinkedInternalProfile()->id,
     ], $overrides));
 }
 
-test('execute creates an active, verified internal user with an internal profile', function () {
+test('execute creates an active, verified internal user linked to the given internal profile', function () {
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $profile = unlinkedInternalProfile(['firstname' => 'Jane', 'lastname' => 'Doe']);
 
-    $user = createInternalUserUseCase()->execute(internalUserData());
+    $user = createInternalUserUseCase()->execute(internalUserData(['internalProfileId' => $profile->id]));
 
     expect($user->userType())->toBe(UserType::Internal)
         ->and($user->status())->toBeInstanceOf(Active::class)
@@ -50,6 +58,7 @@ test('execute creates an active, verified internal user with an internal profile
     ]);
 
     $this->assertDatabaseHas('internal_profiles', [
+        'id' => $profile->id,
         'user_id' => $user->id(),
         'firstname' => 'Jane',
         'lastname' => 'Doe',
@@ -75,27 +84,19 @@ test('execute syncs the given direct permissions to the created user', function 
     expect(UserModel::find($user->id())->hasDirectPermission('vendors.view'))->toBeTrue();
 });
 
-test('execute saves the optional internal profile fields', function () {
+test('execute throws when the internal profile does not exist', function () {
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-    $department = Department::create(['name' => 'IT']);
-    $position = Position::create(['name' => 'Manager']);
 
-    createInternalUserUseCase()->execute(internalUserData([
-        'employeeNo' => 'EMP-001',
-        'prefix' => 'Mr.',
-        'departmentId' => $department->id,
-        'positionId' => $position->id,
-        'phone' => '0812345678',
-    ]));
+    createInternalUserUseCase()->execute(internalUserData(['internalProfileId' => 999999]));
+})->throws(ModelNotFoundException::class);
 
-    $this->assertDatabaseHas('internal_profiles', [
-        'employee_no' => 'EMP-001',
-        'prefix' => 'Mr.',
-        'department_id' => $department->id,
-        'position_id' => $position->id,
-        'phone' => '0812345678',
-    ]);
-});
+test('execute throws when the internal profile is already linked to another user', function () {
+    Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $existingUser = UserModel::factory()->create(['user_type' => 'internal']);
+    $linkedProfile = unlinkedInternalProfile(['user_id' => $existingUser->id]);
+
+    createInternalUserUseCase()->execute(internalUserData(['internalProfileId' => $linkedProfile->id]));
+})->throws(DomainException::class);
 
 test('a newly created internal user can log in immediately', function () {
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);

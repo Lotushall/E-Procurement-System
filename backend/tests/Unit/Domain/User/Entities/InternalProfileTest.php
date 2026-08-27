@@ -79,3 +79,35 @@ test('update replaces the editable profile fields', function () {
         ->and($profile->positionId())->toBe(9)
         ->and($profile->phone())->toBe($newPhone);
 });
+
+test('linkToUser assigns the given user id when unlinked', function () {
+    $profile = InternalProfile::create(
+        userId: null,
+        employeeNo: null,
+        prefix: null,
+        firstname: 'John',
+        lastname: 'Doe',
+        departmentId: null,
+        positionId: null,
+        phone: null,
+    );
+
+    $profile->linkToUser(42);
+
+    expect($profile->userId())->toBe(42);
+});
+
+test('linkToUser throws when the profile is already linked', function () {
+    $profile = InternalProfile::create(
+        userId: 10,
+        employeeNo: null,
+        prefix: null,
+        firstname: 'John',
+        lastname: 'Doe',
+        departmentId: null,
+        positionId: null,
+        phone: null,
+    );
+
+    $profile->linkToUser(99);
+})->throws(DomainException::class, 'Internal profile is already linked to a user.');

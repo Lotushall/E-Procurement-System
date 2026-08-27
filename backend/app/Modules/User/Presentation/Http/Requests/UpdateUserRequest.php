@@ -28,13 +28,6 @@ class UpdateUserRequest extends FormRequest
 
         return [
             ...$rules,
-            'prefix' => ['nullable', 'string'],
-            'firstname' => ['required', 'string'],
-            'lastname' => ['required', 'string'],
-            'employeeNo' => ['nullable', 'string'],
-            'departmentId' => ['nullable', 'integer', Rule::exists('departments', 'id')],
-            'positionId' => ['nullable', 'integer', Rule::exists('positions', 'id')],
-            'phone' => ['nullable', 'string'],
             'role' => ['required', 'string', Rule::exists('roles', 'name')],
             'permissions' => ['present', 'array'],
             'permissions.*' => ['string', Rule::exists('permissions', 'name')],

@@ -32,6 +32,11 @@ export interface Position {
   internalProfilesCount?: number | null;
 }
 
+export interface AvailableInternalProfile {
+  id: number;
+  name: string;
+}
+
 export interface PaginatedUserList {
   data: InternalProfile[];
   meta: PaginationMeta;

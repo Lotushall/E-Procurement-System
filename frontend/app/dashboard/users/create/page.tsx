@@ -9,8 +9,7 @@ import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
-import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
-import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
+import { useAvailableInternalProfiles } from "@/lib/internal-profiles/queries/useAvailableInternalProfiles";
 import { routes } from "@/lib/routes";
 import { useCreateUserForm } from "../_hooks/use-create-user-form";
 import { CreateInternalUserFields } from "../_components/create-internal-user-fields";
@@ -27,8 +26,11 @@ function CreateUserPageContent() {
   const router = useRouter();
   const { data: roles } = useRoles();
   const { data: permissions, isPending: permissionsPending, isError: permissionsError } = usePermissions();
-  const { data: departments } = useDepartmentOptions();
-  const { data: positions } = usePositionOptions();
+  const {
+    data: internalProfiles,
+    isPending: internalProfilesPending,
+    isError: internalProfilesError,
+  } = useAvailableInternalProfiles();
   const { register, control, setValue, onSubmit, isSubmitting, formState: { errors } } = useCreateUserForm(() => router.push(routes.dashboards.user.index));
 
   useBreadcrumb([
@@ -47,13 +49,13 @@ function CreateUserPageContent() {
 
       <Card className="shadow-md">
         <CardContent className="pt-6">
-          {permissionsPending ? (
+          {(permissionsPending || internalProfilesPending) ? (
             <div className="flex justify-center py-8">
               <Spinner className="size-6" />
             </div>
-          ) : permissionsError ? (
+          ) : (permissionsError || internalProfilesError) ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              ไม่สามารถโหลดรายการ permission ได้ กรุณาลองใหม่อีกครั้ง
+              ไม่สามารถโหลดข้อมูลที่จำเป็นสำหรับฟอร์มได้ กรุณาลองใหม่อีกครั้ง
             </p>
           ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
@@ -64,8 +66,7 @@ function CreateUserPageContent() {
                 setValue={setValue}
                 roles={roles ?? []}
                 permissions={permissions ?? []}
-                departments={departments ?? []}
-                positions={positions ?? []}
+                internalProfiles={internalProfiles ?? []}
               />
 
               <div className="flex justify-end gap-2 pt-2">

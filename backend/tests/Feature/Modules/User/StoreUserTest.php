@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -17,14 +18,21 @@ function internalAdminUserForStoreUser(): User
     return $admin;
 }
 
+function unlinkedInternalProfileForStoreUser(array $overrides = []): InternalProfiles
+{
+    return InternalProfiles::create(array_merge([
+        'firstname' => 'Jane',
+        'lastname' => 'Doe',
+    ], $overrides));
+}
+
 function validCreateUserPayload(array $overrides = []): array
 {
     return array_merge([
         'username' => 'jdoe',
         'email' => 'jdoe@example.com',
         'password' => 'super-secret',
-        'firstname' => 'Jane',
-        'lastname' => 'Doe',
+        'internalProfileId' => unlinkedInternalProfileForStoreUser()->id,
         'role' => 'staff',
         'permissions' => [],
     ], $overrides);
@@ -106,4 +114,33 @@ test('permissions must be within the known catalog on create', function () {
     ]));
 
     $response->assertStatus(422)->assertJsonValidationErrors('permissions.0');
+});
+
+test('internalProfileId is required on create', function () {
+    Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+    $this->actingAs(internalAdminUserForStoreUser(), 'web');
+
+    $response = $this->postJson('/api/v1/dashboard/users', validCreateUserPayload(['internalProfileId' => null]));
+
+    $response->assertStatus(422)->assertJsonValidationErrors('internalProfileId');
+});
+
+test('internalProfileId must reference an existing internal profile', function () {
+    Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+    $this->actingAs(internalAdminUserForStoreUser(), 'web');
+
+    $response = $this->postJson('/api/v1/dashboard/users', validCreateUserPayload(['internalProfileId' => 999999]));
+
+    $response->assertStatus(422)->assertJsonValidationErrors('internalProfileId');
+});
+
+test('internalProfileId must not already be linked to another user', function () {
+    Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+    $this->actingAs(internalAdminUserForStoreUser(), 'web');
+    $existingUser = User::factory()->create(['user_type' => 'internal']);
+    $linkedProfile = unlinkedInternalProfileForStoreUser(['user_id' => $existingUser->id]);
+
+    $response = $this->postJson('/api/v1/dashboard/users', validCreateUserPayload(['internalProfileId' => $linkedProfile->id]));
+
+    $response->assertStatus(422)->assertJsonValidationErrors('internalProfileId');
 });

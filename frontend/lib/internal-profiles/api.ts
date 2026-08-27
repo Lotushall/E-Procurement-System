@@ -1,5 +1,6 @@
 import { api } from "../api";
 import {
+  AvailableInternalProfile,
   CreateDepartmentPayload,
   CreateInternalProfilePayload,
   CreatePositionPayload,
@@ -69,6 +70,13 @@ export async function fetchDepartmentOptions(): Promise<Department[]> {
 
 export async function fetchPositionOptions(): Promise<Position[]> {
   const { data } = await api.get("/api/v1/dashboard/positions/select");
+  return data.data;
+}
+
+export async function fetchAvailableInternalProfiles(): Promise<AvailableInternalProfile[]> {
+  const { data } = await api.get<{ data: AvailableInternalProfile[] }>(
+    "/api/v1/dashboard/internal-profiles/select-available",
+  );
   return data.data;
 }
 

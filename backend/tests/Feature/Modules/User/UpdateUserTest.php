@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -64,18 +63,15 @@ test('a vendor user update rejects role and permissions being required', functio
     $this->assertDatabaseMissing('internal_profiles', ['user_id' => $target->id]);
 });
 
-test('an internal user can be updated with full profile, role, and permissions', function () {
+test('an internal user can be updated with a new role and permissions', function () {
     Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']);
     $target = User::factory()->create(['user_type' => 'internal']);
-    InternalProfiles::create(['user_id' => $target->id, 'firstname' => 'Old', 'lastname' => 'Name']);
     $this->actingAs(internalAdminUserForUpdateUser(), 'web');
 
     $response = $this->patchJson("/api/v1/dashboard/users/{$target->id}", [
         'username' => 'newname',
         'email' => 'newemail@example.com',
-        'firstname' => 'New',
-        'lastname' => 'Name',
         'role' => 'staff',
         'permissions' => ['vendors.view'],
     ]);
@@ -83,11 +79,10 @@ test('an internal user can be updated with full profile, role, and permissions',
     $response->assertOk()
         ->assertJsonPath('data.username', 'newname')
         ->assertJsonPath('data.role', 'staff');
-    $this->assertDatabaseHas('internal_profiles', ['user_id' => $target->id, 'firstname' => 'New']);
     expect($target->fresh()->hasRole('staff'))->toBeTrue();
 });
 
-test('an internal user update requires firstname, lastname, and role', function () {
+test('an internal user update requires role', function () {
     $target = User::factory()->create(['user_type' => 'internal']);
     $this->actingAs(internalAdminUserForUpdateUser(), 'web');
 
@@ -96,7 +91,7 @@ test('an internal user update requires firstname, lastname, and role', function 
         'email' => 'newemail@example.com',
     ]);
 
-    $response->assertStatus(422)->assertJsonValidationErrors(['firstname', 'lastname', 'role']);
+    $response->assertStatus(422)->assertJsonValidationErrors(['role']);
 });
 
 test('username must stay unique on update, ignoring itself', function () {

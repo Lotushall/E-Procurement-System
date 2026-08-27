@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Application\DTOs\UpdateInternalUserData;
 use App\Modules\User\Application\UseCases\UpdateInternalUserUseCase;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
@@ -18,40 +17,16 @@ function updateInternalUserData(array $overrides = []): UpdateInternalUserData
         'username' => 'newname',
         'email' => 'newemail@example.com',
         'role' => 'staff',
-        'firstname' => 'New',
-        'lastname' => 'Name',
     ], $overrides));
 }
 
-test('execute updates account fields and internal profile fields for an existing profile', function () {
+test('execute updates account fields for an internal user', function () {
     Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
     $target = UserModel::factory()->create(['user_type' => 'internal', 'username' => 'oldname']);
-    InternalProfiles::create([
-        'user_id' => $target->id,
-        'firstname' => 'Old',
-        'lastname' => 'Name',
-    ]);
-
-    app(UpdateInternalUserUseCase::class)->execute($target->id, updateInternalUserData([
-        'employeeNo' => 'EMP-999',
-    ]));
-
-    $this->assertDatabaseHas('users', ['id' => $target->id, 'username' => 'newname', 'email' => 'newemail@example.com']);
-    $this->assertDatabaseHas('internal_profiles', [
-        'user_id' => $target->id,
-        'firstname' => 'New',
-        'lastname' => 'Name',
-        'employee_no' => 'EMP-999',
-    ]);
-});
-
-test('execute creates an internal profile when the user has none yet', function () {
-    Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
-    $target = UserModel::factory()->create(['user_type' => 'internal']);
 
     app(UpdateInternalUserUseCase::class)->execute($target->id, updateInternalUserData());
 
-    $this->assertDatabaseHas('internal_profiles', ['user_id' => $target->id, 'firstname' => 'New', 'lastname' => 'Name']);
+    $this->assertDatabaseHas('users', ['id' => $target->id, 'username' => 'newname', 'email' => 'newemail@example.com']);
 });
 
 test('execute replaces the role rather than accumulating it', function () {

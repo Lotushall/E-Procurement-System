@@ -69,13 +69,7 @@ export interface CreateUserPayload {
   password: string;
   role: string;
   permissions: string[];
-  prefix?: string;
-  firstname: string;
-  lastname: string;
-  employeeNo?: string;
-  departmentId?: number;
-  positionId?: number;
-  phone?: string;
+  internalProfileId: number;
 }
 
 export interface UpdateAccountPayload {

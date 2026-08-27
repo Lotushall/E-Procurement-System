@@ -5,11 +5,11 @@ namespace App\Modules\User\Application\UseCases;
 use App\Modules\InternalProfiles\Domain\Entities\InternalProfile;
 use App\Modules\InternalProfiles\Domain\Repositories\InternalProfilesRepositoryInterface;
 use App\Modules\Shared\Domain\ValueObjects\Email;
-use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Application\DTOs\CreateInternalUserData;
 use App\Modules\User\Domain\Entities\User;
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -23,6 +23,9 @@ final class CreateInternalUserUseCase
     public function execute(CreateInternalUserData $data): User
     {
         return DB::transaction(function () use ($data): User {
+            $profile = $this->internalProfiles->findById($data->internalProfileId)
+                ?? throw (new ModelNotFoundException)->setModel(InternalProfile::class, [$data->internalProfileId]);
+
             $user = User::register(
                 username: $data->username,
                 email: Email::fromString($data->email),
@@ -41,16 +44,8 @@ final class CreateInternalUserUseCase
             $this->users->assignRole($user->id(), $data->role);
             $this->users->syncPermissions($user->id(), $data->permissions);
 
-            $this->internalProfiles->saveProfile(InternalProfile::create(
-                userId: $user->id(),
-                employeeNo: $data->employeeNo,
-                prefix: $data->prefix,
-                firstname: $data->firstname,
-                lastname: $data->lastname,
-                departmentId: $data->departmentId,
-                positionId: $data->positionId,
-                phone: $data->phone !== null ? PhoneNumber::fromString($data->phone) : null,
-            ));
+            $profile->linkToUser($user->id());
+            $this->internalProfiles->saveProfile($profile);
 
             app_log('Internal user created', [
                 'user_id' => $user->id(),

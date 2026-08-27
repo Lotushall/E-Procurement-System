@@ -3,19 +3,13 @@
 import type { Control, FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { InputField } from "@/components/input-field";
 import { PermissionPicker } from "@/components/permission-picker";
 import { RoleSelect } from "@/components/role-select";
-import { DepartmentSelect } from "@/components/department-select";
-import { PositionSelect } from "@/components/position-select";
+import { InternalProfileSelect } from "@/components/internal-profile-select";
 import type { Permission, RoleDetail } from "@/lib/user/management/types";
-import type { Department, Position } from "@/lib/internal-profiles/types";
+import type { AvailableInternalProfile } from "@/lib/internal-profiles/types";
 import type { CreateUserValues } from "../_schemas/schema";
-
-const PREFIX_OPTIONS = ["นาย", "นาง"] as const;
 
 export function CreateInternalUserFields({
   register,
@@ -24,8 +18,7 @@ export function CreateInternalUserFields({
   setValue,
   roles,
   permissions,
-  departments,
-  positions,
+  internalProfiles,
 }: {
   register: UseFormRegister<CreateUserValues>;
   control: Control<CreateUserValues>;
@@ -33,8 +26,7 @@ export function CreateInternalUserFields({
   setValue: UseFormSetValue<CreateUserValues>;
   roles: RoleDetail[];
   permissions: Permission[];
-  departments: Department[];
-  positions: Position[];
+  internalProfiles: AvailableInternalProfile[];
 }) {
   return (
     <>
@@ -51,88 +43,21 @@ export function CreateInternalUserFields({
         <Input {...register("password")} type="password" aria-invalid={!!errors.password} className="h-11 rounded-sm" />
       </InputField>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Controller
-          control={control}
-          name="prefix"
-          render={({ field: { value, onChange } }) => (
-            <InputField label="คำนำหน้า" error={errors.prefix?.message}>
-              <Select
-                items={PREFIX_OPTIONS.map((p) => ({ value: p, label: p }))}
-                value={value}
-                onValueChange={(next) => {
-                  if (next !== null) onChange(next);
-                }}
-              >
-                <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={!!errors.prefix}>
-                  <SelectValue placeholder="เลือกคำนำหน้า" />
-                </SelectTrigger>
-                <SelectContent side="bottom" alignItemWithTrigger={false}>
-                  <SelectGroup>
-                    {PREFIX_OPTIONS.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </InputField>
-          )}
-        />
-
-        <InputField label="ชื่อ" error={errors.firstname?.message}>
-          <Input {...register("firstname")} aria-invalid={!!errors.firstname} className="h-11 rounded-sm" />
-        </InputField>
-
-        <InputField label="นามสกุล" error={errors.lastname?.message}>
-          <Input {...register("lastname")} aria-invalid={!!errors.lastname} className="h-11 rounded-sm" />
-        </InputField>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <InputField label="รหัสพนักงาน" error={errors.employeeNo?.message}>
-          <Input {...register("employeeNo")} aria-invalid={!!errors.employeeNo} className="h-11 rounded-sm" />
-        </InputField>
-
-        <InputField label="เบอร์โทร" error={errors.phone?.message}>
-          <Input {...register("phone")} aria-invalid={!!errors.phone} className="h-11 rounded-sm" />
-        </InputField>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Controller
-          control={control}
-          name="departmentId"
-          render={({ field: { value, onChange } }) => (
-            <InputField label="แผนก" error={errors.departmentId?.message}>
-              <DepartmentSelect
-                departments={departments}
-                value={value ?? ""}
-                ariaInvalid={!!errors.departmentId}
-                onValueChange={onChange}
-                className="h-11!"
-              />
-            </InputField>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="positionId"
-          render={({ field: { value, onChange } }) => (
-            <InputField label="ตำแหน่ง" error={errors.positionId?.message}>
-              <PositionSelect
-                positions={positions}
-                value={value ?? ""}
-                ariaInvalid={!!errors.positionId}
-                onValueChange={onChange}
-                className="h-11!"
-              />
-            </InputField>
-          )}
-        />
-      </div>
+      <Controller
+        control={control}
+        name="internalProfileId"
+        render={({ field: { value, onChange } }) => (
+          <InputField label="พนักงาน" error={errors.internalProfileId?.message}>
+            <InternalProfileSelect
+              profiles={internalProfiles}
+              value={value}
+              ariaInvalid={!!errors.internalProfileId}
+              onValueChange={onChange}
+              className="h-11!"
+            />
+          </InputField>
+        )}
+      />
 
       <Controller
         control={control}

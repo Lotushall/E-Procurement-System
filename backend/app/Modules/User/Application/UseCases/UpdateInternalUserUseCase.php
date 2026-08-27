@@ -2,10 +2,7 @@
 
 namespace App\Modules\User\Application\UseCases;
 
-use App\Modules\InternalProfiles\Domain\Entities\InternalProfile;
-use App\Modules\InternalProfiles\Domain\Repositories\InternalProfilesRepositoryInterface;
 use App\Modules\Shared\Domain\ValueObjects\Email;
-use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Application\DTOs\UpdateInternalUserData;
 use App\Modules\User\Domain\Entities\User;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
@@ -17,7 +14,6 @@ final class UpdateInternalUserUseCase
 {
     public function __construct(
         private readonly UserRepositoryInterface $users,
-        private readonly InternalProfilesRepositoryInterface $internalProfiles,
     ) {}
 
     public function execute(int $id, UpdateInternalUserData $data): User
@@ -36,34 +32,6 @@ final class UpdateInternalUserUseCase
 
             $this->users->syncRole($user->id(), $data->role);
             $this->users->syncPermissions($user->id(), $data->permissions);
-
-            $phone = $data->phone !== null ? PhoneNumber::fromString($data->phone) : null;
-            $profile = $this->internalProfiles->findByUserId($user->id());
-
-            if ($profile !== null) {
-                $profile->update(
-                    employeeNo: $data->employeeNo,
-                    prefix: $data->prefix,
-                    firstname: $data->firstname,
-                    lastname: $data->lastname,
-                    departmentId: $data->departmentId,
-                    positionId: $data->positionId,
-                    phone: $phone,
-                );
-            } else {
-                $profile = InternalProfile::create(
-                    userId: $user->id(),
-                    employeeNo: $data->employeeNo,
-                    prefix: $data->prefix,
-                    firstname: $data->firstname,
-                    lastname: $data->lastname,
-                    departmentId: $data->departmentId,
-                    positionId: $data->positionId,
-                    phone: $phone,
-                );
-            }
-
-            $this->internalProfiles->saveProfile($profile);
 
             app_log('Internal user updated', [
                 'user_id' => $id,

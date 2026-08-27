@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('dashboard')->group(function () {
 
     Route::prefix('internal-profiles')->group(function () {
+        Route::get('/select-available', [InternalProfilesController::class, 'selectAvailable'])
+            ->middleware('role:admin')
+            ->name('dashboard.internal-profiles.select-available');
+
         Route::get('/', [InternalProfilesController::class, 'index'])
             ->middleware('role:admin')
             ->name('dashboard.internal-profiles.index');

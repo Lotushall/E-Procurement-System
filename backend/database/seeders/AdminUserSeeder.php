@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Application\DTOs\CreateInternalUserData;
 use App\Modules\User\Application\UseCases\CreateInternalUserUseCase;
 use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
@@ -35,13 +36,17 @@ class AdminUserSeeder extends Seeder
             return;
         }
 
+        $profile = InternalProfiles::create([
+            'firstname' => 'System',
+            'lastname' => 'Administrator',
+        ]);
+
         app(CreateInternalUserUseCase::class)->execute(new CreateInternalUserData(
             username: 'admin',
             email: 'admin@example.com',
             password: 'admin',
             role: 'admin',
-            firstname: 'System',
-            lastname: 'Administrator',
+            internalProfileId: $profile->id,
         ));
     }
 }

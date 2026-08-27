@@ -13,14 +13,7 @@ final class UpdateInternalUserData extends Data
         public readonly string $username,
         public readonly string $email,
         public readonly string $role,
-        public readonly string $firstname,
-        public readonly string $lastname,
         public readonly ?string $password = null,
-        public readonly ?string $employeeNo = null,
-        public readonly ?string $prefix = null,
-        public readonly ?int $departmentId = null,
-        public readonly ?int $positionId = null,
-        public readonly ?string $phone = null,
         public readonly array $permissions = [],
     ) {}
 }
