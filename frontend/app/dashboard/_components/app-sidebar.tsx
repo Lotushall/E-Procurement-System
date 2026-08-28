@@ -27,6 +27,8 @@ type NavItem = {
   permission?: string;
   /** Visible if the user has this role. If `permission` is also set, either satisfies. */
   role?: string;
+  /** Opens in a new tab via a plain anchor instead of client-side routing (for links outside this app). */
+  external?: boolean;
 };
 
 const navItems: NavItem[] = [
@@ -59,9 +61,11 @@ const navItems: NavItem[] = [
     icon: ChartColumn,
   },
   {
-    href: routes.dashboards.logs.index,
+    href: `${process.env.NEXT_PUBLIC_API_URL}/log-viewer`,
     label: "Audit Logs",
     icon: ClipboardList,
+    role: "admin",
+    external: true,
   },
   {
     href: routes.dashboards.user.index,
@@ -110,12 +114,23 @@ export function AppSidebar() {
                   >
                     <SidebarMenuButton
                       render={
-                        <Link
-                          href={item.href}
-                          onClick={() => {
-                            if (isMobile) setOpenMobile(false);
-                          }}
-                        />
+                        item.external ? (
+                          <a
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => {
+                              if (isMobile) setOpenMobile(false);
+                            }}
+                          />
+                        ) : (
+                          <Link
+                            href={item.href}
+                            onClick={() => {
+                              if (isMobile) setOpenMobile(false);
+                            }}
+                          />
+                        )
                       }
                       isActive={isActive}
                       tooltip={item.label}

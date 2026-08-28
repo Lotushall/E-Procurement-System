@@ -29,9 +29,6 @@ export const routes = {
     reports: {
       index: "/dashboard/reports",
     },
-    logs: {
-      index: "/dashboard/logs",
-    },
     user: {
       index: "/dashboard/users",
       create: "/dashboard/users/create",
