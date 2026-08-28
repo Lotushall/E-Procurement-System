@@ -3,6 +3,7 @@
 namespace App\Modules\User\Domain\Repositories;
 
 use App\Modules\User\Domain\Entities\User;
+use Carbon\CarbonImmutable;
 use Spatie\ModelStates\Exceptions\CouldNotPerformTransition;
 
 interface UserRepositoryInterface
@@ -30,6 +31,13 @@ interface UserRepositoryInterface
     public function syncPermissions(int $userId, array $permissions): void;
 
     public function delete(int $id): void;
+
+    /**
+     * @return array<int, int> ids of users soft-deleted at or before the given cutoff
+     */
+    public function findIdsDeletedBefore(CarbonImmutable $cutoff): array;
+
+    public function forceDelete(int $id): void;
 
     /**
      * @throws CouldNotPerformTransition if the transition is not allowed

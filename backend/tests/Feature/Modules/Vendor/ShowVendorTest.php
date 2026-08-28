@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
@@ -82,4 +83,32 @@ test('fetching a nonexistent vendor returns 404', function () {
     $response = $this->getJson('/api/v1/vendors/99999');
 
     $response->assertStatus(404);
+});
+
+test('fetching a vendor whose linked user was deleted returns the profile with a null user', function () {
+    $internalUser = User::factory()->internal()->create();
+    $repository = new VendorRepository;
+
+    $companyUser = User::factory()->create(['user_type' => 'company']);
+    $companyProfile = $repository->saveProfile(VendorProfile::create(userId: $companyUser->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $companyProfile->id(),
+        companyName: 'Deleted Vendor Co.',
+        businessRegistrationNo: '9990001112223',
+        taxId: TaxId::fromString('9990001112223'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    app(UserRepositoryInterface::class)->delete($companyUser->id);
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson("/api/v1/vendors/{$companyProfile->id()}");
+
+    $response->assertOk()
+        ->assertJsonPath('data.id', $companyProfile->id())
+        ->assertJsonPath('data.user', null);
 });

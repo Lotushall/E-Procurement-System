@@ -2,6 +2,7 @@
 
 use App\Modules\Shared\Domain\ValueObjects\Email;
 use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
+use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
@@ -14,6 +15,7 @@ use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Spatie\Permission\Models\Permission;
 
 uses(RefreshDatabase::class);
 
@@ -1140,4 +1142,42 @@ test('a vendor detail response does not include document status counts', functio
 
     $response->assertOk();
     expect($response->json('data'))->not->toHaveKey('documentStatusCounts');
+});
+
+test('a vendor whose linked user was deleted is excluded from the list', function () {
+    $internalUser = User::factory()->internal()->create();
+    $repository = new VendorRepository;
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+    app(UserRepositoryInterface::class)->delete($vendorUser->id);
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors');
+
+    $response->assertOk()->assertJsonCount(0, 'data');
+});
+
+test('status counts exclude vendors whose linked user was deleted', function () {
+    $internalUser = User::factory()->internal()->create();
+    $repository = new VendorRepository;
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $repository->saveProfile(VendorProfile::create(userId: $vendorUser->id));
+    app(UserRepositoryInterface::class)->delete($vendorUser->id);
+
+    $this->actingAs($internalUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors');
+
+    $response->assertOk()->assertJsonPath('meta.counts.total', 0);
+});
+
+test('a non-internal user cannot list vendors even if directly granted the vendors.viewAny permission', function () {
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $vendorUser->givePermissionTo(Permission::firstOrCreate(['name' => 'vendors.viewAny', 'guard_name' => 'web']));
+    $this->actingAs($vendorUser, 'web');
+
+    $response = $this->getJson('/api/v1/vendors');
+
+    $response->assertStatus(403);
 });

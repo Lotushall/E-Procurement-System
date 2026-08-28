@@ -5,6 +5,7 @@ use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use App\Modules\Vendor\Infrastructure\Notifications\VendorProfileApprovedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\Models\Permission;
 
 uses(RefreshDatabase::class);
 
@@ -83,4 +84,15 @@ test('approving a vendor without specifying send_email defaults to sending mail'
         VendorProfileApprovedNotification::class,
         fn ($notification, $channels) => in_array('mail', $channels, true)
     );
+});
+
+test('a non-internal user cannot approve a vendor even if directly granted the vendors.review permission', function () {
+    $vendorUser = User::factory()->create(['user_type' => 'company']);
+    $vendorUser->givePermissionTo(Permission::firstOrCreate(['name' => 'vendors.review', 'guard_name' => 'web']));
+    $profile = VendorProfiles::factory()->create();
+    $this->actingAs($vendorUser, 'web');
+
+    $response = $this->postJson("/api/v1/vendors/{$profile->id}/approve");
+
+    $response->assertStatus(403);
 });

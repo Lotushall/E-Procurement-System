@@ -8,6 +8,7 @@ use App\Modules\Vendor\Application\Dashboard\Queries\GetVendorProfileByIdQuery;
 use App\Modules\Vendor\Application\Dashboard\Queries\ListVendorProfilesQuery;
 use App\Modules\Vendor\Application\Dashboard\UseCases\ApproveVendorDocumentUseCase;
 use App\Modules\Vendor\Application\Dashboard\UseCases\ApproveVendorProfileUseCase;
+use App\Modules\Vendor\Application\Dashboard\UseCases\DeleteVendorProfileUseCase;
 use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorDocumentUseCase;
 use App\Modules\Vendor\Application\Dashboard\UseCases\PendingVendorProfileUseCase;
 use App\Modules\Vendor\Application\Dashboard\UseCases\RejectVendorDocumentUseCase;
@@ -19,6 +20,7 @@ use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorDocumentRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\RejectVendorRequest;
 use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VendorApprovalController extends Controller
@@ -33,6 +35,7 @@ class VendorApprovalController extends Controller
         private readonly ApproveVendorDocumentUseCase $approveVendorDocument,
         private readonly RejectVendorDocumentUseCase $rejectVendorDocument,
         private readonly PendingVendorDocumentUseCase $pendingVendorDocument,
+        private readonly DeleteVendorProfileUseCase $deleteVendorProfile,
     ) {}
 
     public function index(ListVendorsRequest $request): JsonResponse
@@ -100,6 +103,13 @@ class VendorApprovalController extends Controller
         $this->pendingVendorProfile->execute($id);
 
         return $this->vendorResponse($id);
+    }
+
+    public function destroy(Request $request, int $id): JsonResponse
+    {
+        $this->deleteVendorProfile->execute($id, $request->user()->id);
+
+        return response()->json(null, 204);
     }
 
     public function approveDocument(ApproveVendorDocumentRequest $request, int $vendorId, int $documentId): JsonResponse

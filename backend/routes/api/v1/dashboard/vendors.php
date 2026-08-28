@@ -4,40 +4,45 @@ use App\Modules\Vendor\Presentation\Http\Controllers\VendorApprovalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('vendors', [VendorApprovalController::class, 'index'])
-    ->middleware('can:vendors.viewAny')
+    ->middleware('can:vendors.list')
     ->name('vendors.index');
 
 Route::get('vendors/{id}', [VendorApprovalController::class, 'show'])
-    ->middleware('can:vendors.viewAny')
+    ->middleware('can:vendors.list')
     ->whereNumber('id')
     ->name('vendors.show');
 
 Route::post('vendors/{id}/approve', [VendorApprovalController::class, 'approve'])
-    ->middleware('can:vendors.review')
+    ->middleware('can:vendors.moderate')
     ->whereNumber('id')
     ->name('vendors.approve');
 
 Route::post('vendors/{id}/reject', [VendorApprovalController::class, 'reject'])
-    ->middleware('can:vendors.review')
+    ->middleware('can:vendors.moderate')
     ->whereNumber('id')
     ->name('vendors.reject');
 
 Route::post('vendors/{id}/pending', [VendorApprovalController::class, 'pending'])
-    ->middleware('can:vendors.review')
+    ->middleware('can:vendors.moderate')
     ->whereNumber('id')
     ->name('vendors.pending');
 
 Route::post('vendors/{vendorId}/documents/{documentId}/approve', [VendorApprovalController::class, 'approveDocument'])
-    ->middleware('can:vendors.review')
+    ->middleware('can:vendors.moderate')
     ->whereNumber(['vendorId', 'documentId'])
     ->name('vendors.documents.approve');
 
 Route::post('vendors/{vendorId}/documents/{documentId}/reject', [VendorApprovalController::class, 'rejectDocument'])
-    ->middleware('can:vendors.review')
+    ->middleware('can:vendors.moderate')
     ->whereNumber(['vendorId', 'documentId'])
     ->name('vendors.documents.reject');
 
 Route::post('vendors/{vendorId}/documents/{documentId}/pending', [VendorApprovalController::class, 'pendingDocument'])
-    ->middleware('can:vendors.review')
+    ->middleware('can:vendors.moderate')
     ->whereNumber(['vendorId', 'documentId'])
     ->name('vendors.documents.pending');
+
+Route::delete('vendors/{id}', [VendorApprovalController::class, 'destroy'])
+    ->middleware('can:vendors.destroy')
+    ->whereNumber('id')
+    ->name('vendors.destroy');

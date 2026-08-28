@@ -46,8 +46,16 @@ class VendorServiceProvider extends ModuleServiceProvider
     {
         parent::boot();
 
-        Gate::define('viewAny', [VendorProfilePolicy::class, 'viewAny']);
-        Gate::define('review', [VendorProfilePolicy::class, 'review']);
+        // Ability names are deliberately NOT the same string as the
+        // `vendors.*` permission names the policy methods check: Spatie
+        // registers a Gate::before hook that grants access immediately
+        // whenever the ability name exactly matches a permission the user
+        // holds, bypassing these policy methods (and their user_type guard)
+        // entirely on the allow path. Using distinct ability names forces
+        // every request through the policy.
+        Gate::define('vendors.list', [VendorProfilePolicy::class, 'viewAny']);
+        Gate::define('vendors.moderate', [VendorProfilePolicy::class, 'review']);
+        Gate::define('vendors.destroy', [VendorProfilePolicy::class, 'delete']);
     }
 
     /**

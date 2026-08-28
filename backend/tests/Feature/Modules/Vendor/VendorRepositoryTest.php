@@ -13,8 +13,11 @@ use App\Modules\Vendor\Domain\States\VerificationStatus\Approved;
 use App\Modules\Vendor\Domain\States\VerificationStatus\Pending;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
+use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
+use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -384,4 +387,127 @@ test('findDocumentByVendorProfileIdAndType returns null when no document of that
     $vendorProfile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
 
     expect($repository->findDocumentByVendorProfileIdAndType($vendorProfile->id(), 'company_registration'))->toBeNull();
+});
+
+test('deleteDocumentFilesForUser deletes stored files for the user\'s vendor documents', function () {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+    Storage::disk('local')->put('vendor-documents/keep.pdf', 'content');
+    $repository->saveDocument(VendorDocument::create(
+        vendorProfileId: $profile->id(),
+        documentType: 'citizen_id',
+        fileName: 'keep.pdf',
+        filePath: 'vendor-documents/keep.pdf',
+    ));
+
+    $repository->deleteDocumentFilesForUser($user->id);
+
+    Storage::disk('local')->assertMissing('vendor-documents/keep.pdf');
+});
+
+test('deleteDocumentFilesForUser is a no-op when the user has no vendor profile', function () {
+    $user = User::factory()->create();
+    $repository = new VendorRepository;
+
+    expect(fn () => $repository->deleteDocumentFilesForUser($user->id))->not->toThrow(Exception::class);
+});
+
+test('freeIdentityForDeletedProfile mutates the company tax id hash and business registration no so they become reusable', function () {
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: User::factory()->create()->id));
+    $detail = $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $profile->id(),
+        companyName: 'Acme Co., Ltd.',
+        businessRegistrationNo: '0123456789012',
+        taxId: TaxId::fromString('1234567890123'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    $originalHash = VendorCompanyDetails::hashTaxId('1234567890123');
+
+    $repository->freeIdentityForDeletedProfile($profile->id());
+
+    $this->assertDatabaseMissing('vendor_company_details', [
+        'id' => $detail->id(),
+        'business_registration_no' => '0123456789012',
+    ]);
+    $this->assertDatabaseMissing('vendor_company_details', [
+        'id' => $detail->id(),
+        'tax_id_hash' => $originalHash,
+    ]);
+
+    $newProfile = $repository->saveProfile(VendorProfile::create(userId: User::factory()->create()->id));
+    $newDetail = $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $newProfile->id(),
+        companyName: 'New Co.',
+        businessRegistrationNo: '0123456789012',
+        taxId: TaxId::fromString('1234567890123'),
+        branchNo: null,
+        businessType: null,
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    expect($newDetail->id())->not->toBeNull();
+});
+
+test('freeIdentityForDeletedProfile mutates the individual citizen id hash and tax id hash so they become reusable', function () {
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: User::factory()->create()->id));
+    $detail = $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $profile->id(),
+        storeName: "John's Store",
+        prefix: 'Mr.',
+        firstname: 'John',
+        lastname: 'Doe',
+        citizenId: CitizenId::fromString('1234567890124'),
+        businessType: null,
+        taxId: TaxId::fromString('9999999999999'),
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+    $originalCitizenHash = VendorIndividualDetails::hashCitizenId('1234567890124');
+    $originalTaxHash = VendorIndividualDetails::hashTaxId('9999999999999');
+
+    $repository->freeIdentityForDeletedProfile($profile->id());
+
+    $this->assertDatabaseMissing('vendor_individual_details', [
+        'id' => $detail->id(),
+        'citizen_id_hash' => $originalCitizenHash,
+    ]);
+    $this->assertDatabaseMissing('vendor_individual_details', [
+        'id' => $detail->id(),
+        'tax_id_hash' => $originalTaxHash,
+    ]);
+
+    $newProfile = $repository->saveProfile(VendorProfile::create(userId: User::factory()->create()->id));
+    $newDetail = $repository->saveIndividualDetail(VendorIndividualDetail::create(
+        vendorProfileId: $newProfile->id(),
+        storeName: "Jane's Store",
+        prefix: 'Ms.',
+        firstname: 'Jane',
+        lastname: 'Doe',
+        citizenId: CitizenId::fromString('1234567890124'),
+        businessType: null,
+        taxId: TaxId::fromString('9999999999999'),
+        address: null,
+        province: null,
+        postalCode: null,
+    ));
+
+    expect($newDetail->id())->not->toBeNull();
+});
+
+test('freeIdentityForDeletedProfile is a no-op when the profile has no company or individual detail', function () {
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: User::factory()->create()->id));
+
+    expect(fn () => $repository->freeIdentityForDeletedProfile($profile->id()))->not->toThrow(Exception::class);
 });

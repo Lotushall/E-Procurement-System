@@ -9,11 +9,16 @@ class VendorProfilePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->user_type === UserType::Internal && $user->can('vendors.view');
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('vendors.viewAny');
     }
 
     public function review(User $user): bool
     {
-        return $user->user_type === UserType::Internal && $user->can('vendors.review');
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('vendors.review');
+    }
+
+    public function delete(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('vendors.delete');
     }
 }

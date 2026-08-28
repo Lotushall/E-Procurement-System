@@ -12,6 +12,7 @@ final class CountVendorProfilesByStatusQuery
     public function execute(?string $search = null): array
     {
         $counts = VendorProfiles::query()
+            ->whereHas('VendorProfilesUser')
             ->search($search)
             ->selectRaw("
                 count(*) as total,

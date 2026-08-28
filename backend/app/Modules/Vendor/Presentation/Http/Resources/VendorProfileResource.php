@@ -37,11 +37,11 @@ class VendorProfileResource extends JsonResource
                 : new VendorIndividualDetailResource($individualDetail),
             'contact' => $this->whenLoaded('VendorProfilesContact', fn () => VendorContactResource::collection($this->VendorProfilesContact)),
             'document' => $this->whenLoaded('VendorProfilesDocuments', fn () => VendorDocumentResource::collection($this->VendorProfilesDocuments)),
-            'user' => $this->whenLoaded('VendorProfilesUser', fn () => [
+            'user' => $this->whenLoaded('VendorProfilesUser', fn () => $this->VendorProfilesUser !== null ? [
                 'id' => $this->VendorProfilesUser->id,
                 'username' => $this->VendorProfilesUser->username,
                 'email' => $this->VendorProfilesUser->email,
-            ]),
+            ] : null),
             'created_at' => $this->whenNotNull($this->created_at?->toIso8601String()),
             'updated_at' => $this->whenNotNull($this->updated_at?->toIso8601String()),
         ];

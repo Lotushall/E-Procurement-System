@@ -19,9 +19,12 @@ use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Storage;
 
 class VendorRepository implements VendorRepositoryInterface
 {
+    private const DISK = 'local';
+
     public function saveProfile(VendorProfile $profile): VendorProfile
     {
         $model = $profile->id() !== null
@@ -208,6 +211,44 @@ class VendorRepository implements VendorRepositoryInterface
     public function deleteDocument(VendorDocument $document): void
     {
         VendorDocuments::findOrFail($document->id())->delete();
+    }
+
+    public function deleteDocumentFilesForUser(int $userId): void
+    {
+        $profile = VendorProfiles::where('user_id', $userId)->first();
+
+        if ($profile === null) {
+            return;
+        }
+
+        VendorDocuments::where('vendor_profile_id', $profile->id)
+            ->pluck('file_path')
+            ->each(fn (string $filePath) => Storage::disk(self::DISK)->delete($filePath));
+    }
+
+    public function freeIdentityForDeletedProfile(int $vendorProfileId): void
+    {
+        $companyDetail = VendorCompanyDetails::where('vendor_profile_id', $vendorProfileId)->first();
+
+        if ($companyDetail !== null) {
+            if ($companyDetail->business_registration_no !== null) {
+                $companyDetail->business_registration_no = "{$companyDetail->business_registration_no}+deleted-{$vendorProfileId}";
+            }
+            $companyDetail->tax_id_hash = hash('sha256', "{$companyDetail->tax_id_hash}-deleted-{$vendorProfileId}");
+            $companyDetail->save();
+        }
+
+        $individualDetail = VendorIndividualDetails::where('vendor_profile_id', $vendorProfileId)->first();
+
+        if ($individualDetail !== null) {
+            $individualDetail->citizen_id_hash = hash('sha256', "{$individualDetail->citizen_id_hash}-deleted-{$vendorProfileId}");
+
+            if ($individualDetail->tax_id_hash !== null) {
+                $individualDetail->tax_id_hash = hash('sha256', "{$individualDetail->tax_id_hash}-deleted-{$vendorProfileId}");
+            }
+
+            $individualDetail->save();
+        }
     }
 
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile

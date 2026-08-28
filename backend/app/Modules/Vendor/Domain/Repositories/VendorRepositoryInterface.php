@@ -47,4 +47,18 @@ interface VendorRepositoryInterface
     public function findDocumentById(int $documentId): ?VendorDocument;
 
     public function deleteDocument(VendorDocument $document): void;
+
+    /**
+     * Delete any uploaded document files (from storage) belonging to the vendor
+     * profile linked to the given user id. No-op if the user has no vendor profile.
+     */
+    public function deleteDocumentFilesForUser(int $userId): void;
+
+    /**
+     * Mutate the unique identity fields (business registration no, tax id hash,
+     * citizen id hash) of the vendor profile's company/individual detail so
+     * their original values become free for a new vendor to reuse. No-op for
+     * whichever detail type the profile doesn't have.
+     */
+    public function freeIdentityForDeletedProfile(int $vendorProfileId): void;
 }

@@ -82,6 +82,22 @@ class UserRepository implements UserRepositoryInterface
         return "{$local}+deleted-{$id}@{$domain}";
     }
 
+    /**
+     * @return array<int, int>
+     */
+    public function findIdsDeletedBefore(CarbonImmutable $cutoff): array
+    {
+        return UserModel::onlyTrashed()
+            ->where('deleted_at', '<=', $cutoff)
+            ->pluck('id')
+            ->all();
+    }
+
+    public function forceDelete(int $id): void
+    {
+        UserModel::onlyTrashed()->findOrFail($id)->forceDelete();
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         UserModel::findOrFail($id)->status->transitionTo($status);

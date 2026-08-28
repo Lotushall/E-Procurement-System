@@ -5,7 +5,9 @@ use App\Modules\User\Domain\Entities\User;
 use App\Modules\User\Domain\Enums\UserType;
 use App\Modules\User\Domain\States\UserStatus\Active;
 use App\Modules\User\Domain\States\UserStatus\Pending;
+use App\Modules\User\Infrastructure\Models\User as UserModel;
 use App\Modules\User\Infrastructure\Repositories\UserRepository;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -100,3 +102,36 @@ test('delete mutates the username and email so the originals become free to reus
         ->and($newSaved->username())->toBe('todelete')
         ->and($newSaved->email()->value)->toBe('todelete@example.com');
 });
+
+test('findIdsDeletedBefore returns ids of users soft-deleted at or before the cutoff', function () {
+    $repository = new UserRepository;
+
+    $old = $repository->save(User::register('old', Email::fromString('old@example.com'), 'hashed-password', UserType::Internal));
+    $repository->delete($old->id());
+    UserModel::withTrashed()->whereKey($old->id())->update(['deleted_at' => CarbonImmutable::now()->subDays(31)]);
+
+    $recent = $repository->save(User::register('recent', Email::fromString('recent@example.com'), 'hashed-password', UserType::Internal));
+    $repository->delete($recent->id());
+
+    $repository->save(User::register('active', Email::fromString('active@example.com'), 'hashed-password', UserType::Internal));
+
+    $ids = $repository->findIdsDeletedBefore(CarbonImmutable::now()->subDays(30));
+
+    expect($ids)->toBe([$old->id()]);
+});
+
+test('forceDelete permanently removes a soft-deleted user', function () {
+    $repository = new UserRepository;
+    $user = $repository->save(User::register('todelete', Email::fromString('todelete@example.com'), 'hashed-password', UserType::Internal));
+    $repository->delete($user->id());
+
+    $repository->forceDelete($user->id());
+
+    expect(UserModel::withTrashed()->find($user->id()))->toBeNull();
+});
+
+test('forceDelete throws when the user does not exist', function () {
+    $repository = new UserRepository;
+
+    $repository->forceDelete(999999);
+})->throws(ModelNotFoundException::class);

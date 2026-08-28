@@ -31,8 +31,9 @@ class UserFactory extends Factory
         return $this->state(['user_type' => UserType::Internal])
             ->afterCreating(function (User $user) {
                 $user->givePermissionTo([
-                    Permission::firstOrCreate(['name' => 'vendors.view', 'guard_name' => 'web']),
+                    Permission::firstOrCreate(['name' => 'vendors.viewAny', 'guard_name' => 'web']),
                     Permission::firstOrCreate(['name' => 'vendors.review', 'guard_name' => 'web']),
+                    Permission::firstOrCreate(['name' => 'vendors.delete', 'guard_name' => 'web']),
                 ]);
             });
     }

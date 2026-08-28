@@ -20,8 +20,9 @@ class AdminUserSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
         $admin->givePermissionTo([
-            Permission::updateOrCreate(['name' => 'vendors.view', 'guard_name' => 'web'], ['label' => 'ดูรายชื่อผู้ค้า']),
+            Permission::updateOrCreate(['name' => 'vendors.viewAny', 'guard_name' => 'web'], ['label' => 'ดูรายชื่อผู้ค้า']),
             Permission::updateOrCreate(['name' => 'vendors.review', 'guard_name' => 'web'], ['label' => 'อนุมัติ/ปฏิเสธผู้ค้า']),
+            Permission::updateOrCreate(['name' => 'vendors.delete', 'guard_name' => 'web'], ['label' => 'ลบผู้ค้า']),
             Permission::updateOrCreate(['name' => 'users.create', 'guard_name' => 'web'], ['label' => 'เพิ่ม user']),
             Permission::updateOrCreate(['name' => 'users.update', 'guard_name' => 'web'], ['label' => 'แก้ไข user']),
             Permission::updateOrCreate(['name' => 'users.updateStatus', 'guard_name' => 'web'], ['label' => 'เปลี่ยนสถานะ user']),
