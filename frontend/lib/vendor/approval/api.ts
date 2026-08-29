@@ -88,6 +88,10 @@ export async function pendingVendor(id: number): Promise<void> {
   await api.post(`/api/v1/vendors/${id}/pending`);
 }
 
+export async function deleteVendor(id: number): Promise<void> {
+  await api.delete(`/api/v1/vendors/${id}`);
+}
+
 export async function approveVendorDocument(
   vendorId: number,
   documentId: number,

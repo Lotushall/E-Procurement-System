@@ -9,9 +9,11 @@ import {
     CircleX,
     Clock,
     Eye,
+    Trash2,
     User,
     type LucideIcon,
 } from "lucide-react"
+import { DeleteVendorDialog } from "../delete-vendor-dialog"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { VendorProfile } from "@/lib/vendor/profile/types"
 import { Button } from "@/components/ui/button"
@@ -163,7 +165,7 @@ export const columns: ColumnDef<VendorProfile>[] = [
         header: () => <div className="text-center mx-auto">Actions</div>,
         enableHiding: false,
         cell: ({ row }) => (
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-1.5">
                 <Button
                     variant="outline"
                     render={<Link href={routes.dashboards.vendors.detail(row.original.id)} />}
@@ -172,6 +174,23 @@ export const columns: ColumnDef<VendorProfile>[] = [
                 >
                     <Eye className="w-4 h-4 text-gray-500" />
                 </Button>
+
+                <DeleteVendorDialog
+                    vendorId={row.original.id}
+                    displayName={
+                        row.original.detail.type === "company"
+                            ? row.original.detail.companyName
+                            : row.original.detail.storeName
+                    }
+                    trigger={
+                        <Button
+                            variant="outline"
+                            aria-label="ลบผู้ค้า"
+                            className="size-8 px-1.5 pt-px rounded-md bg-white"
+                        />
+                    }
+                    triggerChildren={<Trash2 className="w-4 h-4 text-red-600" />}
+                />
             </div>
         ),
     },

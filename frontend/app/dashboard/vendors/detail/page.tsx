@@ -2,11 +2,12 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { VendorStatusBadge } from "@/components/vendor-status-badge";
+import { DeleteVendorDialog } from "@/app/dashboard/vendors/_components/delete-vendor-dialog";
 import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-reason-dialog";
 import { VendorDocumentApprovalRow } from "./_components/vendor-document-approval-row";
 import { VendorProfileInfo } from "./_components/vendor-profile-info";
@@ -24,6 +25,7 @@ export default function VendorDetailPage() {
 }
 
 function VendorDetailContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const vendorId = Number(searchParams.get("id"));
 
@@ -132,6 +134,14 @@ function VendorDetailContent() {
               onConfirm={handleReject}
             />
           )}
+
+          <DeleteVendorDialog
+            vendorId={vendorId}
+            displayName={displayName ?? ""}
+            trigger={<Button type="button" variant="destructive" className="mr-auto" disabled={isVendorActionPending} />}
+            triggerChildren="ลบผู้ค้า"
+            onSuccess={() => router.push(routes.dashboards.vendors.index)}
+          />
         </div>
       </div>
 
