@@ -5,5 +5,6 @@
     "Vendor": true,
     "Shared": true,
     "Notification": true,
-    "InternalProfiles": true
+    "InternalProfiles": true,
+    "Tender": true
 }

@@ -1,0 +1,11 @@
+{
+    "name": "Tender",
+    "alias": "tender",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "App\\Modules\\Tender\\Providers\\TenderServiceProvider"
+    ],
+    "files": []
+}
