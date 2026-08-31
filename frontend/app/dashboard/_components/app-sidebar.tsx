@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
   },
   {
     href: routes.dashboards.tender_project.index,
-    label: "Tender Projects",
+    label: "โครงการจัดซื้อจัดจ้าง",
     icon: FolderKanban,
   },
   {
