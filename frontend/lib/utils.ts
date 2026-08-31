@@ -42,3 +42,7 @@ export const formatPhone = (value: string) => {
   const digits = digitsOnly(value).slice(0, 10)
   return formatWithGroups(digits, digits.length > 9 ? [3, 3, 4] : [2, 3, 4])
 }
+
+// จำนวนเงิน: ฿45,000,000 (ปัดเป็นจำนวนเต็มบาท ไม่แสดงสตางค์)
+export const formatCurrency = (value: number) =>
+  `฿${new Intl.NumberFormat("th-TH", { maximumFractionDigits: 0 }).format(value)}`
