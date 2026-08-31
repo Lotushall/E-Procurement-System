@@ -30,14 +30,6 @@ const EMPTY_MESSAGE: Record<VendorListFilter, string> = {
   rejected: "ไม่มีผู้ค้าที่ถูกปฏิเสธ",
 };
 
-export default function VendorListPage() {
-  return (
-    <Suspense fallback={<VendorListSkeleton />}>
-      <VendorListPageContent />
-    </Suspense>
-  );
-}
-
 function VendorListPageContent() {
   useBreadcrumb([{ label: "ผู้ค้าที่ลงทะเบียน" }]);
 
@@ -127,5 +119,13 @@ function VendorListPageContent() {
         </>
       )}
     </div>
+  );
+}
+
+export default function VendorListPage() {
+  return (
+    <Suspense fallback={<VendorListSkeleton />}>
+      <VendorListPageContent />
+    </Suspense>
   );
 }

@@ -19,8 +19,8 @@ export const routes = {
     tors: {
       index: "/dashboard/tors",
     },
-    tenders: {
-      index: "/dashboard/tenders",
+    tender_project: {
+      index: "/dashboard/tender-projects",
     },
     vendors: {
       index: "/dashboard/vendors",

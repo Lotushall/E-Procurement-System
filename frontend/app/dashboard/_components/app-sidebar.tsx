@@ -46,7 +46,7 @@ const navItems: NavItem[] = [
     role: "admin",
   },
   {
-    href: routes.dashboards.tenders.index,
+    href: routes.dashboards.tender_project.index,
     label: "Tender Projects",
     icon: FolderKanban,
   },

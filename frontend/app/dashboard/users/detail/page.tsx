@@ -15,14 +15,6 @@ import { UserDetailHeader } from "./_components/user-detail-header";
 
 type ActiveTab = "overview" | "permissions" | "sessions";
 
-export default function UserDetailPage() {
-  return (
-    <Suspense fallback={null}>
-      <UserDetailContent />
-    </Suspense>
-  );
-}
-
 function UserDetailContent() {
   const searchParams = useSearchParams();
   const userId = Number(searchParams.get("id"));
@@ -82,5 +74,13 @@ function UserDetailContent() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function UserDetailPage() {
+  return (
+    <Suspense fallback={null}>
+      <UserDetailContent />
+    </Suspense>
   );
 }

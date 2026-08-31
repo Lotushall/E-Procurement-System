@@ -14,14 +14,6 @@ import { routes } from "@/lib/routes";
 import { useCreateUserForm } from "../_hooks/use-create-user-form";
 import { CreateInternalUserFields } from "../_components/create-internal-user-fields";
 
-export default function CreateUserPage() {
-  return (
-    <RequirePermission permission="users.create">
-      <CreateUserPageContent />
-    </RequirePermission>
-  );
-}
-
 function CreateUserPageContent() {
   const router = useRouter();
   const { data: roles } = useRoles();
@@ -87,5 +79,13 @@ function CreateUserPageContent() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function CreateUserPage() {
+  return (
+    <RequirePermission permission="users.create">
+      <CreateUserPageContent />
+    </RequirePermission>
   );
 }

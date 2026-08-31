@@ -35,14 +35,6 @@ const STATUS_OPTIONS: { value: UserStatusFilter; label: string }[] = [
   { value: "inactive", label: "ปิดใช้งาน" },
 ];
 
-export default function UsersPage() {
-  return (
-    <Suspense fallback={<UserListSkeleton />}>
-      <UsersPageContent />
-    </Suspense>
-  );
-}
-
 function UsersPageContent() {
   useBreadcrumb([{ label: "จัดการผู้ใช้" }]);
 
@@ -181,5 +173,13 @@ function UsersPageContent() {
         </>
       )}
     </div>
+  );
+}
+
+export default function UsersPage() {
+  return (
+    <Suspense fallback={<UserListSkeleton />}>
+      <UsersPageContent />
+    </Suspense>
   );
 }

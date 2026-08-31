@@ -15,14 +15,6 @@ import { NotificationList } from "./_components/notification-list";
 
 const PER_PAGE = 15;
 
-export default function NotificationsPage() {
-  return (
-    <Suspense fallback={null}>
-      <NotificationsPageContent />
-    </Suspense>
-  );
-}
-
 function NotificationsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,5 +78,13 @@ function NotificationsPageContent() {
         />
       )}
     </div>
+  );
+}
+
+export default function NotificationsPage() {
+  return (
+    <Suspense fallback={null}>
+      <NotificationsPageContent />
+    </Suspense>
   );
 }

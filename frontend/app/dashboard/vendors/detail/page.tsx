@@ -16,14 +16,6 @@ import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types"
 import { routes } from "@/lib/routes";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
 
-export default function VendorDetailPage() {
-  return (
-    <Suspense fallback={null}>
-      <VendorDetailContent />
-    </Suspense>
-  );
-}
-
 function VendorDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -212,5 +204,13 @@ function VendorDetailContent() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VendorDetailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VendorDetailContent />
+    </Suspense>
   );
 }

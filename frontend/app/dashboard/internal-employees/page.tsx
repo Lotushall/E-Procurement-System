@@ -22,14 +22,6 @@ import InternalProfileFormDialog from "./_components/internal-profile-form-dialo
 const ALL_DEPARTMENTS_OPTION = { value: "all", label: "ทุกแผนก" };
 const ALL_POSITIONS_OPTION = { value: "all", label: "ทุกตำแหน่ง" };
 
-export default function InternalProfilesPage() {
-    return (
-        <Suspense fallback={<InternalProfileListSkeleton />}>
-            <InternalProfilesPageContent />
-        </Suspense>
-    );
-}
-
 function InternalProfilesPageContent() {
     useBreadcrumb([{ label: "พนักงานภายใน" }]);
 
@@ -140,5 +132,13 @@ function InternalProfilesPageContent() {
                 </>
             )}
         </div>
+    );
+}
+
+export default function InternalProfilesPage() {
+    return (
+        <Suspense fallback={<InternalProfileListSkeleton />}>
+            <InternalProfilesPageContent />
+        </Suspense>
     );
 }

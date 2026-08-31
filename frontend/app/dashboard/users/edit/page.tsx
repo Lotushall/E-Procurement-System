@@ -24,16 +24,6 @@ import { routes } from "@/lib/routes";
 import { useUpdateAccountForm } from "../_hooks/use-update-account-form";
 import { useUpdateInternalUserForm } from "../_hooks/use-update-internal-user-form";
 
-export default function EditUserPage() {
-  return (
-    <RequirePermission permission="users.update">
-      <Suspense fallback={null}>
-        <EditUserPageContent />
-      </Suspense>
-    </RequirePermission>
-  );
-}
-
 function EditUserPageContent() {
   const searchParams = useSearchParams();
   const userId = Number(searchParams.get("id"));
@@ -130,6 +120,16 @@ function EditAccountForm({ user }: { user: UserDetail }) {
         </Button>
       </div>
     </form>
+  );
+}
+
+export default function EditUserPage() {
+  return (
+    <RequirePermission permission="users.update">
+      <Suspense fallback={null}>
+        <EditUserPageContent />
+      </Suspense>
+    </RequirePermission>
   );
 }
 
