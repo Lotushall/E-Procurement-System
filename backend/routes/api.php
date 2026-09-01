@@ -10,6 +10,7 @@ Route::prefix('v1')->group(function () {
         require __DIR__.'/api/v1/notification.php';
         require __DIR__.'/api/v1/dashboard/user-management/users.php';
         require __DIR__.'/api/v1/dashboard/internal-profiles.php';
+        require __DIR__.'/api/v1/dashboard/tender-projects.php';
     });
 
     require __DIR__.'/api/v1/auth.php';

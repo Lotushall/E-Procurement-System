@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Tender\Domain\Entities;
+namespace App\Modules\Tender\Domain\Entities\Tor;
 
 final class TorDocument
 {

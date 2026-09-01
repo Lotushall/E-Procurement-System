@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Tender\Domain\ValueObjects;
+namespace App\Modules\Tender\Domain\ValueObjects\Project;
 
 use InvalidArgumentException;
 
-final class TorCode
+final class ProjectCode
 {
     private function __construct(
         public readonly string $value,
@@ -15,11 +15,11 @@ final class TorCode
         $value = trim($value);
 
         if ($value === '') {
-            throw new InvalidArgumentException('Invalid TOR code: must not be blank.');
+            throw new InvalidArgumentException('Invalid project code: must not be blank.');
         }
 
         if (mb_strlen($value) > 255) {
-            throw new InvalidArgumentException('Invalid TOR code: must not exceed 255 characters.');
+            throw new InvalidArgumentException('Invalid project code: must not exceed 255 characters.');
         }
 
         return new self($value);

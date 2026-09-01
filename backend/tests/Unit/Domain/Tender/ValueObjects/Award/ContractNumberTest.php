@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Tender\Domain\ValueObjects\ContractNumber;
+use App\Modules\Tender\Domain\ValueObjects\Award\ContractNumber;
 
 test('creates a contract number from a non-blank string', function () {
     $number = ContractNumber::fromString('CN-2569-0001');

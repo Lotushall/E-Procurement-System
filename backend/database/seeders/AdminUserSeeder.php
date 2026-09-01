@@ -27,6 +27,7 @@ class AdminUserSeeder extends Seeder
             Permission::updateOrCreate(['name' => 'users.update', 'guard_name' => 'web'], ['label' => 'แก้ไข user']),
             Permission::updateOrCreate(['name' => 'users.updateStatus', 'guard_name' => 'web'], ['label' => 'เปลี่ยนสถานะ user']),
             Permission::updateOrCreate(['name' => 'users.delete', 'guard_name' => 'web'], ['label' => 'ลบ user']),
+            Permission::updateOrCreate(['name' => 'tender-projects.create', 'guard_name' => 'web'], ['label' => 'สร้างโครงการจัดซื้อจัดจ้าง']),
         ]);
 
         if (app(UserRepositoryInterface::class)->findByEmail('admin@example.com') !== null) {

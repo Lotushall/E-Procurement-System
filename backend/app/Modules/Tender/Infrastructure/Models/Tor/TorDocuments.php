@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Tender\Infrastructure\Models;
+namespace App\Modules\Tender\Infrastructure\Models\Tor;
 
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;

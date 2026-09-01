@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Tender\Domain\ValueObjects\TorCode;
+use App\Modules\Tender\Domain\ValueObjects\Tor\TorCode;
 
 test('creates a TOR code from a non-blank string', function () {
     $code = TorCode::fromString('TOR-2569-0001');

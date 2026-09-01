@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Tender\Domain\Entities;
+namespace App\Modules\Tender\Domain\Entities\Project;
 
 use App\Modules\Shared\Domain\ValueObjects\Money;
-use App\Modules\Tender\Domain\ValueObjects\ProjectCode;
+use App\Modules\Tender\Domain\ValueObjects\Project\ProjectCode;
 use Carbon\CarbonImmutable;
 
 final class TenderProject

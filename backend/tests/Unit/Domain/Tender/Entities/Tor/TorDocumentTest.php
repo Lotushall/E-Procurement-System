@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Tender\Domain\Entities\TorDocument;
+use App\Modules\Tender\Domain\Entities\Tor\TorDocument;
 
 function makeTorDocument(): TorDocument
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Tender\Domain\Entities;
+namespace App\Modules\Tender\Domain\Entities\Tor;
 
 use App\Modules\Shared\Domain\ValueObjects\Money;
-use App\Modules\Tender\Domain\ValueObjects\TorCode;
+use App\Modules\Tender\Domain\ValueObjects\Tor\TorCode;
 use Carbon\CarbonImmutable;
 
 final class Tor

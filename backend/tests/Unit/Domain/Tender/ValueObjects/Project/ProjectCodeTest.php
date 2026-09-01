@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Tender\Domain\ValueObjects\ProjectCode;
+use App\Modules\Tender\Domain\ValueObjects\Project\ProjectCode;
 
 test('creates a project code from a non-blank string', function () {
     $code = ProjectCode::fromString('e-GP-2569-0001');

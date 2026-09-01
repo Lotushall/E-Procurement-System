@@ -4,6 +4,7 @@ use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\User\Infrastructure\Models\User;
 use Database\Seeders\AdminUserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -35,4 +36,12 @@ test('running the admin seeder twice does not create a duplicate admin user', fu
 
     $this->assertDatabaseCount('users', 1);
     $this->assertDatabaseCount('internal_profiles', 1);
+});
+
+test('running the admin seeder grants the admin role permission to create tender projects', function () {
+    (new AdminUserSeeder)->run();
+
+    $admin = Role::where('name', 'admin')->first();
+
+    expect($admin->hasPermissionTo('tender-projects.create'))->toBeTrue();
 });

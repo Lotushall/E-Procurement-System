@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Modules\Tender\Infrastructure\Models;
+namespace App\Modules\Tender\Infrastructure\Models\Project;
 
 use App\Modules\InternalProfiles\Infrastructure\Models\Department;
 use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
+use App\Modules\Tender\Infrastructure\Models\Tor\Tors;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;

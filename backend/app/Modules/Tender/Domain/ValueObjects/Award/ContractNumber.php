@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Tender\Domain\ValueObjects;
+namespace App\Modules\Tender\Domain\ValueObjects\Award;
 
 use InvalidArgumentException;
 

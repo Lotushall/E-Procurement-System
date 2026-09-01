@@ -1,8 +1,8 @@
 <?php
 
 use App\Modules\Shared\Domain\ValueObjects\Money;
-use App\Modules\Tender\Domain\Entities\TenderProject;
-use App\Modules\Tender\Domain\ValueObjects\ProjectCode;
+use App\Modules\Tender\Domain\Entities\Project\TenderProject;
+use App\Modules\Tender\Domain\ValueObjects\Project\ProjectCode;
 use Carbon\CarbonImmutable;
 
 function makeTenderProject(): TenderProject
