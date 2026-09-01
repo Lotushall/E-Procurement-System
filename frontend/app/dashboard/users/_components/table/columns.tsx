@@ -29,6 +29,7 @@ export function createColumns(
     canUpdateStatus: boolean,
     canUpdateUser: boolean,
     canDeleteUser: boolean,
+    currentUserId: number | undefined,
 ): ColumnDef<UserListItem>[] {
     return [
         {
@@ -122,7 +123,9 @@ export function createColumns(
                             <Pencil className="w-4 h-4 text-gray-500" />
                         </Button>
                     )}
-                    {canDeleteUser && <DeleteUserDialog user={row.original} />}
+                    {canDeleteUser && (
+                        <DeleteUserDialog user={row.original} currentUserId={currentUserId} />
+                    )}
                 </div>
             ),
         },

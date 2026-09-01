@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useUser } from "@/lib/auth/queries/useUser";
 import { useDeleteUser } from "@/lib/user/management/mutations/useDeleteUser";
 import type { UserListItem } from "@/lib/user/management/types";
 
@@ -23,16 +22,17 @@ function getErrorMessage(error: unknown): string {
 
 export function DeleteUserDialog({
   user,
+  currentUserId,
   onDeleted,
 }: {
   user: UserListItem;
+  currentUserId: number | undefined;
   onDeleted?: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { data: currentUser } = useUser();
   const deleteUserMutation = useDeleteUser();
   const disabledReason =
-    currentUser?.id === user.id ? "ไม่สามารถลบบัญชีของตัวเองได้" : undefined;
+    currentUserId === user.id ? "ไม่สามารถลบบัญชีของตัวเองได้" : undefined;
 
   const handleDelete = () => {
     toast.promise(deleteUserMutation.mutateAsync(user.id), {

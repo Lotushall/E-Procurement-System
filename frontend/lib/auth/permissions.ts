@@ -43,9 +43,18 @@ export function hasAllPermissions(
   return permissions.every((permission) => hasPermission(user, permission));
 }
 
-export function useHasRole(role: string): boolean {
+export function useAuthPermissions() {
   const { data: user } = useUser();
-  return hasRole(user, role);
+
+  return {
+    user,
+    hasRole: (role: string) => hasRole(user, role),
+    hasAnyRole: (roles: string[]) => hasAnyRole(user, roles),
+    hasAllRoles: (roles: string[]) => hasAllRoles(user, roles),
+    hasPermission: (permission: string) => hasPermission(user, permission),
+    hasAnyPermission: (permissions: string[]) => hasAnyPermission(user, permissions),
+    hasAllPermissions: (permissions: string[]) => hasAllPermissions(user, permissions),
+  };
 }
 
 export function useHasAnyRole(roles: string[]): boolean {
@@ -56,11 +65,6 @@ export function useHasAnyRole(roles: string[]): boolean {
 export function useHasAllRoles(roles: string[]): boolean {
   const { data: user } = useUser();
   return hasAllRoles(user, roles);
-}
-
-export function useHasPermission(permission: string): boolean {
-  const { data: user } = useUser();
-  return hasPermission(user, permission);
 }
 
 export function useHasAnyPermission(permissions: string[]): boolean {

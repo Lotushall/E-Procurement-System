@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { IdCardLanyard, Pencil, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserStatusBadge } from "@/components/user-status-badge";
-import { useHasPermission } from "@/lib/auth/permissions";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 import type { UserDetail, UserStatus } from "@/lib/user/management/types";
 import { routes } from "@/lib/routes";
 import { getInitials } from "@/lib/utils";
@@ -19,7 +19,8 @@ export function UserDetailHeader({
   status: UserStatus;
 }) {
   const router = useRouter();
-  const canDeleteUser = useHasPermission("users.delete");
+  const { user: currentUser, hasPermission } = useAuthPermissions();
+  const canDeleteUser = hasPermission("users.delete");
 
   return (
     <div className="flex flex-col gap-4">
@@ -85,6 +86,7 @@ export function UserDetailHeader({
           {canDeleteUser && (
             <DeleteUserDialog
               user={user}
+              currentUserId={currentUser?.id}
               onDeleted={() => router.push(routes.dashboards.user.index)}
             />
           )}

@@ -14,7 +14,7 @@ import { DataTable } from "@/components/ui/data-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { useHasPermission, useHasRole } from "@/lib/auth/permissions";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
@@ -38,14 +38,15 @@ const STATUS_OPTIONS: { value: UserStatusFilter; label: string }[] = [
 function UsersPageContent() {
   useBreadcrumb([{ label: "จัดการผู้ใช้" }]);
 
-  const canCreateUser = useHasPermission("users.create");
-  const canUpdateStatus = useHasPermission("users.updateStatus");
-  const canUpdateUser = useHasPermission("users.update");
-  const canDeleteUser = useHasPermission("users.delete");
-  const canManageRoles = useHasRole("admin");
+  const { user, hasPermission, hasRole } = useAuthPermissions();
+  const canCreateUser = hasPermission("users.create");
+  const canUpdateStatus = hasPermission("users.updateStatus");
+  const canUpdateUser = hasPermission("users.update");
+  const canDeleteUser = hasPermission("users.delete");
+  const canManageRoles = hasRole("admin");
   const columns = useMemo(
-    () => createColumns(canUpdateStatus, canUpdateUser, canDeleteUser),
-    [canUpdateStatus, canUpdateUser, canDeleteUser],
+    () => createColumns(canUpdateStatus, canUpdateUser, canDeleteUser, user?.id),
+    [canUpdateStatus, canUpdateUser, canDeleteUser, user?.id],
   );
 
   const {

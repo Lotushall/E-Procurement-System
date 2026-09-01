@@ -53,14 +53,14 @@ const menus = [
 function AuthControl({
     onNavigate,
     variant = "desktop",
+    user,
+    isLoading,
 }: {
     onNavigate?: () => void;
     variant?: "desktop" | "mobile";
+    user: CurrentUser | null | undefined;
+    isLoading: boolean;
 }) {
-    const { data: user, isLoading } = useUser();
-
-    console.log(user);
-
     if (isLoading) {
         return variant === "desktop" ? (
             <div className="h-10 w-40 animate-pulse rounded-full bg-gray-300" />
@@ -104,10 +104,15 @@ function AuthControl({
     );
 }
 
-export function ProfileMenu() {
+export function ProfileMenu({
+    user,
+    isLoading,
+}: {
+    user: CurrentUser | null | undefined;
+    isLoading: boolean;
+}) {
     const router = useRouter();
     const pathname = usePathname();
-    const { data: user, isLoading } = useUser();
     const logout = useLogout();
 
     if (isLoading) {
@@ -206,8 +211,7 @@ export function ProfileMenu() {
     );
 }
 
-export function NotificationMenu() {
-    const { data: user } = useUser();
+export function NotificationMenu({ user }: { user: CurrentUser | null | undefined }) {
     const {
         hasVertifyEmail,
         hasIncompleteAddress,
@@ -407,7 +411,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
-    const { data: user } = useUser();
+    const { data: user, isLoading } = useUser();
 
     return (
         <div className="border-b-4 border-red-700">
@@ -434,11 +438,11 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-1">
-                    {user && <NotificationMenu />}
-                    <ProfileMenu />
+                    {user && <NotificationMenu user={user} />}
+                    <ProfileMenu user={user} isLoading={isLoading} />
 
                     <div className="hidden md:block">
-                        <AuthControl variant="desktop" />
+                        <AuthControl variant="desktop" user={user} isLoading={isLoading} />
                     </div>
 
                     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -466,6 +470,8 @@ export default function Navbar() {
                                 <AuthControl
                                     variant="mobile"
                                     onNavigate={() => setMobileOpen(false)}
+                                    user={user}
+                                    isLoading={isLoading}
                                 />
                             </div>
                         </SheetContent>
