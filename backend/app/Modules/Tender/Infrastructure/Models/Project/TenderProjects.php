@@ -6,8 +6,11 @@ use App\Modules\InternalProfiles\Infrastructure\Models\Department;
 use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\Tender\Infrastructure\Models\Tor\Tors;
 use App\Modules\User\Infrastructure\Models\User;
+use Database\Factories\TenderProjectsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +34,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TenderProjects extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): TenderProjectsFactory
+    {
+        return TenderProjectsFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -66,5 +74,70 @@ class TenderProjects extends Model
     public function TenderProjectsTors(): HasMany
     {
         return $this->hasMany(Tors::class, 'tender_project_id');
+    }
+
+    /**
+     * Scope a query to projects whose name or project code matches the given search term.
+     */
+    #[Scope]
+    protected function search(Builder $query, ?string $search): void
+    {
+        if ($search === null) {
+            return;
+        }
+
+        $search = trim($search);
+
+        if ($search === '') {
+            return;
+        }
+
+        $term = '%'.$search.'%';
+
+        $query->where(function (Builder $query) use ($term) {
+            $query->where('name', 'like', $term)
+                ->orWhere('project_code', 'like', $term);
+        });
+    }
+
+    /**
+     * Scope a query to only include projects with the given status.
+     */
+    #[Scope]
+    protected function status(Builder $query, ?string $status): void
+    {
+        $query->when($status !== null, fn (Builder $query) => $query->where('status', $status));
+    }
+
+    /**
+     * Scope a query to only include projects in the given department.
+     */
+    #[Scope]
+    protected function departmentId(Builder $query, ?int $departmentId): void
+    {
+        $query->when($departmentId !== null, fn (Builder $query) => $query->where('department_id', $departmentId));
+    }
+
+    /**
+     * Scope a query to only include projects in the given fiscal year.
+     */
+    #[Scope]
+    protected function fiscalYear(Builder $query, ?int $fiscalYear): void
+    {
+        $query->when($fiscalYear !== null, fn (Builder $query) => $query->where('fiscal_year', $fiscalYear));
+    }
+
+    /**
+     * Scope a query to sort by the given whitelisted column (defaults to created_at).
+     */
+    #[Scope]
+    protected function sort(Builder $query, ?string $sortBy, ?string $sortDirection = null): void
+    {
+        $direction = $sortDirection === 'asc' ? 'asc' : 'desc';
+
+        $query->orderBy(
+            in_array($sortBy, ['name', 'budget', 'fiscal_year'], true) ? $sortBy : 'created_at',
+            $direction,
+        );
     }
 }

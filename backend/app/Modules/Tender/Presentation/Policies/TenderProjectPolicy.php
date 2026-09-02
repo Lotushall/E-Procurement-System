@@ -11,4 +11,9 @@ class TenderProjectPolicy
     {
         return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender-projects.create');
     }
+
+    public function viewAny(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender-projects.viewAny');
+    }
 }

@@ -46,14 +46,15 @@ class TenderServiceProvider extends ModuleServiceProvider
     {
         parent::boot();
 
-        // The ability name is deliberately NOT the same string as the
-        // `tender-projects.create` permission name the policy method checks:
-        // Spatie registers a Gate::before hook that grants access immediately
-        // whenever the ability name exactly matches a permission the user
-        // holds, bypassing this policy method (and its user_type guard)
-        // entirely on the allow path. Using a distinct ability name forces
-        // every request through the policy.
+        // The ability names are deliberately NOT the same strings as the
+        // permission names their policy methods check (`tender-projects.create`,
+        // `tender-projects.viewAny`): Spatie registers a Gate::before hook that
+        // grants access immediately whenever the ability name exactly matches
+        // a permission the user holds, bypassing the policy method (and its
+        // user_type guard) entirely on the allow path. Using distinct ability
+        // names forces every request through the policy.
         Gate::define('tender-projects.store', [TenderProjectPolicy::class, 'create']);
+        Gate::define('tender-projects.index', [TenderProjectPolicy::class, 'viewAny']);
     }
 
     /**

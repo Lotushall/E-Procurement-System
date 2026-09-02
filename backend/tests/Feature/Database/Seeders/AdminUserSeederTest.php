@@ -45,3 +45,11 @@ test('running the admin seeder grants the admin role permission to create tender
 
     expect($admin->hasPermissionTo('tender-projects.create'))->toBeTrue();
 });
+
+test('running the admin seeder grants the admin role permission to view tender projects', function () {
+    (new AdminUserSeeder)->run();
+
+    $admin = Role::where('name', 'admin')->first();
+
+    expect($admin->hasPermissionTo('tender-projects.viewAny'))->toBeTrue();
+});
