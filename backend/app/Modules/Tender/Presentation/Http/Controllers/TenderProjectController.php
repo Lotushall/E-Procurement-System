@@ -27,6 +27,8 @@ class TenderProjectController extends Controller
             status: $request->validated('status'),
             departmentId: $request->validated('department_id'),
             fiscalYear: $request->validated('fiscal_year'),
+            dateFrom: $request->validated('date_from'),
+            dateTo: $request->validated('date_to'),
             sortBy: $request->validated('sort_by'),
             sortDirection: $request->validated('sort_direction'),
             page: $request->validated('page'),

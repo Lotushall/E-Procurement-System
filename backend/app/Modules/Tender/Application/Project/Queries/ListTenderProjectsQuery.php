@@ -14,6 +14,8 @@ final class ListTenderProjectsQuery
         ?string $status = null,
         ?int $departmentId = null,
         ?int $fiscalYear = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null,
         ?string $sortBy = null,
         ?string $sortDirection = null,
         ?int $page = null,
@@ -22,10 +24,12 @@ final class ListTenderProjectsQuery
         $tieBreakDirection = $sortDirection === 'asc' ? 'asc' : 'desc';
 
         return TenderProjects::query()
+            ->with('TenderProjectsDepartment', 'TenderProjectsPersonInCharge', 'TenderProjectsCreatedBy')
             ->search($search)
             ->status($status)
             ->departmentId($departmentId)
             ->fiscalYear($fiscalYear)
+            ->dateRange($dateFrom, $dateTo)
             ->sort($sortBy, $sortDirection)
             ->orderBy('id', $tieBreakDirection)
             ->paginate(perPage: $perPage ?? self::DEFAULT_PER_PAGE, page: $page ?? 1);

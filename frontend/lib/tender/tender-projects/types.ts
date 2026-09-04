@@ -1,4 +1,4 @@
-import { InternalProfile } from "@/lib/internal-profiles/types";
+import { Department, InternalProfile } from "@/lib/internal-profiles/types";
 import { PaginationMeta } from "@/lib/pagination";
 import { User } from "@/lib/user/types";
 
@@ -16,23 +16,42 @@ export type TenderProjectSortBy =
   | "status";
 export type TenderProjectSortDirection = "asc" | "desc";
 
+export type TenderProjectStatusFilter = "all" | TenderProjectStatus;
+
+export type TenderProjectStatus =
+  | "draft"
+  | "published"
+  | "closed"
+  | "completed"
+  | "cancelled"
+  | "archived";
+
 export interface TenderProjects {
   id: number;
   projectCode: string;
   name: string;
   description: string;
-  budget: number;
-  department: string;
+  budget: string;
+  department: Pick<Department, "id" | "name">;
   personInCharge: InternalProfile;
   createdBy: User;
   procurementMethod: string;
   fiscalYear: string;
   projectStartAt: string;
   projectEndAt: string;
-  status: string;
+  status: TenderProjectStatus;
+}
+
+interface TenderProjectStats {
+  stats: {
+    totalCount: number;
+    totalBudget: number;
+    inProgressCount: number;
+    completedCount: number;
+  };
 }
 
 export interface PaginatedTenderProjectsList {
   data: TenderProjects[];
-  meta: PaginationMeta;
+  meta: PaginationMeta & TenderProjectStats;
 }

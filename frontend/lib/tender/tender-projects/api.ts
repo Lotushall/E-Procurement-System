@@ -10,6 +10,8 @@ export async function fetchTenderProjectsList(
   status?: string,
   department_id?: number,
   fiscal_year?: string,
+  date_from?: string,
+  date_to?: string,
   sort_by?: TenderProjectSortBy,
   sort_direction?: TenderProjectSortDirection,
   page = 1,
@@ -21,6 +23,8 @@ export async function fetchTenderProjectsList(
       status,
       department_id,
       fiscal_year,
+      date_from,
+      date_to,
       sort_by,
       sort_direction,
       page,
@@ -35,6 +39,7 @@ export async function fetchTenderProjectsList(
       lastPage: data.meta.lastPage,
       perPage: data.meta.perPage,
       total: data.meta.total,
+      stats: data.meta.stats,
     },
   };
 }

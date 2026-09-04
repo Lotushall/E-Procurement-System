@@ -19,6 +19,8 @@ class ListTenderProjectsRequest extends FormRequest
             ])],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'fiscal_year' => ['nullable', 'integer'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'sort_by' => ['nullable', 'string', Rule::in(['created_at', 'name', 'budget', 'fiscal_year'])],
             'sort_direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
             'page' => ['nullable', 'integer', 'min:1'],

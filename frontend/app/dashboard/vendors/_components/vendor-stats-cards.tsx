@@ -1,8 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { VendorVerificationStatus } from "@/lib/vendor/approval/types";
-
-export type VendorListFilter = "all" | VendorVerificationStatus;
+import type { VendorListFilter } from "@/lib/vendor/approval/types";
 
 const STAT_STYLE: Record<VendorListFilter, { label: string; ring: string; text: string }> = {
   all: { label: "ทั้งหมด", ring: "ring-foreground/30", text: "text-foreground" },

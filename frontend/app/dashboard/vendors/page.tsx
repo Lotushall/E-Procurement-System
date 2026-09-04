@@ -10,8 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import type { VendorListFilter } from "@/lib/vendor/approval/types";
 import { useVendorListPage } from "./_hooks/use-vendor-list-page";
-import { VendorStatsCards, type VendorListFilter } from "./_components/vendor-stats-cards";
+import { VendorStatsCards } from "./_components/vendor-stats-cards";
 import { VendorListSkeleton, VendorTableSkeleton } from "./_components/vendor-list-skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./_components/table/columns";

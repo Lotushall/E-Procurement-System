@@ -16,7 +16,8 @@ import { Button } from "@/components/ui/button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
-import { useUserListPage, type UserStatusFilter, type UserTypeFilter } from "./_hooks/use-user-list-page";
+import type { UserStatusFilter, UserTypeFilter } from "@/lib/user/management/types";
+import { useUserListPage } from "./_hooks/use-user-list-page";
 import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
 import { createColumns } from "./_components/table/columns";
 

@@ -2,9 +2,8 @@
 
 import { useListPageControls } from "@/hooks/use-list-page-controls";
 import { useVendorList } from "@/lib/vendor/approval/queries/useVendorList";
-import type { VendorSortBy } from "@/lib/vendor/approval/types";
+import type { VendorListFilter, VendorSortBy } from "@/lib/vendor/approval/types";
 import { digitsOnly } from "@/lib/utils";
-import type { VendorListFilter } from "../_components/vendor-stats-cards";
 
 // A phone number typed with separators (e.g. "081-234-5678") won't match the
 // digits-only contact_phone column, so strip separators before it's sent as

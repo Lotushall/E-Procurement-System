@@ -6,6 +6,8 @@ import type { User } from "@/lib/user/types";
 
 export type { VendorVerificationStatus };
 
+export type VendorListFilter = "all" | VendorVerificationStatus;
+
 export interface VendorStatusCounts {
   total: number;
   pending: number;

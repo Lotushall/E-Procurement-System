@@ -17,6 +17,9 @@ export function DepartmentSelect({
   onValueChange,
   ariaInvalid,
   allOption,
+  // Show `placeholder` instead of allOption's label whenever value === allOption.value —
+  // for filter usage where "not filtered" should read as a placeholder, not a chosen value.
+  placeholder,
   className,
 }: {
   departments: Department[];
@@ -25,6 +28,7 @@ export function DepartmentSelect({
   ariaInvalid?: boolean;
   // Prepend an "all" choice, e.g. { value: "all", label: "ทุกแผนก" } — for filter usage.
   allOption?: { value: string; label: string };
+  placeholder?: string;
   className?: string;
 }) {
   const idByLabel = new Map(departments.map((d) => [d.name, String(d.id)]));
@@ -41,10 +45,15 @@ export function DepartmentSelect({
     ? [allOption.label, ...departments.map((d) => d.name)]
     : [EMPTY_OPTION.label, ...departments.map((d) => d.name)];
 
+  const comboboxValue =
+    placeholder && allOption && value === allOption.value
+      ? null
+      : (labelById.get(value) ?? null);
+
   return (
     <Combobox
       items={items}
-      value={labelById.get(value) ?? null}
+      value={comboboxValue}
       onValueChange={(next) => {
         if (next === null) return;
         const id = idByLabel.get(next);
@@ -63,7 +72,7 @@ export function DepartmentSelect({
             )}
           >
             <span className="min-w-0 truncate">
-              <ComboboxValue placeholder="เลือกแผนก" />
+              <ComboboxValue placeholder={placeholder ?? "เลือกแผนก"} />
             </span>
             <ChevronDown />
           </Button>

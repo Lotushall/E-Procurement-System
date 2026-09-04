@@ -2,10 +2,11 @@
 
 import { useListPageControls } from "@/hooks/use-list-page-controls";
 import { useUserList } from "@/lib/user/management/queries/useUserList";
-import type { UserSortBy, UserStatus, UserType } from "@/lib/user/management/types";
-
-export type UserTypeFilter = "all" | UserType;
-export type UserStatusFilter = "all" | UserStatus;
+import type {
+  UserSortBy,
+  UserStatusFilter,
+  UserTypeFilter,
+} from "@/lib/user/management/types";
 
 const TYPE_VALUES: UserTypeFilter[] = ["all", "internal", "company", "individual"];
 const STATUS_VALUES: UserStatusFilter[] = ["all", "pending", "active", "suspended", "inactive"];

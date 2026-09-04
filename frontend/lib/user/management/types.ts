@@ -2,6 +2,8 @@ import type { PaginationMeta } from "@/lib/pagination";
 
 export type UserType = "internal" | "company" | "individual";
 export type UserStatus = "pending" | "active" | "suspended" | "inactive";
+export type UserTypeFilter = "all" | UserType;
+export type UserStatusFilter = "all" | UserStatus;
 export type UserSortBy = "created_at" | "username" | "email";
 export type UserSortDirection = "asc" | "desc";
 
