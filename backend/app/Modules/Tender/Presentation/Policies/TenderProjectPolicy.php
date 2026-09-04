@@ -9,11 +9,11 @@ class TenderProjectPolicy
 {
     public function create(User $user): bool
     {
-        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender-projects.create');
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.create');
     }
 
     public function viewAny(User $user): bool
     {
-        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender-projects.viewAny');
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.viewAny');
     }
 }

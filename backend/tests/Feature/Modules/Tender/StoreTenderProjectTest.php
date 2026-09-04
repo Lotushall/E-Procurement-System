@@ -11,7 +11,7 @@ uses(RefreshDatabase::class);
 function internalUserWithTenderProjectCreatePermission(): User
 {
     $user = User::factory()->create(['user_type' => 'internal']);
-    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender-projects.create', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.create', 'guard_name' => 'web']));
 
     return $user;
 }

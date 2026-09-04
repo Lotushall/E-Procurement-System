@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 function internalUserWithTenderProjectViewAnyPermission(): User
 {
     $user = User::factory()->create(['user_type' => 'internal']);
-    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender-projects.viewAny', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.viewAny', 'guard_name' => 'web']));
 
     return $user;
 }
@@ -44,7 +44,10 @@ test('an internal user with the viewAny permission can list tender projects', fu
         ->assertJsonCount(2, 'data')
         ->assertJsonStructure([
             'data' => [['id', 'projectCode', 'name', 'budget', 'departmentId', 'procurementMethod', 'fiscalYear', 'status']],
-            'meta' => ['currentPage', 'lastPage', 'perPage', 'total'],
+            'meta' => [
+                'currentPage', 'lastPage', 'perPage', 'total',
+                'stats' => ['totalCount', 'totalBudget', 'inProgressCount', 'completedCount'],
+            ],
         ]);
 });
 
@@ -168,4 +171,23 @@ test('listing tender projects includes description, person in charge, dates, and
         ->assertJsonPath('data.0.budget', '500000.00')
         ->assertJsonPath('data.0.projectStartAt', $startAt->toIso8601String())
         ->assertJsonPath('data.0.projectEndAt', $endAt->toIso8601String());
+});
+
+test('listing tender projects returns global stats unaffected by the list filters', function () {
+    $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
+    TenderProjects::factory()->status('draft')->create(['budget' => 100000]);
+    TenderProjects::factory()->status('published')->create(['budget' => 200000]);
+    TenderProjects::factory()->status('published')->create(['budget' => 300000]);
+    TenderProjects::factory()->status('completed')->create(['budget' => 400000]);
+
+    $response = $this->getJson('/api/v1/dashboard/tender-projects?status=published');
+
+    $response->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJson(['meta' => ['stats' => [
+            'totalCount' => 4,
+            'totalBudget' => 1000000.0,
+            'inProgressCount' => 2,
+            'completedCount' => 1,
+        ]]]);
 });

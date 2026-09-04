@@ -7,9 +7,9 @@ use Spatie\Permission\Models\Permission;
 
 uses(RefreshDatabase::class);
 
-test('an internal user with the tender-projects.create permission is authorized', function () {
+test('an internal user with the tender_projects.create permission is authorized', function () {
     $user = User::factory()->create(['user_type' => 'internal']);
-    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender-projects.create', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.create', 'guard_name' => 'web']));
 
     expect(Gate::forUser($user)->allows('tender-projects.store'))->toBeTrue();
 });
@@ -22,14 +22,14 @@ test('an internal user without the permission is not authorized', function () {
 
 test('a non-internal user is not authorized even when directly granted the permission', function () {
     $user = User::factory()->create(['user_type' => 'company']);
-    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender-projects.create', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.create', 'guard_name' => 'web']));
 
     expect(Gate::forUser($user)->allows('tender-projects.store'))->toBeFalse();
 });
 
-test('an internal user with the tender-projects.viewAny permission is authorized to list', function () {
+test('an internal user with the tender_projects.viewAny permission is authorized to list', function () {
     $user = User::factory()->create(['user_type' => 'internal']);
-    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender-projects.viewAny', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.viewAny', 'guard_name' => 'web']));
 
     expect(Gate::forUser($user)->allows('tender-projects.index'))->toBeTrue();
 });
@@ -42,7 +42,7 @@ test('an internal user without the viewAny permission is not authorized to list'
 
 test('a non-internal user is not authorized to list even when directly granted the permission', function () {
     $user = User::factory()->create(['user_type' => 'company']);
-    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender-projects.viewAny', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.viewAny', 'guard_name' => 'web']));
 
     expect(Gate::forUser($user)->allows('tender-projects.index'))->toBeFalse();
 });

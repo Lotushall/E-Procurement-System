@@ -4,6 +4,7 @@ namespace App\Modules\Tender\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Tender\Application\Project\DTOs\CreateTenderProjectData;
+use App\Modules\Tender\Application\Project\Queries\GetTenderProjectStatsQuery;
 use App\Modules\Tender\Application\Project\Queries\ListTenderProjectsQuery;
 use App\Modules\Tender\Application\Project\UseCases\CreateTenderProjectUseCase;
 use App\Modules\Tender\Presentation\Http\Requests\Project\ListTenderProjectsRequest;
@@ -15,6 +16,7 @@ class TenderProjectController extends Controller
 {
     public function __construct(
         private readonly ListTenderProjectsQuery $listTenderProjects,
+        private readonly GetTenderProjectStatsQuery $getTenderProjectStats,
         private readonly CreateTenderProjectUseCase $createTenderProject,
     ) {}
 
@@ -38,6 +40,7 @@ class TenderProjectController extends Controller
                 'lastPage' => $projects->lastPage(),
                 'perPage' => $projects->perPage(),
                 'total' => $projects->total(),
+                'stats' => $this->getTenderProjectStats->execute(),
             ],
         ]);
     }
