@@ -14,6 +14,7 @@ import {
     TenderProjectStatsCards,
     type TenderProjectStats,
 } from "./_components/tender-project-stats-cards";
+import { useTenderProjectsList } from "@/lib/tender/tender-projects/queries/useTendersProjectList";
 
 // ข้อมูลตัวอย่าง รอต่อ query hook จริงเมื่อ backend มี endpoint รายการโครงการ
 const PLACEHOLDER_STATS: TenderProjectStats = {
@@ -35,9 +36,13 @@ const STATUS_OPTIONS: { value: TenderProjectStatusFilter; label: string }[] = [
 
 function TenderProjectsPageContent() {
     useBreadcrumb([{ label: "จัดการโครงการจัดซื้อจัดจ้าง" }]);
-
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<TenderProjectStatusFilter>("all");
+
+    const { data: tenderProjectsList, isLoading } = useTenderProjectsList()
+
+    console.log(tenderProjectsList);
+
 
     return (
         <div className="flex flex-col gap-5">

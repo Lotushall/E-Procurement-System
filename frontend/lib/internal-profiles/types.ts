@@ -37,7 +37,7 @@ export interface AvailableInternalProfile {
   name: string;
 }
 
-export interface PaginatedUserList {
+export interface PaginatedInternalProfileList {
   data: InternalProfile[];
   meta: PaginationMeta;
 }

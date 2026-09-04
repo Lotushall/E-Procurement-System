@@ -8,7 +8,7 @@ import {
   InternalProfile,
   InternalProfileSortBy,
   InternalProfileSortDirection,
-  PaginatedUserList,
+  PaginatedInternalProfileList,
   Position,
   UpdateDepartmentPayload,
   UpdateInternalProfilePayload,
@@ -23,7 +23,7 @@ export async function fetchInternalProfileList(
   sortDirection?: InternalProfileSortDirection,
   departmentId?: number,
   positionId?: number,
-): Promise<PaginatedUserList> {
+): Promise<PaginatedInternalProfileList> {
   const { data } = await api.get("/api/v1/dashboard/internal-profiles", {
     params: {
       page,
@@ -46,8 +46,13 @@ export async function fetchInternalProfileList(
   };
 }
 
-export async function createInternalProfile(payload: CreateInternalProfilePayload): Promise<InternalProfile> {
-  const { data } = await api.post<{ data: InternalProfile }>("/api/v1/dashboard/internal-profiles", payload);
+export async function createInternalProfile(
+  payload: CreateInternalProfilePayload,
+): Promise<InternalProfile> {
+  const { data } = await api.post<{ data: InternalProfile }>(
+    "/api/v1/dashboard/internal-profiles",
+    payload,
+  );
   return data.data;
 }
 
@@ -55,7 +60,10 @@ export async function updateInternalProfile(
   id: number,
   payload: UpdateInternalProfilePayload,
 ): Promise<InternalProfile> {
-  const { data } = await api.patch<{ data: InternalProfile }>(`/api/v1/dashboard/internal-profiles/${id}`, payload);
+  const { data } = await api.patch<{ data: InternalProfile }>(
+    `/api/v1/dashboard/internal-profiles/${id}`,
+    payload,
+  );
   return data.data;
 }
 
@@ -73,7 +81,9 @@ export async function fetchPositionOptions(): Promise<Position[]> {
   return data.data;
 }
 
-export async function fetchAvailableInternalProfiles(): Promise<AvailableInternalProfile[]> {
+export async function fetchAvailableInternalProfiles(): Promise<
+  AvailableInternalProfile[]
+> {
   const { data } = await api.get<{ data: AvailableInternalProfile[] }>(
     "/api/v1/dashboard/internal-profiles/select-available",
   );
@@ -81,17 +91,30 @@ export async function fetchAvailableInternalProfiles(): Promise<AvailableInterna
 }
 
 export async function fetchDepartmentList(): Promise<Department[]> {
-  const { data } = await api.get<{ data: Department[] }>("/api/v1/dashboard/departments");
+  const { data } = await api.get<{ data: Department[] }>(
+    "/api/v1/dashboard/departments",
+  );
   return data.data;
 }
 
-export async function createDepartment(payload: CreateDepartmentPayload): Promise<Department> {
-  const { data } = await api.post<{ data: Department }>("/api/v1/dashboard/departments", payload);
+export async function createDepartment(
+  payload: CreateDepartmentPayload,
+): Promise<Department> {
+  const { data } = await api.post<{ data: Department }>(
+    "/api/v1/dashboard/departments",
+    payload,
+  );
   return data.data;
 }
 
-export async function updateDepartment(id: number, payload: UpdateDepartmentPayload): Promise<Department> {
-  const { data } = await api.patch<{ data: Department }>(`/api/v1/dashboard/departments/${id}`, payload);
+export async function updateDepartment(
+  id: number,
+  payload: UpdateDepartmentPayload,
+): Promise<Department> {
+  const { data } = await api.patch<{ data: Department }>(
+    `/api/v1/dashboard/departments/${id}`,
+    payload,
+  );
   return data.data;
 }
 
@@ -100,17 +123,30 @@ export async function deleteDepartment(id: number): Promise<void> {
 }
 
 export async function fetchPositionList(): Promise<Position[]> {
-  const { data } = await api.get<{ data: Position[] }>("/api/v1/dashboard/positions");
+  const { data } = await api.get<{ data: Position[] }>(
+    "/api/v1/dashboard/positions",
+  );
   return data.data;
 }
 
-export async function createPosition(payload: CreatePositionPayload): Promise<Position> {
-  const { data } = await api.post<{ data: Position }>("/api/v1/dashboard/positions", payload);
+export async function createPosition(
+  payload: CreatePositionPayload,
+): Promise<Position> {
+  const { data } = await api.post<{ data: Position }>(
+    "/api/v1/dashboard/positions",
+    payload,
+  );
   return data.data;
 }
 
-export async function updatePosition(id: number, payload: UpdatePositionPayload): Promise<Position> {
-  const { data } = await api.patch<{ data: Position }>(`/api/v1/dashboard/positions/${id}`, payload);
+export async function updatePosition(
+  id: number,
+  payload: UpdatePositionPayload,
+): Promise<Position> {
+  const { data } = await api.patch<{ data: Position }>(
+    `/api/v1/dashboard/positions/${id}`,
+    payload,
+  );
   return data.data;
 }
 
