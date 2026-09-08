@@ -23,8 +23,13 @@ import type { TenderProjectStatusFilter } from "@/lib/tender/tender-projects/typ
 import { useTenderProjectListPage } from "./_hooks/use-tender-project-list-page";
 import { DataTable } from "@/components/ui/data-table";
 import { createColumns } from "./_components/table/columns";
+import {
+    TenderProjectListSkeleton,
+    TenderProjectTableSkeleton,
+} from "./_components/tender-project-list-skeleton";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
 import { DepartmentSelect } from "@/components/department-select";
+import { CreateTenderProjectDialog } from "./_components/create-tender-project-dialog";
 
 const DATE_PARAM_FORMAT = "yyyy-MM-dd";
 
@@ -105,6 +110,10 @@ function TenderProjectsPageContent() {
                     <p className="text-sm text-gray-600 tracking-wide">
                         ภาพรวมโครงการทั้งหมดและ TOR ที่เกี่ยวข้อง
                     </p>
+                </div>
+
+                <div>
+                    <CreateTenderProjectDialog />
                 </div>
             </div>
 
@@ -245,8 +254,8 @@ function TenderProjectsPageContent() {
                 <p className="py-12 text-center text-sm text-muted-foreground">
                     ไม่สามารถโหลดข้อมูลโครงการจัดซื้อจัดจ้างได้ กรุณาลองใหม่อีกครั้ง
                 </p>
-            ) : isFetching ? (
-                <>loading...</>
+            ) : isPending || isFetching ? (
+                <TenderProjectTableSkeleton />
             ) : visible.length > 0 ? (
                 <DataTable
                     columns={columns}
@@ -278,7 +287,7 @@ function TenderProjectsPageContent() {
 
 export default function TenderProjectsPage() {
     return (
-        <Suspense fallback={"loading..."}>
+        <Suspense fallback={<TenderProjectListSkeleton />}>
             <TenderProjectsPageContent />
         </Suspense>
     )

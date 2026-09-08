@@ -55,3 +55,15 @@ export interface PaginatedTenderProjectsList {
   data: TenderProjects[];
   meta: PaginationMeta & TenderProjectStats;
 }
+
+export interface CreateTenderProjectPayload {
+  name: string;
+  description?: string;
+  budget: number;
+  departmentId: number;
+  personInChargeId?: number;
+  procurementMethod: string;
+  fiscalYear: number;
+  projectStartAt?: string;
+  projectEndAt?: string;
+}

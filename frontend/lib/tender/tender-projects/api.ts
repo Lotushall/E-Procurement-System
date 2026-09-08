@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import {
+  CreateTenderProjectPayload,
   PaginatedTenderProjectsList,
   TenderProjectSortBy,
   TenderProjectSortDirection,
@@ -44,6 +45,12 @@ export async function fetchTenderProjectsList(
   };
 }
 
-export async function createTenderProjects() {
-  // Implementation for creating a new tender project
+export async function createTenderProject(
+  payload: CreateTenderProjectPayload,
+): Promise<{ projectCode: string }> {
+  const { data } = await api.post<{ data: { projectCode: string } }>(
+    "/api/v1/dashboard/tender-projects",
+    payload,
+  );
+  return data.data;
 }
