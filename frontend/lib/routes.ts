@@ -21,6 +21,8 @@ export const routes = {
     },
     tender_project: {
       index: "/dashboard/tender-projects",
+      detail: (id: number | string) => `/dashboard/tender-projects/detail?id=${id}`,
+      edit: (id: number | string) => `/dashboard/tender-projects/edit?id=${id}`,
     },
     vendors: {
       index: "/dashboard/vendors",

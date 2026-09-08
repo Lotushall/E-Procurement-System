@@ -1,11 +1,42 @@
 "use client"
 
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+const COMING_SOON_MESSAGE = "ฟีเจอร์นี้ยังไม่เปิดใช้งาน";
+
+function DisabledActionButton({
+    icon: Icon,
+    label,
+    iconClassName,
+}: {
+    icon: typeof Eye;
+    label: string;
+    iconClassName?: string;
+}) {
+    return (
+        <Tooltip>
+            <TooltipTrigger render={<span className="inline-flex" tabIndex={0} />}>
+                <Button
+                    variant="outline"
+                    aria-label={label}
+                    disabled
+                    className="size-8 px-1.5 pt-px rounded-md bg-white disabled:cursor-not-allowed"
+                >
+                    <Icon className={iconClassName ?? "w-4 h-4 text-gray-500"} />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent>{COMING_SOON_MESSAGE}</TooltipContent>
+        </Tooltip>
+    );
+}
 
 function ColumnHeader({ label, align }: { label: string; align?: "left" | "center" | "right" }) {
     return <p className={`text-sm font-bold text-gray-500 ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
@@ -88,8 +119,15 @@ export function createColumns(): ColumnDef<TenderProjects>[] {
         },
         {
             id: "actions",
-            header: () => <ColumnHeader label="Actions" />,
-            accessorFn: () => "Actions BTN",
+            header: () => <ColumnHeader label="Actions" align="center" />,
+            enableHiding: false,
+            cell: () => (
+                <div className="flex justify-center gap-1.5">
+                    <DisabledActionButton icon={Eye} label="ดูรายละเอียด" />
+                    <DisabledActionButton icon={Pencil} label="แก้ไข" />
+                    <DisabledActionButton icon={Trash2} label="ลบ" iconClassName="w-4 h-4 text-red-600" />
+                </div>
+            ),
         },
     ];
 }
