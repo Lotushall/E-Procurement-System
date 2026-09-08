@@ -53,6 +53,11 @@ class TenderProjectRepository implements TenderProjectRepositoryInterface
         return $this->mapToEntity($model);
     }
 
+    public function delete(int $id): void
+    {
+        TenderProjects::findOrFail($id)->delete();
+    }
+
     private function mapToEntity(TenderProjects $model): TenderProject
     {
         return TenderProject::reconstitute(

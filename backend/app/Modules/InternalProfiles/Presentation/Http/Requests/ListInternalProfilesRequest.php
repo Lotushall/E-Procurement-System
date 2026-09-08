@@ -13,7 +13,6 @@ class ListInternalProfilesRequest extends FormRequest
     public function rules(): array
     {
         return [
-
             'search' => ['nullable', 'string', 'max:255'],
             'department_id' => ['nullable', 'integer', Rule::exists('departments', 'id')],
             'position_id' => ['nullable', 'integer', Rule::exists('positions', 'id')],

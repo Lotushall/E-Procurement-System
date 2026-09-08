@@ -37,6 +37,11 @@ export interface AvailableInternalProfile {
   name: string;
 }
 
+export interface InternalProfileOption {
+  id: number;
+  name: string;
+}
+
 export interface PaginatedInternalProfileList {
   data: InternalProfile[];
   meta: PaginationMeta;

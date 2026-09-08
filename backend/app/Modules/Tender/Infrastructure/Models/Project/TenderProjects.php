@@ -128,15 +128,15 @@ class TenderProjects extends Model
     }
 
     /**
-     * Scope a query to only include projects whose start-end period overlaps
-     * the given date range.
+     * Scope a query to only include projects whose start-end period falls
+     * entirely within the given date range.
      */
     #[Scope]
     protected function dateRange(Builder $query, ?string $dateFrom, ?string $dateTo): void
     {
         $query
-            ->when($dateFrom !== null, fn (Builder $query) => $query->where('project_end_at', '>=', $dateFrom))
-            ->when($dateTo !== null, fn (Builder $query) => $query->where('project_start_at', '<=', $dateTo));
+            ->when($dateFrom !== null, fn (Builder $query) => $query->whereDate('project_start_at', '>=', $dateFrom))
+            ->when($dateTo !== null, fn (Builder $query) => $query->whereDate('project_end_at', '<=', $dateTo));
     }
 
     /**

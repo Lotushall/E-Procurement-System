@@ -8,6 +8,7 @@ use App\Modules\InternalProfiles\Application\DTOs\UpdateInternalProfileData;
 use App\Modules\InternalProfiles\Application\Queries\GetInternalProfileByIdQuery;
 use App\Modules\InternalProfiles\Application\Queries\ListAvailableInternalProfilesQuery;
 use App\Modules\InternalProfiles\Application\Queries\ListIneternalProfilesQuery;
+use App\Modules\InternalProfiles\Application\Queries\ListInternalProfileOptionsQuery;
 use App\Modules\InternalProfiles\Application\UseCases\CreateInternalProfileUseCase;
 use App\Modules\InternalProfiles\Application\UseCases\DeleteInternalProfileUseCase;
 use App\Modules\InternalProfiles\Application\UseCases\UpdateInternalProfileUseCase;
@@ -23,6 +24,7 @@ class InternalProfilesController extends Controller
     public function __construct(
         private readonly ListIneternalProfilesQuery $listIneternalProfilesQuery,
         private readonly ListAvailableInternalProfilesQuery $listAvailableInternalProfiles,
+        private readonly ListInternalProfileOptionsQuery $listInternalProfileOptions,
         private readonly GetInternalProfileByIdQuery $getInternalProfileById,
         private readonly CreateInternalProfileUseCase $createInternalProfile,
         private readonly UpdateInternalProfileUseCase $updateInternalProfile,
@@ -33,6 +35,13 @@ class InternalProfilesController extends Controller
     {
         return response()->json([
             'data' => $this->listAvailableInternalProfiles->execute(),
+        ]);
+    }
+
+    public function select(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->listInternalProfileOptions->execute(),
         ]);
     }
 

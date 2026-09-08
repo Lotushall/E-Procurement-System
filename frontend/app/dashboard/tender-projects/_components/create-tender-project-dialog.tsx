@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { Controller } from "react-hook-form";
 import { format, parse } from "date-fns";
 import { th } from "date-fns/locale";
@@ -28,6 +28,53 @@ const DATE_PARAM_FORMAT = "yyyy-MM-dd";
 
 function parseDateParam(value: string | undefined): Date | undefined {
     return value ? parse(value, DATE_PARAM_FORMAT, new Date()) : undefined;
+}
+
+// Keeps at most one "." and caps the decimal part at 2 digits (matches the budget schema's precision).
+function sanitizeBudgetInput(input: string): string {
+    const cleaned = input.replace(/[^\d.]/g, "");
+    const dotIndex = cleaned.indexOf(".");
+    if (dotIndex === -1) return cleaned;
+
+    const intPart = cleaned.slice(0, dotIndex);
+    const decPart = cleaned.slice(dotIndex + 1).replace(/\./g, "").slice(0, 2);
+    return `${intPart}.${decPart}`;
+}
+
+function formatBudgetDisplay(raw: string): string {
+    if (raw === "") return "";
+    const [intPart, decPart] = raw.split(".");
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return decPart !== undefined ? `${grouped}.${decPart}` : grouped;
+}
+
+// Reformatting on every keystroke shifts the comma positions, which would
+// otherwise throw a mid-edit cursor to the end of the input — this keeps it
+// pinned to the same digit by counting digits (not raw characters) to its left.
+function handleBudgetChange(onChange: (value: string) => void) {
+    return (e: ChangeEvent<HTMLInputElement>) => {
+        const input = e.target;
+        const cursorPos = input.selectionStart ?? input.value.length;
+        const digitsBeforeCursor = input.value.slice(0, cursorPos).replace(/[^\d.]/g, "").length;
+
+        const raw = sanitizeBudgetInput(input.value);
+        onChange(raw);
+
+        requestAnimationFrame(() => {
+            const formatted = formatBudgetDisplay(raw);
+            let count = 0;
+            let pos = formatted.length;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/[\d.]/.test(formatted[i])) count++;
+                if (count === digitsBeforeCursor) {
+                    pos = i + 1;
+                    break;
+                }
+            }
+            if (digitsBeforeCursor === 0) pos = 0;
+            input.setSelectionRange(pos, pos);
+        });
+    };
 }
 
 const CURRENT_BUDDHIST_YEAR = new Date().getFullYear() + 543;
@@ -68,41 +115,22 @@ export function CreateTenderProjectDialog() {
                 <p>สร้างโครงการใหม่</p>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl scrollbar-rounded">
                 <DialogHeader>
                     <DialogTitle>สร้างโครงการจัดซื้อจัดจ้างใหม่</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-                    <InputField label="ชื่อโครงการ" error={errors.name?.message}>
+                    <InputField label="ชื่อโครงการ" required error={errors.name?.message}>
                         <Input {...register("name")} aria-invalid={!!errors.name} className="h-10 rounded-sm" />
                     </InputField>
 
-                    <InputField label="รายละเอียด" error={errors.description?.message}>
-                        <Textarea
-                            {...register("description")}
-                            aria-invalid={!!errors.description}
-                            className="rounded-sm"
-                        />
-                    </InputField>
-
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <InputField label="งบประมาณ" error={errors.budget?.message}>
-                            <Input
-                                {...register("budget")}
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                aria-invalid={!!errors.budget}
-                                className="h-10 rounded-sm"
-                            />
-                        </InputField>
-
                         <Controller
                             control={control}
                             name="departmentId"
                             render={({ field: { value, onChange } }) => (
-                                <InputField label="แผนก" error={errors.departmentId?.message}>
+                                <InputField label="แผนก" required error={errors.departmentId?.message}>
                                     <DepartmentSelect
                                         departments={departmentOptions ?? []}
                                         value={value}
@@ -112,9 +140,7 @@ export function CreateTenderProjectDialog() {
                                 </InputField>
                             )}
                         />
-                    </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2">
                         <Controller
                             control={control}
                             name="personInChargeId"
@@ -128,13 +154,32 @@ export function CreateTenderProjectDialog() {
                                 </InputField>
                             )}
                         />
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <InputField label="งบประมาณ" required error={errors.budget?.message}>
+                            <Controller
+                                control={control}
+                                name="budget"
+                                render={({ field: { value, onChange, ...field } }) => (
+                                    <Input
+                                        value={formatBudgetDisplay(value ?? "")}
+                                        onChange={handleBudgetChange(onChange)}
+                                        inputMode="decimal"
+                                        aria-invalid={!!errors.budget}
+                                        className="h-10 rounded-sm"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </InputField>
 
                         <Controller
                             control={control}
                             name="procurementMethod"
                             render={({ field: { value, onChange } }) => (
-                                <InputField label="วิธีจัดซื้อ" error={errors.procurementMethod?.message}>
-                                    <ProcurementMethodCombobox value={value} onValueChange={onChange} />
+                                <InputField label="วิธีจัดซื้อ" required error={errors.procurementMethod?.message}>
+                                    <ProcurementMethodCombobox ariaInvalid={!!errors.procurementMethod} value={value} onValueChange={onChange} />
                                 </InputField>
                             )}
                         />
@@ -165,7 +210,7 @@ export function CreateTenderProjectDialog() {
                         )}
                     />
 
-                    <InputField label="ระยะเวลาโครงการ" error={errors.projectEndAt?.message}>
+                    <InputField label="ระยะเวลาโครงการ" required error={errors.projectEndAt?.message}>
                         <Popover>
                             <PopoverTrigger
                                 render={
@@ -223,6 +268,14 @@ export function CreateTenderProjectDialog() {
                                 </div>
                             </PopoverContent>
                         </Popover>
+                    </InputField>
+
+                    <InputField label="รายละเอียด" error={errors.description?.message}>
+                        <Textarea
+                            {...register("description")}
+                            aria-invalid={!!errors.description}
+                            className="rounded-sm"
+                        />
                     </InputField>
 
                     <DialogFooter>

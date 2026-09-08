@@ -53,3 +53,11 @@ test('running the admin seeder grants the admin role permission to view tender p
 
     expect($admin->hasPermissionTo('tender_projects.viewAny'))->toBeTrue();
 });
+
+test('running the admin seeder grants the admin role permission to delete tender projects', function () {
+    (new AdminUserSeeder)->run();
+
+    $admin = Role::where('name', 'admin')->first();
+
+    expect($admin->hasPermissionTo('tender_projects.delete'))->toBeTrue();
+});

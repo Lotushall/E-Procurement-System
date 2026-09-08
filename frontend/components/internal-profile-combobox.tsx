@@ -1,19 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput,
   ComboboxItem, ComboboxList, ComboboxTrigger, ComboboxValue,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
-import { useInternalProfileList } from "@/lib/internal-profiles/queries/useInternalProfileList";
-import type { InternalProfile } from "@/lib/internal-profiles/types";
+import { useInternalProfileOptions } from "@/lib/internal-profiles/queries/useInternalProfileOptions";
+import type { InternalProfileOption } from "@/lib/internal-profiles/types";
 import { cn } from "@/lib/utils";
 
-function formatProfileName(profile: InternalProfile): string {
-  return `${profile.firstname} ${profile.lastname}`;
-}
+const NONE_OPTION: InternalProfileOption = { id: 0, name: "---" };
 
 export function InternalProfileCombobox({
   value,
@@ -26,41 +23,19 @@ export function InternalProfileCombobox({
   ariaInvalid?: boolean;
   className?: string;
 }) {
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  // Remembered separately from the live search results: once the user picks
-  // someone, a later keystroke can filter that person out of `profiles` —
-  // without this, the trigger would fall back to the placeholder mid-search
-  // even though a value is still selected.
-  const [selected, setSelected] = useState<InternalProfile | null>(null);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setDebouncedQuery(query.trim()), 350);
-    return () => clearTimeout(timeout);
-  }, [query]);
-
-  // Derived, not synced via effect: when the parent externally clears `value`
-  // (e.g. form.reset()), `selected` may still hold the stale profile object —
-  // masking it here means the trigger and the Combobox both correctly show
-  // "nothing selected" without a setState-in-effect render pass. `selected`
-  // itself is left stale until the next real pick, which is harmless since
-  // it's never read while `value` is empty.
-  const displayed = value === "" ? null : selected;
-
-  const { data } = useInternalProfileList(1, 20, debouncedQuery || undefined);
-  const profiles = data?.data ?? [];
+  const { data } = useInternalProfileOptions();
+  const profiles = [NONE_OPTION, ...(data ?? [])];
+  const selected = value === "" ? NONE_OPTION : (profiles.find((p) => String(p.id) === value) ?? null);
 
   return (
     <Combobox
       items={profiles}
-      itemToStringLabel={(p: InternalProfile) => formatProfileName(p)}
-      isItemEqualToValue={(item: InternalProfile, val: InternalProfile) => item.id === val.id}
-      value={displayed}
-      onValueChange={(next: InternalProfile | null) => {
-        setSelected(next);
-        onValueChange(next ? String(next.id) : "");
-      }}
-      onInputValueChange={setQuery}
+      itemToStringLabel={(p: InternalProfileOption) => p.name}
+      isItemEqualToValue={(item: InternalProfileOption, val: InternalProfileOption) => item.id === val.id}
+      value={selected}
+      onValueChange={(next: InternalProfileOption | null) =>
+        onValueChange(next && next.id !== NONE_OPTION.id ? String(next.id) : "")
+      }
     >
       <ComboboxTrigger
         render={
@@ -75,7 +50,7 @@ export function InternalProfileCombobox({
           >
             <span className="min-w-0 truncate">
               <ComboboxValue placeholder="เลือกผู้รับผิดชอบ">
-                {(v: InternalProfile | null) => (v ? formatProfileName(v) : "เลือกผู้รับผิดชอบ")}
+                {(v: InternalProfileOption | null) => v?.name ?? "เลือกผู้รับผิดชอบ"}
               </ComboboxValue>
             </span>
             <ChevronDown />
@@ -95,9 +70,9 @@ export function InternalProfileCombobox({
         />
         <ComboboxEmpty>ไม่พบพนักงานที่ค้นหา</ComboboxEmpty>
         <ComboboxList>
-          {(item: InternalProfile) => (
+          {(item: InternalProfileOption) => (
             <ComboboxItem key={item.id} value={item}>
-              {formatProfileName(item)}
+              {item.name}
             </ComboboxItem>
           )}
         </ComboboxList>

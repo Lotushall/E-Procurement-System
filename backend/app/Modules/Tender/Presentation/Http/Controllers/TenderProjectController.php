@@ -4,9 +4,11 @@ namespace App\Modules\Tender\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Tender\Application\Project\DTOs\CreateTenderProjectData;
+use App\Modules\Tender\Application\Project\Queries\GetTenderProjectByIdQuery;
 use App\Modules\Tender\Application\Project\Queries\GetTenderProjectStatsQuery;
 use App\Modules\Tender\Application\Project\Queries\ListTenderProjectsQuery;
 use App\Modules\Tender\Application\Project\UseCases\CreateTenderProjectUseCase;
+use App\Modules\Tender\Application\Project\UseCases\DeleteTenderProjectUseCase;
 use App\Modules\Tender\Presentation\Http\Requests\Project\ListTenderProjectsRequest;
 use App\Modules\Tender\Presentation\Http\Requests\Project\StoreTenderProjectRequest;
 use App\Modules\Tender\Presentation\Http\Resources\Project\TenderProjectResource;
@@ -17,7 +19,9 @@ class TenderProjectController extends Controller
     public function __construct(
         private readonly ListTenderProjectsQuery $listTenderProjects,
         private readonly GetTenderProjectStatsQuery $getTenderProjectStats,
+        private readonly GetTenderProjectByIdQuery $getTenderProjectById,
         private readonly CreateTenderProjectUseCase $createTenderProject,
+        private readonly DeleteTenderProjectUseCase $deleteTenderProject,
     ) {}
 
     public function index(ListTenderProjectsRequest $request): JsonResponse
@@ -47,6 +51,15 @@ class TenderProjectController extends Controller
         ]);
     }
 
+    public function show(int $id): JsonResponse
+    {
+        $project = $this->getTenderProjectById->execute($id);
+
+        return response()->json([
+            'data' => new TenderProjectResource($project),
+        ]);
+    }
+
     public function store(StoreTenderProjectRequest $request): JsonResponse
     {
         $project = $this->createTenderProject->execute(
@@ -54,6 +67,15 @@ class TenderProjectController extends Controller
             $request->user()->id,
         );
 
-        return response()->json(['data' => new TenderProjectResource($project)], 201);
+        return response()->json([
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id())),
+        ], 201);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $this->deleteTenderProject->execute($id);
+
+        return response()->json(null, 204);
     }
 }

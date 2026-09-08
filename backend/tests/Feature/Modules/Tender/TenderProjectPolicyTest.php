@@ -46,3 +46,23 @@ test('a non-internal user is not authorized to list even when directly granted t
 
     expect(Gate::forUser($user)->allows('tender-projects.index'))->toBeFalse();
 });
+
+test('an internal user with the tender_projects.delete permission is authorized to delete', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.delete', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.destroy'))->toBeTrue();
+});
+
+test('an internal user without the delete permission is not authorized to delete', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+
+    expect(Gate::forUser($user)->allows('tender-projects.destroy'))->toBeFalse();
+});
+
+test('a non-internal user is not authorized to delete even when directly granted the permission', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.delete', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.destroy'))->toBeFalse();
+});

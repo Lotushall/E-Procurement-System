@@ -6,6 +6,7 @@ import {
   CreatePositionPayload,
   Department,
   InternalProfile,
+  InternalProfileOption,
   InternalProfileSortBy,
   InternalProfileSortDirection,
   PaginatedInternalProfileList,
@@ -71,6 +72,13 @@ export async function deleteInternalProfile(id: number): Promise<void> {
   await api.delete(`/api/v1/dashboard/internal-profiles/${id}`);
 }
 
+export async function fetchInternalProfileDetail(id: number): Promise<InternalProfile> {
+  const { data } = await api.get<{ data: InternalProfile }>(
+    `/api/v1/dashboard/internal-profiles/${id}`,
+  );
+  return data.data;
+}
+
 export async function fetchDepartmentOptions(): Promise<Department[]> {
   const { data } = await api.get("/api/v1/dashboard/departments/select");
   return data.data;
@@ -86,6 +94,15 @@ export async function fetchAvailableInternalProfiles(): Promise<
 > {
   const { data } = await api.get<{ data: AvailableInternalProfile[] }>(
     "/api/v1/dashboard/internal-profiles/select-available",
+  );
+  return data.data;
+}
+
+export async function fetchInternalProfileOptions(): Promise<
+  InternalProfileOption[]
+> {
+  const { data } = await api.get<{ data: InternalProfileOption[] }>(
+    "/api/v1/dashboard/internal-profiles/select",
   );
   return data.data;
 }

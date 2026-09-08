@@ -12,6 +12,10 @@ Route::prefix('dashboard')->group(function () {
             ->middleware('role:admin')
             ->name('dashboard.internal-profiles.select-available');
 
+        Route::get('/select', [InternalProfilesController::class, 'select'])
+            ->middleware('role:admin')
+            ->name('dashboard.internal-profiles.select');
+
         Route::get('/', [InternalProfilesController::class, 'index'])
             ->middleware('role:admin')
             ->name('dashboard.internal-profiles.index');

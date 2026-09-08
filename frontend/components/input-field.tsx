@@ -14,6 +14,7 @@ export const InputField = ({
   labelClassName = "text-sm font-semibold tracking-wider",
   error,
   warning,
+  required,
   badge,
   children,
 }: {
@@ -22,12 +23,14 @@ export const InputField = ({
   labelClassName?: string;
   error?: string;
   warning?: boolean;
+  required?: boolean;
   badge?: ReactNode;
   children: ReactNode;
 }) => (
   <div className={cn("flex flex-col gap-1.5", cols && COL_SPAN_CLASSES[cols])}>
     <div className="flex items-center gap-1.5">
       <p className={labelClassName}>{label}</p>
+      {required && <span className="text-red-600">*</span>}
       {warning && <span className="w-1.75 h-1.75 rounded-full bg-red-600" />}
       {badge}
     </div>

@@ -72,6 +72,28 @@ test('execute filters by fiscal year', function () {
         ->and($result->items()[0]->fiscal_year)->toBe(2570);
 });
 
+test('execute filters by date range to projects whose period falls entirely within it', function () {
+    $inside = TenderProjects::factory()->create([
+        'project_start_at' => '2026-09-01',
+        'project_end_at' => '2026-09-30',
+    ]);
+    // Overlaps the range but extends beyond it on both ends — must be excluded,
+    // since the filter matches on containment, not overlap.
+    TenderProjects::factory()->create([
+        'project_start_at' => '2026-08-15',
+        'project_end_at' => '2026-10-15',
+    ]);
+    TenderProjects::factory()->create([
+        'project_start_at' => '2026-01-01',
+        'project_end_at' => '2026-03-01',
+    ]);
+
+    $result = listTenderProjectsQuery()->execute(dateFrom: '2026-09-01', dateTo: '2026-09-30');
+
+    expect($result->total())->toBe(1)
+        ->and($result->items()[0]->id)->toBe($inside->id);
+});
+
 test('execute sorts by the given column and direction', function () {
     TenderProjects::factory()->create(['name' => 'Bravo Project']);
     TenderProjects::factory()->create(['name' => 'Alpha Project']);

@@ -2,7 +2,9 @@
 
 namespace App\Modules\InternalProfiles\Infrastructure\Models;
 
+use App\Modules\InternalProfiles\Infrastructure\Observers\InternalProfilesObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 // use App\Modules\InternalProfiles\Database\Factories\InternalProfilesFactory;
 #[Table('internal_profiles')]
 #[Fillable(['user_id', 'employee_no', 'prefix', 'firstname', 'lastname', 'department_id', 'position_id', 'phone'])]
+#[ObservedBy([InternalProfilesObserver::class])]
 class InternalProfiles extends Model
 {
     use HasFactory;

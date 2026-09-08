@@ -13,4 +13,6 @@ interface TenderProjectRepositoryInterface
     public function nextSequenceForFiscalYear(int $fiscalYear): int;
 
     public function save(TenderProject $project): TenderProject;
+
+    public function delete(int $id): void;
 }

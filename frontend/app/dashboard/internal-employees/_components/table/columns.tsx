@@ -72,7 +72,7 @@ export const columns: ColumnDef<InternalProfile>[] = [
                     </Button>
                 )}
 
-                <EditInternalProfileDialog internal_profile={row.original} />
+                <EditInternalProfileDialog id={row.original.id} />
 
                 <DeleteInternalProfileDialog internal_profile={row.original} />
             </div>

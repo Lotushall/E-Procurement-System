@@ -12,10 +12,12 @@ import { PROCUREMENT_METHODS } from "../_data/procurement-methods";
 export function ProcurementMethodCombobox({
   value,
   onValueChange,
+  ariaInvalid,
   ...field
 }: {
   value: string;
   onValueChange: (next: string) => void;
+  ariaInvalid: boolean;
 } & Omit<
   ComponentProps<typeof Combobox<string>>,
   "items" | "value" | "onValueChange" | "onInputValueChange" | "children"
@@ -37,6 +39,7 @@ export function ProcurementMethodCombobox({
       <ComboboxTrigger
         render={
           <Button
+            aria-invalid={ariaInvalid}
             variant="outline"
             className="w-full justify-between font-normal text-black data-popup-open:border-gray-700 hover:bg-transparent data-placeholder:text-gray-400"
           >
