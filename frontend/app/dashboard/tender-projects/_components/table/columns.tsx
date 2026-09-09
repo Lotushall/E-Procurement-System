@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -7,8 +8,10 @@ import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { DisabledActionButton } from "@/components/disabled-action-button";
+import { routes } from "@/lib/routes";
+import { DeleteTenderProjectDialog } from "../delete-tender-project-dialog";
 
 function ColumnHeader({ label, align }: { label: string; align?: "left" | "center" | "right" }) {
     return <p className={`text-sm font-bold text-gray-500 ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
@@ -93,11 +96,32 @@ export function createColumns(): ColumnDef<TenderProjects>[] {
             id: "actions",
             header: () => <ColumnHeader label="Actions" align="center" />,
             enableHiding: false,
-            cell: () => (
+            cell: ({ row }) => (
                 <div className="flex justify-center gap-1.5">
-                    <DisabledActionButton icon={Eye} label="ดูรายละเอียด" />
+                    <Button
+                        variant="outline"
+                        render={<Link href={routes.dashboards.tender_project.detail(row.original.id)} />}
+                        nativeButton={false}
+                        aria-label="ดูรายละเอียด"
+                        className="size-8 px-1.5 pt-px rounded-md bg-white"
+                    >
+                        <Eye className="w-4 h-4 text-gray-500" />
+                    </Button>
+
                     <DisabledActionButton icon={Pencil} label="แก้ไข" />
-                    <DisabledActionButton icon={Trash2} label="ลบ" iconClassName="w-4 h-4 text-red-600" />
+
+                    <DeleteTenderProjectDialog
+                        tenderProjectId={row.original.id}
+                        displayName={row.original.name}
+                        trigger={
+                            <Button
+                                variant="outline"
+                                aria-label="ลบโครงการ"
+                                className="size-8 px-1.5 pt-px rounded-md bg-white"
+                            />
+                        }
+                        triggerChildren={<Trash2 className="w-4 h-4 text-red-600" />}
+                    />
                 </div>
             ),
         },
