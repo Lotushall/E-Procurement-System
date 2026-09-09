@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import {
   CreateTenderProjectPayload,
   PaginatedTenderProjectsList,
+  TenderProjects,
   TenderProjectSortBy,
   TenderProjectSortDirection,
 } from "./types";
@@ -53,4 +54,15 @@ export async function createTenderProject(
     payload,
   );
   return data.data;
+}
+
+export async function fetchTenderProjectDetail(id: number): Promise<TenderProjects> {
+  const { data } = await api.get<{ data: TenderProjects }>(
+    `/api/v1/dashboard/tender-projects/${id}`,
+  );
+  return data.data;
+}
+
+export async function deleteTenderProject(id: number): Promise<void> {
+  await api.delete(`/api/v1/dashboard/tender-projects/${id}`);
 }
