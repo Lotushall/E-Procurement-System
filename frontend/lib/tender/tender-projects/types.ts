@@ -37,8 +37,8 @@ export interface TenderProjects {
   createdBy: User;
   procurementMethod: string;
   fiscalYear: string;
-  projectStartAt: string;
-  projectEndAt: string;
+  projectStartAt?: string;
+  projectEndAt?: string;
   status: TenderProjectStatus;
 }
 

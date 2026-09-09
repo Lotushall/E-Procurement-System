@@ -63,14 +63,21 @@ export function createColumns(): ColumnDef<TenderProjects>[] {
         {
             id: "project_start_end_date",
             header: () => <ColumnHeader label="ระยะเวลา" />,
-            accessorFn: (project) => `${project.projectStartAt} - ${project.projectEndAt}`,
-            cell: ({ row }) => (
-                <p className="text-sm">
-                    {format(new Date(row.original.projectStartAt), "d MMM yyyy", { locale: th })}
-                    {" - "}
-                    {format(new Date(row.original.projectEndAt), "d MMM yyyy", { locale: th })}
-                </p>
-            ),
+            accessorFn: (project) => `${project.projectStartAt ?? ""} - ${project.projectEndAt ?? ""}`,
+            cell: ({ row }) => {
+                const start = row.original.projectStartAt
+                    ? format(new Date(row.original.projectStartAt), "d MMM yyyy", { locale: th })
+                    : undefined;
+                const end = row.original.projectEndAt
+                    ? format(new Date(row.original.projectEndAt), "d MMM yyyy", { locale: th })
+                    : undefined;
+
+                return (
+                    <p className="text-sm">
+                        {start && end ? `${start} - ${end}` : start ?? end ?? "-"}
+                    </p>
+                );
+            },
         },
         {
             id: "tor_count",
