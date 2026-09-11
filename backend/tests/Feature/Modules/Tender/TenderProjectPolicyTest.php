@@ -66,3 +66,43 @@ test('a non-internal user is not authorized to delete even when directly granted
 
     expect(Gate::forUser($user)->allows('tender-projects.destroy'))->toBeFalse();
 });
+
+test('an internal user with the tender_projects.update permission is authorized to update', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.update', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.update'))->toBeTrue();
+});
+
+test('an internal user without the update permission is not authorized to update', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+
+    expect(Gate::forUser($user)->allows('tender-projects.update'))->toBeFalse();
+});
+
+test('a non-internal user is not authorized to update even when directly granted the permission', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.update', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.update'))->toBeFalse();
+});
+
+test('an internal user with the tender_projects.updateStatus permission is authorized to change status', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.updateStatus', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.updateStatus'))->toBeTrue();
+});
+
+test('an internal user without the updateStatus permission is not authorized to change status', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+
+    expect(Gate::forUser($user)->allows('tender-projects.updateStatus'))->toBeFalse();
+});
+
+test('a non-internal user is not authorized to change status even when directly granted the permission', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.updateStatus', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.updateStatus'))->toBeFalse();
+});

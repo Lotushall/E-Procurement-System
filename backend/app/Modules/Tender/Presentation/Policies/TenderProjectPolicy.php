@@ -17,6 +17,16 @@ class TenderProjectPolicy
         return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.viewAny');
     }
 
+    public function update(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.update');
+    }
+
+    public function updateStatus(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.updateStatus');
+    }
+
     public function delete(User $user): bool
     {
         return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.delete');

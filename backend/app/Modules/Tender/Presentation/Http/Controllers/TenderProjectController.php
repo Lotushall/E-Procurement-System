@@ -4,13 +4,18 @@ namespace App\Modules\Tender\Presentation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Tender\Application\Project\DTOs\CreateTenderProjectData;
+use App\Modules\Tender\Application\Project\DTOs\UpdateTenderProjectData;
 use App\Modules\Tender\Application\Project\Queries\GetTenderProjectByIdQuery;
 use App\Modules\Tender\Application\Project\Queries\GetTenderProjectStatsQuery;
 use App\Modules\Tender\Application\Project\Queries\ListTenderProjectsQuery;
 use App\Modules\Tender\Application\Project\UseCases\CreateTenderProjectUseCase;
 use App\Modules\Tender\Application\Project\UseCases\DeleteTenderProjectUseCase;
+use App\Modules\Tender\Application\Project\UseCases\UpdateTenderProjectStatusUseCase;
+use App\Modules\Tender\Application\Project\UseCases\UpdateTenderProjectUseCase;
 use App\Modules\Tender\Presentation\Http\Requests\Project\ListTenderProjectsRequest;
 use App\Modules\Tender\Presentation\Http\Requests\Project\StoreTenderProjectRequest;
+use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectRequest;
+use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectStatusRequest;
 use App\Modules\Tender\Presentation\Http\Resources\Project\TenderProjectResource;
 use Illuminate\Http\JsonResponse;
 
@@ -21,6 +26,8 @@ class TenderProjectController extends Controller
         private readonly GetTenderProjectStatsQuery $getTenderProjectStats,
         private readonly GetTenderProjectByIdQuery $getTenderProjectById,
         private readonly CreateTenderProjectUseCase $createTenderProject,
+        private readonly UpdateTenderProjectUseCase $updateTenderProject,
+        private readonly UpdateTenderProjectStatusUseCase $updateTenderProjectStatus,
         private readonly DeleteTenderProjectUseCase $deleteTenderProject,
     ) {}
 
@@ -70,6 +77,31 @@ class TenderProjectController extends Controller
         return response()->json([
             'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id())),
         ], 201);
+    }
+
+    public function update(UpdateTenderProjectRequest $request, int $id): JsonResponse
+    {
+        $project = $this->updateTenderProject->execute(
+            $id,
+            UpdateTenderProjectData::from($request->validated()),
+        );
+
+        return response()->json([
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id())),
+        ]);
+    }
+
+    public function updateStatus(UpdateTenderProjectStatusRequest $request, int $id): JsonResponse
+    {
+        $message = $this->updateTenderProjectStatus->execute($id, $request->validated('status'), $request->user()->id);
+
+        if ($message !== null) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return response()->json([
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($id)),
+        ]);
     }
 
     public function destroy(int $id): JsonResponse

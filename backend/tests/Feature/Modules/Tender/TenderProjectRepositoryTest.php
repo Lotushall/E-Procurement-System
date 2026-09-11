@@ -5,6 +5,8 @@ use App\Modules\Shared\Domain\ValueObjects\Money;
 use App\Modules\Tender\Domain\Entities\Project\TenderProject;
 use App\Modules\Tender\Domain\Repositories\Project\TenderProjectRepositoryInterface;
 use App\Modules\Tender\Domain\ValueObjects\Project\ProjectCode;
+use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -88,3 +90,17 @@ test('save persists a new tender project and returns it reconstituted with an id
         'status' => 'draft',
     ]);
 });
+
+test('findById reconstitutes an existing tender project', function () {
+    $model = TenderProjects::factory()->status('published')->create(['project_code' => 'TP-2569-0007']);
+
+    $project = app(TenderProjectRepositoryInterface::class)->findById($model->id);
+
+    expect($project->id())->toBe($model->id)
+        ->and($project->projectCode()->value)->toBe('TP-2569-0007')
+        ->and($project->status())->toBe('published');
+});
+
+test('findById throws when the tender project does not exist', function () {
+    app(TenderProjectRepositoryInterface::class)->findById(999999);
+})->throws(ModelNotFoundException::class);

@@ -1,44 +1,29 @@
 "use client";
 
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
+import { useTenderProjectDetailPage } from "./_hooks/use-tender-project-detail-page";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
+import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
+import { useAuthPermissions } from "@/lib/auth/permissions";
+import { Separator } from "@/components/ui/separator";
+import { cn, formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { DisabledActionButton } from "@/components/disabled-action-button";
-import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
-import { DeleteTenderProjectDialog } from "../_components/delete-tender-project-dialog";
-import { useTenderProjectDetailPage } from "./_hooks/use-tender-project-detail-page";
-import { routes } from "@/lib/routes";
-import { cn, formatCurrency } from "@/lib/utils";
 
-function InfoItem({
-    label,
-    value,
-    cols,
-}: {
-    label: string;
-    value?: string | null;
-    cols?: number;
-}) {
-    return (
-        <div className={cn("flex min-w-0 flex-col gap-1.5", cols === 2 && "sm:col-span-2")}>
-            <p className="text-xs md:text-sm tracking-wide text-gray-500">{label}</p>
-            <p className="rounded-sm border border-input bg-transparent px-2.5 py-2 text-sm md:text-base font-medium wrap-break-word">
-                {value || "-"}
-            </p>
-        </div>
-    );
-}
+const formatProjectDate = (value?: string) =>
+    value ? format(new Date(value), "d MMM yyyy", { locale: th }) : "-";
 
 function TenderProjectDetailContent() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const id = Number(searchParams.get("id"));
 
     const { project, isValidId, isPending, notFound } = useTenderProjectDetailPage(id);
+
+    const { hasPermission } = useAuthPermissions();
+    const canUpdateStatus = hasPermission("tender_projects.updateStatus");
 
     if (isValidId && isPending) {
         return (
@@ -56,50 +41,57 @@ function TenderProjectDetailContent() {
         );
     }
 
-    const personInChargeName =
-        project.personInCharge?.firstname && project.personInCharge?.lastname
-            ? `${project.personInCharge.firstname} ${project.personInCharge.lastname}`
-            : undefined;
+    const personInCharge = project.personInCharge?.firstname && project.personInCharge?.lastname
+        ? `${project.personInCharge.firstname} ${project.personInCharge.lastname}`
+        : "-";
 
-    const formatDate = (value?: string | null) =>
-        value ? format(new Date(value), "d MMM yyyy", { locale: th }) : undefined;
-    const periodStart = formatDate(project.projectStartAt);
-    const periodEnd = formatDate(project.projectEndAt);
-    const period = periodStart && periodEnd ? `${periodStart} - ${periodEnd}` : periodStart ?? periodEnd;
+    const summary = [
+        { label: "หน่วยงาน", value: project.department?.name ?? "-" },
+        { label: "ผู้รับผิดชอบ", value: personInCharge },
+        { label: "งบประมาณ", value: `฿${formatCurrency(Number(project.budget))}` },
+        { label: "เริ่มโครงการ", value: formatProjectDate(project.projectStartAt) },
+        { label: "สิ้นสุดโครงการ", value: formatProjectDate(project.projectEndAt) },
+    ];
 
     return (
-        <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold">{project.name}</h1>
-                        <TenderProjectStatusBadge status={project.status} />
+        <div className="flex flex-col gap-4.5">
+            <Card className="shadow-md shadow-gray-200 border-gray-200">
+                <CardHeader className="flex flex-col gap-2.25">
+                    <div className="flex items-center gap-2.5 h-fit">
+                        <p className="text-xs font-medium text-red-700">{project.projectCode}</p>
+                        {canUpdateStatus ? (
+                            <TenderProjectStatusSelect key={project.id} id={project.id} status={project.status} />
+                        ) : (
+                            <TenderProjectStatusBadge status={project.status} />
+                        )}
                     </div>
-                    <p className="text-xs text-red-700 font-semibold">{project.projectCode}</p>
-                </div>
+                    <CardTitle className="text-2xl font-semibold">
+                        {project.name}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p>{project.description}</p>
+                    <Separator className={cn("mb-4.5", project.description && "mt-5")} />
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                        {summary.map((item) => (
+                            <div key={item.label} className="flex flex-col gap-1.5">
+                                <p className="text-sm font-bold tracking-wide text-gray-500">{item.label}</p>
+                                <p className="text-base font-semibold tracking-wider">{item.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
 
-                <div className="flex items-center gap-2">
-                    <DisabledActionButton icon={Pencil} label="แก้ไข" />
-                    <DeleteTenderProjectDialog
-                        tenderProjectId={project.id}
-                        displayName={project.name}
-                        trigger={<Button type="button" variant="destructive" />}
-                        triggerChildren="ลบโครงการ"
-                        onSuccess={() => router.push(routes.dashboards.tender_project.index)}
-                    />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 rounded-md border p-4 sm:grid-cols-2">
-                <InfoItem label="แผนก" value={project.department?.name} />
-                <InfoItem label="ผู้รับผิดชอบ" value={personInChargeName} />
-                <InfoItem label="งบประมาณ" value={formatCurrency(Number(project.budget))} />
-                <InfoItem label="ปีงบประมาณ" value={project.fiscalYear} />
-                <InfoItem label="วิธีจัดซื้อ" value={project.procurementMethod} />
-                <InfoItem label="ผู้สร้างโครงการ" value={project.createdBy?.username} />
-                <InfoItem label="ระยะเวลาโครงการ" value={period} cols={2} />
-                <InfoItem label="รายละเอียด" value={project.description} cols={2} />
-            </div>
+            <Card className="shadow-md shadow-gray-200 border-gray-200">
+                <CardHeader className="gap-0.5">
+                    <CardTitle className="font-bold">TOR ที่เกี่ยวข้อง</CardTitle>
+                    <CardDescription>เอกสารข้อกำหนดการจัดซื้อจัดจ้างภายใต้โครงการนี้</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p>Tor Table</p>
+                </CardContent>
+            </Card>
         </div>
     );
 }

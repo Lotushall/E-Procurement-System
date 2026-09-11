@@ -133,6 +133,10 @@ export function ProfileMenu({
         individual: "ร้านค้า",
     };
 
+    const isInDashboard =
+        pathname === routes.dashboards.dashboard ||
+        pathname.startsWith(`${routes.dashboards.dashboard}/`);
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger
@@ -173,7 +177,7 @@ export function ProfileMenu({
                 </div>
                 <div className="p-1">
                     {user.userType === "internal" ? (
-                        pathname === routes.dashboards.dashboard ? (
+                        isInDashboard ? (
                             <DropdownMenuItem render={<Link href={routes.home} />} className="cursor-pointer">
                                 <Home />
                                 หน้าหลัก

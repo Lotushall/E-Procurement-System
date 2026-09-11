@@ -30,6 +30,11 @@ class TenderProjectRepository implements TenderProjectRepositoryInterface
         });
     }
 
+    public function findById(int $id): TenderProject
+    {
+        return $this->mapToEntity(TenderProjects::findOrFail($id));
+    }
+
     public function save(TenderProject $project): TenderProject
     {
         $model = $project->id() !== null

@@ -29,6 +29,8 @@ class AdminUserSeeder extends Seeder
             Permission::updateOrCreate(['name' => 'users.delete', 'guard_name' => 'web'], ['label' => 'ลบ user']),
             Permission::updateOrCreate(['name' => 'tender_projects.create', 'guard_name' => 'web'], ['label' => 'สร้างโครงการจัดซื้อจัดจ้าง']),
             Permission::updateOrCreate(['name' => 'tender_projects.viewAny', 'guard_name' => 'web'], ['label' => 'ดูรายการโครงการจัดซื้อจัดจ้าง']),
+            Permission::updateOrCreate(['name' => 'tender_projects.update', 'guard_name' => 'web'], ['label' => 'แก้ไขโครงการจัดซื้อจัดจ้าง']),
+            Permission::updateOrCreate(['name' => 'tender_projects.updateStatus', 'guard_name' => 'web'], ['label' => 'เปลี่ยนสถานะโครงการจัดซื้อจัดจ้าง']),
             Permission::updateOrCreate(['name' => 'tender_projects.delete', 'guard_name' => 'web'], ['label' => 'ลบโครงการจัดซื้อจัดจ้าง']),
         ]);
 

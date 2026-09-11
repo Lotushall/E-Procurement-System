@@ -19,6 +19,16 @@ Route::prefix('dashboard')->group(function () {
             ->middleware('can:tender-projects.store')
             ->name('dashboard.tender-projects.store');
 
+        Route::put('/{id}', [TenderProjectController::class, 'update'])
+            ->middleware('can:tender-projects.update')
+            ->whereNumber('id')
+            ->name('dashboard.tender-projects.update');
+
+        Route::patch('/{id}/status', [TenderProjectController::class, 'updateStatus'])
+            ->middleware('can:tender-projects.updateStatus')
+            ->whereNumber('id')
+            ->name('dashboard.tender-projects.status.update');
+
         Route::delete('/{id}', [TenderProjectController::class, 'destroy'])
             ->middleware('can:tender-projects.destroy')
             ->whereNumber('id')

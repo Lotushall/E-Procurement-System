@@ -48,7 +48,8 @@ class TenderServiceProvider extends ModuleServiceProvider
 
         // The ability names are deliberately NOT the same strings as the
         // permission names their policy methods check (`tender_projects.create`,
-        // `tender_projects.viewAny`, `tender_projects.delete`): Spatie registers
+        // `tender_projects.viewAny`, `tender_projects.update`,
+        // `tender_projects.updateStatus`, `tender_projects.delete`): Spatie registers
         // a Gate::before hook that grants access immediately whenever the
         // ability name exactly matches a permission the user holds, bypassing
         // the policy method (and its user_type guard) entirely on the allow
@@ -56,6 +57,8 @@ class TenderServiceProvider extends ModuleServiceProvider
         // policy.
         Gate::define('tender-projects.store', [TenderProjectPolicy::class, 'create']);
         Gate::define('tender-projects.index', [TenderProjectPolicy::class, 'viewAny']);
+        Gate::define('tender-projects.update', [TenderProjectPolicy::class, 'update']);
+        Gate::define('tender-projects.updateStatus', [TenderProjectPolicy::class, 'updateStatus']);
         Gate::define('tender-projects.destroy', [TenderProjectPolicy::class, 'delete']);
     }
 
