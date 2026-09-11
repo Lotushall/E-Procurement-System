@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import type { TenderProjectStatus } from "@/lib/tender/tender-projects/types";
 import { cn } from "@/lib/utils";
 
-const STATUS_STYLE: Record<string, { label: string; badge: string; dot: string }> = {
+export const TENDER_PROJECT_STATUS_STYLE: Record<TenderProjectStatus, { label: string; badge: string; dot: string }> = {
   draft: { label: "ร่าง", badge: "text-gray-600 bg-gray-400/15", dot: "bg-gray-600" },
   published: { label: "กำลังดำเนินการ", badge: "text-blue-600 bg-blue-400/15", dot: "bg-blue-600" },
   closed: { label: "ปิดรับซอง", badge: "text-orange-600 bg-orange-400/15", dot: "bg-orange-600" },
@@ -10,6 +11,15 @@ const STATUS_STYLE: Record<string, { label: string; badge: string; dot: string }
   archived: { label: "เก็บถาวร", badge: "text-gray-500 bg-gray-300/20", dot: "bg-gray-500" },
 };
 
+export const TENDER_PROJECT_STATUSES: TenderProjectStatus[] = [
+  "draft",
+  "published",
+  "closed",
+  "completed",
+  "cancelled",
+  "archived",
+];
+
 export function TenderProjectStatusBadge({
   status,
   className,
@@ -17,7 +27,7 @@ export function TenderProjectStatusBadge({
   status: string;
   className?: string;
 }) {
-  const style = STATUS_STYLE[status];
+  const style = TENDER_PROJECT_STATUS_STYLE[status as TenderProjectStatus];
   if (!style) return null;
 
   return (

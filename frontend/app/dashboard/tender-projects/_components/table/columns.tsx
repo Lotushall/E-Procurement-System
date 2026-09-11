@@ -8,16 +8,17 @@ import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
+import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
 import { Button } from "@/components/ui/button";
-import { DisabledActionButton } from "@/components/disabled-action-button";
 import { routes } from "@/lib/routes";
 import { DeleteTenderProjectDialog } from "../delete-tender-project-dialog";
+import { EditTenderProjectDialog } from "../edit-tender-project-dialog";
 
 function ColumnHeader({ label, align }: { label: string; align?: "left" | "center" | "right" }) {
     return <p className={`text-sm font-bold text-gray-500 ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
 }
 
-export function createColumns(): ColumnDef<TenderProjects>[] {
+export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProjects>[] {
     return [
         {
             id: "projectCode",
@@ -34,7 +35,7 @@ export function createColumns(): ColumnDef<TenderProjects>[] {
             cell: ({ getValue, row }) => (
                 <div className="flex flex-col">
                     <p className="text-sm font-semibold tracking-wider leading-6">{getValue<string>()}</p>
-                    <p className="text-xs text-gray-600 tracking-wider">{row.original.department.name}</p>
+                    <p className="text-xs text-gray-600 tracking-wider">{row.original.department?.name ?? "-"}</p>
                 </div>
             )
         },
@@ -93,9 +94,17 @@ export function createColumns(): ColumnDef<TenderProjects>[] {
             id: "status",
             header: () => <ColumnHeader label="สถานะ" align="center" />,
             accessorFn: (project) => project.status,
-            cell: ({ getValue }) => (
+            cell: ({ row }) => (
                 <div className="flex justify-center">
-                    <TenderProjectStatusBadge status={getValue<string>()} />
+                    {canUpdateStatus ? (
+                        <TenderProjectStatusSelect
+                            key={row.original.id}
+                            id={row.original.id}
+                            status={row.original.status}
+                        />
+                    ) : (
+                        <TenderProjectStatusBadge status={row.original.status} />
+                    )}
                 </div>
             ),
         },
@@ -115,7 +124,18 @@ export function createColumns(): ColumnDef<TenderProjects>[] {
                         <Eye className="w-4 h-4 text-gray-500" />
                     </Button>
 
-                    <DisabledActionButton icon={Pencil} label="แก้ไข" />
+                    <EditTenderProjectDialog
+                        key={row.original.id}
+                        project={row.original}
+                        trigger={
+                            <Button
+                                variant="outline"
+                                aria-label="แก้ไขโครงการ"
+                                className="size-8 px-1.5 pt-px rounded-md bg-white"
+                            />
+                        }
+                        triggerChildren={<Pencil className="w-4 h-4 text-gray-500" />}
+                    />
 
                     <DeleteTenderProjectDialog
                         tenderProjectId={row.original.id}

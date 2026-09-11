@@ -30,6 +30,7 @@ import {
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
 import { DepartmentSelect } from "@/components/department-select";
 import { CreateTenderProjectDialog } from "./_components/create-tender-project-dialog";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 
 const DATE_PARAM_FORMAT = "yyyy-MM-dd";
 
@@ -61,9 +62,12 @@ const STATUS_OPTIONS: { value: TenderProjectStatusFilter; label: string }[] = [
 function TenderProjectsPageContent() {
     useBreadcrumb([{ label: "จัดการโครงการจัดซื้อจัดจ้าง" }]);
 
+    const { hasPermission } = useAuthPermissions();
+    const canUpdateStatus = hasPermission("tender_projects.updateStatus");
+
     const columns = useMemo(
-        () => createColumns(),
-        [],
+        () => createColumns(canUpdateStatus),
+        [canUpdateStatus],
     );
 
     const { data: departmentOptions } = useDepartmentOptions();

@@ -5,6 +5,8 @@ import {
   TenderProjects,
   TenderProjectSortBy,
   TenderProjectSortDirection,
+  TenderProjectStatus,
+  UpdateTenderProjectPayload,
 } from "./types";
 
 export async function fetchTenderProjectsList(
@@ -61,6 +63,28 @@ export async function fetchTenderProjectDetail(id: number): Promise<TenderProjec
     `/api/v1/dashboard/tender-projects/${id}`,
   );
   return data.data;
+}
+
+export async function updateTenderProject(
+  id: number,
+  payload: UpdateTenderProjectPayload,
+): Promise<{ projectCode: string }> {
+  const { data } = await api.put<{ data: { projectCode: string } }>(
+    `/api/v1/dashboard/tender-projects/${id}`,
+    payload,
+  );
+  return data.data;
+}
+
+export async function updateTenderProjectStatus(
+  id: number,
+  status: TenderProjectStatus,
+): Promise<TenderProjectStatus> {
+  const { data } = await api.patch<{ data: TenderProjects }>(
+    `/api/v1/dashboard/tender-projects/${id}/status`,
+    { status },
+  );
+  return data.data.status;
 }
 
 export async function deleteTenderProject(id: number): Promise<void> {
