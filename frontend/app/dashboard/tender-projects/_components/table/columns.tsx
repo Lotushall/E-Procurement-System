@@ -10,19 +10,22 @@ import { th } from "date-fns/locale";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
 import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
 import { Button } from "@/components/ui/button";
+import { SortableHeader } from "@/components/ui/data-table-sortable-header";
 import { routes } from "@/lib/routes";
 import { DeleteTenderProjectDialog } from "../delete-tender-project-dialog";
 import { EditTenderProjectDialog } from "../edit-tender-project-dialog";
 
+const HEADER_TEXT_CLASS = "text-sm font-bold text-gray-500";
+
 function ColumnHeader({ label, align }: { label: string; align?: "left" | "center" | "right" }) {
-    return <p className={`text-sm font-bold text-gray-500 ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
+    return <p className={`${HEADER_TEXT_CLASS} ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
 }
 
 export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProjects>[] {
     return [
         {
-            id: "projectCode",
-            header: () => <ColumnHeader label="รหัสโครงการ" />,
+            id: "project_code",
+            header: ({ column }) => <SortableHeader column={column} label="รหัสโครงการ" className={HEADER_TEXT_CLASS} />,
             accessorFn: (project) => project.projectCode,
             cell: ({ getValue }) => (
                 <p className="text-xs text-red-700 font-semibold">{getValue<string>()}</p>
@@ -30,7 +33,7 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
         },
         {
             id: "name",
-            header: () => <ColumnHeader label="โครงการ / หน่วยงาน" />,
+            header: ({ column }) => <SortableHeader column={column} label="โครงการ / หน่วยงาน" className={HEADER_TEXT_CLASS} />,
             accessorFn: (project) => project.name,
             cell: ({ getValue, row }) => (
                 <div className="flex flex-col">
@@ -52,7 +55,7 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
         },
         {
             id: "budget",
-            header: () => <ColumnHeader label="งบประมาณ" align="right" />,
+            header: ({ column }) => <SortableHeader column={column} label="งบประมาณ" align="right" className={HEADER_TEXT_CLASS} />,
             accessorFn: (project) => project.budget,
             cell: ({ getValue, row }) => (
                 <div className="flex flex-col items-end">

@@ -2,18 +2,7 @@ import { Department, InternalProfile } from "@/lib/internal-profiles/types";
 import { PaginationMeta } from "@/lib/pagination";
 import { User } from "@/lib/user/types";
 
-export type TenderProjectSortBy =
-  | "projectCode"
-  | "name"
-  | "budget"
-  | "department"
-  | "personInCharge"
-  | "createdBy"
-  | "procurementMethod"
-  | "fiscalYear"
-  | "projectStartAt"
-  | "projectEndAt"
-  | "status";
+export type TenderProjectSortBy = "project_code" | "name" | "budget";
 export type TenderProjectSortDirection = "asc" | "desc";
 
 export type TenderProjectStatusFilter = "all" | TenderProjectStatus;

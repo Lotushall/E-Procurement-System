@@ -28,7 +28,7 @@ GET /api/v1/dashboard/tender-projects?sort_by=<value>&sort_direction=asc|desc
 - ไม่ส่ง `sort_by` → backend เรียง `created_at desc`
 - tie-break ด้วย `id` ทิศเดียวกัน
 
-**หมายเหตุ:** `project_code` ในทั้งสองไฟล์เป็นงานของอีก session ที่ **ยังไม่ commit** ถ้า backend รันจากโค้ดที่ commit แล้ว การเรียงตามรหัสโครงการจะได้ 422 ส่วน `name` และ `budget` ใช้ได้ทั้งสองกรณี
+**หมายเหตุ:** `project_code` ในทั้งสองไฟล์ commit แล้วใน `d3ff007` จึงเรียงได้ทั้ง 3 ค่า ส่วน `budget` เป็น `decimal(14,2)` จึงเรียงแบบตัวเลข
 
 ## Data layer
 

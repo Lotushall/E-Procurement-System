@@ -8,19 +8,8 @@ import {
   TenderProjectStatusFilter,
 } from "@/lib/tender/tender-projects/types";
 
-const SORT_BY_VALUES: TenderProjectSortBy[] = [
-  "projectCode",
-  "name",
-  "budget",
-  "department",
-  "personInCharge",
-  "createdBy",
-  "procurementMethod",
-  "fiscalYear",
-  "projectStartAt",
-  "projectEndAt",
-  "status",
-];
+// ต้องตรงกับ id ของคอลัมน์ที่ใช้ SortableHeader ใน columns.tsx
+const SORT_BY_VALUES: TenderProjectSortBy[] = ["project_code", "name", "budget"];
 
 const STATUS_VALUES: TenderProjectStatusFilter[] = [
   "all",

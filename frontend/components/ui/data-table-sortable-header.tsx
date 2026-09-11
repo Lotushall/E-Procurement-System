@@ -10,18 +10,26 @@ export function SortableHeader<TData>({
     column,
     label,
     align = "left",
+    className,
 }: {
     column: Column<TData, unknown>
     label: string
-    align?: "left" | "center"
+    align?: "left" | "center" | "right"
+    className?: string
 }) {
     const sorted = column.getIsSorted()
     return (
-        <div className={cn("flex items-center", align === "center" && "justify-center")}>
+        <div
+            className={cn(
+                "flex items-center",
+                align === "center" && "justify-center",
+                align === "right" && "justify-end",
+            )}
+        >
             <Button
                 variant="ghost"
                 size="sm"
-                className="-ml-3 h-8"
+                className={cn(align === "right" ? "-mr-3" : "-ml-3", "h-8", className)}
                 onClick={() => column.toggleSorting()}
             >
                 {label}

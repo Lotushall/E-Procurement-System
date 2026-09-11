@@ -305,4 +305,4 @@ git add lib/tender/tender-projects/types.ts app/dashboard/tender-projects/_hooks
 6. หัวที่เรียงได้กับหัวปกติในตารางโครงการเป็นตัวหนาสีเทาขนาดเท่ากัน
 7. หัวคอลัมน์ที่เรียงได้ในตาราง users, vendors, internal-employees หน้าตาและการทำงานเหมือนเดิม
 
-**หมายเหตุ backend:** `project_code` ใน whitelist ของ `ListTenderProjectsRequest` และ model scope เป็นงานของอีก session ที่ยังไม่ commit ถ้า backend รันจากโค้ดที่ commit แล้ว ข้อ 1 จะได้ 422
+**หมายเหตุ backend:** `project_code` ใน whitelist ของ `ListTenderProjectsRequest` และ model scope commit แล้วใน `d3ff007` ข้อ 1 จึงไม่ติด 422
