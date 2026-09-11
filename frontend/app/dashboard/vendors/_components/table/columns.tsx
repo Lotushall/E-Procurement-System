@@ -8,7 +8,6 @@ import {
     CircleCheck,
     CircleX,
     Clock,
-    Eye,
     Trash2,
     User,
     type LucideIcon,
@@ -74,13 +73,17 @@ export const columns: ColumnDef<VendorProfile>[] = [
         id: "name",
         header: ({ column }) => <SortableHeader column={column} label="ผู้ค้า" />,
         accessorFn: (vendor) => vendor.detail.type === "company" ? vendor.detail.companyName : vendor.detail.storeName,
-        cell: ({ getValue }) => (
-            <div className="flex items-center gap-3">
+        // ช่องผู้ค้าเป็นลิงก์ไปหน้า detail แทนปุ่มดูรายละเอียดในคอลัมน์ Actions
+        cell: ({ getValue, row }) => (
+            <Link
+                href={routes.dashboards.vendors.detail(row.original.id)}
+                className="group flex items-center gap-3"
+            >
                 <div className="flex items-center justify-center size-8.5 rounded-md bg-red-700 text-white text-xs font-bold tracking-wider">
                     {getInitials(getValue<string>())}
                 </div>
-                <span className="font-bold ">{getValue<string>()}</span>
-            </div>
+                <span className="font-bold underline decoration-gray-300 underline-offset-4 group-hover:decoration-current">{getValue<string>()}</span>
+            </Link>
         ),
     },
     {
@@ -166,15 +169,6 @@ export const columns: ColumnDef<VendorProfile>[] = [
         enableHiding: false,
         cell: ({ row }) => (
             <div className="flex justify-center gap-1.5">
-                <Button
-                    variant="outline"
-                    render={<Link href={routes.dashboards.vendors.detail(row.original.id)} />}
-                    nativeButton={false}
-                    className="size-8 px-1.5 pt-px rounded-md bg-white"
-                >
-                    <Eye className="w-4 h-4 text-gray-500" />
-                </Button>
-
                 <DeleteVendorDialog
                     vendorId={row.original.id}
                     displayName={

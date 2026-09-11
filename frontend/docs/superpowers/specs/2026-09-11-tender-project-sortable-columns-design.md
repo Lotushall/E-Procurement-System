@@ -66,7 +66,9 @@ className?: string                     // ใหม่ ต่อท้าย cla
 
 ### `app/dashboard/tender-projects/_components/table/columns.tsx` (แก้)
 
-- แยก class ของหัวคอลัมน์เป็นค่าคงที่ `HEADER_TEXT_CLASS = "text-sm font-bold text-gray-500"` ใช้ทั้งใน `ColumnHeader` และส่งเป็น `className` ให้ `SortableHeader` หัวที่เรียงได้กับหัวปกติจึงเป็นตัวหนาสีเทาเหมือนกัน
+- แยก class ของหัวคอลัมน์เป็นค่าคงที่ `HEADER_TEXT_CLASS = "text-sm font-bold text-gray-500"` ใช้ใน `ColumnHeader` หัวที่เรียงได้กับหัวปกติจึงเป็นตัวหนาสีเทาเหมือนกัน
+- หัวที่เรียงได้ส่ง `SORTABLE_HEADER_CLASS = HEADER_TEXT_CLASS + " mx-0 px-0 hover:bg-transparent"` เป็น `className` ให้ `SortableHeader` — ตัด padding และ negative margin ของปุ่ม ghost ออก เพราะทุก cell เป็น `whitespace-nowrap` ความกว้างที่ปุ่มเพิ่ม (~32px ต่อคอลัมน์) ทำให้ตาราง overflow แนวนอน (แก้หลังผู้ใช้ทดสอบ เลือก "ย่อหัวคอลัมน์" แทนการให้ข้อความขึ้นบรรทัดใหม่)
+- ย่อหัวอย่างเดียวยังล้นตอน sidebar กาง ผู้ใช้จึงให้ **เอาปุ่มดูรายละเอียด (Eye) ออกจากคอลัมน์ Actions** แล้วให้ cell รหัสโครงการ (`Link` ขีดเส้นใต้จางตลอด `decoration-red-700/30` เข้มขึ้นเมื่อ hover) และ cell โครงการ / หน่วยงาน (`Link` แบบ `group`, ชื่อโครงการและชื่อหน่วยงานขีดเส้นใต้จางตลอด `decoration-gray-300` เข้มขึ้นเมื่อ hover ทั้งช่อง) — ให้เห็นว่ากดได้โดยไม่ต้อง hover ลิงก์ไป `routes.dashboards.tender_project.detail(id)` แทน — Actions เหลือแก้ไข + ลบ แคบลง ~38px
 - คอลัมน์ที่เปลี่ยน:
 
 | คอลัมน์ | id เดิม | id ใหม่ | header |

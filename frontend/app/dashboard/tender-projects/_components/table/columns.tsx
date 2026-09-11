@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatCurrency } from "@/lib/utils";
@@ -16,6 +16,8 @@ import { DeleteTenderProjectDialog } from "../delete-tender-project-dialog";
 import { EditTenderProjectDialog } from "../edit-tender-project-dialog";
 
 const HEADER_TEXT_CLASS = "text-sm font-bold text-gray-500";
+// ตัด padding/negative margin ของปุ่ม ghost ออก ให้หัวที่ sort ได้กว้างแค่ข้อความ + ไอคอน ไม่ดันตารางจน overflow
+const SORTABLE_HEADER_CLASS = `${HEADER_TEXT_CLASS} mx-0 px-0 hover:bg-transparent`;
 
 function ColumnHeader({ label, align }: { label: string; align?: "left" | "center" | "right" }) {
     return <p className={`${HEADER_TEXT_CLASS} ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
@@ -25,21 +27,30 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
     return [
         {
             id: "project_code",
-            header: ({ column }) => <SortableHeader column={column} label="รหัสโครงการ" className={HEADER_TEXT_CLASS} />,
+            header: ({ column }) => <SortableHeader column={column} label="รหัสโครงการ" className={SORTABLE_HEADER_CLASS} />,
             accessorFn: (project) => project.projectCode,
-            cell: ({ getValue }) => (
-                <p className="text-xs text-red-700 font-semibold">{getValue<string>()}</p>
+            // รหัสและชื่อโครงการเป็นลิงก์ไปหน้า detail แทนปุ่มดูรายละเอียดในคอลัมน์ Actions (ประหยัดความกว้างตาราง)
+            cell: ({ getValue, row }) => (
+                <Link
+                    href={routes.dashboards.tender_project.detail(row.original.id)}
+                    className="text-xs text-red-700 font-semibold underline decoration-red-700/30 underline-offset-4 hover:decoration-red-700"
+                >
+                    {getValue<string>()}
+                </Link>
             )
         },
         {
             id: "name",
-            header: ({ column }) => <SortableHeader column={column} label="โครงการ / หน่วยงาน" className={HEADER_TEXT_CLASS} />,
+            header: ({ column }) => <SortableHeader column={column} label="โครงการ / หน่วยงาน" className={SORTABLE_HEADER_CLASS} />,
             accessorFn: (project) => project.name,
             cell: ({ getValue, row }) => (
-                <div className="flex flex-col">
-                    <p className="text-sm font-semibold tracking-wider leading-6">{getValue<string>()}</p>
-                    <p className="text-xs text-gray-600 tracking-wider">{row.original.department?.name ?? "-"}</p>
-                </div>
+                <Link
+                    href={routes.dashboards.tender_project.detail(row.original.id)}
+                    className="group flex flex-col"
+                >
+                    <p className="text-sm font-semibold tracking-wider leading-6 underline decoration-gray-300 underline-offset-4 group-hover:decoration-current">{getValue<string>()}</p>
+                    <p className="text-xs text-gray-600 tracking-wider underline decoration-gray-300 underline-offset-4 group-hover:decoration-current">{row.original.department?.name ?? "-"}</p>
+                </Link>
             )
         },
         {
@@ -55,7 +66,7 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
         },
         {
             id: "budget",
-            header: ({ column }) => <SortableHeader column={column} label="งบประมาณ" align="right" className={HEADER_TEXT_CLASS} />,
+            header: ({ column }) => <SortableHeader column={column} label="งบประมาณ" align="right" className={SORTABLE_HEADER_CLASS} />,
             accessorFn: (project) => project.budget,
             cell: ({ getValue, row }) => (
                 <div className="flex flex-col items-end">
@@ -117,16 +128,6 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
             enableHiding: false,
             cell: ({ row }) => (
                 <div className="flex justify-center gap-1.5">
-                    <Button
-                        variant="outline"
-                        render={<Link href={routes.dashboards.tender_project.detail(row.original.id)} />}
-                        nativeButton={false}
-                        aria-label="ดูรายละเอียด"
-                        className="size-8 px-1.5 pt-px rounded-md bg-white"
-                    >
-                        <Eye className="w-4 h-4 text-gray-500" />
-                    </Button>
-
                     <EditTenderProjectDialog
                         key={row.original.id}
                         project={row.original}

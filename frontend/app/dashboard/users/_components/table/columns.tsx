@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { format } from "date-fns"
-import { Building2, Eye, Pencil, Store, UserRound, type LucideIcon } from "lucide-react"
+import { Building2, Pencil, Store, UserRound, type LucideIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { UserListItem, UserType } from "@/lib/user/management/types"
 import { Button } from "@/components/ui/button"
@@ -36,16 +36,20 @@ export function createColumns(
             id: "username",
             header: ({ column }) => <SortableHeader column={column} label="ผู้ใช้" />,
             accessorFn: (user) => user.username,
+            // ช่องผู้ใช้เป็นลิงก์ไปหน้า detail แทนปุ่มดูรายละเอียดในคอลัมน์ Actions
             cell: ({ row }) => (
-                <div className="flex items-center gap-3">
+                <Link
+                    href={routes.dashboards.user.detail(row.original.id)}
+                    className="group flex items-center gap-3"
+                >
                     <div className="flex items-center justify-center size-8.5 rounded-md bg-red-700 text-white text-xs font-bold tracking-wider">
                         {getInitials(row.original.username ?? "")}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold capitalize">{row.original.username}</span>
-                        <span className="text-xs text-muted-foreground">{row.original.name}</span>
+                        <span className="font-bold capitalize underline decoration-gray-300 underline-offset-4 group-hover:decoration-current">{row.original.username}</span>
+                        <span className="text-xs text-muted-foreground underline decoration-gray-300 underline-offset-4 group-hover:decoration-current">{row.original.name}</span>
                     </div>
-                </div>
+                </Link>
             ),
         },
         {
@@ -104,14 +108,6 @@ export function createColumns(
             enableHiding: false,
             cell: ({ row }) => (
                 <div className="flex justify-center gap-1.5">
-                    <Button
-                        variant="outline"
-                        render={<Link href={routes.dashboards.user.detail(row.original.id)} />}
-                        nativeButton={false}
-                        className="size-8 px-1.5 pt-px rounded-md bg-white"
-                    >
-                        <Eye className="w-4 h-4 text-gray-500" />
-                    </Button>
                     {canUpdateUser && (
                         <Button
                             variant="outline"
