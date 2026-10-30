@@ -1,7 +1,6 @@
-import { Activity, CheckCircle2, FolderKanban, Wallet, type LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatCompactCurrency, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export type TenderProjectStats = {
   totalCount: number;
@@ -12,6 +11,17 @@ export type TenderProjectStats = {
 
 const formatCount = (value: number) => new Intl.NumberFormat("th-TH").format(value);
 
+// จำนวนเงินเต็มจำนวน คั่นหลักพัน + ทศนิยม 2 ตำแหน่งเสมอ: ฿294,540,000.00 (ใช้ใน tooltip)
+const formatBudgetFull = (value: number) =>
+  new Intl.NumberFormat("th-TH", { style: "currency", currency: "THB" }).format(value);
+
+// ย่อเป็นหน่วยล้านตั้งแต่ 1 ล้านขึ้นไป: ฿294.54 ล้าน; ต่ำกว่านั้นแสดงเต็ม ฿320,000
+const formatBudget = (value: number) => {
+  const format = (n: number) => new Intl.NumberFormat("th-TH", { maximumFractionDigits: 2 }).format(n);
+  return Math.abs(value) >= 1_000_000 ? `฿${format(value / 1_000_000)} ล้าน` : `฿${format(value)}`;
+};
+
+// layout เดียวกับ VendorStatsCards: ชื่อด้านบน ตัวเลขด้านล่าง (ไม่มีไอคอน/สี)
 const STAT_ITEMS: {
   key: keyof TenderProjectStats;
   label: string;
@@ -19,48 +29,11 @@ const STAT_ITEMS: {
   // ค่าเต็มสำหรับ tooltip เมื่อ format ย่อค่า
   fullFormat?: (value: number) => string;
   skeletonWidth: string;
-  icon: LucideIcon;
-  iconBg: string;
-  iconColor: string;
 }[] = [
-    {
-      key: "totalCount",
-      label: "โครงการทั้งหมด",
-      format: formatCount,
-      skeletonWidth: "w-8",
-      icon: FolderKanban,
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-    },
-    {
-      key: "inProgressCount",
-      label: "กำลังดำเนินการ",
-      format: formatCount,
-      skeletonWidth: "w-8",
-      icon: Activity,
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    {
-      key: "totalBudget",
-      label: "งบประมาณรวม",
-      // ค่าเต็มหลักร้อยล้านไม่พอดีการ์ดครึ่งจอบนมือถือ (และการ์ด 1/4 จอบน lg) จึงย่อเป็นหน่วยล้าน
-      format: formatCompactCurrency,
-      fullFormat: (value) => `฿${formatCurrency(value)}`,
-      skeletonWidth: "w-24",
-      icon: Wallet,
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600",
-    },
-    {
-      key: "completedCount",
-      label: "เสร็จสิ้นแล้ว",
-      format: formatCount,
-      skeletonWidth: "w-8",
-      icon: CheckCircle2,
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-    },
+    { key: "totalCount", label: "โครงการทั้งหมด", format: formatCount, skeletonWidth: "w-10" },
+    { key: "inProgressCount", label: "กำลังดำเนินการ", format: formatCount, skeletonWidth: "w-10" },
+    { key: "completedCount", label: "เสร็จสิ้นแล้ว", format: formatCount, skeletonWidth: "w-10" },
+    { key: "totalBudget", label: "งบประมาณรวม", format: formatBudget, fullFormat: formatBudgetFull, skeletonWidth: "w-28" },
   ];
 
 export function TenderProjectStatsCards({
@@ -71,41 +44,19 @@ export function TenderProjectStatsCards({
   isPending?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       {STAT_ITEMS.map((item) => {
-        const Icon = item.icon;
         // backend ส่ง sum ของ decimal มาเป็น string ได้ จึงแปลงเป็น number ก่อน format
         const value = Number(stats[item.key]);
         return (
-          <Card key={item.key} className="shadow-md ring-0 p-4 sm:p-5">
-            {/*
-              มือถือ: แถวบน ชื่อ ↔ ไอคอน, แถวล่าง ตัวเลขเต็มความกว้างการ์ด (การ์ดครึ่งจอแคบ)
-              sm ขึ้นไป: ไอคอนซ้าย (คร่อม 2 แถว), ตัวเลขอยู่บนชื่อทางขวา
-            */}
-            <CardContent className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 p-0 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-x-3">
-              <p className="col-start-1 row-start-1 truncate text-xs text-muted-foreground sm:col-start-2 sm:row-start-2 sm:text-sm">
-                {item.label}
-              </p>
-              <div
-                className={cn(
-                  "col-start-2 row-start-1 flex size-8 items-center justify-center rounded-lg sm:col-start-1 sm:row-span-2 sm:size-11",
-                  item.iconBg,
-                )}
-              >
-                <Icon className={cn("size-4 sm:size-5.5", item.iconColor)} />
-              </div>
+          <Card key={item.key} className="shadow-md border-0 ring-0">
+            <CardContent className="flex min-w-0 flex-col gap-1">
+              <p className="truncate text-sm text-muted-foreground">{item.label}</p>
               {isPending ? (
-                <Skeleton
-                  className={cn(
-                    "col-span-2 row-start-2 h-6 sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:h-7",
-                    item.skeletonWidth,
-                  )}
-                />
+                <Skeleton className={cn("h-7", item.skeletonWidth)} />
               ) : (
-                <p
-                  className="col-span-2 row-start-2 truncate text-lg font-extrabold sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:text-xl"
-                  title={item.fullFormat?.(value)}
-                >
+                // ไม่ตัดท้ายเป็น "…": ถ้ายาวเกินการ์ด ให้ขึ้นบรรทัดใหม่แทน
+                <p className="text-lg font-bold wrap-anywhere sm:text-xl" title={item.fullFormat?.(value)}>
                   {item.format(value)}
                 </p>
               )}

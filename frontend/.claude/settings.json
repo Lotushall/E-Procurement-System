@@ -179,7 +179,10 @@
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"tender-projects|providers\"; npx eslint app/providers.tsx app/dashboard/tender-projects; \"eslint exit: $LASTEXITCODE\")",
       "Bash(node -e 'console.log\\(require\\(\"tailwindcss/package.json\"\\).version\\)')",
       "Bash(node --input-type=module -e ' *)",
-      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"tender-projects|dashboard/layout\"; npx eslint app/dashboard/layout.tsx app/dashboard/tender-projects; \"eslint exit: $LASTEXITCODE\")"
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"tender-projects|dashboard/layout\"; npx eslint app/dashboard/layout.tsx app/dashboard/tender-projects; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"tender-projects\"; npx eslint app/dashboard/tender-projects/_components/tender-project-stats-cards.tsx; \"eslint exit: $LASTEXITCODE\")",
+      "Bash(node -e 'const f=new Intl.NumberFormat\\(\"th-TH\",{style:\"currency\",currency:\"THB\"}\\); for \\(const v of [0,320000,294540000,1234567890.5]\\) console.log\\(f.format\\(v\\)\\)')",
+      "Bash(node -e 'const format=\\(n\\)=>new Intl.NumberFormat\\(\"th-TH\",{maximumFractionDigits:2}\\).format\\(n\\); const f=\\(v\\)=>Math.abs\\(v\\)>=1e6?`฿${format\\(v/1e6\\)} ล้าน`:`฿${format\\(v\\)}`; for \\(const v of [0,320000,1250000,294540000,1234567890.5]\\) console.log\\(v, \"→\", f\\(v\\)\\)')"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

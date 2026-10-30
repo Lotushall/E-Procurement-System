@@ -47,14 +47,3 @@ export const formatPhone = (value: string) => {
 // จำนวนเงิน: ฿45,000,000 (ปัดเป็นจำนวนเต็มบาท ไม่แสดงสตางค์)
 export const formatCurrency = (value: number) =>
   `${new Intl.NumberFormat("th-TH", { maximumFractionDigits: 2 }).format(value)}`;
-
-// จำนวนเงินแบบย่อสำหรับพื้นที่แคบ (เช่นการ์ดสรุป): ต่ำกว่า 1 ล้านแสดงเต็ม ฿320,000,
-// ตั้งแต่ 1 ล้านขึ้นไปเป็นหน่วยล้าน ฿45.25 ล้าน / ฿1,234.57 ล้าน
-// ไม่ใช้ Intl notation "compact" เพราะได้ K/M หรือคำไทยต่างกันไปตามเบราว์เซอร์
-export const formatCompactCurrency = (value: number) => {
-  const format = (n: number, maximumFractionDigits: number) =>
-    new Intl.NumberFormat("th-TH", { maximumFractionDigits }).format(n);
-  return Math.abs(value) >= 1_000_000
-    ? `฿${format(value / 1_000_000, 2)} ล้าน`
-    : `฿${format(value, 0)}`;
-};
