@@ -24,7 +24,7 @@ final class ListTenderProjectsQuery
         $tieBreakDirection = $sortDirection === 'asc' ? 'asc' : 'desc';
 
         return TenderProjects::query()
-            ->with('TenderProjectsDepartment', 'TenderProjectsPersonInCharge', 'TenderProjectsCreatedBy')
+            ->with('TenderProjectsDepartment', 'TenderProjectsPersonInCharge')
             ->search($search)
             ->status($status)
             ->departmentId($departmentId)

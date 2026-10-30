@@ -43,12 +43,13 @@ test('an internal user with the viewAny permission can list tender projects', fu
     $response->assertOk()
         ->assertJsonCount(2, 'data')
         ->assertJsonStructure([
-            'data' => [['id', 'projectCode', 'name', 'budget', 'departmentId', 'procurementMethod', 'fiscalYear', 'status']],
+            'data' => [['id', 'projectCode', 'name', 'budget', 'department' => ['id', 'name'], 'procurementMethod', 'fiscalYear', 'status']],
             'meta' => [
                 'currentPage', 'lastPage', 'perPage', 'total',
                 'stats' => ['totalCount', 'totalBudget', 'inProgressCount', 'completedCount'],
             ],
-        ]);
+        ])
+        ->assertJsonMissingPath('data.0.createdBy');
 });
 
 test('listing tender projects searches by name', function () {
@@ -90,7 +91,7 @@ test('listing tender projects filters by department', function () {
 
     $response = $this->getJson('/api/v1/dashboard/tender-projects?department_id='.$hr->id);
 
-    $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.departmentId', $hr->id);
+    $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.department.id', $hr->id);
 });
 
 test('listing tender projects filters by fiscal year', function () {
@@ -167,10 +168,10 @@ test('listing tender projects includes description, person in charge, dates, and
 
     $response->assertOk()
         ->assertJsonPath('data.0.description', 'รายละเอียดโครงการ')
-        ->assertJsonPath('data.0.personInChargeId', $profile->id)
+        ->assertJsonPath('data.0.personInCharge', ['id' => $profile->id, 'firstname' => 'A', 'lastname' => 'B'])
         ->assertJsonPath('data.0.budget', '500000.00')
-        ->assertJsonPath('data.0.projectStartAt', $startAt->toIso8601String())
-        ->assertJsonPath('data.0.projectEndAt', $endAt->toIso8601String());
+        ->assertJsonPath('data.0.projectStartAt', fn (string $value) => CarbonImmutable::parse($value)->equalTo($startAt))
+        ->assertJsonPath('data.0.projectEndAt', fn (string $value) => CarbonImmutable::parse($value)->equalTo($endAt));
 });
 
 test('listing tender projects returns global stats unaffected by the list filters', function () {

@@ -77,7 +77,7 @@ test('an internal user with the update permission can update a tender project', 
         ->assertJsonPath('data.projectCode', 'TP-2569-0001')
         ->assertJsonPath('data.name', 'จัดซื้อคอมพิวเตอร์ (แก้ไข)')
         ->assertJsonPath('data.status', 'published')
-        ->assertJsonPath('data.createdBy.id', $creator->id);
+        ->assertJsonMissingPath('data.createdBy');
 
     $this->assertDatabaseHas('tenders_projects', [
         'id' => $project->id,

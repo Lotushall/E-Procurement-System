@@ -2,11 +2,8 @@
 
 namespace App\Modules\Tender\Presentation\Http\Resources\Project;
 
+use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\InternalProfiles\Presentation\Http\Resources\DepartmentResource;
-use App\Modules\InternalProfiles\Presentation\Http\Resources\InternalProfileResource;
-use App\Modules\Tender\Domain\Entities\Project\TenderProject;
-use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
-use App\Modules\User\Presentation\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,9 +22,12 @@ class TenderProjectResource extends JsonResource
             'name' => $this->whenNotNull($this->name),
             'description' => $this->whenNotNull($this->description),
             'budget' => $this->whenNotNull($this->budget),
-            'department' =>  DepartmentResource::make($this->whenLoaded('TenderProjectsDepartment')),
-            'personInCharge' => InternalProfileResource::make($this->whenLoaded('TenderProjectsPersonInCharge')),
-            'createdBy' => UserResource::make($this->whenLoaded('TenderProjectsCreatedBy')),
+            'department' => DepartmentResource::make($this->whenLoaded('TenderProjectsDepartment')),
+            'personInCharge' => $this->whenLoaded('TenderProjectsPersonInCharge', fn (InternalProfiles $profile) => [
+                'id' => $profile->id,
+                'firstname' => $profile->firstname,
+                'lastname' => $profile->lastname,
+            ]),
             'procurementMethod' => $this->whenNotNull($this->procurement_method),
             'fiscalYear' => $this->whenNotNull($this->fiscal_year),
             'projectStartAt' => $this->whenNotNull($this->project_start_at),

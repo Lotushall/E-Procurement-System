@@ -10,7 +10,7 @@ final class GetTenderProjectByIdQuery
     public function execute(int $id): TenderProjects
     {
         return TenderProjects::query()
-            ->with(['TenderProjectsDepartment', 'TenderProjectsPersonInCharge', 'TenderProjectsCreatedBy'])
+            ->with(['TenderProjectsDepartment', 'TenderProjectsPersonInCharge'])
             ->find($id) ?? throw (new ModelNotFoundException)->setModel(TenderProjects::class, [$id]);
     }
 }

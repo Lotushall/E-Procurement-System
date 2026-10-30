@@ -58,7 +58,7 @@ test('an internal user with the permission can create a tender project', functio
         ->assertJsonPath('data.projectCode', 'TP-2569-0001')
         ->assertJsonPath('data.status', 'draft')
         ->assertJsonPath('data.name', 'จัดซื้อคอมพิวเตอร์')
-        ->assertJsonPath('data.createdBy', $user->id);
+        ->assertJsonMissingPath('data.createdBy');
 
     $this->assertDatabaseHas('tenders_projects', [
         'project_code' => 'TP-2569-0001',
@@ -156,5 +156,6 @@ test('accepts a valid person in charge', function () {
         'personInChargeId' => $profile->id,
     ]));
 
-    $response->assertStatus(201)->assertJsonPath('data.personInChargeId', $profile->id);
+    $response->assertStatus(201)
+        ->assertJsonPath('data.personInCharge', ['id' => $profile->id, 'firstname' => 'A', 'lastname' => 'B']);
 });
