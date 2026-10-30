@@ -17,5 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserSeeder::class);
         $this->call(VendorSeeder::class);
         $this->call(TenderProjectSeeder::class);
+        $this->call(TorSeeder::class);
     }
 }

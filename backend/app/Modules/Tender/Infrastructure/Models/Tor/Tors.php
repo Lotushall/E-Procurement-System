@@ -5,6 +5,7 @@ namespace App\Modules\Tender\Infrastructure\Models\Tor;
 use App\Modules\InternalProfiles\Infrastructure\Models\Department;
 use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
+use Database\Factories\TorsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,6 +33,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Tors extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): TorsFactory
+    {
+        return TorsFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.

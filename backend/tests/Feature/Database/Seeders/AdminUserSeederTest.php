@@ -61,3 +61,19 @@ test('running the admin seeder grants the admin role permission to delete tender
 
     expect($admin->hasPermissionTo('tender_projects.delete'))->toBeTrue();
 });
+
+test('running the admin seeder grants the admin role every TOR permission', function (string $permission) {
+    (new AdminUserSeeder)->run();
+
+    $admin = Role::where('name', 'admin')->first();
+
+    expect($admin->hasPermissionTo($permission))->toBeTrue();
+})->with([
+    'tors.viewAny',
+    'tors.create',
+    'tors.update',
+    'tors.delete',
+    'tors.review',
+    'tors.publish',
+    'tors.cancel',
+]);
