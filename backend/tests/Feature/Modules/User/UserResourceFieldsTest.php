@@ -54,7 +54,7 @@ test('user detail exposes role, internalProfile, and permissions for an internal
         ->assertJsonPath('data.permissions', ['vendors.view']);
 });
 
-test('user detail omits internalProfile, role, emailVerifiedAt, lastLoginAt, and passwordChangedAt when absent', function () {
+test('user detail returns a null role and omits internalProfile, emailVerifiedAt, lastLoginAt, and passwordChangedAt when absent', function () {
     $admin = actingInternalAdmin();
     $this->actingAs($admin, 'web');
 
@@ -64,7 +64,7 @@ test('user detail omits internalProfile, role, emailVerifiedAt, lastLoginAt, and
 
     $response->assertOk()
         ->assertJsonMissingPath('data.internalProfile')
-        ->assertJsonMissingPath('data.role')
+        ->assertJsonPath('data.role', null)
         ->assertJsonMissingPath('data.emailVerifiedAt')
         ->assertJsonMissingPath('data.lastLoginAt')
         ->assertJsonMissingPath('data.passwordChangedAt');

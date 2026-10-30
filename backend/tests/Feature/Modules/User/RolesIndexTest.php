@@ -22,13 +22,13 @@ test('a non-internal user cannot fetch roles', function () {
     $response->assertStatus(403);
 });
 
-test('an internal user without the admin role can still fetch roles', function () {
+test('an internal user without the admin role cannot fetch roles', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     $this->actingAs($internalUser, 'web');
 
     $response = $this->getJson('/api/v1/dashboard/roles');
 
-    $response->assertOk();
+    $response->assertStatus(403);
 });
 
 test('the roles list includes id, permissions, and userCount', function () {
