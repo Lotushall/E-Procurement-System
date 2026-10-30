@@ -9,31 +9,17 @@ import type {
   SessionInfo,
   UpdateUserPayload,
   UserDetail,
-  UserSortBy,
-  UserSortDirection,
+  UserListParams,
   UserStatus,
-  UserType,
 } from "@/lib/user/management/types";
 
 export async function fetchUserList(
-  type?: UserType,
-  status?: UserStatus,
-  search?: string,
+  params: UserListParams = {},
   page = 1,
-  perPage = 20,
-  sortBy?: UserSortBy,
-  sortDirection?: UserSortDirection,
+  per_page = 20,
 ): Promise<PaginatedUserList> {
   const { data } = await api.get<PaginatedUserList>("/api/v1/dashboard/users", {
-    params: {
-      type,
-      status,
-      search,
-      page,
-      per_page: perPage,
-      sort_by: sortBy,
-      sort_direction: sortDirection,
-    },
+    params: { ...params, page, per_page },
   });
   return {
     data: data.data,

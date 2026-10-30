@@ -7,6 +7,14 @@ export type UserStatusFilter = "all" | UserStatus;
 export type UserSortBy = "created_at" | "username" | "email";
 export type UserSortDirection = "asc" | "desc";
 
+export interface UserListParams {
+  type?: UserType;
+  status?: UserStatus;
+  search?: string;
+  sort_by?: UserSortBy;
+  sort_direction?: UserSortDirection;
+}
+
 export interface UserListItem {
   id: number;
   username: string;

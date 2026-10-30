@@ -58,12 +58,14 @@ export function useVendorListPage() {
   };
 
   const list = useVendorList(
-    filter === "all" ? undefined : filter,
-    debouncedSearch || undefined,
+    {
+      status: filter === "all" ? undefined : filter,
+      search: debouncedSearch || undefined,
+      sort_by: sortBy,
+      sort_direction: sortDirection,
+    },
     page,
     pageSize,
-    sortBy,
-    sortDirection,
   );
 
   const counts: Record<VendorListFilter, number> = {

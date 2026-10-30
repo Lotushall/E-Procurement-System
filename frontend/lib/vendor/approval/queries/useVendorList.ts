@@ -1,32 +1,12 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { fetchVendorList } from "@/lib/vendor/approval/api";
-import type {
-  VendorSortBy,
-  VendorSortDirection,
-  VendorVerificationStatus,
-} from "@/lib/vendor/approval/types";
+import type { VendorListParams } from "@/lib/vendor/approval/types";
 
-export function useVendorList(
-  status?: VendorVerificationStatus,
-  search?: string,
-  page = 1,
-  perPage = 20,
-  sortBy?: VendorSortBy,
-  sortDirection?: VendorSortDirection,
-) {
+export function useVendorList(params: VendorListParams = {}, page = 1, per_page = 20) {
   return useQuery({
-    queryKey: [
-      "vendors",
-      status ?? "all",
-      search ?? "",
-      page,
-      perPage,
-      sortBy ?? "",
-      sortDirection ?? "",
-    ],
-    queryFn: () =>
-      fetchVendorList(status, search, page, perPage, sortBy, sortDirection),
-    gcTime: search ? 0 : undefined,
+    queryKey: ["vendors", "list", params, page, per_page],
+    queryFn: () => fetchVendorList(params, page, per_page),
+    gcTime: params.search ? 0 : undefined,
     placeholderData: keepPreviousData,
   });
 }

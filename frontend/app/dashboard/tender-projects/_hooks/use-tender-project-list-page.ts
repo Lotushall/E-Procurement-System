@@ -106,14 +106,16 @@ export function useTenderProjectListPage() {
   };
 
   const list = useTenderProjectsList(
-    appliedSearch || undefined,
-    appliedStatus === "all" ? undefined : appliedStatus,
-    appliedDepartmentId,
-    appliedFiscalYear,
-    appliedDateFrom,
-    appliedDateTo,
-    sortBy,
-    sortDirection,
+    {
+      search: appliedSearch || undefined,
+      status: appliedStatus === "all" ? undefined : appliedStatus,
+      department_id: appliedDepartmentId,
+      fiscal_year: appliedFiscalYear,
+      date_from: appliedDateFrom,
+      date_to: appliedDateTo,
+      sort_by: sortBy,
+      sort_direction: sortDirection,
+    },
     page,
     pageSize,
   );

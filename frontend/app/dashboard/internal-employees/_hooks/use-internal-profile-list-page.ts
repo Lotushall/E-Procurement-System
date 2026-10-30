@@ -45,13 +45,15 @@ export function useInternalProfileListPage() {
   };
 
   const list = useInternalProfileList(
+    {
+      search: debouncedSearch || undefined,
+      sort_by: sortBy,
+      sort_direction: sortDirection,
+      department_id: departmentFilter === "all" ? undefined : Number(departmentFilter),
+      position_id: positionFilter === "all" ? undefined : Number(positionFilter),
+    },
     page,
     pageSize,
-    debouncedSearch || undefined,
-    sortBy,
-    sortDirection,
-    departmentFilter === "all" ? undefined : Number(departmentFilter),
-    positionFilter === "all" ? undefined : Number(positionFilter),
   );
 
   return {

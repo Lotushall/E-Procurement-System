@@ -8,6 +8,14 @@ export type InternalProfileSortBy =
   | "position";
 export type InternalProfileSortDirection = "asc" | "desc";
 
+export interface InternalProfileListParams {
+  search?: string;
+  sort_by?: InternalProfileSortBy;
+  sort_direction?: InternalProfileSortDirection;
+  department_id?: number;
+  position_id?: number;
+}
+
 export interface InternalProfile {
   id: number;
   userId: number | null;

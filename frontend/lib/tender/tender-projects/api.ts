@@ -2,38 +2,19 @@ import { api } from "@/lib/api";
 import {
   CreateTenderProjectPayload,
   PaginatedTenderProjectsList,
+  TenderProjectListParams,
   TenderProjects,
-  TenderProjectSortBy,
-  TenderProjectSortDirection,
   TenderProjectStatus,
   UpdateTenderProjectPayload,
 } from "./types";
 
 export async function fetchTenderProjectsList(
-  search?: string,
-  status?: string,
-  department_id?: number,
-  fiscal_year?: string,
-  date_from?: string,
-  date_to?: string,
-  sort_by?: TenderProjectSortBy,
-  sort_direction?: TenderProjectSortDirection,
+  params: TenderProjectListParams = {},
   page = 1,
   per_page = 20,
 ): Promise<PaginatedTenderProjectsList> {
   const { data } = await api.get("/api/v1/dashboard/tender-projects", {
-    params: {
-      search,
-      status,
-      department_id,
-      fiscal_year,
-      date_from,
-      date_to,
-      sort_by,
-      sort_direction,
-      page,
-      per_page,
-    },
+    params: { ...params, page, per_page },
   });
 
   return {

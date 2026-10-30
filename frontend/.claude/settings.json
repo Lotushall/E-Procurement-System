@@ -166,7 +166,10 @@
       "Bash('C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts/task-brief' docs/superpowers/plans/2026-07-30-vendor-approval-dashboard.md 2)",
       "Bash('C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts/review-package' a316eb3 *)",
       "Bash('C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts/task-brief' docs/superpowers/plans/2026-07-30-vendor-approval-dashboard.md 3)",
-      "Bash('C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts/review-package' 6f44c22 caa5822)"
+      "Bash('C:\\\\Users\\\\JR\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\superpowers\\\\6.1.0\\\\skills\\\\subagent-driven-development\\\\scripts/review-package' 6f44c22 caa5822)",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"error TS\" | ForEach-Object { \\($_ -split '\\\\\\('\\)[0] } | Sort-Object -Unique)",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"lib/tender/tor\"; npx eslint lib/tender/tor; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"error TS\"; npx eslint lib app/dashboard/tender-projects app/dashboard/internal-employees app/dashboard/users app/dashboard/vendors; \"eslint exit: $LASTEXITCODE\")"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

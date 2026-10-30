@@ -24,6 +24,13 @@ export type VendorSortBy =
 
 export type VendorSortDirection = "asc" | "desc";
 
+export interface VendorListParams {
+  status?: VendorVerificationStatus;
+  search?: string;
+  sort_by?: VendorSortBy;
+  sort_direction?: VendorSortDirection;
+}
+
 export interface VendorDetail extends VendorProfile {
   user: Pick<User, "id" | "username" | "email">;
 }

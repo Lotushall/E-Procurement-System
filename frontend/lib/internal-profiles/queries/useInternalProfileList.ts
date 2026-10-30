@@ -1,37 +1,15 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { fetchInternalProfileList } from "../api";
-import type { InternalProfileSortBy, InternalProfileSortDirection } from "../types";
+import type { InternalProfileListParams } from "../types";
 
 export function useInternalProfileList(
+  params: InternalProfileListParams = {},
   page = 1,
-  perPage = 20,
-  search?: string,
-  sortBy?: InternalProfileSortBy,
-  sortDirection?: InternalProfileSortDirection,
-  departmentId?: number,
-  positionId?: number,
+  per_page = 20,
 ) {
   return useQuery({
-    queryKey: [
-      "internal_profiles",
-      page,
-      perPage,
-      search ?? "",
-      sortBy ?? "",
-      sortDirection ?? "",
-      departmentId ?? "",
-      positionId ?? "",
-    ],
-    queryFn: () =>
-      fetchInternalProfileList(
-        page,
-        perPage,
-        search,
-        sortBy,
-        sortDirection,
-        departmentId,
-        positionId,
-      ),
+    queryKey: ["internal_profiles", "list", params, page, per_page],
+    queryFn: () => fetchInternalProfileList(params, page, per_page),
     placeholderData: keepPreviousData,
   });
 }

@@ -6,9 +6,8 @@ import {
   CreatePositionPayload,
   Department,
   InternalProfile,
+  InternalProfileListParams,
   InternalProfileOption,
-  InternalProfileSortBy,
-  InternalProfileSortDirection,
   PaginatedInternalProfileList,
   Position,
   UpdateDepartmentPayload,
@@ -17,24 +16,12 @@ import {
 } from "./types";
 
 export async function fetchInternalProfileList(
+  params: InternalProfileListParams = {},
   page = 1,
-  perPage = 20,
-  search?: string,
-  sortBy?: InternalProfileSortBy,
-  sortDirection?: InternalProfileSortDirection,
-  departmentId?: number,
-  positionId?: number,
+  per_page = 20,
 ): Promise<PaginatedInternalProfileList> {
   const { data } = await api.get("/api/v1/dashboard/internal-profiles", {
-    params: {
-      page,
-      per_page: perPage,
-      search,
-      sort_by: sortBy,
-      sort_direction: sortDirection,
-      department_id: departmentId,
-      position_id: positionId,
-    },
+    params: { ...params, page, per_page },
   });
   return {
     data: data.data,

@@ -165,7 +165,19 @@
       "Bash(curl -s -o /dev/null -w \"login: %{http_code}\\\\n\" \"http://localhost:3000/login\")",
       "Bash(git worktree *)",
       "Read(//c/Users/JR/.claude/skills/domain-modeling/**)",
-      "Read(//c/Users/JR/.agents/skills/domain-modeling/**)"
+      "Read(//c/Users/JR/.agents/skills/domain-modeling/**)",
+      "Bash(php -r 'function f\\(int $i\\){return $i;} try { var_dump\\(f\\(\"99999999999999999999\"\\)\\); } catch \\(Throwable $e\\) { echo get_class\\($e\\), \": \", $e->getMessage\\(\\), \"\\\\n\"; }')",
+      "Bash(grep -o '\"test\":\"[^\"]*\"\\\\|\"message\":\"[^\\\\\\\\]*\\\\\\\\n[^\\\\\\\\]*')",
+      "Bash(php /tmp/ed.php)",
+      "Bash(cat)",
+      "Bash(php /tmp/sp.php)",
+      "Bash(php /tmp/sp2.php)",
+      "Bash(grep -oE '\"message\":\"[^\"]{0,600}')",
+      "Bash(grep -n 'projectStartAt'\\\\'', $startAt\\\\|projectEndAt'\\\\'', $endAt' tests/Feature/Modules/Tender/ListTenderProjectsTest.php)",
+      "Bash(grep -oE '\"file\":\"[^\"]*Test[^\"]*\"|\"message\":\"[^\"]{0,260}')",
+      "Bash(grep -oE '\"message\":\"[^\"]{0,400}|\"line\":[0-9]+')",
+      "Bash(php -d memory_limit=512M artisan test --compact)",
+      "Bash(echo \"exit=$?\")"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

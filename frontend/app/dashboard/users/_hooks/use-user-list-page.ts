@@ -53,13 +53,15 @@ export function useUserListPage() {
   };
 
   const list = useUserList(
-    typeFilter === "all" ? undefined : typeFilter,
-    statusFilter === "all" ? undefined : statusFilter,
-    debouncedSearch || undefined,
+    {
+      type: typeFilter === "all" ? undefined : typeFilter,
+      status: statusFilter === "all" ? undefined : statusFilter,
+      search: debouncedSearch || undefined,
+      sort_by: sortBy,
+      sort_direction: sortDirection,
+    },
     page,
     pageSize,
-    sortBy,
-    sortDirection,
   );
 
   return {

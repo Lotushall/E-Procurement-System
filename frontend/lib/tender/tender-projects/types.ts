@@ -33,6 +33,17 @@ export interface TenderProjects {
   status: TenderProjectStatus;
 }
 
+export interface TenderProjectListParams {
+  search?: string;
+  status?: TenderProjectStatus;
+  department_id?: number;
+  fiscal_year?: string;
+  date_from?: string;
+  date_to?: string;
+  sort_by?: TenderProjectSortBy;
+  sort_direction?: TenderProjectSortDirection;
+}
+
 interface TenderProjectStats {
   stats: {
     totalCount: number;
