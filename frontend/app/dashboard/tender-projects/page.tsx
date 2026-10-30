@@ -63,7 +63,7 @@ function TenderProjectsPageContent() {
 
     return (
         // pb-36: เว้นที่ให้ปุ่มสร้างแบบลอย + ScrollToTop ที่ซ้อนอยู่เหนือมัน ไม่ให้บัง pagination / การ์ดใบสุดท้าย
-        <div className="flex flex-col gap-5 pb-36">
+        <div className="flex flex-col gap-5 pb-20">
             <div className="space-y-2">
                 <h1 className="text-2xl font-bold">จัดการโครงการจัดซื้อจัดจ้าง</h1>
                 <p className="text-sm text-gray-600 tracking-wide">
