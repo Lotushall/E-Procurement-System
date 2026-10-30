@@ -12,7 +12,7 @@ Route::prefix('dashboard')->group(function () {
 
         Route::get('/{id}', [TenderProjectController::class, 'show'])
             ->middleware('can:tender-projects.index')
-            ->whereNumber('id')
+            ->where('id', '[0-9]{1,18}')
             ->name('dashboard.tender-projects.show');
 
         Route::post('/', [TenderProjectController::class, 'store'])
@@ -21,17 +21,17 @@ Route::prefix('dashboard')->group(function () {
 
         Route::put('/{id}', [TenderProjectController::class, 'update'])
             ->middleware('can:tender-projects.update')
-            ->whereNumber('id')
+            ->where('id', '[0-9]{1,18}')
             ->name('dashboard.tender-projects.update');
 
         Route::patch('/{id}/status', [TenderProjectController::class, 'updateStatus'])
             ->middleware('can:tender-projects.updateStatus')
-            ->whereNumber('id')
+            ->where('id', '[0-9]{1,18}')
             ->name('dashboard.tender-projects.status.update');
 
         Route::delete('/{id}', [TenderProjectController::class, 'destroy'])
             ->middleware('can:tender-projects.destroy')
-            ->whereNumber('id')
+            ->where('id', '[0-9]{1,18}')
             ->name('dashboard.tender-projects.destroy');
     });
 });

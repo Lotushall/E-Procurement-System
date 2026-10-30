@@ -33,6 +33,8 @@ class AdminUserSeeder extends Seeder
             Permission::updateOrCreate(['name' => 'tender_projects.updateStatus', 'guard_name' => 'web'], ['label' => 'เปลี่ยนสถานะโครงการจัดซื้อจัดจ้าง']),
             Permission::updateOrCreate(['name' => 'tender_projects.delete', 'guard_name' => 'web'], ['label' => 'ลบโครงการจัดซื้อจัดจ้าง']),
             Permission::updateOrCreate(['name' => 'tors.viewAny', 'guard_name' => 'web'], ['label' => 'ดูรายการ TOR']),
+            Permission::updateOrCreate(['name' => 'tors.viewDepartment', 'guard_name' => 'web'], ['label' => 'ดู TOR ของหน่วยงานตัวเอง']),
+            Permission::updateOrCreate(['name' => 'tors.viewOwn', 'guard_name' => 'web'], ['label' => 'ดู TOR ที่ตัวเองสร้าง']),
             Permission::updateOrCreate(['name' => 'tors.create', 'guard_name' => 'web'], ['label' => 'สร้าง TOR']),
             Permission::updateOrCreate(['name' => 'tors.update', 'guard_name' => 'web'], ['label' => 'แก้ไข TOR']),
             Permission::updateOrCreate(['name' => 'tors.delete', 'guard_name' => 'web'], ['label' => 'ลบ TOR']),

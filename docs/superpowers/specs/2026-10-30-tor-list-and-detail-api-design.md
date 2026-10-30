@@ -80,11 +80,15 @@ Route::prefix('dashboard')->group(function () {
 
         Route::get('/{id}', [TorController::class, 'show'])
             ->middleware('can:tors.index')
-            ->whereNumber('id')
+            ->where('id', '[0-9]{1,18}')
             ->name('dashboard.tors.show');
     });
 });
 ```
+
+The id constraint is `[0-9]{1,18}` rather than `whereNumber`: an id too large for an
+integer returns 404 instead of a TypeError 500. The Tender Project `{id}` routes got
+the same constraint.
 
 ### Model scopes (`Tors`)
 
@@ -164,7 +168,7 @@ has been bitten before by keys that `whenNotNull`/`whenLoaded` drop.
 | `createdAt` | ISO 8601 string |
 | `department` | `DepartmentResource` |
 | `tenderProject` | `{ id, projectCode, name }` or null |
-| `createdBy`, `approvedBy` | `UserResource` or null |
+| `createdBy`, `approvedBy` | `{ id, name, department: { id, name } \| null }` or null; all keys always present. `name` is the internal profile's `firstname lastname`, null without a profile. A TOR viewer needs no account details such as email or login times, so the full `UserResource` is not used. |
 
 Both queries always eager-load the four relations, so the resource reads them
 directly instead of using `whenLoaded`.

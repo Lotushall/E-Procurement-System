@@ -70,6 +70,8 @@ test('running the admin seeder grants the admin role every TOR permission', func
     expect($admin->hasPermissionTo($permission))->toBeTrue();
 })->with([
     'tors.viewAny',
+    'tors.viewDepartment',
+    'tors.viewOwn',
     'tors.create',
     'tors.update',
     'tors.delete',

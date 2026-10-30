@@ -5,6 +5,7 @@ namespace App\Modules\Tender\Providers;
 use App\Modules\Tender\Domain\Repositories\Project\TenderProjectRepositoryInterface;
 use App\Modules\Tender\Infrastructure\Repositories\Project\TenderProjectRepository;
 use App\Modules\Tender\Presentation\Policies\TenderProjectPolicy;
+use App\Modules\Tender\Presentation\Policies\TorPolicy;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Gate;
 use Nwidart\Modules\Support\ModuleServiceProvider;
@@ -60,6 +61,10 @@ class TenderServiceProvider extends ModuleServiceProvider
         Gate::define('tender-projects.update', [TenderProjectPolicy::class, 'update']);
         Gate::define('tender-projects.updateStatus', [TenderProjectPolicy::class, 'updateStatus']);
         Gate::define('tender-projects.destroy', [TenderProjectPolicy::class, 'delete']);
+
+        // Same reason as above: `tors.index` must not equal any TOR permission
+        // name (`tors.viewAny`, `tors.viewDepartment`, `tors.viewOwn`).
+        Gate::define('tors.index', [TorPolicy::class, 'viewAny']);
     }
 
     /**
