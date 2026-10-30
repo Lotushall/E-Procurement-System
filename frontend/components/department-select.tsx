@@ -21,6 +21,7 @@ export function DepartmentSelect({
   // for filter usage where "not filtered" should read as a placeholder, not a chosen value.
   placeholder,
   className,
+  inlineSearch = false,
 }: {
   departments: Department[];
   value: string;
@@ -30,6 +31,9 @@ export function DepartmentSelect({
   allOption?: { value: string; label: string };
   placeholder?: string;
   className?: string;
+  // Type into the field itself instead of a search box inside the popup. Use inside a bottom
+  // sheet: focusing a search box in the portaled popup pulls focus out of the sheet and shoves it.
+  inlineSearch?: boolean;
 }) {
   const idByLabel = new Map(departments.map((d) => [d.name, String(d.id)]));
   const labelById = new Map(departments.map((d) => [String(d.id), d.name]));
@@ -60,35 +64,50 @@ export function DepartmentSelect({
         if (id !== undefined) onValueChange(id);
       }}
     >
-      <ComboboxTrigger
-        render={
-          <Button
-            variant="outline"
-            aria-invalid={ariaInvalid}
-            className={cn(
-              "w-full justify-between font-normal text-black bg-white hover:bg-white data-popup-open:bg-white data-placeholder:text-gray-400",
-              "focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-none",
-              className,
-            )}
-          >
-            <span className="min-w-0 truncate">
-              <ComboboxValue placeholder={placeholder ?? "เลือกแผนก"} />
-            </span>
-            <ChevronDown />
-          </Button>
-        }
-        className="h-10 rounded-sm"
-      />
-      <ComboboxContent>
+      {inlineSearch ? (
         <ComboboxInput
-          showTrigger={false}
-          placeholder="ค้นหาแผนก"
-          className="
-          bg-transparent! border-0 border-b! border-gray-300! rounded-none ring-0 shadow-none focus-visible:outline-none focus-visible:ring-0
-          has-[[data-slot=input-group-control]:focus-visible]:border-transparent
-          has-[[data-slot=input-group-control]:focus-visible]:ring-0
-          "
+          placeholder={placeholder ?? "เลือกแผนก"}
+          aria-invalid={ariaInvalid}
+          className={cn(
+            "h-10 w-full rounded-sm bg-white",
+            // ไม่เอา focus ring/สีขอบของ InputGroup ให้ตรงกับปุ่ม trigger ของโหมดปกติ
+            "has-[[data-slot=input-group-control]:focus-visible]:border-input has-[[data-slot=input-group-control]:focus-visible]:ring-0",
+            className,
+          )}
         />
+      ) : (
+        <ComboboxTrigger
+          render={
+            <Button
+              variant="outline"
+              aria-invalid={ariaInvalid}
+              className={cn(
+                "w-full justify-between font-normal text-black bg-white hover:bg-white data-popup-open:bg-white data-placeholder:text-gray-400",
+                "focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-none",
+                className,
+              )}
+            >
+              <span className="min-w-0 truncate">
+                <ComboboxValue placeholder={placeholder ?? "เลือกแผนก"} />
+              </span>
+              <ChevronDown />
+            </Button>
+          }
+          className="h-10 rounded-sm"
+        />
+      )}
+      <ComboboxContent>
+        {!inlineSearch && (
+          <ComboboxInput
+            showTrigger={false}
+            placeholder="ค้นหาแผนก"
+            className="
+            bg-transparent! border-0 border-b! border-gray-300! rounded-none ring-0 shadow-none focus-visible:outline-none focus-visible:ring-0
+            has-[[data-slot=input-group-control]:focus-visible]:border-transparent
+            has-[[data-slot=input-group-control]:focus-visible]:ring-0
+            "
+          />
+        )}
         <ComboboxEmpty>ไม่พบแผนกที่ค้นหา</ComboboxEmpty>
         <ComboboxList>
           {(item: string) => (

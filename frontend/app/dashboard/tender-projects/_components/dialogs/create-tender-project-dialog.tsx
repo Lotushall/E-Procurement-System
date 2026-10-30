@@ -21,7 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DepartmentSelect } from "@/components/department-select";
 import { InternalProfileCombobox } from "@/components/internal-profile-combobox";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
-import { useCreateTenderProjectForm } from "../_hooks/use-create-tender-project-form";
+import { useCreateTenderProjectForm } from "../../_hooks/use-create-tender-project-form";
 import { ProcurementMethodCombobox } from "./procurement-method-combobox";
 
 const DATE_PARAM_FORMAT = "yyyy-MM-dd";
@@ -106,13 +106,21 @@ export function CreateTenderProjectDialog() {
                 if (!next) reset();
             }}
         >
+            {/*
+              ปุ่มกลมลอยมุมขวาล่าง (FAB) ทุกขนาดจอ เหลือแค่ไอคอน (ชื่ออยู่ใน aria-label / title)
+              data-fab: ให้ ScrollToTop ใน dashboard layout ขยับขึ้นไปอยู่เหนือปุ่มนี้
+            */}
             <DialogTrigger
                 render={
-                    <Button className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10 flex-1" />
+                    <Button
+                        data-fab=""
+                        aria-label="สร้างโครงการใหม่"
+                        title="สร้างโครงการใหม่"
+                        className="fixed right-6 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-40 size-12 rounded-full bg-red-700 text-white shadow-lg shadow-red-900/30 hover:bg-red-600"
+                    />
                 }
             >
-                <Plus />
-                <p>สร้างโครงการใหม่</p>
+                <Plus className="size-6" />
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-2xl scrollbar-rounded">

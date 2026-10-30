@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useListPageControls } from "@/hooks/use-list-page-controls";
+import { type ListSortDirection, useListPageControls } from "@/hooks/use-list-page-controls";
 import { useTenderProjectsList } from "@/lib/tender/tender-projects/queries/useTendersProjectList";
 import {
   TenderProjectSortBy,
@@ -26,6 +26,9 @@ function parseStatus(value: string | null): TenderProjectStatusFilter {
     ? (value as TenderProjectStatusFilter)
     : "all";
 }
+
+// ค่าของ Select เรียงลำดับในตัวกรอง: "latest" = ลำดับ default ของ backend (created_at desc)
+export type TenderProjectSortValue = "latest" | `${TenderProjectSortBy}:${ListSortDirection}`;
 
 function parseDepartmentId(value: string | null): number | undefined {
   const parsed = Number(value);
@@ -69,7 +72,19 @@ export function useTenderProjectListPage() {
   const [dateFrom, setDateFrom] = useState(appliedDateFrom);
   const [dateTo, setDateTo] = useState(appliedDateTo);
 
+  // Draft sort — staged with the filters (sort Select in the filter sheet / lg filter row). When the
+  // URL sort changes from elsewhere (a table header click on xl), resync so submitting the filters
+  // doesn't revert it.
+  const appliedSort: TenderProjectSortValue = sortBy ? `${sortBy}:${sortDirection ?? "desc"}` : "latest";
+  const [sort, setSort] = useState(appliedSort);
+  const [syncedSort, setSyncedSort] = useState(appliedSort);
+  if (appliedSort !== syncedSort) {
+    setSyncedSort(appliedSort);
+    setSort(appliedSort);
+  }
+
   const submitFilters = () => {
+    const [nextSortBy, nextSortDirection] = sort === "latest" ? [null, null] : sort.split(":");
     setSkipSkeleton(false);
     updateParams(
       {
@@ -79,6 +94,8 @@ export function useTenderProjectListPage() {
         fiscal_year: fiscalYear ?? null,
         date_from: dateFrom ?? null,
         date_to: dateTo ?? null,
+        sort_by: nextSortBy,
+        sort_direction: nextSortDirection,
       },
       true,
     );
@@ -133,14 +150,18 @@ export function useTenderProjectListPage() {
     setDateFrom,
     dateTo,
     setDateTo,
+    sort,
+    setSort,
     submitFilters,
     clearFilters,
     appliedSearch,
-    appliedStatus,
-    appliedDepartmentId,
-    appliedFiscalYear,
-    appliedDateFrom,
-    appliedDateTo,
+    // ตัวกรองที่ใช้กับผลลัพธ์อยู่ (ไม่นับค้นหาและการเรียงลำดับ) — ตัวเลขบนปุ่มตัวกรอง / ข้อความตอนไม่พบผลลัพธ์
+    activeFilterCount: [
+      appliedStatus !== "all",
+      appliedDepartmentId !== undefined,
+      appliedFiscalYear !== undefined,
+      appliedDateFrom !== undefined || appliedDateTo !== undefined,
+    ].filter(Boolean).length,
     stats: list.data?.meta.stats ?? {
       totalCount: 0,
       totalBudget: 0,

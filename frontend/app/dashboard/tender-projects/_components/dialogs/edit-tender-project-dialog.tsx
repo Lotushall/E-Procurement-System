@@ -22,7 +22,7 @@ import { DepartmentSelect } from "@/components/department-select";
 import { InternalProfileCombobox } from "@/components/internal-profile-combobox";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
 import type { TenderProjects } from "@/lib/tender/tender-projects/types";
-import { toFormValues, useEditTenderProjectForm } from "../_hooks/use-edit-tender-project-form";
+import { toFormValues, useEditTenderProjectForm } from "../../_hooks/use-edit-tender-project-form";
 import { ProcurementMethodCombobox } from "./procurement-method-combobox";
 
 const DATE_PARAM_FORMAT = "yyyy-MM-dd";

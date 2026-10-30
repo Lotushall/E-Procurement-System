@@ -19,9 +19,43 @@ const EMPTY_STATS = {
     completedCount: 0,
 };
 
+function TenderProjectCardSkeleton() {
+    return (
+        <div className="flex flex-col overflow-hidden rounded-2xl border bg-white shadow-sm">
+            <div className="flex flex-col gap-3 p-4">
+                <div className="flex items-center justify-between">
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                    <Skeleton className="h-9 w-20" />
+                </div>
+                <Skeleton className="h-5 w-4/5" />
+                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-6 w-32" />
+            </div>
+            <div className="flex justify-between border-t bg-gray-50 px-4 py-3">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-24" />
+            </div>
+        </div>
+    );
+}
+
 export function TenderProjectTableSkeleton() {
     return (
-        <div className="overflow-hidden rounded-xl border shadow-md">
+        <>
+            <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+                {Array.from({ length: 4 }).map((_, index) => (
+                    <TenderProjectCardSkeleton key={index} />
+                ))}
+            </div>
+            <TenderProjectTableSkeletonDesktop />
+        </>
+    );
+}
+
+function TenderProjectTableSkeletonDesktop() {
+    return (
+        <div className="hidden overflow-hidden rounded-xl border shadow-md xl:block">
             <Table>
                 <TableHeader className="bg-[#F7F8FA]">
                     <TableRow>

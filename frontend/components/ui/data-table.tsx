@@ -1,5 +1,6 @@
 "use client"
 
+import { Fragment, type ReactNode } from "react"
 import {
     ColumnDef,
     OnChangeFn,
@@ -38,6 +39,8 @@ interface DataTableProps<TData, TValue> {
     onPaginationChange: OnChangeFn<PaginationState>
     sorting: SortingState
     onSortingChange: OnChangeFn<SortingState>
+    // When given, rows render as these cards below the xl breakpoint instead of the table.
+    renderMobileCard?: (row: TData) => ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -49,6 +52,7 @@ export function DataTable<TData, TValue>({
     onPaginationChange,
     sorting,
     onSortingChange,
+    renderMobileCard,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -65,7 +69,14 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="overflow-hidden rounded-xl border shadow-md">
+            {renderMobileCard && (
+                <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+                    {table.getRowModel().rows.map((row) => (
+                        <Fragment key={row.id}>{renderMobileCard(row.original)}</Fragment>
+                    ))}
+                </div>
+            )}
+            <div className={cn("overflow-hidden rounded-xl border shadow-md", renderMobileCard && "hidden xl:block")}>
                 <Table className="">
                     <TableHeader className="bg-[#F7F8FA]">
                         {table.getHeaderGroups().map((headerGroup) => (

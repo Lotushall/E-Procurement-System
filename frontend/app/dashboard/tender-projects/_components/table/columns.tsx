@@ -12,8 +12,8 @@ import { TenderProjectStatusSelect } from "@/components/tender-project-status-se
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/ui/data-table-sortable-header";
 import { routes } from "@/lib/routes";
-import { DeleteTenderProjectDialog } from "../delete-tender-project-dialog";
-import { EditTenderProjectDialog } from "../edit-tender-project-dialog";
+import { DeleteTenderProjectDialog } from "../dialogs/delete-tender-project-dialog";
+import { EditTenderProjectDialog } from "../dialogs/edit-tender-project-dialog";
 
 const HEADER_TEXT_CLASS = "text-sm font-bold text-gray-500";
 // ตัด padding/negative margin ของปุ่ม ghost ออก ให้หัวที่ sort ได้กว้างแค่ข้อความ + ไอคอน ไม่ดันตารางจน overflow

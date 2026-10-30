@@ -30,7 +30,11 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
           </SidebarInset>
         </SidebarProvider>
       </InternalGuard>
-      <ScrollToTop />
+      {/*
+        หน้าที่มีปุ่มลอย (data-fab, เช่นปุ่มสร้างโครงการ): ปุ่มลอยอยู่มุมล่าง
+        ScrollToTop ขยับขึ้นไปซ้อนเหนือมัน (1.5rem + ปุ่ม 3rem + ช่องว่าง 0.75rem)
+      */}
+      <ScrollToTop className="[body:has([data-fab])_&]:bottom-[calc(5.25rem+env(safe-area-inset-bottom))]" />
     </>
   );
 }
