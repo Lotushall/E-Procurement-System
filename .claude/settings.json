@@ -21,7 +21,10 @@
       "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
       "Bash(grep -iE '^\\(tsc|eslint\\)$')",
       "Bash(node_modules/.bin/tsc --noEmit -p tsconfig.json)",
-      "Bash(node_modules/.bin/eslint \"app/\\(auth\\)/register/page.tsx\")"
+      "Bash(node_modules/.bin/eslint \"app/\\(auth\\)/register/page.tsx\")",
+      "Bash(sed -n '/Schema::create/,/}\\);/p' backend/database/migrations/2026_08_28_161830_create_tors_table.php)",
+      "Bash(sed -n '/Schema::create/,/}\\);/p' backend/database/migrations/2026_08_29_100000_create_tor_evaluation_committees_table.php)",
+      "Bash(sed -n '/Schema::create/,/}\\);/p' backend/database/migrations/2026_08_29_093000_create_tor_bids_table.php)"
     ]
   }
 }

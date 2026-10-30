@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained()->restrictOnDelete();
             $table->foreignId('tender_project_id')->nullable()->constrained('tenders_projects')->nullOnDelete();
             $table->decimal('budget_estimate', 14, 2);
+            $table->string('procurement_method');
+            $table->unsignedSmallInteger('fiscal_year'); // ปีงบประมาณ
             $table->timestamp('bidding_start_at')->nullable();
             $table->timestamp('bidding_end_at')->nullable();
             $table->enum('status', [
@@ -26,12 +28,12 @@ return new class extends Migration
                 'in_review',
                 'revision_required',
                 'approved',
-                'published',
                 'bidding',
-                'evaluation',
+                'closed',
+                'no_bidder',
                 'awarded',
-                'cancelled',
                 'completed',
+                'cancelled',
             ])->default('draft');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();

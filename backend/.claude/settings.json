@@ -162,7 +162,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/verify-email\")",
       "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Select-Object ProcessId, CreationDate, CommandLine\")",
       "Bash(powershell -Command \"taskkill /PID 10496 /T /F\")",
-      "Bash(curl -s -o /dev/null -w \"login: %{http_code}\\\\n\" \"http://localhost:3000/login\")"
+      "Bash(curl -s -o /dev/null -w \"login: %{http_code}\\\\n\" \"http://localhost:3000/login\")",
+      "Bash(git worktree *)",
+      "Read(//c/Users/JR/.claude/skills/domain-modeling/**)",
+      "Read(//c/Users/JR/.agents/skills/domain-modeling/**)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",
@@ -170,7 +173,8 @@
       "D:\\E-Procurement-System\\frontend\\app\\(verify)",
       "D:\\E-Procurement-System\\frontend\\app\\(auth)\\verify-email",
       "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_components",
-      "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_hooks"
+      "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_hooks",
+      "D:\\E-Procurement-System"
     ]
   }
 }

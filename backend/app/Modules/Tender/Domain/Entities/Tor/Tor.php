@@ -16,6 +16,8 @@ final class Tor
         private int $departmentId,
         private ?int $tenderProjectId,
         private Money $budgetEstimate,
+        private string $procurementMethod,
+        private int $fiscalYear,
         private ?CarbonImmutable $biddingStartAt,
         private ?CarbonImmutable $biddingEndAt,
         private string $status,
@@ -32,6 +34,8 @@ final class Tor
         int $departmentId,
         ?int $tenderProjectId,
         Money $budgetEstimate,
+        string $procurementMethod,
+        int $fiscalYear,
         ?CarbonImmutable $biddingStartAt,
         ?CarbonImmutable $biddingEndAt,
         ?int $createdBy,
@@ -44,6 +48,8 @@ final class Tor
             departmentId: $departmentId,
             tenderProjectId: $tenderProjectId,
             budgetEstimate: $budgetEstimate,
+            procurementMethod: $procurementMethod,
+            fiscalYear: $fiscalYear,
             biddingStartAt: $biddingStartAt,
             biddingEndAt: $biddingEndAt,
             status: 'draft',
@@ -62,6 +68,8 @@ final class Tor
         int $departmentId,
         ?int $tenderProjectId,
         Money $budgetEstimate,
+        string $procurementMethod,
+        int $fiscalYear,
         ?CarbonImmutable $biddingStartAt,
         ?CarbonImmutable $biddingEndAt,
         string $status,
@@ -78,6 +86,8 @@ final class Tor
             departmentId: $departmentId,
             tenderProjectId: $tenderProjectId,
             budgetEstimate: $budgetEstimate,
+            procurementMethod: $procurementMethod,
+            fiscalYear: $fiscalYear,
             biddingStartAt: $biddingStartAt,
             biddingEndAt: $biddingEndAt,
             status: $status,
@@ -95,6 +105,8 @@ final class Tor
         int $departmentId,
         ?int $tenderProjectId,
         Money $budgetEstimate,
+        string $procurementMethod,
+        int $fiscalYear,
         ?CarbonImmutable $biddingStartAt,
         ?CarbonImmutable $biddingEndAt,
     ): void {
@@ -104,6 +116,8 @@ final class Tor
         $this->departmentId = $departmentId;
         $this->tenderProjectId = $tenderProjectId;
         $this->budgetEstimate = $budgetEstimate;
+        $this->procurementMethod = $procurementMethod;
+        $this->fiscalYear = $fiscalYear;
         $this->biddingStartAt = $biddingStartAt;
         $this->biddingEndAt = $biddingEndAt;
     }
@@ -158,6 +172,16 @@ final class Tor
     public function budgetEstimate(): Money
     {
         return $this->budgetEstimate;
+    }
+
+    public function procurementMethod(): string
+    {
+        return $this->procurementMethod;
+    }
+
+    public function fiscalYear(): int
+    {
+        return $this->fiscalYear;
     }
 
     public function biddingStartAt(): ?CarbonImmutable

@@ -14,6 +14,8 @@ function makeTor(): Tor
         departmentId: 1,
         tenderProjectId: null,
         budgetEstimate: Money::fromString('500000'),
+        procurementMethod: 'e-bidding',
+        fiscalYear: 2569,
         biddingStartAt: null,
         biddingEndAt: null,
         createdBy: 3,
@@ -29,6 +31,8 @@ test('create builds a new draft TOR with no id', function () {
         ->and($tor->departmentId())->toBe(1)
         ->and($tor->tenderProjectId())->toBeNull()
         ->and($tor->budgetEstimate()->amount)->toBe('500000.00')
+        ->and($tor->procurementMethod())->toBe('e-bidding')
+        ->and($tor->fiscalYear())->toBe(2569)
         ->and($tor->status())->toBe('draft')
         ->and($tor->createdBy())->toBe(3)
         ->and($tor->approvedBy())->toBeNull()
@@ -48,6 +52,8 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
         departmentId: 1,
         tenderProjectId: 9,
         budgetEstimate: Money::fromString('500000'),
+        procurementMethod: 'specific',
+        fiscalYear: 2570,
         biddingStartAt: null,
         biddingEndAt: null,
         status: 'approved',
@@ -60,6 +66,8 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
     expect($tor->id())->toBe(1)
         ->and($tor->torCode())->toBe($torCode)
         ->and($tor->tenderProjectId())->toBe(9)
+        ->and($tor->procurementMethod())->toBe('specific')
+        ->and($tor->fiscalYear())->toBe(2570)
         ->and($tor->status())->toBe('approved')
         ->and($tor->approvedBy())->toBe(4)
         ->and($tor->approvedAt())->toBe($approvedAt)
@@ -78,6 +86,8 @@ test('update replaces the editable TOR fields', function () {
         departmentId: 2,
         tenderProjectId: 9,
         budgetEstimate: $newBudget,
+        procurementMethod: 'specific',
+        fiscalYear: 2570,
         biddingStartAt: null,
         biddingEndAt: null,
     );
@@ -86,7 +96,9 @@ test('update replaces the editable TOR fields', function () {
         ->and($tor->title())->toBe('จัดซื้อคอมพิวเตอร์ 60 เครื่อง')
         ->and($tor->departmentId())->toBe(2)
         ->and($tor->tenderProjectId())->toBe(9)
-        ->and($tor->budgetEstimate())->toBe($newBudget);
+        ->and($tor->budgetEstimate())->toBe($newBudget)
+        ->and($tor->procurementMethod())->toBe('specific')
+        ->and($tor->fiscalYear())->toBe(2570);
 });
 
 test('approve sets status, approver, timestamp, and remark', function () {

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Table('tors')]
 #[Fillable([
@@ -20,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'department_id',
     'tender_project_id',
     'budget_estimate',
+    'procurement_method',
+    'fiscal_year',
     'bidding_start_at',
     'bidding_end_at',
     'status',
@@ -41,6 +42,7 @@ class Tors extends Model
     {
         return [
             'budget_estimate' => 'decimal:2',
+            'fiscal_year' => 'integer',
             'bidding_start_at' => 'datetime',
             'bidding_end_at' => 'datetime',
             'approved_at' => 'datetime',
@@ -66,10 +68,5 @@ class Tors extends Model
     public function TorsApprovedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
-    }
-
-    public function TorsDocuments(): HasMany
-    {
-        return $this->hasMany(TorDocuments::class, 'tor_id');
     }
 }
