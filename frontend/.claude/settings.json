@@ -193,7 +193,14 @@
       "PowerShell(git add app/dashboard/internal-employees)",
       "PowerShell(git add app/dashboard/users)",
       "PowerShell(git add app/dashboard/vendors/page.tsx app/dashboard/vendors/_components app/dashboard/vendors/_hooks)",
-      "PowerShell(git add app/dashboard/vendors/detail)"
+      "PowerShell(git add app/dashboard/vendors/detail)",
+      "Bash(git config *)",
+      "Bash(echo \"ESLINT_EXIT=$?\")",
+      "Bash(echo \"GREP_EXIT=$?\")",
+      "Bash(echo \"status-exit=$?\")",
+      "Bash(grep -v \"^frontend/\\\\\\(lib/tender/tor/types.ts\\\\|lib/auth/guards/RequirePermission.tsx\\\\|app/dashboard/_components/app-sidebar.tsx\\\\\\)$\")",
+      "Bash(echo \"tsc exit $?\")",
+      "Bash(echo \"eslint exit $?\")"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

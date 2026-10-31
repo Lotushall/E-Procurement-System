@@ -177,7 +177,10 @@
       "Bash(grep -oE '\"file\":\"[^\"]*Test[^\"]*\"|\"message\":\"[^\"]{0,260}')",
       "Bash(grep -oE '\"message\":\"[^\"]{0,400}|\"line\":[0-9]+')",
       "Bash(php -d memory_limit=512M artisan test --compact)",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "PowerShell(vendor/bin/pint --test app/Providers/AppServiceProvider.php routes/api/v1/dashboard/internal-profiles.php tests/Feature/Modules/User/DepartmentsSelectTest.php tests/Feature/Modules/User/PositionsSelectTest.php tests/Feature/Modules/User/SelectAvailableInternalProfilesTest.php tests/Feature/Modules/User/SelectInternalProfileOptionsTest.php --format agent)",
+      "PowerShell(vendor/bin/pint --test app/Modules/Tender/Application/Project/Queries/ListTenderProjectOptionsQuery.php app/Modules/Tender/Presentation/Http/Controllers/TenderProjectController.php routes/api/v1/dashboard/tender-projects.php tests/Feature/Modules/Tender/TenderProjectsSelectTest.php --format agent)",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/TenderProjectsSelectTest.php tests/Feature/Modules/User/DepartmentsSelectTest.php tests/Feature/Modules/User/PositionsSelectTest.php tests/Feature/Modules/User/SelectAvailableInternalProfilesTest.php tests/Feature/Modules/User/SelectInternalProfileOptionsTest.php)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",
