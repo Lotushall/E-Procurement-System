@@ -3,10 +3,15 @@
 import type { ReactNode } from "react";
 import { Forbidden } from "@/components/forbidden";
 import { Spinner } from "@/components/ui/spinner";
-import { hasPermission } from "@/lib/auth/permissions";
+import { hasAnyPermission } from "@/lib/auth/permissions";
 import { useUser } from "@/lib/auth/queries/useUser";
 
-export function RequirePermission({ permission, children }: { permission: string; children: ReactNode }) {
+// permission: ต้องมีสิทธิ์นี้ / permissions: มีสิทธิ์ตัวใดตัวหนึ่งในรายการก็ผ่าน
+type RequirePermissionProps =
+  | { permission: string; permissions?: never; children: ReactNode }
+  | { permission?: never; permissions: string[]; children: ReactNode };
+
+export function RequirePermission({ permission, permissions, children }: RequirePermissionProps) {
   const { data: user, isPending } = useUser();
 
   if (isPending) {
@@ -17,7 +22,8 @@ export function RequirePermission({ permission, children }: { permission: string
     );
   }
 
-  if (!hasPermission(user, permission)) {
+  const required = permissions ?? (permission ? [permission] : []);
+  if (!hasAnyPermission(user, required)) {
     return <Forbidden />;
   }
 

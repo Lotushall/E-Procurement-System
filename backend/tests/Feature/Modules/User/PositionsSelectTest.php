@@ -13,8 +13,20 @@ test('fetching position select options requires authentication', function () {
     $response->assertStatus(401);
 });
 
-test('an internal user without the admin role cannot fetch position select options', function () {
+test('an internal user with no role or permission can fetch position select options', function () {
+    Position::create(['name' => 'Manager']);
     $user = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($user, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/positions/select');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Manager');
+});
+
+test('a vendor user cannot fetch position select options', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
     $this->actingAs($user, 'web');
 
     $response = $this->getJson('/api/v1/dashboard/positions/select');

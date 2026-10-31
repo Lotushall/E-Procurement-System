@@ -15,6 +15,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DepartmentSelect } from "@/components/department-select";
 import type { Department } from "@/lib/internal-profiles/types";
+import { FISCAL_YEAR_OPTIONS } from "@/lib/tender/fiscal-year-options";
 import type { TenderProjectStatusFilter } from "@/lib/tender/tender-projects/types";
 
 const DATE_PARAM_FORMAT = "yyyy-MM-dd";
@@ -24,15 +25,6 @@ function parseDateParam(value: string | undefined): Date | undefined {
 }
 
 const ALL_DEPARTMENTS_OPTION = { value: "all", label: "ทุกหน่วยงาน" };
-
-const CURRENT_BUDDHIST_YEAR = new Date().getFullYear() + 543;
-const FISCAL_YEAR_OPTIONS: { value: string; label: string }[] = [
-    { value: "all", label: "ทุกปีงบประมาณ" },
-    ...Array.from({ length: 5 }, (_, i) => {
-        const year = CURRENT_BUDDHIST_YEAR + 1 - i;
-        return { value: String(year), label: `ปีงบประมาณ ${year}` };
-    }),
-];
 
 const STATUS_OPTIONS: { value: TenderProjectStatusFilter; label: string }[] = [
     { value: "all", label: "ทั้งหมด" },

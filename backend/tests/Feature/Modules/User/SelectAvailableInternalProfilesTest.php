@@ -21,8 +21,20 @@ test('fetching available internal profiles requires authentication', function ()
     $response->assertStatus(401);
 });
 
-test('an internal user without the admin role cannot fetch available internal profiles', function () {
+test('an internal user with no role or permission can fetch available internal profiles', function () {
+    InternalProfiles::create(['firstname' => 'Anan', 'lastname' => 'Suk']);
     $user = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($user, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/internal-profiles/select-available');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Anan Suk');
+});
+
+test('a vendor user cannot fetch available internal profiles', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
     $this->actingAs($user, 'web');
 
     $response = $this->getJson('/api/v1/dashboard/internal-profiles/select-available');

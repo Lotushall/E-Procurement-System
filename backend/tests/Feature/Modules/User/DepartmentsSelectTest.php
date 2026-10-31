@@ -13,8 +13,20 @@ test('fetching department select options requires authentication', function () {
     $response->assertStatus(401);
 });
 
-test('an internal user without the admin role cannot fetch department select options', function () {
+test('an internal user with no role or permission can fetch department select options', function () {
+    Department::create(['name' => 'IT']);
     $user = User::factory()->create(['user_type' => 'internal']);
+    $this->actingAs($user, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/departments/select');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'IT');
+});
+
+test('a vendor user cannot fetch department select options', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
     $this->actingAs($user, 'web');
 
     $response = $this->getJson('/api/v1/dashboard/departments/select');

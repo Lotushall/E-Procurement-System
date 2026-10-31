@@ -66,3 +66,6 @@ export interface PaginatedTorsList {
   data: Tor[];
   meta: PaginationMeta;
 }
+
+// มีสิทธิ์ตัวใดตัวหนึ่งก็ดูหน้า TOR ได้ — ชุดเดียวกับที่ backend เช็คใน TorPolicy::viewAny
+export const TOR_VIEW_PERMISSIONS = ["tors.viewAny", "tors.viewDepartment", "tors.viewOwn"];

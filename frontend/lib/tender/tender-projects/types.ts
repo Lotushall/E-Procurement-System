@@ -81,3 +81,10 @@ export interface UpdateTenderProjectPayload {
   projectStartAt?: string;
   projectEndAt?: string;
 }
+
+// ตัวเลือกใน dropdown โครงการ (GET /dashboard/tender-projects/select)
+export interface TenderProjectOption {
+  id: number;
+  projectCode: string;
+  name: string;
+}

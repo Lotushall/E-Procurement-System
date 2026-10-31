@@ -18,6 +18,7 @@ export const routes = {
     dashboard: "/dashboard",
     tors: {
       index: "/dashboard/tors",
+      detail: (id: number | string) => `/dashboard/tors/detail?id=${id}`,
     },
     tender_project: {
       index: "/dashboard/tender-projects",

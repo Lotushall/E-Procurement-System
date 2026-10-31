@@ -9,11 +9,11 @@ Route::prefix('dashboard')->group(function () {
 
     Route::prefix('internal-profiles')->group(function () {
         Route::get('/select-available', [InternalProfilesController::class, 'selectAvailable'])
-            ->middleware('role:admin')
+            ->middleware('can:select-options')
             ->name('dashboard.internal-profiles.select-available');
 
         Route::get('/select', [InternalProfilesController::class, 'select'])
-            ->middleware('role:admin')
+            ->middleware('can:select-options')
             ->name('dashboard.internal-profiles.select');
 
         Route::get('/', [InternalProfilesController::class, 'index'])
@@ -42,7 +42,7 @@ Route::prefix('dashboard')->group(function () {
 
     Route::prefix('departments')->group(function () {
         Route::get('/select', [DepartmentController::class, 'select'])
-            ->middleware('role:admin')
+            ->middleware('can:select-options')
             ->name('dashboard.departments.select');
 
         Route::get('/', [DepartmentController::class, 'index'])
@@ -66,7 +66,7 @@ Route::prefix('dashboard')->group(function () {
 
     Route::prefix('positions')->group(function () {
         Route::get('/select', [PositionController::class, 'select'])
-            ->middleware('role:admin')
+            ->middleware('can:select-options')
             ->name('dashboard.positions.select');
 
         Route::get('/', [PositionController::class, 'index'])

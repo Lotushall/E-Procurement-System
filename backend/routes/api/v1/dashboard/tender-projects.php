@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('dashboard')->group(function () {
 
     Route::prefix('tender-projects')->group(function () {
+        Route::get('/select', [TenderProjectController::class, 'select'])
+            ->middleware('can:select-options')
+            ->name('dashboard.tender-projects.select');
+
         Route::get('/', [TenderProjectController::class, 'index'])
             ->middleware('can:tender-projects.index')
             ->name('dashboard.tender-projects.index');

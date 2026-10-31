@@ -3,6 +3,7 @@ import {
   CreateTenderProjectPayload,
   PaginatedTenderProjectsList,
   TenderProjectListParams,
+  TenderProjectOption,
   TenderProjects,
   TenderProjectStatus,
   UpdateTenderProjectPayload,
@@ -70,4 +71,11 @@ export async function updateTenderProjectStatus(
 
 export async function deleteTenderProject(id: number): Promise<void> {
   await api.delete(`/api/v1/dashboard/tender-projects/${id}`);
+}
+
+export async function fetchTenderProjectOptions(): Promise<TenderProjectOption[]> {
+  const { data } = await api.get<{ data: TenderProjectOption[] }>(
+    "/api/v1/dashboard/tender-projects/select",
+  );
+  return data.data;
 }

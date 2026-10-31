@@ -13,7 +13,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { hasPermission, hasRole } from "@/lib/auth/permissions";
+import { hasAnyPermission, hasRole } from "@/lib/auth/permissions";
+import { TOR_VIEW_PERMISSIONS } from "@/lib/tender/tor/types";
 import { useUser } from "@/lib/auth/queries/useUser";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -23,9 +24,9 @@ type NavItem = {
   label: string;
   icon: LucideIcon;
   exact?: boolean;
-  /** Visible if the user has this permission. If `role` is also set, either satisfies. */
-  permission?: string;
-  /** Visible if the user has this role. If `permission` is also set, either satisfies. */
+  /** Visible if the user has any of these permissions. If `role` is also set, either satisfies. */
+  permissions?: string[];
+  /** Visible if the user has this role. If `permissions` is also set, either satisfies. */
   role?: string;
   /** Opens in a new tab via a plain anchor instead of client-side routing (for links outside this app). */
   external?: boolean;
@@ -42,8 +43,7 @@ const navItems: NavItem[] = [
     href: routes.dashboards.tors.index,
     label: "การจัดการ TOR",
     icon: FileText,
-    permission: "tor.view",
-    role: "admin",
+    permissions: TOR_VIEW_PERMISSIONS,
   },
   {
     href: routes.dashboards.tender_project.index,
@@ -90,9 +90,9 @@ export function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
 
   const visibleItems = navItems.filter((item) => {
-    if (!item.permission && !item.role) return true;
+    if (!item.permissions && !item.role) return true;
     return (
-      (!!item.permission && hasPermission(user, item.permission)) ||
+      (!!item.permissions && hasAnyPermission(user, item.permissions)) ||
       (!!item.role && hasRole(user, item.role))
     );
   });

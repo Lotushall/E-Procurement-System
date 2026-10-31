@@ -7,6 +7,7 @@ use App\Modules\Tender\Application\Project\DTOs\CreateTenderProjectData;
 use App\Modules\Tender\Application\Project\DTOs\UpdateTenderProjectData;
 use App\Modules\Tender\Application\Project\Queries\GetTenderProjectByIdQuery;
 use App\Modules\Tender\Application\Project\Queries\GetTenderProjectStatsQuery;
+use App\Modules\Tender\Application\Project\Queries\ListTenderProjectOptionsQuery;
 use App\Modules\Tender\Application\Project\Queries\ListTenderProjectsQuery;
 use App\Modules\Tender\Application\Project\UseCases\CreateTenderProjectUseCase;
 use App\Modules\Tender\Application\Project\UseCases\DeleteTenderProjectUseCase;
@@ -23,6 +24,7 @@ class TenderProjectController extends Controller
 {
     public function __construct(
         private readonly ListTenderProjectsQuery $listTenderProjects,
+        private readonly ListTenderProjectOptionsQuery $listTenderProjectOptions,
         private readonly GetTenderProjectStatsQuery $getTenderProjectStats,
         private readonly GetTenderProjectByIdQuery $getTenderProjectById,
         private readonly CreateTenderProjectUseCase $createTenderProject,
@@ -55,6 +57,13 @@ class TenderProjectController extends Controller
                 'total' => $projects->total(),
                 'stats' => $this->getTenderProjectStats->execute(),
             ],
+        ]);
+    }
+
+    public function select(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->listTenderProjectOptions->execute(),
         ]);
     }
 

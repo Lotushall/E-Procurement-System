@@ -7,7 +7,7 @@ import {
   ComboboxItem, ComboboxList, ComboboxSeparator, ComboboxTrigger, ComboboxValue,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
-import { PROCUREMENT_METHODS } from "../../_data/procurement-methods";
+import { PROCUREMENT_METHODS } from "@/lib/tender/procurement-methods";
 
 export function ProcurementMethodCombobox({
   value,
