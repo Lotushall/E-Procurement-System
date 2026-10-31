@@ -41,6 +41,8 @@ interface DataTableProps<TData, TValue> {
     onSortingChange: OnChangeFn<SortingState>
     // When given, rows render as these cards below the xl breakpoint instead of the table.
     renderMobileCard?: (row: TData) => ReactNode
+    // Overrides the card grid's columns (default: 1 column, 2 from sm), e.g. "sm:grid-cols-1 lg:grid-cols-2".
+    mobileCardGridClassName?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -53,6 +55,7 @@ export function DataTable<TData, TValue>({
     sorting,
     onSortingChange,
     renderMobileCard,
+    mobileCardGridClassName,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -70,7 +73,7 @@ export function DataTable<TData, TValue>({
     return (
         <div className="flex flex-col gap-4">
             {renderMobileCard && (
-                <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+                <div className={cn("grid gap-3 sm:grid-cols-2 xl:hidden", mobileCardGridClassName)}>
                     {table.getRowModel().rows.map((row) => (
                         <Fragment key={row.id}>{renderMobileCard(row.original)}</Fragment>
                     ))}

@@ -23,7 +23,9 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
           <DashboardNavbar />
           <AppSidebar />
           <SidebarInset className="pt-14">
-            <div className="flex flex-1 flex-col px-6.5 pt-5.5 pb-10">
+            {/* หน้าที่มีปุ่มลอย (data-fab): เว้นที่ด้านล่างให้ปุ่มลอย + ScrollToTop ที่ซ้อนอยู่เหนือมัน ไม่ให้บัง pagination */}
+            {/* หน้าที่มีแถบปุ่มติดล่างจอบนมือถือ (data-bottom-bar เช่นรายละเอียดผู้ค้า): เว้นที่ให้แถบ */}
+            <div className="flex flex-1 flex-col px-6.5 pt-5.5 pb-10 has-[[data-fab]]:pb-36 max-sm:has-[[data-bottom-bar]]:pb-28">
               <DashboardBreadcrumb />
               {children}
             </div>
@@ -34,7 +36,9 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
         หน้าที่มีปุ่มลอย (data-fab, เช่นปุ่มสร้างโครงการ): ปุ่มลอยอยู่มุมล่าง
         ScrollToTop ขยับขึ้นไปซ้อนเหนือมัน (1.5rem + ปุ่ม 3rem + ช่องว่าง 0.75rem)
       */}
-      <ScrollToTop className="[body:has([data-fab])_&]:bottom-[calc(5.25rem+env(safe-area-inset-bottom))]" />
+      {/* ตอน speed dial เปิด (data-popup-open) ซ่อน ScrollToTop ไม่ให้ทับปุ่มย่อยที่เรียงขึ้นไป */}
+      {/* แถบปุ่มติดล่างจอบนมือถือ (data-bottom-bar สูง ~4.3rem): ScrollToTop ขยับขึ้นไปอยู่เหนือแถบ */}
+      <ScrollToTop className="[body:has([data-fab])_&]:bottom-[calc(5.25rem+env(safe-area-inset-bottom))] [body:has([data-fab][data-popup-open])_&]:pointer-events-none [body:has([data-fab][data-popup-open])_&]:opacity-0 max-sm:[body:has([data-bottom-bar])_&]:bottom-[calc(5.5rem+env(safe-area-inset-bottom))]" />
     </>
   );
 }

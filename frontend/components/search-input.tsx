@@ -15,13 +15,14 @@ export function SearchInput({
   placeholder?: string;
   className?: string;
 }) {
+  // className ใส่ที่ wrapper เพื่อกำหนดความกว้าง (เช่น lg:min-w-64) — ถ้าใส่ที่ input จะล้นทับช่องข้าง ๆ
   return (
-    <div className="relative flex-1 min-w-0">
+    <div className={cn("relative flex-1 min-w-0", className)}>
       <Input
         value={value}
         onChange={(e) => onValueChange(e.target.value)}
         placeholder={placeholder}
-        className={cn("bg-white h-10 rounded-sm pr-8", className)}
+        className="bg-white h-10 rounded-sm pr-8"
       />
       {value && (
         <button
