@@ -3,8 +3,12 @@
 namespace App\Modules\Tender\Domain\Entities\Tor;
 
 use App\Modules\Shared\Domain\ValueObjects\Money;
+use App\Modules\Tender\Domain\States\TorStatus;
+use App\Modules\Tender\Domain\States\TorStatus\Approved;
+use App\Modules\Tender\Domain\States\TorStatus\Draft;
 use App\Modules\Tender\Domain\ValueObjects\Tor\TorCode;
 use Carbon\CarbonImmutable;
+use Spatie\ModelStates\Exceptions\TransitionNotFound;
 
 final class Tor
 {
@@ -20,7 +24,7 @@ final class Tor
         private int $fiscalYear,
         private ?CarbonImmutable $biddingStartAt,
         private ?CarbonImmutable $biddingEndAt,
-        private string $status,
+        private TorStatus $status,
         private readonly ?int $createdBy,
         private ?int $approvedBy,
         private ?CarbonImmutable $approvedAt,
@@ -52,7 +56,7 @@ final class Tor
             fiscalYear: $fiscalYear,
             biddingStartAt: $biddingStartAt,
             biddingEndAt: $biddingEndAt,
-            status: 'draft',
+            status: new Draft(null),
             createdBy: $createdBy,
             approvedBy: null,
             approvedAt: null,
@@ -72,7 +76,7 @@ final class Tor
         int $fiscalYear,
         ?CarbonImmutable $biddingStartAt,
         ?CarbonImmutable $biddingEndAt,
-        string $status,
+        TorStatus $status,
         ?int $createdBy,
         ?int $approvedBy,
         ?CarbonImmutable $approvedAt,
@@ -124,16 +128,30 @@ final class Tor
 
     public function approve(int $approvedBy, ?string $remark = null): void
     {
-        $this->status = 'approved';
+        $this->transitionTo(new Approved($this));
         $this->approvedBy = $approvedBy;
         $this->approvedAt = CarbonImmutable::now();
         $this->remark = $remark;
     }
 
-    public function changeStatus(string $status, ?string $remark = null): void
+    public function changeStatus(TorStatus $status, ?string $remark = null): void
     {
-        $this->status = $status;
+        $this->transitionTo($status);
         $this->remark = $remark;
+    }
+
+    /**
+     * Move to the given status, only along a transition TorStatus allows.
+     *
+     * @throws TransitionNotFound
+     */
+    private function transitionTo(TorStatus $status): void
+    {
+        if (! TorStatus::config()->isTransitionAllowed($this->status->getValue(), $status->getValue())) {
+            throw TransitionNotFound::make($this->status->getValue(), $status->getValue(), self::class);
+        }
+
+        $this->status = $status;
     }
 
     // -----------------------------
@@ -194,7 +212,7 @@ final class Tor
         return $this->biddingEndAt;
     }
 
-    public function status(): string
+    public function status(): TorStatus
     {
         return $this->status;
     }

@@ -149,6 +149,17 @@ test('the TOR list passes filters through to the query', function () {
         ->assertJsonPath('data.0.id', $target->id);
 });
 
+test('the TOR list filters by the published status', function () {
+    $this->actingAs(torApiViewer(), 'web');
+    $target = torForApiTest(['status' => 'published']);
+    torForApiTest(['status' => 'bidding']);
+
+    $this->getJson('/api/v1/dashboard/tors?status=published')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $target->id);
+});
+
 test('the TOR list only returns TORs the viewer may see', function () {
     $viewer = torApiViewer(['tors.viewOwn']);
     $this->actingAs($viewer, 'web');
@@ -168,7 +179,7 @@ test('the TOR list rejects invalid query parameters', function (string $query, s
         ->assertStatus(422)
         ->assertJsonValidationErrors([$field]);
 })->with([
-    'unknown status' => ['status=published', 'status'],
+    'unknown status' => ['status=evaluation', 'status'],
     'unknown sort column' => ['sort_by=remark', 'sort_by'],
     'bad sort direction' => ['sort_direction=up', 'sort_direction'],
     'non-numeric project' => ['tender_project_id=abc', 'tender_project_id'],

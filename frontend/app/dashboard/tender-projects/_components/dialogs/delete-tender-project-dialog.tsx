@@ -21,15 +21,23 @@ export function DeleteTenderProjectDialog({
     displayName,
     trigger,
     triggerChildren,
+    open: controlledOpen,
+    onOpenChange,
     onSuccess,
 }: {
     tenderProjectId: number;
     displayName: string;
-    trigger: ReactElement;
-    triggerChildren: ReactNode;
+    // ไม่ส่ง trigger เมื่อเปิดจากที่อื่น (เช่นเมนู ⋯ ในการ์ด) — ส่ง open/onOpenChange มาแทน
+    trigger?: ReactElement;
+    triggerChildren?: ReactNode;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
     onSuccess?: () => void;
 }) {
-    const [open, setOpen] = useState(false);
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : uncontrolledOpen;
+    const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
     const deleteTenderProjectMutation = useDeleteTenderProject();
 
     const handleDelete = () => {
@@ -46,7 +54,7 @@ export function DeleteTenderProjectDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger render={trigger}>{triggerChildren}</AlertDialogTrigger>
+            {trigger && <AlertDialogTrigger render={trigger}>{triggerChildren}</AlertDialogTrigger>}
 
             <AlertDialogContent>
                 <AlertDialogHeader>

@@ -8,6 +8,7 @@ import { th } from "date-fns/locale";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { TorBiddingWindow } from "@/components/tor-bidding-window";
 import { TorStatusBadge } from "@/components/tor-status-badge";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { routes } from "@/lib/routes";
@@ -102,8 +103,14 @@ function TorDetailContent() {
                         <SummaryItem label="ราคากลาง">฿{formatCurrency(Number(tor.budgetEstimate))}</SummaryItem>
                         <SummaryItem label="ปีงบประมาณ">{tor.fiscalYear}</SummaryItem>
                         <SummaryItem label="วิธีจัดซื้อจัดจ้าง">{tor.procurementMethod}</SummaryItem>
-                        <SummaryItem label="เปิดรับซอง">{formatTorDate(tor.biddingStartAt)}</SummaryItem>
-                        <SummaryItem label="ปิดรับซอง">{formatTorDate(tor.biddingEndAt)}</SummaryItem>
+                        <SummaryItem label="ช่วงรับซอง">
+                            <TorBiddingWindow
+                                status={tor.status}
+                                biddingStartAt={tor.biddingStartAt}
+                                biddingEndAt={tor.biddingEndAt}
+                                size="base"
+                            />
+                        </SummaryItem>
                         <SummaryItem label="วันที่สร้าง">{formatTorDate(tor.createdAt)}</SummaryItem>
                     </div>
                 </CardContent>

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Modules\Tender\Domain\States\TorStatus;
 use App\Modules\Tender\Infrastructure\Models\Tor\Tors;
-use Database\Factories\TorsFactory;
 use Illuminate\Database\Seeder;
 
 /**
@@ -20,7 +20,7 @@ class TorSeeder extends Seeder
 
     public function run(): void
     {
-        foreach (TorsFactory::STATUSES as $status) {
+        foreach (TorStatus::all()->keys() as $status) {
             Tors::factory()->count(self::TORS_PER_STATUS)->status($status)->create();
         }
     }

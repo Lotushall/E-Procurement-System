@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { TorBiddingWindow } from "@/components/tor-bidding-window";
 import { TorStatusBadge } from "@/components/tor-status-badge";
 import { routes } from "@/lib/routes";
 import type { Tor } from "@/lib/tender/tor/types";
@@ -34,11 +33,14 @@ export function TorCard({ tor }: { tor: Tor }) {
 
             <div className="mt-auto flex items-center justify-between gap-2 border-t bg-gray-50 px-4 py-2.5 text-xs text-gray-600">
                 <span className="min-w-0 truncate">{tor.procurementMethod}</span>
-                <span className="flex shrink-0 items-center gap-1">
-                    <CalendarDays className="size-3.5" aria-hidden="true" />
-                    {tor.biddingEndAt
-                        ? `ปิดรับซอง ${format(new Date(tor.biddingEndAt), "d MMM yyyy", { locale: th })}`
-                        : "ยังไม่กำหนดวันปิดรับซอง"}
+                <span className="flex shrink-0 items-start gap-1.5">
+                    <CalendarDays className="mt-0.5 size-3.5" aria-hidden="true" />
+                    <TorBiddingWindow
+                        status={tor.status}
+                        biddingStartAt={tor.biddingStartAt}
+                        biddingEndAt={tor.biddingEndAt}
+                        className="items-end text-right"
+                    />
                 </span>
             </div>
         </article>

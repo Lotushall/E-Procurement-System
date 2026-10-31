@@ -35,6 +35,7 @@ class TenderProjectResource extends JsonResource
             'projectStartAt' => $this->whenNotNull($this->project_start_at),
             'projectEndAt' => $this->whenNotNull($this->project_end_at),
             'status' => $this->whenNotNull($this->status),
+            'allocatedBudget' => $this->whenHas('allocated_budget', fn (?string $sum) => $sum ?? '0.00'),
             'torsCount' => $this->whenCounted('tors'),
             'tors' => $this->whenLoaded('TenderProjectsTors', fn (Collection $tors) => $tors->map(fn (Tors $tor) => [
                 'id' => $tor->id,
@@ -42,8 +43,9 @@ class TenderProjectResource extends JsonResource
                 'title' => $tor->title,
                 'procurementMethod' => $tor->procurement_method,
                 'budgetEstimate' => $tor->budget_estimate,
+                'biddingStartAt' => $tor->bidding_start_at?->toIso8601String(),
                 'biddingEndAt' => $tor->bidding_end_at?->toIso8601String(),
-                'status' => $tor->status,
+                'status' => $tor->status->getValue(),
             ])),
         ];
     }

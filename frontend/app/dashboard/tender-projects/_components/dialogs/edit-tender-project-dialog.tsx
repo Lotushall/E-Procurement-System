@@ -91,12 +91,21 @@ export function EditTenderProjectDialog({
     project,
     trigger,
     triggerChildren,
+    open: controlledOpen,
+    onOpenChange,
 }: {
     project: TenderProjects;
-    trigger: ReactElement;
-    triggerChildren: ReactNode;
+    // ไม่ส่ง trigger เมื่อเปิดจากที่อื่น (เช่นเมนู ⋯ ในการ์ด) — ส่ง open/onOpenChange มาแทน
+    // ฝั่งที่เปิดเองต้อง remount dialog ทุกครั้งที่เปิด (เปลี่ยน key) เพราะฟอร์ม seed ค่าจาก project ตอน mount
+    trigger?: ReactElement;
+    triggerChildren?: ReactNode;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }) {
-    const [open, setOpen] = useState(false);
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : uncontrolledOpen;
+    const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
     const { data: departmentOptions } = useDepartmentOptions();
 
     const {
@@ -117,7 +126,7 @@ export function EditTenderProjectDialog({
                 reset(toFormValues(project));
             }}
         >
-            <DialogTrigger render={trigger}>{triggerChildren}</DialogTrigger>
+            {trigger && <DialogTrigger render={trigger}>{triggerChildren}</DialogTrigger>}
 
             <DialogContent className="sm:max-w-2xl scrollbar-rounded">
                 <DialogHeader>

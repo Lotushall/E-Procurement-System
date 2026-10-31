@@ -226,6 +226,37 @@ test('the TOR count only includes TORs the viewer may see', function () {
     $response->assertOk()->assertJsonPath('data.0.torsCount', 1);
 });
 
+test('listing tender projects includes the allocated budget of non-cancelled TORs', function () {
+    $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
+    $withTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0001']);
+    $withoutTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0002']);
+    Tors::factory()->status('draft')->create(['tender_project_id' => $withTors->id, 'budget_estimate' => 300000.50]);
+    Tors::factory()->status('awarded')->create(['tender_project_id' => $withTors->id, 'budget_estimate' => 200000]);
+    Tors::factory()->status('cancelled')->create(['tender_project_id' => $withTors->id, 'budget_estimate' => 999999]);
+    Tors::factory()->create(['tender_project_id' => null, 'budget_estimate' => 123456]);
+
+    $response = $this->getJson('/api/v1/dashboard/tender-projects?sort_by=project_code&sort_direction=asc');
+
+    $response->assertOk()
+        ->assertJsonPath('data.0.id', $withTors->id)
+        ->assertJsonPath('data.0.allocatedBudget', '500000.50')
+        ->assertJsonPath('data.1.id', $withoutTors->id)
+        ->assertJsonPath('data.1.allocatedBudget', '0.00');
+});
+
+test('the allocated budget counts every TOR regardless of what the viewer may see', function () {
+    $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
+    $project = TenderProjects::factory()->create();
+    Tors::factory()->status('draft')->create(['tender_project_id' => $project->id, 'budget_estimate' => 100000]);
+    Tors::factory()->status('awarded')->create(['tender_project_id' => $project->id, 'budget_estimate' => 50000]);
+
+    $response = $this->getJson('/api/v1/dashboard/tender-projects');
+
+    $response->assertOk()
+        ->assertJsonPath('data.0.torsCount', 0)
+        ->assertJsonPath('data.0.allocatedBudget', '150000.00');
+});
+
 test('the TOR count is zero for a viewer without any TOR view permission', function () {
     $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
     $project = TenderProjects::factory()->create();

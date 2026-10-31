@@ -187,7 +187,17 @@
       "PowerShell(php artisan test --compact tests/Feature/Modules/Tender)",
       "PowerShell(vendor/bin/pint --dirty --format agent; php artisan test --compact tests/Feature/Modules/Tender 2>&1 | Select-Object -First 1 | ForEach-Object { if \\($_.Length -gt 3000\\) { $_.Substring\\(0,3000\\) } else { $_ } })",
       "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/ListTenderProjectsTest.php 2>&1 | ForEach-Object { if \\($_.Length -gt 2500\\) { $_.Substring\\(0,2500\\) } else { $_ } })",
-      "PowerShell(vendor/bin/pint --dirty --format agent; php artisan test --compact tests/Feature/Modules/Tender 2>&1 | ForEach-Object { if \\($_.Length -gt 2500\\) { $_.Substring\\(0,2500\\) } else { $_ } })"
+      "PowerShell(vendor/bin/pint --dirty --format agent; php artisan test --compact tests/Feature/Modules/Tender 2>&1 | ForEach-Object { if \\($_.Length -gt 2500\\) { $_.Substring\\(0,2500\\) } else { $_ } })",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/ListTenderProjectsTest.php tests/Feature/Modules/Tender/ShowTenderProjectTest.php 2>&1 | ForEach-Object { if \\($_.Length -gt 2000\\) { $_.Substring\\(0,2000\\) } else { $_ } })",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/TorSeederTest.php tests/Feature/Modules/Tender/ListTorsTest.php tests/Feature/Modules/Tender/ShowTenderProjectTest.php 2>&1 | ForEach-Object { if \\($_.Length -gt 1500\\) { $_.Substring\\(0,1500\\) } else { $_ } })",
+      "PowerShell(php artisan make:migration add_published_status_to_tors_table --table=tors --no-interaction)",
+      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\frontend; npx tsc --noEmit 2>&1 | Select-Object -First 20; Write-Output \"tsc exit: $LASTEXITCODE\")",
+      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\frontend; npx tsc --noEmit 2>&1 | Select-Object -First 20; Write-Output \"tsc exit: $LASTEXITCODE\"; npx eslint components/tender-project-period.tsx components/tender-project-budget-allocation.tsx app/dashboard/tender-projects 2>&1 | Select-Object -First 30; Write-Output \"eslint exit: $LASTEXITCODE\")",
+      "Bash(python -)",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender tests/Unit/Domain/Tender)",
+      "PowerShell(vendor/bin/pint --dirty --format agent; 1..3 | ForEach-Object { php artisan test --compact })",
+      "PowerShell(1..3 | ForEach-Object { php -d memory_limit=1G artisan test --compact })",
+      "PowerShell(php -d memory_limit=1G vendor/bin/pest --compact 2>&1)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",
@@ -196,7 +206,17 @@
       "D:\\E-Procurement-System\\frontend\\app\\(auth)\\verify-email",
       "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_components",
       "D:\\E-Procurement-System\\frontend\\app\\(verify)\\verify-email\\_hooks",
-      "D:\\E-Procurement-System"
+      "D:\\E-Procurement-System",
+      "D:\\E-Procurement-System\\frontend\\lib\\tender\\tor",
+      "D:\\E-Procurement-System\\frontend\\components",
+      "D:\\E-Procurement-System\\frontend\\lib\\tender\\tender-projects",
+      "D:\\E-Procurement-System\\frontend\\app\\dashboard\\tors\\_components\\table",
+      "D:\\E-Procurement-System\\frontend\\app\\dashboard\\tors\\detail",
+      "D:\\E-Procurement-System\\frontend\\app\\dashboard\\tender-projects\\detail\\_components",
+      "D:\\E-Procurement-System\\frontend\\app\\dashboard\\tender-projects\\_components\\table",
+      "D:\\E-Procurement-System\\frontend\\app\\dashboard\\tender-projects\\detail",
+      "D:\\E-Procurement-System\\frontend\\app\\(auth)\\register",
+      "D:\\E-Procurement-System\\frontend\\app\\dashboard\\tender-projects\\_components\\dialogs"
     ]
   }
 }

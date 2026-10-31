@@ -32,6 +32,7 @@ final class ListTenderProjectsQuery
         return TenderProjects::query()
             ->with('TenderProjectsDepartment', 'TenderProjectsPersonInCharge')
             ->withCount(['TenderProjectsTors as tors_count' => fn (Builder $query) => $query->visibleTo($viewer)])
+            ->withAllocatedBudget()
             ->search($search)
             ->status($status)
             ->departmentId($departmentId)

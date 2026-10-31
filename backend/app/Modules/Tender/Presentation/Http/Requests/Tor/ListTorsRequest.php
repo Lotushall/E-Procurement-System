@@ -2,6 +2,7 @@
 
 namespace App\Modules\Tender\Presentation\Http\Requests\Tor;
 
+use App\Modules\Tender\Domain\States\TorStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\Rule;
@@ -15,18 +16,7 @@ class ListTorsRequest extends FormRequest
     {
         return [
             'search' => ['nullable', 'string', 'max:255'],
-            'status' => ['nullable', 'string', Rule::in([
-                'draft',
-                'in_review',
-                'revision_required',
-                'approved',
-                'bidding',
-                'closed',
-                'no_bidder',
-                'awarded',
-                'completed',
-                'cancelled',
-            ])],
+            'status' => ['nullable', 'string', Rule::in(TorStatus::all()->keys())],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'fiscal_year' => ['nullable', 'integer'],
             'tender_project_id' => [

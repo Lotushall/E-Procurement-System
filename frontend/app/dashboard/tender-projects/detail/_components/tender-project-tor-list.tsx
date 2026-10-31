@@ -1,8 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { TorBiddingWindow } from "@/components/tor-bidding-window";
 import { TorStatusBadge } from "@/components/tor-status-badge";
 import {
     Table,
@@ -15,9 +14,6 @@ import {
 import { routes } from "@/lib/routes";
 import type { TenderProjectTor } from "@/lib/tender/tender-projects/types";
 import { formatCurrency } from "@/lib/utils";
-
-const formatBiddingEnd = (value: string | null) =>
-    value ? format(new Date(value), "d MMM yyyy", { locale: th }) : "-";
 
 // รายการ TOR ใต้โครงการ — ไม่มี sort/pagination เพราะ backend ส่งมาครบในครั้งเดียว
 export function TenderProjectTorList({ tors }: { tors: TenderProjectTor[] }) {
@@ -46,9 +42,14 @@ export function TenderProjectTorList({ tors }: { tors: TenderProjectTor[] }) {
                             {tor.title}
                         </Link>
                         <p className="text-xs text-gray-600 tracking-wider">{tor.procurementMethod}</p>
-                        <div className="flex items-center justify-between gap-2 text-xs text-gray-600">
+                        <div className="flex items-start justify-between gap-2">
                             <span className="text-sm font-bold text-gray-900">{formatCurrency(Number(tor.budgetEstimate))}</span>
-                            <span>ปิดรับซอง {formatBiddingEnd(tor.biddingEndAt)}</span>
+                            <TorBiddingWindow
+                                status={tor.status}
+                                biddingStartAt={tor.biddingStartAt}
+                                biddingEndAt={tor.biddingEndAt}
+                                className="items-end text-right"
+                            />
                         </div>
                     </li>
                 ))}
@@ -62,7 +63,7 @@ export function TenderProjectTorList({ tors }: { tors: TenderProjectTor[] }) {
                             <TableHead className="px-4 py-3 font-bold text-gray-600 tracking-wide">ชื่อ TOR</TableHead>
                             <TableHead className="px-4 py-3 font-bold text-gray-600 tracking-wide">วิธีจัดซื้อจัดจ้าง</TableHead>
                             <TableHead className="px-4 py-3 text-right font-bold text-gray-600 tracking-wide">ราคากลาง</TableHead>
-                            <TableHead className="px-4 py-3 font-bold text-gray-600 tracking-wide">ปิดรับซอง</TableHead>
+                            <TableHead className="px-4 py-3 font-bold text-gray-600 tracking-wide">ช่วงรับซอง</TableHead>
                             <TableHead className="px-4 py-3 text-center font-bold text-gray-600 tracking-wide">สถานะ</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -87,7 +88,13 @@ export function TenderProjectTorList({ tors }: { tors: TenderProjectTor[] }) {
                                 </TableCell>
                                 <TableCell className="px-4 py-3 text-sm text-gray-600 tracking-wider">{tor.procurementMethod}</TableCell>
                                 <TableCell className="px-4 py-3 text-right text-sm font-bold">{formatCurrency(Number(tor.budgetEstimate))}</TableCell>
-                                <TableCell className="px-4 py-3 text-sm text-gray-700">{formatBiddingEnd(tor.biddingEndAt)}</TableCell>
+                                <TableCell className="px-4 py-3">
+                                    <TorBiddingWindow
+                                        status={tor.status}
+                                        biddingStartAt={tor.biddingStartAt}
+                                        biddingEndAt={tor.biddingEndAt}
+                                    />
+                                </TableCell>
                                 <TableCell className="px-4 py-3">
                                     <div className="flex justify-center">
                                         <TorStatusBadge status={tor.status} />

@@ -7,6 +7,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { TenderProjectBudgetAllocation } from "@/components/tender-project-budget-allocation";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
 import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,17 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
                     <p className="text-sm font-bold text-right">{formatCurrency(getValue<number>())}</p>
                 </div>
             )
+        },
+        {
+            id: "allocated_budget",
+            header: () => <ColumnHeader label="ยอดจัดสรร" />,
+            accessorFn: (project) => project.allocatedBudget,
+            cell: ({ row }) => (
+                <TenderProjectBudgetAllocation
+                    budget={row.original.budget}
+                    allocatedBudget={row.original.allocatedBudget}
+                />
+            ),
         },
         {
             id: "project_start_end_date",

@@ -3,6 +3,18 @@
 namespace Database\Factories;
 
 use App\Modules\InternalProfiles\Infrastructure\Models\Department;
+use App\Modules\Tender\Domain\States\TorStatus;
+use App\Modules\Tender\Domain\States\TorStatus\Approved;
+use App\Modules\Tender\Domain\States\TorStatus\Awarded;
+use App\Modules\Tender\Domain\States\TorStatus\Bidding;
+use App\Modules\Tender\Domain\States\TorStatus\Cancelled;
+use App\Modules\Tender\Domain\States\TorStatus\Closed;
+use App\Modules\Tender\Domain\States\TorStatus\Completed;
+use App\Modules\Tender\Domain\States\TorStatus\Draft;
+use App\Modules\Tender\Domain\States\TorStatus\InReview;
+use App\Modules\Tender\Domain\States\TorStatus\NoBidder;
+use App\Modules\Tender\Domain\States\TorStatus\Published;
+use App\Modules\Tender\Domain\States\TorStatus\RevisionRequired;
 use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\Tender\Infrastructure\Models\Tor\Tors;
 use App\Modules\User\Infrastructure\Models\User;
@@ -41,34 +53,26 @@ class TorsFactory extends Factory
     private const array PROCUREMENT_METHODS = ['e-bidding', 'e-market', 'วิธีเฉพาะเจาะจง', 'วิธีคัดเลือก'];
 
     /**
-     * @var list<string>
-     */
-    public const array STATUSES = [
-        'draft',
-        'in_review',
-        'revision_required',
-        'approved',
-        'bidding',
-        'closed',
-        'no_bidder',
-        'awarded',
-        'completed',
-        'cancelled',
-    ];
-
-    /**
      * Statuses a TOR can only reach after internal approval.
      *
-     * @var list<string>
+     * @var list<class-string<TorStatus>>
      */
-    private const array APPROVED_STATUSES = ['approved', 'bidding', 'closed', 'no_bidder', 'awarded', 'completed'];
+    private const array APPROVED_STATUSES = [Approved::class, Published::class, Bidding::class, Closed::class, NoBidder::class, Awarded::class, Completed::class];
+
+    /**
+     * Statuses before publishing: the bidding window is drafted and approved
+     * with the TOR, so it lies ahead of today.
+     *
+     * @var list<class-string<TorStatus>>
+     */
+    private const array PRE_PUBLISH_STATUSES = [Draft::class, InReview::class, RevisionRequired::class, Approved::class];
 
     /**
      * Statuses whose bidding period has already ended.
      *
-     * @var list<string>
+     * @var list<class-string<TorStatus>>
      */
-    private const array BIDDING_ENDED_STATUSES = ['closed', 'no_bidder', 'awarded', 'completed'];
+    private const array BIDDING_ENDED_STATUSES = [Closed::class, NoBidder::class, Awarded::class, Completed::class];
 
     /**
      * @return array<string, mixed>
@@ -78,7 +82,26 @@ class TorsFactory extends Factory
         $tor = fake()->randomElement(self::TORS);
 
         return [
-            'status' => fake()->randomElement(self::STATUSES),
+            'status' => fake()->randomElement(TorStatus::all()->keys()->all()),
+            // Drawn up front so start and end agree: a pre-publish TOR with an
+            // end date may also have a start date (none means "at publish").
+            'bidding_end_at' => fn (array $attributes) => match (true) {
+                $this->statusIs($attributes, Published::class) => fake()->dateTimeBetween('+15 days', '+45 days'),
+                $this->statusIs($attributes, Bidding::class) => fake()->dateTimeBetween('+3 days', '+30 days'),
+                $this->statusIs($attributes, ...self::BIDDING_ENDED_STATUSES) => fake()->dateTimeBetween('-44 days', '-1 day'),
+                $this->statusIs($attributes, Approved::class) => fake()->dateTimeBetween('+30 days', '+60 days'),
+                $this->statusIs($attributes, ...self::PRE_PUBLISH_STATUSES) => fake()->boolean(70) ? fake()->dateTimeBetween('+30 days', '+60 days') : null,
+                default => null,
+            },
+            'bidding_start_at' => fn (array $attributes) => match (true) {
+                $this->statusIs($attributes, Published::class) => fake()->dateTimeBetween('+1 day', '+14 days'),
+                $this->statusIs($attributes, Bidding::class) => fake()->dateTimeBetween('-14 days', '-1 day'),
+                $this->statusIs($attributes, ...self::BIDDING_ENDED_STATUSES) => fake()->dateTimeBetween('-90 days', '-45 days'),
+                $this->statusIs($attributes, ...self::PRE_PUBLISH_STATUSES) => $attributes['bidding_end_at'] !== null && fake()->boolean()
+                    ? fake()->dateTimeBetween('+7 days', '+21 days')
+                    : null,
+                default => null,
+            },
             'tender_project_id' => fn () => fake()->boolean(70) ? TenderProjects::inRandomOrder()->value('id') : null,
             'department_id' => fn (array $attributes) => $this->project($attributes)?->department_id
                 ?? Department::inRandomOrder()->value('id')
@@ -98,30 +121,31 @@ class TorsFactory extends Factory
             'created_by' => fn () => $this->randomInternalUserId(),
             'approved_by' => fn (array $attributes) => $this->isApproved($attributes) ? $this->randomInternalUserId() : null,
             'approved_at' => fn (array $attributes) => $this->isApproved($attributes) ? fake()->dateTimeBetween('-120 days', '-91 days') : null,
-            'bidding_start_at' => fn (array $attributes) => match (true) {
-                $attributes['status'] === 'bidding' => fake()->dateTimeBetween('-14 days', '-1 day'),
-                in_array($attributes['status'], self::BIDDING_ENDED_STATUSES, true) => fake()->dateTimeBetween('-90 days', '-45 days'),
-                default => null,
-            },
-            'bidding_end_at' => fn (array $attributes) => match (true) {
-                $attributes['status'] === 'bidding' => fake()->dateTimeBetween('+3 days', '+30 days'),
-                in_array($attributes['status'], self::BIDDING_ENDED_STATUSES, true) => fake()->dateTimeBetween('-44 days', '-1 day'),
-                default => null,
-            },
-            'remark' => fn (array $attributes) => match ($attributes['status']) {
-                'revision_required' => 'กรุณาระบุคุณสมบัติผู้ยื่นข้อเสนอและเงื่อนไขการรับประกันให้ชัดเจน',
-                'cancelled' => 'ยกเลิกเนื่องจากได้รับการจัดสรรงบประมาณไม่เพียงพอ',
+            'remark' => fn (array $attributes) => match (true) {
+                $this->statusIs($attributes, RevisionRequired::class) => 'กรุณาระบุคุณสมบัติผู้ยื่นข้อเสนอและเงื่อนไขการรับประกันให้ชัดเจน',
+                $this->statusIs($attributes, Cancelled::class) => 'ยกเลิกเนื่องจากได้รับการจัดสรรงบประมาณไม่เพียงพอ',
                 default => null,
             },
         ];
     }
 
     /**
-     * A TOR explicitly in the given status.
+     * A TOR explicitly in the given status, by name ('draft') or state class.
+     *
+     * @param  string|class-string<TorStatus>  $status
      */
     public function status(string $status): static
     {
         return $this->state(['status' => $status]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @param  class-string<TorStatus>  ...$statuses
+     */
+    private function statusIs(array $attributes, string ...$statuses): bool
+    {
+        return in_array(TorStatus::resolveStateClass($attributes['status']), $statuses, true);
     }
 
     /**
@@ -139,7 +163,7 @@ class TorsFactory extends Factory
      */
     private function isApproved(array $attributes): bool
     {
-        return in_array($attributes['status'], self::APPROVED_STATUSES, true);
+        return $this->statusIs($attributes, ...self::APPROVED_STATUSES);
     }
 
     private function randomInternalUserId(): ?int

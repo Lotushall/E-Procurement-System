@@ -17,6 +17,7 @@ export type TorStatus =
   | "in_review"
   | "revision_required"
   | "approved"
+  | "published"
   | "bidding"
   | "closed"
   | "no_bidder"

@@ -32,6 +32,8 @@ export interface TenderProjects {
   projectStartAt?: string;
   projectEndAt?: string;
   status: TenderProjectStatus;
+  // ยอดจัดสรร: ผลรวมราคากลางของ TOR ที่ไม่ถูกยกเลิก นับทุก TOR ไม่ขึ้นกับสิทธิ์ผู้ดู (ต่างจาก torsCount / tors)
+  allocatedBudget: string;
   // มีเฉพาะใน GET /tender-projects (รายการ) — นับเฉพาะ TOR ที่ผู้ใช้ดูได้ (TorPolicy)
   torsCount?: number;
   // มีเฉพาะใน GET /tender-projects/{id} — backend กรองเหลือแค่ TOR ที่ผู้ใช้ดูได้ (TorPolicy) เรียงตาม torCode
@@ -40,7 +42,7 @@ export interface TenderProjects {
 
 export type TenderProjectTor = Pick<
   Tor,
-  "id" | "torCode" | "title" | "procurementMethod" | "budgetEstimate" | "biddingEndAt" | "status"
+  "id" | "torCode" | "title" | "procurementMethod" | "budgetEstimate" | "biddingStartAt" | "biddingEndAt" | "status"
 >;
 
 export interface TenderProjectListParams {

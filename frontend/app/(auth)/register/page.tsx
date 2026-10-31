@@ -126,7 +126,7 @@ export default function Register() {
                         {/* นิติบุคคล */}
                         <TabsContent value="company" className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-3.5">
 
-                            <InputField label="ชื่อบริษัท / นิติบุคคล" labelClassName="font-semibold tracking-wider" full error={errors.companyName?.message}>
+                            <InputField label="ชื่อบริษัท / นิติบุคคล" labelClassName="font-semibold tracking-wider" cols={2} error={errors.companyName?.message}>
                                 <Input
                                     {...register("companyName")}
                                     aria-invalid={!!errors.companyName}

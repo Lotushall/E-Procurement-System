@@ -3,6 +3,8 @@
 namespace App\Modules\Tender\Infrastructure\Models\Tor;
 
 use App\Modules\InternalProfiles\Infrastructure\Models\Department;
+use App\Modules\Tender\Domain\States\TorStatus;
+use App\Modules\Tender\Domain\States\TorStatus\Cancelled;
 use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Database\Factories\TorsFactory;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\ModelStates\HasStates;
 
 #[Table('tors')]
 #[Fillable([
@@ -34,7 +37,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class Tors extends Model
 {
-    use HasFactory;
+    use HasFactory, HasStates;
 
     /**
      * Relations TorResource reads, including the nested ones its user
@@ -68,6 +71,7 @@ class Tors extends Model
             'bidding_start_at' => 'datetime',
             'bidding_end_at' => 'datetime',
             'approved_at' => 'datetime',
+            'status' => TorStatus::class,
         ];
     }
 
@@ -155,6 +159,16 @@ class Tors extends Model
     protected function status(Builder $query, ?string $status): void
     {
         $query->when($status !== null, fn (Builder $query) => $query->where('status', $status));
+    }
+
+    /**
+     * Scope a query to TORs that still hold part of their project's budget:
+     * every TOR except cancelled ones (ยอดจัดสรร in CONTEXT.md).
+     */
+    #[Scope]
+    protected function allocated(Builder $query): void
+    {
+        $query->whereNotState('status', Cancelled::class);
     }
 
     /**

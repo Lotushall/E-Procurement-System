@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { TorBiddingWindow } from "@/components/tor-bidding-window";
 import { TorStatusBadge } from "@/components/tor-status-badge";
 import { SortableHeader } from "@/components/ui/data-table-sortable-header";
 import { routes } from "@/lib/routes";
@@ -87,17 +86,17 @@ export const torColumns: ColumnDef<Tor>[] = [
         ),
     },
     {
+        // sort ตามกำหนดยื่นข้อเสนอ (ปลายช่วง) — id ต้องคงเป็น bidding_end_at ให้ตรงกับ sort_by ของ backend
         id: "bidding_end_at",
-        header: ({ column }) => <SortableHeader column={column} label="ปิดรับซอง" className={SORTABLE_HEADER_CLASS} />,
+        header: ({ column }) => <SortableHeader column={column} label="ช่วงรับซอง" className={SORTABLE_HEADER_CLASS} />,
         accessorFn: (tor) => tor.biddingEndAt,
-        cell: ({ getValue }) => {
-            const value = getValue<string | null>();
-            return (
-                <p className="text-sm">
-                    {value ? format(new Date(value), "d MMM yyyy", { locale: th }) : "-"}
-                </p>
-            );
-        },
+        cell: ({ row }) => (
+            <TorBiddingWindow
+                status={row.original.status}
+                biddingStartAt={row.original.biddingStartAt}
+                biddingEndAt={row.original.biddingEndAt}
+            />
+        ),
     },
     {
         id: "status",

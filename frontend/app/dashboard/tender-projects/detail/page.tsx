@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { useTenderProjectDetailPage } from "./_hooks/use-tender-project-detail-page";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TenderProjectBudgetAllocation } from "@/components/tender-project-budget-allocation";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
 import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
 import { useAuthPermissions } from "@/lib/auth/permissions";
@@ -84,6 +85,12 @@ function TenderProjectDetailContent() {
                             </div>
                         ))}
                     </div>
+                    <Separator className="my-4.5" />
+                    <TenderProjectBudgetAllocation
+                        budget={project.budget}
+                        allocatedBudget={project.allocatedBudget}
+                        variant="full"
+                    />
                 </CardContent>
             </Card>
 

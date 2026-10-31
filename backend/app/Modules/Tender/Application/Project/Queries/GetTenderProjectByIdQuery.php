@@ -20,6 +20,7 @@ final class GetTenderProjectByIdQuery
                 'TenderProjectsPersonInCharge',
                 'TenderProjectsTors' => fn (HasMany $query) => $query->visibleTo($viewer)->orderBy('tor_code'),
             ])
+            ->withAllocatedBudget()
             ->find($id) ?? throw (new ModelNotFoundException)->setModel(TenderProjects::class, [$id]);
     }
 }

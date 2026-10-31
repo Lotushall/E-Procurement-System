@@ -2,8 +2,14 @@
 
 use App\Modules\Shared\Domain\ValueObjects\Money;
 use App\Modules\Tender\Domain\Entities\Tor\Tor;
+use App\Modules\Tender\Domain\States\TorStatus\Approved;
+use App\Modules\Tender\Domain\States\TorStatus\Bidding;
+use App\Modules\Tender\Domain\States\TorStatus\Draft;
+use App\Modules\Tender\Domain\States\TorStatus\InReview;
+use App\Modules\Tender\Domain\States\TorStatus\RevisionRequired;
 use App\Modules\Tender\Domain\ValueObjects\Tor\TorCode;
 use Carbon\CarbonImmutable;
+use Spatie\ModelStates\Exceptions\TransitionNotFound;
 
 function makeTor(): Tor
 {
@@ -33,7 +39,7 @@ test('create builds a new draft TOR with no id', function () {
         ->and($tor->budgetEstimate()->amount)->toBe('500000.00')
         ->and($tor->procurementMethod())->toBe('e-bidding')
         ->and($tor->fiscalYear())->toBe(2569)
-        ->and($tor->status())->toBe('draft')
+        ->and($tor->status())->toBeInstanceOf(Draft::class)
         ->and($tor->createdBy())->toBe(3)
         ->and($tor->approvedBy())->toBeNull()
         ->and($tor->approvedAt())->toBeNull()
@@ -43,6 +49,7 @@ test('create builds a new draft TOR with no id', function () {
 test('reconstitute rebuilds a TOR from persisted values', function () {
     $torCode = TorCode::fromString('TOR-2569-0001');
     $approvedAt = CarbonImmutable::parse('2026-08-01 10:00:00');
+    $status = new Approved(null);
 
     $tor = Tor::reconstitute(
         id: 1,
@@ -56,7 +63,7 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
         fiscalYear: 2570,
         biddingStartAt: null,
         biddingEndAt: null,
-        status: 'approved',
+        status: $status,
         createdBy: 3,
         approvedBy: 4,
         approvedAt: $approvedAt,
@@ -68,7 +75,7 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
         ->and($tor->tenderProjectId())->toBe(9)
         ->and($tor->procurementMethod())->toBe('specific')
         ->and($tor->fiscalYear())->toBe(2570)
-        ->and($tor->status())->toBe('approved')
+        ->and($tor->status())->toBe($status)
         ->and($tor->approvedBy())->toBe(4)
         ->and($tor->approvedAt())->toBe($approvedAt)
         ->and($tor->remark())->toBe('อนุมัติแล้ว');
@@ -101,22 +108,41 @@ test('update replaces the editable TOR fields', function () {
         ->and($tor->fiscalYear())->toBe(2570);
 });
 
-test('approve sets status, approver, timestamp, and remark', function () {
+test('approve moves an in-review TOR to approved with approver, timestamp, and remark', function () {
     $tor = makeTor();
+    $tor->changeStatus(new InReview(null));
 
     $tor->approve(approvedBy: 4, remark: 'อนุมัติแล้ว');
 
-    expect($tor->status())->toBe('approved')
+    expect($tor->status())->toBeInstanceOf(Approved::class)
         ->and($tor->approvedBy())->toBe(4)
         ->and($tor->remark())->toBe('อนุมัติแล้ว')
         ->and($tor->approvedAt())->not->toBeNull();
 });
 
-test('changeStatus updates the status and remark', function () {
+test('approve rejects a TOR that has not been sent for review', function () {
     $tor = makeTor();
 
-    $tor->changeStatus('revision_required', 'กรุณาแก้ไขขอบเขตงาน');
+    expect(fn () => $tor->approve(approvedBy: 4))->toThrow(TransitionNotFound::class);
 
-    expect($tor->status())->toBe('revision_required')
+    expect($tor->status())->toBeInstanceOf(Draft::class)
+        ->and($tor->approvedBy())->toBeNull();
+});
+
+test('changeStatus updates the status and remark', function () {
+    $tor = makeTor();
+    $tor->changeStatus(new InReview(null));
+
+    $tor->changeStatus(new RevisionRequired(null), 'กรุณาแก้ไขขอบเขตงาน');
+
+    expect($tor->status())->toBeInstanceOf(RevisionRequired::class)
         ->and($tor->remark())->toBe('กรุณาแก้ไขขอบเขตงาน');
+});
+
+test('changeStatus rejects a step the TOR progress does not allow', function () {
+    $tor = makeTor();
+
+    expect(fn () => $tor->changeStatus(new Bidding(null)))->toThrow(TransitionNotFound::class);
+
+    expect($tor->status())->toBeInstanceOf(Draft::class);
 });

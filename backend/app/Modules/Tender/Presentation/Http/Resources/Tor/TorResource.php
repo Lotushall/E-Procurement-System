@@ -30,7 +30,7 @@ class TorResource extends JsonResource
             'fiscalYear' => $this->fiscal_year,
             'biddingStartAt' => $this->bidding_start_at?->toIso8601String(),
             'biddingEndAt' => $this->bidding_end_at?->toIso8601String(),
-            'status' => $this->status,
+            'status' => $this->status->getValue(),
             'remark' => $this->remark,
             'approvedAt' => $this->approved_at?->toIso8601String(),
             'createdAt' => $this->created_at?->toIso8601String(),

@@ -77,6 +77,21 @@ class TenderProjects extends Model
     }
 
     /**
+     * Add allocated_budget: the summed budget estimate of the project's
+     * non-cancelled TORs. It counts every TOR, not just the ones a viewer
+     * may see, because it is a fact about the project. Cast as a decimal so
+     * the sum never passes through a float.
+     */
+    #[Scope]
+    protected function withAllocatedBudget(Builder $query): void
+    {
+        $query->withSum(
+            ['TenderProjectsTors as allocated_budget' => fn (Builder $query) => $query->allocated()],
+            'budget_estimate',
+        )->withCasts(['allocated_budget' => 'decimal:2']);
+    }
+
+    /**
      * Scope a query to projects whose name or project code matches the given search term.
      */
     #[Scope]
@@ -92,7 +107,7 @@ class TenderProjects extends Model
             return;
         }
 
-        $term = '%' . $search . '%';
+        $term = '%'.$search.'%';
 
         $query->where(function (Builder $query) use ($term) {
             $query->where('name', 'like', $term)
@@ -106,7 +121,7 @@ class TenderProjects extends Model
     #[Scope]
     protected function status(Builder $query, ?string $status): void
     {
-        $query->when($status !== null, fn(Builder $query) => $query->where('status', $status));
+        $query->when($status !== null, fn (Builder $query) => $query->where('status', $status));
     }
 
     /**
@@ -115,7 +130,7 @@ class TenderProjects extends Model
     #[Scope]
     protected function departmentId(Builder $query, ?int $departmentId): void
     {
-        $query->when($departmentId !== null, fn(Builder $query) => $query->where('department_id', $departmentId));
+        $query->when($departmentId !== null, fn (Builder $query) => $query->where('department_id', $departmentId));
     }
 
     /**
@@ -124,7 +139,7 @@ class TenderProjects extends Model
     #[Scope]
     protected function fiscalYear(Builder $query, ?int $fiscalYear): void
     {
-        $query->when($fiscalYear !== null, fn(Builder $query) => $query->where('fiscal_year', $fiscalYear));
+        $query->when($fiscalYear !== null, fn (Builder $query) => $query->where('fiscal_year', $fiscalYear));
     }
 
     /**
@@ -135,8 +150,8 @@ class TenderProjects extends Model
     protected function dateRange(Builder $query, ?string $dateFrom, ?string $dateTo): void
     {
         $query
-            ->when($dateFrom !== null, fn(Builder $query) => $query->whereDate('project_start_at', '>=', $dateFrom))
-            ->when($dateTo !== null, fn(Builder $query) => $query->whereDate('project_end_at', '<=', $dateTo));
+            ->when($dateFrom !== null, fn (Builder $query) => $query->whereDate('project_start_at', '>=', $dateFrom))
+            ->when($dateTo !== null, fn (Builder $query) => $query->whereDate('project_end_at', '<=', $dateTo));
     }
 
     /**
