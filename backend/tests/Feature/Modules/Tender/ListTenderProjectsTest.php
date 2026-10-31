@@ -3,6 +3,7 @@
 use App\Modules\InternalProfiles\Infrastructure\Models\Department;
 use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
+use App\Modules\Tender\Infrastructure\Models\Tor\Tors;
 use App\Modules\User\Infrastructure\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -191,4 +192,46 @@ test('listing tender projects returns global stats unaffected by the list filter
             'inProgressCount' => 2,
             'completedCount' => 1,
         ]]]);
+});
+
+test('listing tender projects includes a count of each project\'s TORs', function () {
+    $user = internalUserWithTenderProjectViewAnyPermission();
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tors.viewAny', 'guard_name' => 'web']));
+    $this->actingAs($user, 'web');
+    $withTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0001']);
+    $withoutTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0002']);
+    Tors::factory()->count(2)->create(['tender_project_id' => $withTors->id]);
+    Tors::factory()->create(['tender_project_id' => null]);
+
+    $response = $this->getJson('/api/v1/dashboard/tender-projects?sort_by=project_code&sort_direction=asc');
+
+    $response->assertOk()
+        ->assertJsonPath('data.0.id', $withTors->id)
+        ->assertJsonPath('data.0.torsCount', 2)
+        ->assertJsonPath('data.1.id', $withoutTors->id)
+        ->assertJsonPath('data.1.torsCount', 0);
+});
+
+test('the TOR count only includes TORs the viewer may see', function () {
+    $viewer = internalUserWithTenderProjectViewAnyPermission();
+    $viewer->givePermissionTo(Permission::firstOrCreate(['name' => 'tors.viewOwn', 'guard_name' => 'web']));
+    $someoneElse = User::factory()->create(['user_type' => 'internal']);
+    $project = TenderProjects::factory()->create();
+    Tors::factory()->create(['tender_project_id' => $project->id, 'created_by' => $viewer->id]);
+    Tors::factory()->count(2)->create(['tender_project_id' => $project->id, 'created_by' => $someoneElse->id]);
+    $this->actingAs($viewer, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/tender-projects');
+
+    $response->assertOk()->assertJsonPath('data.0.torsCount', 1);
+});
+
+test('the TOR count is zero for a viewer without any TOR view permission', function () {
+    $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
+    $project = TenderProjects::factory()->create();
+    Tors::factory()->create(['tender_project_id' => $project->id]);
+
+    $response = $this->getJson('/api/v1/dashboard/tender-projects');
+
+    $response->assertOk()->assertJsonPath('data.0.torsCount', 0);
 });

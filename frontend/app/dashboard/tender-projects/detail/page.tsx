@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
 import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
 import { useAuthPermissions } from "@/lib/auth/permissions";
+import { TOR_VIEW_PERMISSIONS } from "@/lib/tender/tor/types";
 import { Separator } from "@/components/ui/separator";
+import { TenderProjectTorList } from "./_components/tender-project-tor-list";
 import { cn, formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -22,8 +24,10 @@ function TenderProjectDetailContent() {
 
     const { project, isValidId, isPending, notFound } = useTenderProjectDetailPage(id);
 
-    const { hasPermission } = useAuthPermissions();
+    const { hasPermission, hasAnyPermission } = useAuthPermissions();
     const canUpdateStatus = hasPermission("tender_projects.updateStatus");
+    // ไม่มีสิทธิ์ดู TOR เลย backend จะส่ง tors เป็น [] เสมอ — ซ่อนการ์ดแทนการบอกว่า "ไม่มี TOR"
+    const canViewTors = hasAnyPermission(TOR_VIEW_PERMISSIONS);
 
     if (isValidId && isPending) {
         return (
@@ -83,15 +87,17 @@ function TenderProjectDetailContent() {
                 </CardContent>
             </Card>
 
-            <Card className="shadow-md shadow-gray-200 border-gray-200">
-                <CardHeader className="gap-0.5">
-                    <CardTitle className="font-bold">TOR ที่เกี่ยวข้อง</CardTitle>
-                    <CardDescription>เอกสารข้อกำหนดการจัดซื้อจัดจ้างภายใต้โครงการนี้</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p>Tor Table</p>
-                </CardContent>
-            </Card>
+            {canViewTors && (
+                <Card className="shadow-md shadow-gray-200 border-gray-200">
+                    <CardHeader className="gap-0.5">
+                        <CardTitle className="font-bold">TOR ที่เกี่ยวข้อง</CardTitle>
+                        <CardDescription>เอกสารข้อกำหนดการจัดซื้อจัดจ้างภายใต้โครงการนี้</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <TenderProjectTorList tors={project.tors ?? []} />
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 }

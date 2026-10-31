@@ -83,9 +83,15 @@ export function TenderProjectCard({
                     </p>
                 </Link>
 
-                <div className="flex flex-col gap-0.5 pt-1">
-                    <p className="text-xs text-gray-500 tracking-wider">งบประมาณ · ปี {project.fiscalYear}</p>
-                    <p className="text-xl font-bold tracking-wide">{formatCurrency(Number(project.budget))}</p>
+                <div className="flex items-end justify-between gap-2 pt-1">
+                    <div className="flex flex-col gap-0.5">
+                        <p className="text-xs text-gray-500 tracking-wider">งบประมาณ · ปี {project.fiscalYear}</p>
+                        <p className="text-xl font-bold tracking-wide">{formatCurrency(Number(project.budget))}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-0.5">
+                        <p className="text-xs text-gray-500 tracking-wider">TOR</p>
+                        <p className="text-xl font-bold tracking-wide">{project.torsCount ?? "-"}</p>
+                    </div>
                 </div>
             </div>
 

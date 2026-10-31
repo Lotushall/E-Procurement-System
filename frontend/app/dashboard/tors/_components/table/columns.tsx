@@ -51,16 +51,16 @@ export const torColumns: ColumnDef<Tor>[] = [
     {
         id: "tender_project",
         header: () => <ColumnHeader label="โครงการ" />,
-        accessorFn: (tor) => tor.tenderProject?.projectCode ?? "-",
+        accessorFn: (tor) => tor.tenderProject?.name ?? "-",
         cell: ({ row }) => {
             const project = row.original.tenderProject;
             return project ? (
                 <Link
                     href={routes.dashboards.tender_project.detail(project.id)}
                     title={project.name}
-                    className="text-xs font-semibold text-gray-700 underline decoration-gray-300 underline-offset-4 hover:decoration-current"
+                    className="text-sm font-semibold text-gray-700 underline decoration-gray-300 underline-offset-4 hover:decoration-current"
                 >
-                    {project.projectCode}
+                    {project.name}
                 </Link>
             ) : (
                 <p className="text-sm text-gray-500">-</p>

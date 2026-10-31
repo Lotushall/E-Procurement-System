@@ -97,10 +97,10 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
         {
             id: "tor_count",
             header: () => <ColumnHeader label="TOR" align="center" />,
-            accessorFn: () => "-",
-            cell: () => (
+            accessorFn: (project) => project.torsCount,
+            cell: ({ getValue }) => (
                 <p className="text-sm text-center">
-                    -
+                    {getValue<number | undefined>() ?? "-"}
                 </p>
             ),
         },

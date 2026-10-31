@@ -19,6 +19,7 @@ use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectReq
 use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectStatusRequest;
 use App\Modules\Tender\Presentation\Http\Resources\Project\TenderProjectResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TenderProjectController extends Controller
 {
@@ -36,6 +37,7 @@ class TenderProjectController extends Controller
     public function index(ListTenderProjectsRequest $request): JsonResponse
     {
         $projects = $this->listTenderProjects->execute(
+            viewer: $request->user(),
             search: $request->validated('search'),
             status: $request->validated('status'),
             departmentId: $request->validated('department_id'),
@@ -67,9 +69,9 @@ class TenderProjectController extends Controller
         ]);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
-        $project = $this->getTenderProjectById->execute($id);
+        $project = $this->getTenderProjectById->execute($id, $request->user());
 
         return response()->json([
             'data' => new TenderProjectResource($project),
@@ -84,7 +86,7 @@ class TenderProjectController extends Controller
         );
 
         return response()->json([
-            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id())),
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id(), $request->user())),
         ], 201);
     }
 
@@ -96,7 +98,7 @@ class TenderProjectController extends Controller
         );
 
         return response()->json([
-            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id())),
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id(), $request->user())),
         ]);
     }
 
@@ -109,7 +111,7 @@ class TenderProjectController extends Controller
         }
 
         return response()->json([
-            'data' => new TenderProjectResource($this->getTenderProjectById->execute($id)),
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($id, $request->user())),
         ]);
     }
 

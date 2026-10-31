@@ -4,6 +4,8 @@ namespace App\Modules\Tender\Presentation\Http\Resources\Project;
 
 use App\Modules\InternalProfiles\Infrastructure\Models\InternalProfiles;
 use App\Modules\InternalProfiles\Presentation\Http\Resources\DepartmentResource;
+use App\Modules\Tender\Infrastructure\Models\Tor\Tors;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -33,6 +35,16 @@ class TenderProjectResource extends JsonResource
             'projectStartAt' => $this->whenNotNull($this->project_start_at),
             'projectEndAt' => $this->whenNotNull($this->project_end_at),
             'status' => $this->whenNotNull($this->status),
+            'torsCount' => $this->whenCounted('tors'),
+            'tors' => $this->whenLoaded('TenderProjectsTors', fn (Collection $tors) => $tors->map(fn (Tors $tor) => [
+                'id' => $tor->id,
+                'torCode' => $tor->tor_code,
+                'title' => $tor->title,
+                'procurementMethod' => $tor->procurement_method,
+                'budgetEstimate' => $tor->budget_estimate,
+                'biddingEndAt' => $tor->bidding_end_at?->toIso8601String(),
+                'status' => $tor->status,
+            ])),
         ];
     }
 }

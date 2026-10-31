@@ -180,7 +180,14 @@
       "Bash(echo \"exit=$?\")",
       "PowerShell(vendor/bin/pint --test app/Providers/AppServiceProvider.php routes/api/v1/dashboard/internal-profiles.php tests/Feature/Modules/User/DepartmentsSelectTest.php tests/Feature/Modules/User/PositionsSelectTest.php tests/Feature/Modules/User/SelectAvailableInternalProfilesTest.php tests/Feature/Modules/User/SelectInternalProfileOptionsTest.php --format agent)",
       "PowerShell(vendor/bin/pint --test app/Modules/Tender/Application/Project/Queries/ListTenderProjectOptionsQuery.php app/Modules/Tender/Presentation/Http/Controllers/TenderProjectController.php routes/api/v1/dashboard/tender-projects.php tests/Feature/Modules/Tender/TenderProjectsSelectTest.php --format agent)",
-      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/TenderProjectsSelectTest.php tests/Feature/Modules/User/DepartmentsSelectTest.php tests/Feature/Modules/User/PositionsSelectTest.php tests/Feature/Modules/User/SelectAvailableInternalProfilesTest.php tests/Feature/Modules/User/SelectInternalProfileOptionsTest.php)"
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/TenderProjectsSelectTest.php tests/Feature/Modules/User/DepartmentsSelectTest.php tests/Feature/Modules/User/PositionsSelectTest.php tests/Feature/Modules/User/SelectAvailableInternalProfilesTest.php tests/Feature/Modules/User/SelectInternalProfileOptionsTest.php)",
+      "PowerShell(php artisan make:test --pest Modules/Tender/ShowTenderProjectTest --no-interaction)",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/ShowTenderProjectTest.php)",
+      "PowerShell(vendor/bin/pint --dirty --format agent)",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender)",
+      "PowerShell(vendor/bin/pint --dirty --format agent; php artisan test --compact tests/Feature/Modules/Tender 2>&1 | Select-Object -First 1 | ForEach-Object { if \\($_.Length -gt 3000\\) { $_.Substring\\(0,3000\\) } else { $_ } })",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/ListTenderProjectsTest.php 2>&1 | ForEach-Object { if \\($_.Length -gt 2500\\) { $_.Substring\\(0,2500\\) } else { $_ } })",
+      "PowerShell(vendor/bin/pint --dirty --format agent; php artisan test --compact tests/Feature/Modules/Tender 2>&1 | ForEach-Object { if \\($_.Length -gt 2500\\) { $_.Substring\\(0,2500\\) } else { $_ } })"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

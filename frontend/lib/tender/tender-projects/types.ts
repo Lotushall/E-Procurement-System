@@ -1,5 +1,6 @@
 import { Department, InternalProfile } from "@/lib/internal-profiles/types";
 import { PaginationMeta } from "@/lib/pagination";
+import type { Tor } from "@/lib/tender/tor/types";
 import { User } from "@/lib/user/types";
 
 export type TenderProjectSortBy = "project_code" | "name" | "budget";
@@ -31,7 +32,16 @@ export interface TenderProjects {
   projectStartAt?: string;
   projectEndAt?: string;
   status: TenderProjectStatus;
+  // มีเฉพาะใน GET /tender-projects (รายการ) — นับเฉพาะ TOR ที่ผู้ใช้ดูได้ (TorPolicy)
+  torsCount?: number;
+  // มีเฉพาะใน GET /tender-projects/{id} — backend กรองเหลือแค่ TOR ที่ผู้ใช้ดูได้ (TorPolicy) เรียงตาม torCode
+  tors?: TenderProjectTor[];
 }
+
+export type TenderProjectTor = Pick<
+  Tor,
+  "id" | "torCode" | "title" | "procurementMethod" | "budgetEstimate" | "biddingEndAt" | "status"
+>;
 
 export interface TenderProjectListParams {
   search?: string;
