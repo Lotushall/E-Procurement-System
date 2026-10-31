@@ -1,29 +1,28 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { SearchInput } from "@/components/search-input";
+import { Suspense, useState } from "react";
+import { Building2, UserPlus } from "lucide-react";
+import { DataTable } from "@/components/ui/data-table";
+import { FloatingActionButton } from "@/components/floating-action-button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
-import Link from "next/link";
-import { Suspense } from "react";
+import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
+import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
 import { useInternalProfileListPage } from "./_hooks/use-internal-profile-list-page";
-import { DataTable } from "@/components/ui/data-table";
-import { columns } from "./_components/table/columns";
 import {
+    CARD_GRID_CLASS,
     InternalProfileListSkeleton,
     InternalProfileTableSkeleton,
 } from "./_components/internal-profile-list-skeleton";
-import { PositionSelect } from "@/components/position-select";
-import { DepartmentSelect } from "@/components/department-select";
-import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
-import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
-import InternalProfileFormDialog from "./_components/internal-profile-form-dialog";
-
-const ALL_DEPARTMENTS_OPTION = { value: "all", label: "ทุกแผนก" };
-const ALL_POSITIONS_OPTION = { value: "all", label: "ทุกตำแหน่ง" };
+import InternalProfileFormDialog from "./_components/dialogs/internal-profile-form-dialog";
+import { InternalProfileFilterBar } from "./_components/filters/internal-profile-filter-bar";
+import { columns } from "./_components/table/columns";
+import { InternalProfileCard } from "./_components/table/internal-profile-card";
 
 function InternalProfilesPageContent() {
     useBreadcrumb([{ label: "พนักงานภายใน" }]);
+
+    const [createOpen, setCreateOpen] = useState(false);
 
     const {
         search,
@@ -33,6 +32,8 @@ function InternalProfilesPageContent() {
         setDepartmentFilter,
         positionFilter,
         setPositionFilter,
+        clearFilters,
+        activeFilterCount,
         visible,
         pageCount,
         total,
@@ -50,57 +51,44 @@ function InternalProfilesPageContent() {
 
     return (
         <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-2">
-                    <h1 className="text-2xl font-bold">จัดการพนักงานภายใน</h1>
-                    <p className="text-sm text-gray-600 tracking-wide">
-                        รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        render={<Link href={routes.dashboards.internal_employees.departments_positions} />}
-                        nativeButton={false}
-                        className="h-10 flex-1"
-                    >
-                        จัดการแผนก และตำแหน่ง
-                    </Button>
-
-                    <InternalProfileFormDialog />
-                </div>
+            <div className="space-y-2">
+                <h1 className="text-2xl font-bold">จัดการพนักงานภายใน</h1>
+                <p className="text-sm text-gray-600 tracking-wide">
+                    รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
+                </p>
             </div>
+
+            <FloatingActionButton
+                menuLabel="เพิ่มพนักงาน / จัดการแผนกและตำแหน่ง"
+                actions={[
+                    { label: "เพิ่มพนักงาน", icon: UserPlus, onSelect: () => setCreateOpen(true) },
+                    {
+                        label: "จัดการแผนกและตำแหน่ง",
+                        icon: Building2,
+                        href: routes.dashboards.internal_employees.departments_positions,
+                    },
+                ]}
+            />
+            <InternalProfileFormDialog open={createOpen} onOpenChange={setCreateOpen} />
 
             {isPending ? (
                 <InternalProfileListSkeleton />
             ) : (
                 <>
-                    <div className="flex flex-col gap-3 lg:flex-row">
-                        <SearchInput
-                            value={search}
-                            onValueChange={setSearch}
-                            placeholder="ค้นหารหัสพนักงาน | ชื่อ | นามสกุล | เบอร์โทร"
-                        />
-
-                        <div className="flex gap-3">
-                            <DepartmentSelect
-                                departments={departments ?? []}
-                                value={departmentFilter}
-                                onValueChange={setDepartmentFilter}
-                                allOption={ALL_DEPARTMENTS_OPTION}
-                                className="sm:w-44 flex-1"
-                            />
-
-                            <PositionSelect
-                                positions={positions ?? []}
-                                value={positionFilter}
-                                onValueChange={setPositionFilter}
-                                allOption={ALL_POSITIONS_OPTION}
-                                className="sm:w-44 flex-1"
-                            />
-                        </div>
-                    </div>
+                    <InternalProfileFilterBar
+                        departments={departments ?? []}
+                        positions={positions ?? []}
+                        search={search}
+                        setSearch={setSearch}
+                        departmentFilter={departmentFilter}
+                        setDepartmentFilter={setDepartmentFilter}
+                        positionFilter={positionFilter}
+                        setPositionFilter={setPositionFilter}
+                        sorting={sorting}
+                        setSorting={setSorting}
+                        activeFilterCount={activeFilterCount}
+                        onClear={clearFilters}
+                    />
 
                     {isError ? (
                         <p className="py-12 text-center text-sm text-muted-foreground">
@@ -118,12 +106,16 @@ function InternalProfilesPageContent() {
                             onPaginationChange={setPagination}
                             sorting={sorting}
                             onSortingChange={setSorting}
+                            renderMobileCard={(profile) => <InternalProfileCard profile={profile} />}
+                            mobileCardGridClassName={CARD_GRID_CLASS}
                         />
                     ) : (
                         <p className="py-12 text-center text-sm text-muted-foreground">
                             {debouncedSearch
                                 ? "ไม่พบพนักงานที่ตรงกับคำค้นหา"
-                                : "ยังไม่มีพนักงานภายในในระบบ"}
+                                : activeFilterCount > 0
+                                    ? "ไม่พบพนักงานที่ตรงกับเงื่อนไขที่เลือก"
+                                    : "ยังไม่มีพนักงานภายในในระบบ"}
                         </p>
                     )}
                 </>

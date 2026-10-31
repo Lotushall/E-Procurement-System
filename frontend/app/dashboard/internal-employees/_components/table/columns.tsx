@@ -7,8 +7,8 @@ import type { InternalProfile } from "@/lib/internal-profiles/types";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/ui/data-table-sortable-header";
 import { routes } from "@/lib/routes";
-import DeleteInternalProfileDialog from "../delete-internal-profile-dialog";
-import EditInternalProfileDialog from "../edit-internal-profile-dialog";
+import DeleteInternalProfileDialog from "../dialogs/delete-internal-profile-dialog";
+import EditInternalProfileDialog from "../dialogs/edit-internal-profile-dialog";
 
 export const columns: ColumnDef<InternalProfile>[] = [
     {

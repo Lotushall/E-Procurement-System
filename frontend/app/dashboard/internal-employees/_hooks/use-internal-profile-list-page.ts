@@ -44,6 +44,13 @@ export function useInternalProfileListPage() {
     updateParams({ position: next === "all" ? null : next }, true);
   };
 
+  // ล้างคำค้นหา + ตัวกรอง (คงการเรียงลำดับไว้ เพราะไม่ใช่ตัวกรอง)
+  const clearFilters = () => {
+    setSearch("");
+    setSkipSkeleton(false);
+    updateParams({ search: null, department: null, position: null }, true);
+  };
+
   const list = useInternalProfileList(
     {
       search: debouncedSearch || undefined,
@@ -64,6 +71,9 @@ export function useInternalProfileListPage() {
     setDepartmentFilter,
     positionFilter,
     setPositionFilter,
+    clearFilters,
+    // ตัวกรองที่ใช้อยู่ (ไม่นับค้นหา) — ตัวเลขบนปุ่มตัวกรอง / ข้อความตอนไม่พบผลลัพธ์
+    activeFilterCount: [departmentFilter !== "all", positionFilter !== "all"].filter(Boolean).length,
     visible: list.data?.data ?? [],
     pageCount: list.data?.meta.lastPage ?? 0,
     total: list.data?.meta.total ?? 0,

@@ -15,7 +15,7 @@ type ActiveTab = "department" | "position";
 
 export default function DepartmentsPositions() {
     useBreadcrumb([
-        { label: "พนักงานภายใน", href: routes.dashboards.internal_employees.index },
+        { label: "พนักงานภายใน", href: routes.dashboards.internal_employees.index() },
         { label: "จัดการแผนก และตำแหน่ง" },
     ]);
 

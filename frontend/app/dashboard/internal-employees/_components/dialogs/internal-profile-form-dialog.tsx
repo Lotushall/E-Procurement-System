@@ -1,12 +1,11 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
     Dialog, DialogClose, DialogContent,
-    DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+    DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,15 +17,21 @@ import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartm
 import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
 import { DepartmentSelect } from "@/components/department-select";
 import { PositionSelect } from "@/components/position-select";
-import { useInternalProfileForm } from "../_hooks/use-internal-profile-form";
+import { useInternalProfileForm } from "../../_hooks/use-internal-profile-form";
 
 const PREFIX_OPTIONS = ["นาย", "นาง"] as const;
 
-export default function InternalProfileFormDialog() {
-    const [open, setOpen] = useState(false);
+// ไม่มีปุ่มเปิดในตัว: หน้าเปิดผ่านเมนูของ FloatingActionButton แล้วคุม open จากข้างนอก
+export default function InternalProfileFormDialog({
+    open,
+    onOpenChange,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
     const { data: departments } = useDepartmentOptions();
     const { data: positions } = usePositionOptions();
-    const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } = useInternalProfileForm(() => setOpen(false));
+    const { register, control, onSubmit, reset, isSubmitting, formState: { errors } } = useInternalProfileForm(() => onOpenChange(false));
 
     function handlePhoneChange(onChange: (value: string) => void) {
         return (e: ChangeEvent<HTMLInputElement>) => onChange(formatPhone(e.target.value));
@@ -36,15 +41,10 @@ export default function InternalProfileFormDialog() {
         <Dialog
             open={open}
             onOpenChange={(next) => {
-                setOpen(next);
+                onOpenChange(next);
                 if (!next) reset();
             }}
         >
-            <DialogTrigger render={<Button className="font-bold tracking-wider bg-red-700 text-white flex-1 hover:bg-red-700 h-10" />}>
-                <Plus />
-                <p>เพิ่มพนักงาน</p>
-            </DialogTrigger>
-
             <DialogContent className="sm:max-w-xl">
                 <DialogHeader>
                     <DialogTitle>สร้างพนักงานภายใน</DialogTitle>

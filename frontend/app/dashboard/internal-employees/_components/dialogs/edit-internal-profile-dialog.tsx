@@ -20,12 +20,24 @@ import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionO
 import { useInternalProfileDetail } from "@/lib/internal-profiles/queries/useInternalProfileDetail";
 import { DepartmentSelect } from "@/components/department-select";
 import { PositionSelect } from "@/components/position-select";
-import { useEditInternalProfileForm } from "../_hooks/use-edit-internal-profile-form";
+import { useEditInternalProfileForm } from "../../_hooks/use-edit-internal-profile-form";
 
 const PREFIX_OPTIONS = ["นาย", "นาง"] as const;
 
-export default function EditInternalProfileDialog({ id }: { id: number }) {
-    const [open, setOpen] = useState(false);
+export default function EditInternalProfileDialog({
+    id,
+    open: controlledOpen,
+    onOpenChange,
+}: {
+    id: number;
+    // ส่ง open มาเมื่อเปิดจากที่อื่น (เช่นเมนู ⋮ ในการ์ด) — จะไม่แสดงปุ่ม trigger ของตัวเอง
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+}) {
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : uncontrolledOpen;
+    const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
     const { data: departments } = useDepartmentOptions();
     const { data: positions } = usePositionOptions();
     const { data: profile, isPending } = useInternalProfileDetail(id, open);
@@ -55,9 +67,11 @@ export default function EditInternalProfileDialog({ id }: { id: number }) {
                 if (!next) reset(initialValues);
             }}
         >
-            <DialogTrigger render={<Button variant="outline" aria-label="แก้ไขพนักงาน" className="size-8 px-1.5 pt-px rounded-md bg-white" />}>
-                <Pencil className="w-4 h-4 text-gray-500" />
-            </DialogTrigger>
+            {!isControlled && (
+                <DialogTrigger render={<Button variant="outline" aria-label="แก้ไขพนักงาน" className="size-8 px-1.5 pt-px rounded-md bg-white" />}>
+                    <Pencil className="w-4 h-4 text-gray-500" />
+                </DialogTrigger>
+            )}
 
             <DialogContent className="sm:max-w-xl">
                 <DialogHeader>

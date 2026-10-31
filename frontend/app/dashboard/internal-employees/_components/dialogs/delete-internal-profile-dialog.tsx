@@ -23,10 +23,18 @@ function getErrorMessage(error: unknown): string {
 
 export default function DeleteInternalProfileDialog({
     internal_profile,
+    open: controlledOpen,
+    onOpenChange,
 }: {
     internal_profile: InternalProfile;
+    // ส่ง open มาเมื่อเปิดจากที่อื่น (เช่นเมนู ⋮ ในการ์ด) — จะไม่แสดงปุ่ม trigger ของตัวเอง
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }) {
-    const [open, setOpen] = useState(false);
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : uncontrolledOpen;
+    const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
     const { data: currentUser } = useUser();
     const deleteInternalProfileMutation = useDeleteInternalProfile();
     const disabledReason =
@@ -64,7 +72,7 @@ export default function DeleteInternalProfileDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
-            {disabledReason ? (
+            {isControlled ? null : disabledReason ? (
                 <Tooltip>
                     <TooltipTrigger render={<span className="inline-flex" tabIndex={0} />}>
                         {trigger}
