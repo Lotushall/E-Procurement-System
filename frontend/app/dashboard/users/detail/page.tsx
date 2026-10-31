@@ -47,7 +47,7 @@ function UserDetailContent() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-10">
       <UserDetailHeader user={user} status={user.status} />
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)}>

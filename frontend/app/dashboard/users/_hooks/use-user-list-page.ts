@@ -52,6 +52,13 @@ export function useUserListPage() {
     updateParams({ status: next === "all" ? null : next }, true);
   };
 
+  // ล้างคำค้นหา + ตัวกรอง (คงการเรียงลำดับไว้ เพราะไม่ใช่ตัวกรอง)
+  const clearFilters = () => {
+    setSearch("");
+    setSkipSkeleton(false);
+    updateParams({ search: null, type: null, status: null }, true);
+  };
+
   const list = useUserList(
     {
       type: typeFilter === "all" ? undefined : typeFilter,
@@ -69,6 +76,9 @@ export function useUserListPage() {
     setTypeFilter,
     statusFilter,
     setStatusFilter,
+    clearFilters,
+    // ตัวกรองที่ใช้อยู่ (ไม่นับค้นหา) — ตัวเลขบนปุ่มตัวกรอง / ข้อความตอนไม่พบผลลัพธ์
+    activeFilterCount: [typeFilter !== "all", statusFilter !== "all"].filter(Boolean).length,
     search,
     setSearch,
     debouncedSearch,

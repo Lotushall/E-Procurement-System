@@ -1,40 +1,17 @@
 "use client";
 
 import { Suspense, useMemo } from "react";
-import { Plus } from "lucide-react";
-import { SearchInput } from "@/components/search-input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ShieldCheck, UserPlus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { FloatingActionButton, type FloatingAction } from "@/components/floating-action-button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
-import type { UserStatusFilter, UserTypeFilter } from "@/lib/user/management/types";
 import { useUserListPage } from "./_hooks/use-user-list-page";
-import { UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
+import { CARD_GRID_CLASS, UserListSkeleton, UserTableSkeleton } from "./_components/user-list-skeleton";
+import { UserFilterBar } from "./_components/filters/user-filter-bar";
 import { createColumns } from "./_components/table/columns";
-
-const TYPE_OPTIONS: { value: UserTypeFilter; label: string }[] = [
-  { value: "all", label: "ทุกประเภท" },
-  { value: "internal", label: "พนักงานภายใน" },
-  { value: "company", label: "นิติบุคคล" },
-  { value: "individual", label: "ร้านค้า" },
-];
-
-const STATUS_OPTIONS: { value: UserStatusFilter; label: string }[] = [
-  { value: "all", label: "ทุกสถานะ" },
-  { value: "pending", label: "รอตรวจสอบ" },
-  { value: "active", label: "ใช้งานอยู่" },
-  { value: "suspended", label: "ระงับการใช้งาน" },
-  { value: "inactive", label: "ปิดใช้งาน" },
-];
+import { UserCard } from "./_components/table/user-card";
 
 function UsersPageContent() {
   useBreadcrumb([{ label: "จัดการผู้ใช้" }]);
@@ -50,11 +27,21 @@ function UsersPageContent() {
     [canUpdateStatus, canUpdateUser, canDeleteUser, user?.id],
   );
 
+  // มีสิทธิ์เดียว = ปุ่มลอยทำทันที, ทั้งสอง = เมนู, ไม่มีเลย = ไม่แสดงปุ่ม
+  const fabActions: FloatingAction[] = [
+    ...(canCreateUser ? [{ label: "เพิ่ม user", icon: UserPlus, href: routes.dashboards.user.create }] : []),
+    ...(canManageRoles
+      ? [{ label: "จัดการ Role และ Permission", icon: ShieldCheck, href: routes.dashboards.user.roles }]
+      : []),
+  ];
+
   const {
     typeFilter,
     setTypeFilter,
     statusFilter,
     setStatusFilter,
+    clearFilters,
+    activeFilterCount,
     search,
     setSearch,
     debouncedSearch,
@@ -72,79 +59,31 @@ function UsersPageContent() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">จัดการผู้ใช้</h1>
-          <p className="text-sm text-gray-600 tracking-wide">
-            รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {canManageRoles && (
-            <Button variant="outline" render={<Link href={routes.dashboards.user.roles} />} nativeButton={false} className="h-10 flex-1">
-              จัดการ Role และ Permission
-            </Button>
-          )}
-          {canCreateUser && (
-            <Button
-              render={<Link href={routes.dashboards.user.create} />}
-              nativeButton={false}
-              className="font-bold tracking-wider bg-red-700 text-white hover:bg-red-600 h-10 flex-1"
-            >
-              <Plus />
-              <p>เพิ่ม user</p>
-            </Button>
-          )}
-        </div>
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold">จัดการผู้ใช้</h1>
+        <p className="text-sm text-gray-600 tracking-wide">
+          รายชื่อผู้ใช้ทั้งหมดในระบบ ทั้งพนักงานภายในและผู้ค้า
+        </p>
       </div>
+
+      <FloatingActionButton menuLabel="เพิ่ม user / จัดการ Role และ Permission" actions={fabActions} />
 
       {isPending ? (
         <UserListSkeleton />
       ) : (
         <>
-          <div className="flex flex-col gap-3 lg:flex-row">
-            <SearchInput
-              value={search}
-              onValueChange={setSearch}
-              placeholder="ค้นหาชื่อ | username | อีเมล"
-            />
-
-            <div className="flex gap-3">
-              <Select
-                items={TYPE_OPTIONS}
-                value={typeFilter}
-                onValueChange={(value) => setTypeFilter(value as UserTypeFilter)}
-              >
-                <SelectTrigger className="lg:w-44 h-10! bg-white rounded-sm flex-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent side="bottom" alignItemWithTrigger={false}>
-                  {TYPE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                items={STATUS_OPTIONS}
-                value={statusFilter}
-                onValueChange={(value) => setStatusFilter(value as UserStatusFilter)}
-              >
-                <SelectTrigger className="lg:w-44 h-10! bg-white rounded-sm flex-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent side="bottom" alignItemWithTrigger={false}>
-                  {STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <UserFilterBar
+            search={search}
+            setSearch={setSearch}
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            sorting={sorting}
+            setSorting={setSorting}
+            activeFilterCount={activeFilterCount}
+            onClear={clearFilters}
+          />
 
           {isError ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
@@ -162,12 +101,22 @@ function UsersPageContent() {
               onPaginationChange={setPagination}
               sorting={sorting}
               onSortingChange={setSorting}
+              renderMobileCard={(row) => (
+                <UserCard
+                  user={row}
+                  canUpdateStatus={canUpdateStatus}
+                  canUpdateUser={canUpdateUser}
+                  canDeleteUser={canDeleteUser}
+                  currentUserId={user?.id}
+                />
+              )}
+              mobileCardGridClassName={CARD_GRID_CLASS}
             />
           ) : (
             <p className="py-12 text-center text-sm text-muted-foreground">
               {debouncedSearch
                 ? "ไม่พบผู้ใช้ที่ตรงกับคำค้นหา"
-                : typeFilter !== "all" || statusFilter !== "all"
+                : activeFilterCount > 0
                   ? "ไม่พบผู้ใช้ที่ตรงกับเงื่อนไขที่เลือก"
                   : "ยังไม่มีผู้ใช้ในระบบ"}
             </p>

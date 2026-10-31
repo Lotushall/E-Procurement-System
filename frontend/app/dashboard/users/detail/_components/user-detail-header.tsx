@@ -51,6 +51,7 @@ export function UserDetailHeader({
                 <Link href={routes.dashboards.vendors.detail(user.vendorProfileId!)} />
               }
               nativeButton={false}
+              className="bg-white"
             >
               <Store />
               ดูข้อมูลผู้ค้า
@@ -68,6 +69,7 @@ export function UserDetailHeader({
                 />
               }
               nativeButton={false}
+              className="bg-white"
             >
               <IdCardLanyard />
               ดูข้อมูลพนักงานภายใน
@@ -78,6 +80,7 @@ export function UserDetailHeader({
             variant="outline"
             render={<Link href={routes.dashboards.user.edit(user.id)} />}
             nativeButton={false}
+            className="bg-white"
           >
             <Pencil />
             แก้ไข

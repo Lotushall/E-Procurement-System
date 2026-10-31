@@ -24,12 +24,20 @@ export function DeleteUserDialog({
   user,
   currentUserId,
   onDeleted,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   user: UserListItem;
   currentUserId: number | undefined;
   onDeleted?: () => void;
+  // ส่ง open มาเมื่อเปิดจากที่อื่น (เช่นเมนู ⋮ ในการ์ด) — จะไม่แสดงปุ่ม trigger ของตัวเอง
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
   const deleteUserMutation = useDeleteUser();
   const disabledReason =
     currentUserId === user.id ? "ไม่สามารถลบบัญชีของตัวเองได้" : undefined;
@@ -63,7 +71,7 @@ export function DeleteUserDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      {disabledReason ? (
+      {isControlled ? null : disabledReason ? (
         <Tooltip>
           <TooltipTrigger render={<span className="inline-flex" tabIndex={0} />}>
             {trigger}

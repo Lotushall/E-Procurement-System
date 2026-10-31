@@ -13,13 +13,14 @@ import { routes } from "@/lib/routes"
 import { getInitials } from "@/lib/utils"
 import { DeleteUserDialog } from "./delete-user-dialog"
 
-const USER_TYPE_LABEL: Record<UserType, string> = {
+// ใช้ร่วมกับ user-card.tsx
+export const USER_TYPE_LABEL: Record<UserType, string> = {
     internal: "พนักงานภายใน",
     company: "นิติบุคคล",
     individual: "ร้านค้า",
 }
 
-const USER_TYPE_ICON: Record<UserType, LucideIcon> = {
+export const USER_TYPE_ICON: Record<UserType, LucideIcon> = {
     internal: UserRound,
     company: Building2,
     individual: Store,
