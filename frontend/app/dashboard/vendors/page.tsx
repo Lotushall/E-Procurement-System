@@ -1,28 +1,15 @@
 "use client";
 
 import { Suspense } from "react";
-import { SearchInput } from "@/components/search-input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import type { VendorListFilter } from "@/lib/vendor/approval/types";
 import { useVendorListPage } from "./_hooks/use-vendor-list-page";
 import { VendorStatsCards } from "./_components/vendor-stats-cards";
-import { VendorListSkeleton, VendorTableSkeleton } from "./_components/vendor-list-skeleton";
+import { CARD_GRID_CLASS, VendorListSkeleton, VendorTableSkeleton } from "./_components/vendor-list-skeleton";
+import { VendorFilterBar } from "./_components/filters/vendor-filter-bar";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./_components/table/columns";
-
-const STATUS_OPTIONS: { value: VendorListFilter; label: string }[] = [
-  { value: "all", label: "ทั้งหมด" },
-  { value: "pending", label: "รอตรวจสอบ" },
-  { value: "approved", label: "อนุมัติแล้ว" },
-  { value: "rejected", label: "ถูกปฏิเสธ" },
-];
+import { VendorCard } from "./_components/table/vendor-card";
 
 const EMPTY_MESSAGE: Record<VendorListFilter, string> = {
   all: "ยังไม่มีผู้ค้าลงทะเบียนในระบบ",
@@ -37,6 +24,8 @@ function VendorListPageContent() {
   const {
     filter,
     setFilter,
+    clearFilters,
+    activeFilterCount,
     search,
     setSearch,
     debouncedSearch,
@@ -53,9 +42,6 @@ function VendorListPageContent() {
     isError,
   } = useVendorListPage();
 
-  console.log(visible);
-
-
   return (
     <div className="flex flex-col gap-5">
 
@@ -70,30 +56,16 @@ function VendorListPageContent() {
         <>
           <VendorStatsCards counts={counts} active={filter} onSelect={setFilter} />
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <SearchInput
-              value={search}
-              onValueChange={setSearch}
-              placeholder="ค้นหาชื่อผู้ค้า | ชื่อร้านค้า | หมวดสินค้า/บริการ | เบอร์โทรศัพท์/อีเมล"
-            />
-
-            <Select
-              items={STATUS_OPTIONS}
-              value={filter}
-              onValueChange={(value) => setFilter(value as VendorListFilter)}
-            >
-              <SelectTrigger className="sm:w-40 h-10! bg-white rounded-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent side="bottom" alignItemWithTrigger={false}>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <VendorFilterBar
+            search={search}
+            setSearch={setSearch}
+            filter={filter}
+            setFilter={setFilter}
+            sorting={sorting}
+            setSorting={setSorting}
+            activeFilterCount={activeFilterCount}
+            onClear={clearFilters}
+          />
 
           {isError ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
@@ -111,6 +83,8 @@ function VendorListPageContent() {
               onPaginationChange={setPagination}
               sorting={sorting}
               onSortingChange={setSorting}
+              renderMobileCard={(row) => <VendorCard vendor={row} />}
+              mobileCardGridClassName={CARD_GRID_CLASS}
             />
           ) : (
             <p className="py-12 text-center text-sm text-muted-foreground">

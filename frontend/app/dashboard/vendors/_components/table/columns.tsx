@@ -21,14 +21,27 @@ import { VendorStatusBadge } from "@/components/vendor-status-badge"
 import { routes } from "@/lib/routes"
 import { cn, formatPhone, getInitials } from "@/lib/utils"
 
-const VENDOR_TYPE_LABEL: Record<"company" | "individual", string> = {
+// ใช้ร่วมกับ vendor-card.tsx
+export const VENDOR_TYPE_LABEL: Record<"company" | "individual", string> = {
     company: "นิติบุคคล",
     individual: "บุคคลธรรมดา",
 }
 
-const VENDOR_TYPE_ICON: Record<"company" | "individual", LucideIcon> = {
+export const VENDOR_TYPE_ICON: Record<"company" | "individual", LucideIcon> = {
     company: Building2,
     individual: User,
+}
+
+export function getVendorDisplayName(vendor: VendorProfile): string {
+    return vendor.detail.type === "company" ? vendor.detail.companyName : vendor.detail.storeName
+}
+
+// เบอร์/อีเมลของผู้ติดต่อหลัก (หรือคนแรก); บุคคลธรรมดาที่ไม่มีผู้ติดต่อใช้ข้อมูลของตัวเอง
+export function getVendorContact(vendor: VendorProfile): string | null {
+    const mainContact = vendor.contact?.find((c) => c.isMainContact) ?? vendor.contact?.[0]
+    if (mainContact) return formatPhone(mainContact.contactPhone) || mainContact.contactEmail || null
+    if (vendor.detail.type === "individual") return formatPhone(vendor.detail.phone) || vendor.detail.email || null
+    return null
 }
 
 const DOCUMENT_STATUS_ICON: Record<"approved" | "pending" | "rejected", LucideIcon> = {
@@ -49,7 +62,7 @@ const DOCUMENT_STATUS_LABEL: Record<"approved" | "pending" | "rejected", string>
     rejected: "ถูกปฏิเสธ",
 }
 
-function DocumentStatusCount({
+export function DocumentStatusCount({
     status,
     count,
 }: {
@@ -72,7 +85,7 @@ export const columns: ColumnDef<VendorProfile>[] = [
     {
         id: "name",
         header: ({ column }) => <SortableHeader column={column} label="ผู้ค้า" />,
-        accessorFn: (vendor) => vendor.detail.type === "company" ? vendor.detail.companyName : vendor.detail.storeName,
+        accessorFn: getVendorDisplayName,
         // ช่องผู้ค้าเป็นลิงก์ไปหน้า detail แทนปุ่มดูรายละเอียดในคอลัมน์ Actions
         cell: ({ getValue, row }) => (
             <Link
@@ -111,15 +124,8 @@ export const columns: ColumnDef<VendorProfile>[] = [
         id: "contact",
         header: "ติดต่อ",
         cell: ({ row }) => {
-            const vendor = row.original
-            const mainContact = vendor.contact?.find((c) => c.isMainContact) ?? vendor.contact?.[0]
-            if (mainContact) {
-                return <span>{formatPhone(mainContact.contactPhone) || mainContact.contactEmail}</span>
-            }
-            if (vendor.detail.type === "individual") {
-                return <span>{formatPhone(vendor.detail.phone) || vendor.detail.email}</span>
-            }
-            return <span className="text-muted-foreground">-</span>
+            const contact = getVendorContact(row.original)
+            return contact ? <span>{contact}</span> : <span className="text-muted-foreground">-</span>
         },
     },
     {
@@ -171,11 +177,7 @@ export const columns: ColumnDef<VendorProfile>[] = [
             <div className="flex justify-center gap-1.5">
                 <DeleteVendorDialog
                     vendorId={row.original.id}
-                    displayName={
-                        row.original.detail.type === "company"
-                            ? row.original.detail.companyName
-                            : row.original.detail.storeName
-                    }
+                    displayName={getVendorDisplayName(row.original)}
                     trigger={
                         <Button
                             variant="outline"

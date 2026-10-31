@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableCardsSkeleton } from "@/components/ui/data-table-cards-skeleton";
 import {
   Table,
   TableBody,
@@ -12,9 +13,21 @@ import {
 const SKELETON_ROWS = 6;
 const COLUMN_WIDTHS = ["w-20", "w-24", "w-28", "w-20", "w-16", "w-16", "w-16"];
 
+// การ์ด 1 คอลัมน์ถึง md, 2 คอลัมน์ช่วง lg–xl (xl ขึ้นไปเป็นตาราง) — ใช้ทั้ง DataTable และ skeleton
+export const CARD_GRID_CLASS = "sm:grid-cols-1 lg:grid-cols-2";
+
 export function VendorTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border shadow-md">
+    <>
+      <DataTableCardsSkeleton className={CARD_GRID_CLASS} />
+      <VendorTableSkeletonDesktop />
+    </>
+  );
+}
+
+function VendorTableSkeletonDesktop() {
+  return (
+    <div className="hidden overflow-hidden rounded-xl border shadow-md xl:block">
       <Table>
         <TableHeader className="bg-[#F7F8FA]">
           <TableRow>

@@ -57,6 +57,13 @@ export function useVendorListPage() {
     updateParams({ status: next === "all" ? null : next }, true);
   };
 
+  // ล้างคำค้นหา + ตัวกรอง (คงการเรียงลำดับไว้ เพราะไม่ใช่ตัวกรอง)
+  const clearFilters = () => {
+    setSearch("");
+    setSkipSkeleton(false);
+    updateParams({ search: null, status: null }, true);
+  };
+
   const list = useVendorList(
     {
       status: filter === "all" ? undefined : filter,
@@ -78,6 +85,9 @@ export function useVendorListPage() {
   return {
     filter,
     setFilter,
+    clearFilters,
+    // ตัวกรองที่ใช้อยู่ (ไม่นับค้นหา) — ตัวเลขบนปุ่มตัวกรอง
+    activeFilterCount: filter === "all" ? 0 : 1,
     search,
     setSearch,
     debouncedSearch,

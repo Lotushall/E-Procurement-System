@@ -22,14 +22,22 @@ export function DeleteVendorDialog({
     trigger,
     triggerChildren,
     onSuccess,
+    open: controlledOpen,
+    onOpenChange,
 }: {
     vendorId: number;
     displayName: string;
-    trigger: ReactElement;
-    triggerChildren: ReactNode;
+    // ไม่ต้องส่ง trigger เมื่อเปิดจากที่อื่นผ่าน open (เช่นเมนู ⋮ ในการ์ด)
+    trigger?: ReactElement;
+    triggerChildren?: ReactNode;
     onSuccess?: () => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }) {
-    const [open, setOpen] = useState(false);
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : uncontrolledOpen;
+    const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
     const deleteVendorMutation = useDeleteVendor();
 
     const handleDelete = () => {
@@ -46,7 +54,7 @@ export function DeleteVendorDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger render={trigger}>{triggerChildren}</AlertDialogTrigger>
+            {trigger && <AlertDialogTrigger render={trigger}>{triggerChildren}</AlertDialogTrigger>}
 
             <AlertDialogContent>
                 <AlertDialogHeader>
