@@ -31,7 +31,7 @@ export function VendorProfileInfo({ detail }: { detail: VendorProfileDetail }) {
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-lg font-bold">ข้อมูลผู้ค้า</h2>
-      <div className="grid grid-cols-1 gap-4 rounded-md border p-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 rounded-md border bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
         {detail.type === "company" ? (
           <>
             <InfoItem label="ชื่อบริษัท / นิติบุคคล" value={detail.companyName} cols={3} />

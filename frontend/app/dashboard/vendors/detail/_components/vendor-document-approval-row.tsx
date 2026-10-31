@@ -59,7 +59,7 @@ export function VendorDocumentApprovalRow({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border p-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-3 rounded-md border bg-white p-4 sm:flex-row sm:items-center">
       <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3.5">
         {viewUrl ? (
           <Link
@@ -120,7 +120,8 @@ export function VendorDocumentApprovalRow({
       </div>
 
       {document && (
-        <div className="flex shrink-0 items-center justify-end gap-2">
+        // จอเล็กกว่า sm: ปุ่ม (มีครั้งละ 2 ปุ่มเสมอ) แบ่งครึ่งเต็มแถว
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0 sm:items-center sm:justify-end">
           {document.status !== "pending" && (
             <Button
               type="button"
@@ -128,6 +129,7 @@ export function VendorDocumentApprovalRow({
               size="sm"
               onClick={handlePending}
               disabled={isActionPending}
+              className="max-sm:h-9"
             >
               {pendingDoc.isPending ? "กำลังดำเนินการ..." : "รอตรวจสอบ"}
             </Button>
@@ -138,6 +140,7 @@ export function VendorDocumentApprovalRow({
               size="sm"
               onClick={handleApprove}
               disabled={isActionPending}
+              className="max-sm:h-9"
             >
               {approveDoc.isPending ? "กำลังดำเนินการ..." : "อนุมัติ"}
             </Button>
@@ -150,7 +153,7 @@ export function VendorDocumentApprovalRow({
                   variant="outline"
                   size="sm"
                   disabled={isActionPending}
-                  className="text-destructive hover:bg-destructive/10"
+                  className="text-destructive hover:bg-destructive/10 max-sm:h-9"
                 />
               }
               triggerChildren={rejectDoc.isPending ? "กำลังดำเนินการ..." : "ปฏิเสธ"}
