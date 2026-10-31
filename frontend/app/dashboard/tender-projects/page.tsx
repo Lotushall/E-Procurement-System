@@ -1,8 +1,10 @@
 "use client";
 
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
+import { FloatingActionButton } from "@/components/floating-action-button";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useTenderProjectListPage } from "./_hooks/use-tender-project-list-page";
@@ -28,6 +30,7 @@ function TenderProjectsPageContent() {
     );
 
     const { data: departmentOptions } = useDepartmentOptions();
+    const [createOpen, setCreateOpen] = useState(false);
 
     const {
         search,
@@ -62,8 +65,8 @@ function TenderProjectsPageContent() {
     } = useTenderProjectListPage();
 
     return (
-        // pb-36: เว้นที่ให้ปุ่มสร้างแบบลอย + ScrollToTop ที่ซ้อนอยู่เหนือมัน ไม่ให้บัง pagination / การ์ดใบสุดท้าย
-        <div className="flex flex-col gap-5 pb-20">
+        // ระยะเว้นด้านล่างให้ปุ่มลอยอยู่ใน dashboard layout แล้ว (has-[[data-fab]])
+        <div className="flex flex-col gap-5">
             <div className="space-y-2">
                 <h1 className="text-2xl font-bold">จัดการโครงการจัดซื้อจัดจ้าง</h1>
                 <p className="text-sm text-gray-600 tracking-wide">
@@ -71,8 +74,10 @@ function TenderProjectsPageContent() {
                 </p>
             </div>
 
-            {/* ปุ่มลอย (position: fixed) ไม่กินที่ใน layout */}
-            <CreateTenderProjectDialog />
+            <FloatingActionButton
+                actions={[{ label: "สร้างโครงการใหม่", icon: Plus, onSelect: () => setCreateOpen(true) }]}
+            />
+            <CreateTenderProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
 
             <TenderProjectStatsCards stats={stats} isPending={isPending} />
 

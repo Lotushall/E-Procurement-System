@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 import { Controller } from "react-hook-form";
 import { format, parse } from "date-fns";
 import { th } from "date-fns/locale";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import {
     Dialog, DialogClose, DialogContent,
-    DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+    DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,14 +86,20 @@ const FISCAL_YEAR_OPTIONS: { value: string; label: string }[] = Array.from(
     },
 );
 
-export function CreateTenderProjectDialog() {
-    const [open, setOpen] = useState(false);
+// ไม่มีปุ่มเปิดในตัว: หน้าเปิดผ่าน FloatingActionButton แล้วคุม open จากข้างนอก
+export function CreateTenderProjectDialog({
+    open,
+    onOpenChange,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
     const { data: departmentOptions } = useDepartmentOptions();
 
     const {
         register, control, watch, setValue, onSubmit, reset, isSubmitting,
         formState: { errors },
-    } = useCreateTenderProjectForm(() => setOpen(false));
+    } = useCreateTenderProjectForm(() => onOpenChange(false));
 
     const projectStartAt = watch("projectStartAt");
     const projectEndAt = watch("projectEndAt");
@@ -102,27 +108,10 @@ export function CreateTenderProjectDialog() {
         <Dialog
             open={open}
             onOpenChange={(next) => {
-                setOpen(next);
+                onOpenChange(next);
                 if (!next) reset();
             }}
         >
-            {/*
-              ปุ่มกลมลอยมุมขวาล่าง (FAB) ทุกขนาดจอ เหลือแค่ไอคอน (ชื่ออยู่ใน aria-label / title)
-              data-fab: ให้ ScrollToTop ใน dashboard layout ขยับขึ้นไปอยู่เหนือปุ่มนี้
-            */}
-            <DialogTrigger
-                render={
-                    <Button
-                        data-fab=""
-                        aria-label="สร้างโครงการใหม่"
-                        title="สร้างโครงการใหม่"
-                        className="fixed right-6 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-40 size-12 rounded-full bg-red-700 text-white shadow-lg shadow-red-900/30 hover:bg-red-600"
-                    />
-                }
-            >
-                <Plus className="size-6" />
-            </DialogTrigger>
-
             <DialogContent className="sm:max-w-2xl scrollbar-rounded">
                 <DialogHeader>
                     <DialogTitle>สร้างโครงการจัดซื้อจัดจ้างใหม่</DialogTitle>

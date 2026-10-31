@@ -1,6 +1,7 @@
 "use client"
 
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
+import { ListClearButton } from "@/components/list-filter-sheet";
 import { SearchInput } from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 import type { TenderProjectSortValue } from "../../_hooks/use-tender-project-list-page";
@@ -44,6 +45,7 @@ export function TenderProjectFilterBar({
                     value={search}
                     onValueChange={setSearch}
                     placeholder="ค้นหาชื่อโครงการ | รหัสโครงการ"
+                    className="lg:min-w-72"
                 />
 
                 <div className="flex gap-2 lg:hidden">
@@ -56,16 +58,7 @@ export function TenderProjectFilterBar({
                         onClear={onClear}
                     />
 
-                    <Button
-                        type="button"
-                        variant="outline"
-                        aria-label="ล้างการค้นหาและตัวกรอง"
-                        className="h-10 shrink-0 gap-1.5 bg-white"
-                        onClick={onClear}
-                    >
-                        <X className="size-4 text-gray-600" />
-                        <span className="hidden sm:inline">ล้าง</span>
-                    </Button>
+                    <ListClearButton onClear={onClear} />
                 </div>
             </div>
 
