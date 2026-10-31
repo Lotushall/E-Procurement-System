@@ -182,7 +182,18 @@
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"tender-projects|dashboard/layout\"; npx eslint app/dashboard/layout.tsx app/dashboard/tender-projects; \"eslint exit: $LASTEXITCODE\")",
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"tender-projects\"; npx eslint app/dashboard/tender-projects/_components/tender-project-stats-cards.tsx; \"eslint exit: $LASTEXITCODE\")",
       "Bash(node -e 'const f=new Intl.NumberFormat\\(\"th-TH\",{style:\"currency\",currency:\"THB\"}\\); for \\(const v of [0,320000,294540000,1234567890.5]\\) console.log\\(f.format\\(v\\)\\)')",
-      "Bash(node -e 'const format=\\(n\\)=>new Intl.NumberFormat\\(\"th-TH\",{maximumFractionDigits:2}\\).format\\(n\\); const f=\\(v\\)=>Math.abs\\(v\\)>=1e6?`฿${format\\(v/1e6\\)} ล้าน`:`฿${format\\(v\\)}`; for \\(const v of [0,320000,1250000,294540000,1234567890.5]\\) console.log\\(v, \"→\", f\\(v\\)\\)')"
+      "Bash(node -e 'const format=\\(n\\)=>new Intl.NumberFormat\\(\"th-TH\",{maximumFractionDigits:2}\\).format\\(n\\); const f=\\(v\\)=>Math.abs\\(v\\)>=1e6?`฿${format\\(v/1e6\\)} ล้าน`:`฿${format\\(v\\)}`; for \\(const v of [0,320000,1250000,294540000,1234567890.5]\\) console.log\\(v, \"→\", f\\(v\\)\\)')",
+      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\frontend; npx tsc --noEmit -p . 2>&1 | Select-String \"error TS\"; npx eslint components app/dashboard/layout.tsx app/dashboard/tender-projects app/dashboard/internal-employees app/dashboard/users; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\frontend; npx tsc --noEmit -p . 2>&1 | Select-String \"floating-action|dashboard/\\(layout|users|internal|tender\\)\"; npx eslint components/floating-action-button.tsx app/dashboard/layout.tsx; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"error TS\"; npx eslint app/dashboard/internal-employees/departments-positions/page.tsx; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"error TS\"; npx eslint components/ui/data-table.tsx components/ui/data-table-cards-skeleton.tsx app/dashboard/users app/dashboard/internal-employees; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String \"error TS\"; npx eslint components app/dashboard/layout.tsx app/dashboard/tender-projects app/dashboard/internal-employees app/dashboard/users app/dashboard/vendors; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(git add components/floating-action-button.tsx components/list-filter-sheet.tsx components/list-sort-select.tsx components/ui/data-table-cards-skeleton.tsx components/ui/data-table.tsx components/search-input.tsx components/position-select.tsx app/dashboard/layout.tsx)",
+      "PowerShell(git add app/dashboard/tender-projects)",
+      "PowerShell(git add app/dashboard/internal-employees)",
+      "PowerShell(git add app/dashboard/users)",
+      "PowerShell(git add app/dashboard/vendors/page.tsx app/dashboard/vendors/_components app/dashboard/vendors/_hooks)",
+      "PowerShell(git add app/dashboard/vendors/detail)"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

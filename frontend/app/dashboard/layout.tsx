@@ -25,7 +25,7 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
           <SidebarInset className="pt-14">
             {/* หน้าที่มีปุ่มลอย (data-fab): เว้นที่ด้านล่างให้ปุ่มลอย + ScrollToTop ที่ซ้อนอยู่เหนือมัน ไม่ให้บัง pagination */}
             {/* หน้าที่มีแถบปุ่มติดล่างจอบนมือถือ (data-bottom-bar เช่นรายละเอียดผู้ค้า): เว้นที่ให้แถบ */}
-            <div className="flex flex-1 flex-col px-6.5 pt-5.5 pb-10 has-[[data-fab]]:pb-36 max-sm:has-[[data-bottom-bar]]:pb-28">
+            <div className="flex flex-1 flex-col px-6.5 pt-5.5 pb-10 has-data-fab:pb-36 max-sm:has-data-bottom-bar:pb-28">
               <DashboardBreadcrumb />
               {children}
             </div>
