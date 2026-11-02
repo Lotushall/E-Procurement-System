@@ -35,7 +35,7 @@ export const formatCitizenId = (value: string) =>
 // เลขบัตรประชาชนแบบปกปิดกลาง: X-XXXX-*****-XX-X
 export const maskCitizenId = (value: string) => {
   const digits = digitsOnly(value).slice(0, 13);
-  return `${digits.slice(0, 1)}-${digits.slice(1, 5)}-*****-${digits.slice(9, 11)}-${digits.slice(11, 13)}`;
+  return `${digits.slice(0, 1)}-${digits.slice(1, 5)}-*****-${digits.slice(10, 12)}-${digits.slice(12, 13)}`;
 };
 
 // เบอร์ติดต่อ: 0X-XXX-XXXX (9 หลัก) หรือ 0XX-XXX-XXXX (10 หลัก)
@@ -44,6 +44,9 @@ export const formatPhone = (value: string) => {
   return formatWithGroups(digits, digits.length > 9 ? [3, 3, 4] : [2, 3, 4]);
 };
 
-// จำนวนเงิน: ฿45,000,000 (ปัดเป็นจำนวนเต็มบาท ไม่แสดงสตางค์)
+// เบอร์ติดต่อที่ถูกต้อง: ขึ้นต้นด้วย 0 และมี 9-10 หลัก (พิมพ์มีขีดหรือเว้นวรรคได้)
+export const isValidPhone = (value: string) => /^0\d{8,9}$/.test(digitsOnly(value));
+
+// จำนวนเงิน: 45,000,000 หรือ 1,234.56 (แสดงสตางค์ไม่เกิน 2 ตำแหน่ง ใส่ ฿ เองตรงที่แสดงผล)
 export const formatCurrency = (value: number) =>
   `${new Intl.NumberFormat("th-TH", { maximumFractionDigits: 2 }).format(value)}`;

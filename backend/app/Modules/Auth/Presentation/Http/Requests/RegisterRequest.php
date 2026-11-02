@@ -51,7 +51,7 @@ class RegisterRequest extends FormRequest
             'idCard' => ['required_if:vendorType,individual', 'nullable', 'digits:13'],
             'storeName' => ['required_if:vendorType,individual', 'nullable', 'string', 'max:255'],
             'phone' => ['required', 'digits_between:9,10'],
-            'username' => ['required', 'string', 'min:3', 'max:255', 'alpha_dash', Rule::unique('users', 'username')],
+            'username' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('users', 'username')],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', Password::defaults(), 'confirmed'],
             'confirmPassword' => ['required', 'string'],

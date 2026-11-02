@@ -200,7 +200,20 @@
       "Bash(echo \"status-exit=$?\")",
       "Bash(grep -v \"^frontend/\\\\\\(lib/tender/tor/types.ts\\\\|lib/auth/guards/RequirePermission.tsx\\\\|app/dashboard/_components/app-sidebar.tsx\\\\\\)$\")",
       "Bash(echo \"tsc exit $?\")",
-      "Bash(echo \"eslint exit $?\")"
+      "Bash(echo \"eslint exit $?\")",
+      "PowerShell(npm install -D vitest @vitejs/plugin-react jsdom vite-tsconfig-paths @testing-library/react @testing-library/dom @testing-library/user-event @testing-library/jest-dom)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(npm install -D \"@types/node@^24\" vitest @vitejs/plugin-react jsdom vite-tsconfig-paths @testing-library/react @testing-library/dom @testing-library/user-event @testing-library/jest-dom)",
+      "PowerShell(npm uninstall vite-tsconfig-paths)",
+      "PowerShell(npm run test:run)",
+      "PowerShell(npx tsc --noEmit)",
+      "PowerShell(npx eslint vitest.config.mts vitest.setup.ts lib/auth/permissions.test.ts \"app/\\(auth\\)/login/_schemas/schema.test.ts\")",
+      "Bash(xargs wc -l)",
+      "Bash(node -e \"const p=require\\('./node_modules/msw/package.json'\\);console.log\\(p.version, Object.keys\\(p.exports\\).join\\(' '\\)\\)\")",
+      "PowerShell(npx eslint tests vitest.config.mts lib/utils.ts \"app/\\(auth\\)/register/_schemas\" \"app/\\(public\\)/profiles\" app/dashboard/tender-projects/_schemas)",
+      "Bash(sort -k2)",
+      "Bash(awk '{print $1, $2}')"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

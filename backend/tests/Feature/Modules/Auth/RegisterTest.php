@@ -56,6 +56,14 @@ test('store name is required when registering as an individual vendor', function
         ->assertJsonValidationErrors('storeName');
 });
 
+test('a one-character username is accepted when registering', function () {
+    $response = $this->postJson('/api/v1/auth/register', companyRegisterPayload(['username' => 'a']));
+
+    $response->assertCreated();
+
+    $this->assertDatabaseHas('users', ['username' => 'a']);
+});
+
 test('store name is not required when registering as a company vendor', function () {
     $response = $this->postJson('/api/v1/auth/register', companyRegisterPayload());
 

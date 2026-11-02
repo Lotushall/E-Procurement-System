@@ -201,7 +201,17 @@
       "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/StoreTorTest.php tests/Feature/Modules/Tender/UpdateTorTest.php tests/Feature/Modules/Tender/DestroyTorTest.php tests/Feature/Modules/Tender/TorPolicyTest.php tests/Feature/Database/Seeders/AdminUserSeederTest.php tests/Unit/Domain/Tender/Entities/Tor/TorTest.php)",
       "PowerShell(php -d memory_limit=1G artisan test --compact)",
       "PowerShell(php artisan make:migration create_tor_code_sequences_table --no-interaction)",
-      "PowerShell(php -d memory_limit=1G vendor/bin/pest --compact tests/Feature/Modules/Tender tests/Unit/Domain/Tender tests/Feature/Database/Seeders/AdminUserSeederTest.php)"
+      "PowerShell(php -d memory_limit=1G vendor/bin/pest --compact tests/Feature/Modules/Tender tests/Unit/Domain/Tender tests/Feature/Database/Seeders/AdminUserSeederTest.php)",
+      "PowerShell(php -d memory_limit=1G vendor/bin/pest --coverage --filter=TorPolicyTest)",
+      "PowerShell(php --ini)",
+      "PowerShell(php C:\\\\Users\\\\JR\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--E-Procurement-System-backend\\\\643b2ef8-24c9-42e1-91d9-c38560cb822b\\\\scratchpad\\\\find_xdebug.php)",
+      "PowerShell(php C:\\\\Users\\\\JR\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--E-Procurement-System-backend\\\\643b2ef8-24c9-42e1-91d9-c38560cb822b\\\\scratchpad\\\\get_xdebug.php)",
+      "PowerShell($dll = 'C:\\\\Users\\\\JR\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--E-Procurement-System-backend\\\\643b2ef8-24c9-42e1-91d9-c38560cb822b\\\\scratchpad\\\\xdebug\\\\php_xdebug-3.5.3-8.4-ts-vs17-x86_64.dll'; php -d \"zend_extension=$dll\" -d xdebug.mode=coverage -v)",
+      "PowerShell(Select-String -Path phpunit.xml -Pattern \"<source|<include|<directory|<exclude\" | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell($sp = 'C:\\\\Users\\\\JR\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--E-Procurement-System-backend\\\\643b2ef8-24c9-42e1-91d9-c38560cb822b\\\\scratchpad'; Get-Content \"$sp\\\\coverage.txt\" | Select-String -Pattern \"Tests:|Duration|Total:|Tender/\" ; \\(Get-Content \"$sp\\\\coverage.txt\"\\).Count)",
+      "PowerShell(php C:\\\\Users\\\\JR\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--E-Procurement-System-backend\\\\643b2ef8-24c9-42e1-91d9-c38560cb822b\\\\scratchpad\\\\tor_coverage.php)",
+      "PowerShell(\\(Get-Command php\\).Source; php --ini; \"--- modules\"; php -m | Select-String \"xdebug|pcov\"; \"--- ext files\"; Get-ChildItem C:\\\\php-8.4.27\\\\ext | Where-Object Name -match \"xdebug|pcov\" | Select-Object Name, Length, LastWriteTime; \"--- ini lines\"; Select-String -Path C:\\\\php-8.4.27\\\\php.ini -Pattern \"xdebug|pcov|zend_extension\" | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
+      "PowerShell(\"=== without XDEBUG_MODE\"; php vendor/bin/pest --coverage --filter=TorPolicyTest 2>&1 | Select-Object -Last 3; \"=== with XDEBUG_MODE=coverage\"; $env:XDEBUG_MODE='coverage'; php -d memory_limit=1G vendor/bin/pest --compact --coverage --filter=TorPolicyTest 2>&1 | Select-Object -Last 4)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

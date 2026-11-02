@@ -7,10 +7,11 @@ export const CreateTenderProjectSchema = z
     budget: z
       .string()
       .min(1, "กรุณากรอกงบประมาณ")
-      .refine(
-        (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 999999999999.99,
-        "งบประมาณไม่ถูกต้อง",
-      ),
+      .refine((v) => !Number.isNaN(Number(v)) && Number(v) <= 999999999999.99, {
+        message: "งบประมาณไม่ถูกต้อง",
+        abort: true,
+      })
+      .refine((v) => Number(v) > 0, "งบประมาณต้องมากกว่า 0"),
     departmentId: z.string().min(1, "กรุณาเลือกแผนก"),
     personInChargeId: z.string().optional(),
     procurementMethod: z.string().min(1, "กรุณาเลือกวิธีจัดซื้อ").max(255, "วิธีจัดซื้อต้องไม่เกิน 255 ตัวอักษร"),
@@ -33,10 +34,11 @@ export const UpdateTenderProjectSchema = z
     budget: z
       .string()
       .min(1, "กรุณากรอกงบประมาณ")
-      .refine(
-        (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 999999999999.99,
-        "งบประมาณไม่ถูกต้อง",
-      ),
+      .refine((v) => !Number.isNaN(Number(v)) && Number(v) <= 999999999999.99, {
+        message: "งบประมาณไม่ถูกต้อง",
+        abort: true,
+      })
+      .refine((v) => Number(v) > 0, "งบประมาณต้องมากกว่า 0"),
     departmentId: z.string().min(1, "กรุณาเลือกแผนก"),
     personInChargeId: z.string().optional(),
     procurementMethod: z.string().min(1, "กรุณาเลือกวิธีจัดซื้อ").max(255, "วิธีจัดซื้อต้องไม่เกิน 255 ตัวอักษร"),

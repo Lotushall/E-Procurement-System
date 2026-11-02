@@ -28,6 +28,19 @@ test('an authenticated user can update their username and email', function () {
     ]);
 });
 
+test('updating the account accepts a one-character username', function () {
+    $user = UserModel::factory()->create(['username' => 'jdoe']);
+    $this->actingAs($user, 'web');
+
+    $response = $this->postJson('/api/v1/auth/account', [
+        'username' => 'j',
+        'email' => $user->email,
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.username', 'j');
+});
+
 test('updating the account requires authentication', function () {
     $response = $this->postJson('/api/v1/auth/account', [
         'username' => 'jdoe2',
