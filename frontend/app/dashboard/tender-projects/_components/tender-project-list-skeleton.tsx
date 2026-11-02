@@ -43,7 +43,7 @@ function TenderProjectCardSkeleton() {
 export function TenderProjectTableSkeleton() {
     return (
         <>
-            <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+            <div className="grid gap-3 sm:grid-cols-1 lg:grid-cols-2 xl:hidden">
                 {Array.from({ length: 4 }).map((_, index) => (
                     <TenderProjectCardSkeleton key={index} />
                 ))}

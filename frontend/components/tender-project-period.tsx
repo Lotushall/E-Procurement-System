@@ -15,7 +15,7 @@ const TONE_CLASS = {
     danger: "bg-red-50 text-red-700",
 } as const;
 
-const formatDay = (value: string) => format(new Date(value), "d MMM yyyy", { locale: th });
+const formatDay = (value: string) => format(new Date(value), "d MMM yy", { locale: th });
 
 function formatPeriod(startAt?: string, endAt?: string): string | null {
     if (startAt && endAt) return `${formatDay(startAt)} – ${formatDay(endAt)}`;

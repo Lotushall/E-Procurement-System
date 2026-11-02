@@ -21,7 +21,7 @@ const PHASE_BY_STATUS: Record<TorStatus, BiddingPhase> = {
 };
 
 const formatDay = (date: Date, withYear: boolean) =>
-    format(date, withYear ? "d MMM yyyy" : "d MMM", { locale: th });
+    format(date, withYear ? "d MMM yy" : "d MMM", { locale: th });
 
 // วันเริ่มว่างได้ — หมายถึงเริ่มรับซองทันทีที่ประกาศ
 function formatRange(startAt: string | null, endAt: string | null): string | null {

@@ -121,6 +121,7 @@ function TenderProjectsPageContent() {
                     renderMobileCard={(project) => (
                         <TenderProjectCard project={project} canUpdateStatus={canUpdateStatus} />
                     )}
+                    mobileCardGridClassName="sm:grid-cols-1 lg:grid-cols-2"
                 />
             ) : (
                 <p className="py-12 text-center text-sm text-muted-foreground">
