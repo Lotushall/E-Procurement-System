@@ -78,4 +78,5 @@ test('running the admin seeder grants the admin role every TOR permission', func
     'tors.review',
     'tors.publish',
     'tors.cancel',
+    'tors.manageAnyStatus',
 ]);

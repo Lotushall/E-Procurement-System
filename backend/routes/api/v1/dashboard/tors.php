@@ -14,5 +14,19 @@ Route::prefix('dashboard')->group(function () {
             ->middleware('can:tors.index')
             ->where('id', '[0-9]{1,18}')
             ->name('dashboard.tors.show');
+
+        Route::post('/', [TorController::class, 'store'])
+            ->middleware('can:tors.store')
+            ->name('dashboard.tors.store');
+
+        Route::put('/{id}', [TorController::class, 'update'])
+            ->middleware('can:tors.edit')
+            ->where('id', '[0-9]{1,18}')
+            ->name('dashboard.tors.update');
+
+        Route::delete('/{id}', [TorController::class, 'destroy'])
+            ->middleware('can:tors.destroy')
+            ->where('id', '[0-9]{1,18}')
+            ->name('dashboard.tors.destroy');
     });
 });

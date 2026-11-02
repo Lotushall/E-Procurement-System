@@ -30,3 +30,33 @@ test('a vendor user may not list TORs even when granted tors.viewAny', function 
 
     expect(Gate::forUser($user)->allows('tors.index'))->toBeFalse();
 });
+
+test('an internal user holding the matching permission passes a TOR write ability', function (string $ability, string $permission) {
+    $user = User::factory()->create(['user_type' => 'internal']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows($ability))->toBeTrue();
+})->with([
+    'store' => ['tors.store', 'tors.create'],
+    'edit' => ['tors.edit', 'tors.update'],
+    'destroy' => ['tors.destroy', 'tors.delete'],
+    'ignore status lock' => ['tors.ignoreStatusLock', 'tors.manageAnyStatus'],
+]);
+
+test('an internal user without the matching permission fails a TOR write ability', function (string $ability) {
+    $user = User::factory()->create(['user_type' => 'internal']);
+
+    expect(Gate::forUser($user)->allows($ability))->toBeFalse();
+})->with(['tors.store', 'tors.edit', 'tors.destroy', 'tors.ignoreStatusLock']);
+
+test('a vendor user fails a TOR write ability even when granted the matching permission', function (string $ability, string $permission) {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows($ability))->toBeFalse();
+})->with([
+    'store' => ['tors.store', 'tors.create'],
+    'edit' => ['tors.edit', 'tors.update'],
+    'destroy' => ['tors.destroy', 'tors.delete'],
+    'ignore status lock' => ['tors.ignoreStatusLock', 'tors.manageAnyStatus'],
+]);

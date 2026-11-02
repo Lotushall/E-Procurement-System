@@ -197,7 +197,11 @@
       "PowerShell(php artisan test --compact tests/Feature/Modules/Tender tests/Unit/Domain/Tender)",
       "PowerShell(vendor/bin/pint --dirty --format agent; 1..3 | ForEach-Object { php artisan test --compact })",
       "PowerShell(1..3 | ForEach-Object { php -d memory_limit=1G artisan test --compact })",
-      "PowerShell(php -d memory_limit=1G vendor/bin/pest --compact 2>&1)"
+      "PowerShell(php -d memory_limit=1G vendor/bin/pest --compact 2>&1)",
+      "PowerShell(php artisan test --compact tests/Feature/Modules/Tender/StoreTorTest.php tests/Feature/Modules/Tender/UpdateTorTest.php tests/Feature/Modules/Tender/DestroyTorTest.php tests/Feature/Modules/Tender/TorPolicyTest.php tests/Feature/Database/Seeders/AdminUserSeederTest.php tests/Unit/Domain/Tender/Entities/Tor/TorTest.php)",
+      "PowerShell(php -d memory_limit=1G artisan test --compact)",
+      "PowerShell(php artisan make:migration create_tor_code_sequences_table --no-interaction)",
+      "PowerShell(php -d memory_limit=1G vendor/bin/pest --compact tests/Feature/Modules/Tender tests/Unit/Domain/Tender tests/Feature/Database/Seeders/AdminUserSeederTest.php)"
     ],
     "additionalDirectories": [
       "D:\\E-Procurement-System\\.superpowers\\sdd",

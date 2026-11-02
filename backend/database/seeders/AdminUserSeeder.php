@@ -41,6 +41,7 @@ class AdminUserSeeder extends Seeder
             Permission::updateOrCreate(['name' => 'tors.review', 'guard_name' => 'web'], ['label' => 'อนุมัติ/ส่งกลับแก้ไข TOR']),
             Permission::updateOrCreate(['name' => 'tors.publish', 'guard_name' => 'web'], ['label' => 'ประกาศ TOR']),
             Permission::updateOrCreate(['name' => 'tors.cancel', 'guard_name' => 'web'], ['label' => 'ยกเลิก TOR']),
+            Permission::updateOrCreate(['name' => 'tors.manageAnyStatus', 'guard_name' => 'web'], ['label' => 'แก้ไข/ลบ TOR ได้ทุกสถานะ']),
         ]);
 
         if (app(UserRepositoryInterface::class)->findByEmail('admin@example.com') !== null) {

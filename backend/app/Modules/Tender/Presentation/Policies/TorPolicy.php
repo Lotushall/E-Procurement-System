@@ -29,4 +29,36 @@ class TorPolicy
 
         return false;
     }
+
+    public function create(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tors.create');
+    }
+
+    /**
+     * Which TORs the user may update is further limited to the ones they can
+     * see (Tors::visibleTo()) and, without manageAnyStatus(), to editable ones.
+     */
+    public function update(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tors.update');
+    }
+
+    /**
+     * Which TORs the user may delete is further limited to the ones they can
+     * see (Tors::visibleTo()) and, without manageAnyStatus(), to deletable ones.
+     */
+    public function delete(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tors.delete');
+    }
+
+    /**
+     * Lifts the status lock on updating and deleting, so a TOR may be changed
+     * or removed at any step of its progress.
+     */
+    public function manageAnyStatus(User $user): bool
+    {
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tors.manageAnyStatus');
+    }
 }

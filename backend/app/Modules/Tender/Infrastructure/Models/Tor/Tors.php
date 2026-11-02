@@ -99,8 +99,9 @@ class Tors extends Model
     /**
      * Scope a query to the TORs the viewer may see. Only the widest TOR view
      * permission the viewer holds applies: tors.viewAny (every TOR), then
-     * tors.viewDepartment (their profile department), then tors.viewOwn
-     * (TORs they created). With none of them, nothing matches.
+     * tors.viewDepartment (their profile department, plus TORs they created
+     * in any department), then tors.viewOwn (TORs they created). With none
+     * of them, nothing matches.
      */
     #[Scope]
     protected function visibleTo(Builder $query, User $viewer): void
@@ -113,12 +114,15 @@ class Tors extends Model
             $departmentId = $viewer->UserInternalProfile?->department_id;
 
             if ($departmentId === null) {
-                $query->whereRaw('1 = 0');
+                $query->where('created_by', $viewer->id);
 
                 return;
             }
 
-            $query->where('department_id', $departmentId);
+            $query->where(function (Builder $query) use ($departmentId, $viewer) {
+                $query->where('department_id', $departmentId)
+                    ->orWhere('created_by', $viewer->id);
+            });
 
             return;
         }

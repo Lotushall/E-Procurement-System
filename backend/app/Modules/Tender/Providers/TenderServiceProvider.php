@@ -3,7 +3,9 @@
 namespace App\Modules\Tender\Providers;
 
 use App\Modules\Tender\Domain\Repositories\Project\TenderProjectRepositoryInterface;
+use App\Modules\Tender\Domain\Repositories\Tor\TorRepositoryInterface;
 use App\Modules\Tender\Infrastructure\Repositories\Project\TenderProjectRepository;
+use App\Modules\Tender\Infrastructure\Repositories\Tor\TorRepository;
 use App\Modules\Tender\Presentation\Policies\TenderProjectPolicy;
 use App\Modules\Tender\Presentation\Policies\TorPolicy;
 use Illuminate\Console\Scheduling\Schedule;
@@ -41,6 +43,7 @@ class TenderServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->bind(TenderProjectRepositoryInterface::class, TenderProjectRepository::class);
+        $this->app->bind(TorRepositoryInterface::class, TorRepository::class);
     }
 
     public function boot(): void
@@ -62,9 +65,14 @@ class TenderServiceProvider extends ModuleServiceProvider
         Gate::define('tender-projects.updateStatus', [TenderProjectPolicy::class, 'updateStatus']);
         Gate::define('tender-projects.destroy', [TenderProjectPolicy::class, 'delete']);
 
-        // Same reason as above: `tors.index` must not equal any TOR permission
-        // name (`tors.viewAny`, `tors.viewDepartment`, `tors.viewOwn`).
+        // Same reason as above: no TOR ability may equal a TOR permission name
+        // (`tors.viewAny`, `tors.viewDepartment`, `tors.viewOwn`, `tors.create`,
+        // `tors.update`, `tors.delete`, `tors.manageAnyStatus`).
         Gate::define('tors.index', [TorPolicy::class, 'viewAny']);
+        Gate::define('tors.store', [TorPolicy::class, 'create']);
+        Gate::define('tors.edit', [TorPolicy::class, 'update']);
+        Gate::define('tors.destroy', [TorPolicy::class, 'delete']);
+        Gate::define('tors.ignoreStatusLock', [TorPolicy::class, 'manageAnyStatus']);
     }
 
     /**

@@ -19,4 +19,17 @@ final class GetTorByIdQuery
             ->visibleTo($viewer)
             ->find($id) ?? throw (new ModelNotFoundException)->setModel(Tors::class, [$id]);
     }
+
+    /**
+     * The visibility check of execute() alone, without loading the TOR, for
+     * callers that act on the TOR rather than display it.
+     *
+     * @throws ModelNotFoundException when the TOR is missing or hidden from the viewer
+     */
+    public function ensureVisible(int $id, User $viewer): void
+    {
+        if (! Tors::query()->visibleTo($viewer)->whereKey($id)->exists()) {
+            throw (new ModelNotFoundException)->setModel(Tors::class, [$id]);
+        }
+    }
 }

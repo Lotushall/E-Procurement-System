@@ -101,17 +101,30 @@ test('a viewer holding tors.viewAny and tors.viewOwn gets the wider tors.viewAny
     expect($result->total())->toBe(2);
 });
 
-test('a viewer holding tors.viewDepartment and tors.viewOwn does not see their own TOR in another department', function () {
+test('a viewer with tors.viewDepartment also sees TORs they created in another department', function () {
     $hr = Department::create(['name' => 'HR']);
     $it = Department::create(['name' => 'IT']);
-    $viewer = torQueryViewer(['tors.viewDepartment', 'tors.viewOwn'], $it->id);
+    $viewer = torQueryViewer(['tors.viewDepartment'], $it->id);
     $inDepartment = torForQueryTest(['department_id' => $it->id]);
-    torForQueryTest(['department_id' => $hr->id, 'created_by' => $viewer->id]);
+    $ownElsewhere = torForQueryTest(['department_id' => $hr->id, 'created_by' => $viewer->id]);
+    torForQueryTest(['department_id' => $hr->id]);
+
+    $result = listTorsQuery()->execute($viewer);
+
+    expect($result->total())->toBe(2)
+        ->and(collect($result->items())->pluck('id')->sort()->values()->all())
+        ->toBe(collect([$inDepartment->id, $ownElsewhere->id])->sort()->values()->all());
+});
+
+test('a viewer with tors.viewDepartment but no department still sees TORs they created', function () {
+    $viewer = torQueryViewer(['tors.viewDepartment'], departmentId: null);
+    $mine = torForQueryTest(['created_by' => $viewer->id]);
+    torForQueryTest();
 
     $result = listTorsQuery()->execute($viewer);
 
     expect($result->total())->toBe(1)
-        ->and($result->items()[0]->id)->toBe($inDepartment->id);
+        ->and($result->items()[0]->id)->toBe($mine->id);
 });
 
 test('a viewer with tors.viewDepartment but no internal profile sees nothing', function () {
