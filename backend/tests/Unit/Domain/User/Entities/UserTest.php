@@ -87,6 +87,17 @@ test('suspend transitions an active user to suspended', function () {
     expect($user->status())->toBeInstanceOf(Suspended::class);
 });
 
+test('suspend is a no-op when already suspended', function () {
+    $user = User::register('jdoe', Email::fromString('user@example.com'), 'hashed-password', UserType::Internal);
+    $user->activate();
+    $user->suspend();
+    $suspendedState = $user->status();
+
+    $user->suspend();
+
+    expect($user->status())->toBe($suspendedState);
+});
+
 test('deactivate transitions a user to inactive', function () {
     $user = User::register('jdoe', Email::fromString('user@example.com'), 'hashed-password', UserType::Internal);
     $user->activate();
@@ -94,6 +105,17 @@ test('deactivate transitions a user to inactive', function () {
     $user->deactivate();
 
     expect($user->status())->toBeInstanceOf(Inactive::class);
+});
+
+test('deactivate is a no-op when already inactive', function () {
+    $user = User::register('jdoe', Email::fromString('user@example.com'), 'hashed-password', UserType::Internal);
+    $user->activate();
+    $user->deactivate();
+    $inactiveState = $user->status();
+
+    $user->deactivate();
+
+    expect($user->status())->toBe($inactiveState);
 });
 
 test('verifyEmail sets emailVerifiedAt when not yet verified', function () {

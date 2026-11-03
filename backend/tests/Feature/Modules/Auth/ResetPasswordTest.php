@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\User\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
@@ -41,6 +42,23 @@ test('resetting the password with an invalid token fails with a generic message'
 
     $response->assertStatus(403)
         ->assertJson(['message' => 'ลิงก์ตั้งรหัสผ่านใหม่ไม่ถูกต้องหรือหมดอายุ']);
+});
+
+test('an unexpected failure while resetting the password returns a server error', function () {
+    $user = UserModel::factory()->create(['email' => 'jdoe@example.com']);
+    $token = Password::createToken($user);
+    $this->mock(UserRepositoryInterface::class)
+        ->shouldReceive('findById')
+        ->andThrow(new RuntimeException('database is down'));
+
+    $this->postJson('/api/v1/auth/password/reset', [
+        'email' => Crypt::encryptString('jdoe@example.com'),
+        'token' => $token,
+        'password' => 'new-secret123',
+        'password_confirmation' => 'new-secret123',
+    ])
+        ->assertServerError()
+        ->assertJson(['message' => 'ตั้งรหัสผ่านใหม่ไม่สำเร็จ']);
 });
 
 test('reset password validation requires the password confirmation to match', function () {

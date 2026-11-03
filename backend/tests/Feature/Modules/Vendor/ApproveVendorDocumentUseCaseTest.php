@@ -2,9 +2,11 @@
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Application\Dashboard\UseCases\ApproveVendorDocumentUseCase;
+use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use App\Modules\Vendor\Infrastructure\Notifications\VendorDocumentApprovedNotification;
+use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -60,6 +62,21 @@ test('execute throws when the document id does not exist', function () {
 
     expect(fn () => approveVendorDocumentUseCase()->execute($profile->id, 999999, $internalUser->id))
         ->toThrow(ModelNotFoundException::class);
+});
+
+test('execute throws when the vendor profile cannot be found after saving the document', function () {
+    Notification::fake();
+    $profile = VendorProfiles::factory()->create();
+    $document = VendorDocuments::factory()->create(['vendor_profile_id' => $profile->id]);
+    $internalUser = User::factory()->create(['user_type' => 'internal']);
+    $repository = Mockery::mock(VendorRepository::class)->makePartial();
+    $repository->shouldReceive('findProfileById')->with($profile->id)->andReturnNull();
+    app()->instance(VendorRepositoryInterface::class, $repository);
+
+    expect(fn () => approveVendorDocumentUseCase()->execute($profile->id, $document->id, $internalUser->id))
+        ->toThrow(ModelNotFoundException::class, "Vendor profile {$profile->id} not found.");
+
+    Notification::assertNothingSent();
 });
 
 test('execute notifies the profile owner with mail enabled by default', function () {

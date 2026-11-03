@@ -72,6 +72,18 @@ test('reject transitions a pending profile to rejected', function () {
         ->and($profile->remark())->toBe('Missing documents');
 });
 
+test('reject is a no-op when already rejected', function () {
+    $profile = VendorProfile::create(userId: 10);
+    $profile->reject(verifiedBy: 2, remark: 'Missing documents');
+    $rejectedState = $profile->status();
+
+    $profile->reject(verifiedBy: 3, remark: 'again');
+
+    expect($profile->status())->toBe($rejectedState)
+        ->and($profile->verifiedBy())->toBe(2)
+        ->and($profile->remark())->toBe('Missing documents');
+});
+
 test('resubmit transitions a rejected profile back to pending and clears verification', function () {
     $profile = VendorProfile::create(userId: 10);
     $profile->reject(verifiedBy: 2, remark: 'Missing documents');
@@ -83,4 +95,13 @@ test('resubmit transitions a rejected profile back to pending and clears verific
         ->and($profile->verifiedAt())->toBeNull()
         ->and($profile->verifiedBy())->toBeNull()
         ->and($profile->remark())->toBeNull();
+});
+
+test('resubmit is a no-op when already pending', function () {
+    $profile = VendorProfile::create(userId: 10);
+    $pendingState = $profile->status();
+
+    $profile->resubmit();
+
+    expect($profile->status())->toBe($pendingState);
 });

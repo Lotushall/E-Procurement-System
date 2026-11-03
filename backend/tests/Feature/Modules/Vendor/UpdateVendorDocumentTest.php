@@ -2,6 +2,7 @@
 
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
+use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -30,6 +31,25 @@ test('a vendor can upload a document', function () {
         'file_name' => 'registration.pdf',
         'status' => 'pending',
     ]);
+});
+
+test('an unexpected failure while uploading a vendor document returns a server error', function () {
+    Storage::fake('local');
+    $user = User::factory()->create(['user_type' => 'company']);
+    (new VendorRepository)->saveProfile(VendorProfile::create(userId: $user->id));
+    $repository = Mockery::mock(VendorRepository::class)->makePartial();
+    $repository->shouldReceive('saveDocument')->andThrow(new RuntimeException('database is down'));
+    app()->instance(VendorRepositoryInterface::class, $repository);
+    $this->actingAs($user, 'web');
+
+    $this->post('/api/v1/vendor/document', [
+        'documentType' => 'company_registration',
+        'file' => UploadedFile::fake()->create('registration.pdf', 100, 'application/pdf'),
+    ], ['Accept' => 'application/json'])
+        ->assertServerError()
+        ->assertJson(['message' => 'อัปโหลดเอกสารไม่สำเร็จ']);
+
+    $this->assertDatabaseMissing('vendor_documents', ['document_type' => 'company_registration']);
 });
 
 test('uploading a vendor document requires authentication', function () {

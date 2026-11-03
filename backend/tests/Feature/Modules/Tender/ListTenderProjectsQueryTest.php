@@ -139,6 +139,15 @@ test('execute trims surrounding whitespace from the search term', function () {
     expect($result->total())->toBe(1);
 });
 
+test('execute treats a whitespace-only search term as no search', function () {
+    TenderProjects::factory()->create(['name' => 'จัดซื้อคอมพิวเตอร์โน้ตบุ๊ก']);
+    TenderProjects::factory()->create(['name' => 'จัดจ้างทำความสะอาด']);
+
+    $result = listTenderProjectsQuery()->execute(listTenderProjectsViewer(), search: '   ');
+
+    expect($result->total())->toBe(2);
+});
+
 test('execute tie-breaks equal sort values in the requested direction', function () {
     $older = TenderProjects::factory()->create(['budget' => 500000]);
     $newer = TenderProjects::factory()->create(['budget' => 500000]);

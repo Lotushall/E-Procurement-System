@@ -5,6 +5,7 @@ use App\Modules\Shared\Domain\ValueObjects\PhoneNumber;
 use App\Modules\User\Infrastructure\Models\User;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
+use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -51,6 +52,19 @@ test('a vendor can update their contact info', function () {
         'contact_name' => 'Jane Smith',
         'contact_position' => 'Director',
     ]);
+});
+
+test('an unexpected failure while saving a vendor contact returns a server error', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    (new VendorRepository)->saveProfile(VendorProfile::create(userId: $user->id));
+    $repository = Mockery::mock(VendorRepository::class)->makePartial();
+    $repository->shouldReceive('saveContact')->andThrow(new RuntimeException('database is down'));
+    app()->instance(VendorRepositoryInterface::class, $repository);
+    $this->actingAs($user, 'web');
+
+    $this->postJson('/api/v1/vendor/contact', contactPayload())
+        ->assertServerError()
+        ->assertJson(['message' => 'บันทึกข้อมูลผู้ติดต่อไม่สำเร็จ']);
 });
 
 test('updating vendor contact requires authentication', function () {

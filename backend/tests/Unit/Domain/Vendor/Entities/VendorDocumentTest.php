@@ -81,6 +81,40 @@ test('reject transitions a pending document to rejected', function () {
         ->and($document->remark())->toBe('Blurry image');
 });
 
+test('approve is a no-op when already approved', function () {
+    $document = VendorDocument::create(
+        vendorProfileId: 10,
+        documentType: 'id_card',
+        fileName: 'id-card.pdf',
+        filePath: 'documents/id-card.pdf',
+    );
+    $document->approve(verifiedBy: 2, remark: 'Clear copy');
+    $approvedState = $document->status();
+
+    $document->approve(verifiedBy: 3, remark: 'again');
+
+    expect($document->status())->toBe($approvedState)
+        ->and($document->verifiedBy())->toBe(2)
+        ->and($document->remark())->toBe('Clear copy');
+});
+
+test('reject is a no-op when already rejected', function () {
+    $document = VendorDocument::create(
+        vendorProfileId: 10,
+        documentType: 'id_card',
+        fileName: 'id-card.pdf',
+        filePath: 'documents/id-card.pdf',
+    );
+    $document->reject(verifiedBy: 2, remark: 'Blurry image');
+    $rejectedState = $document->status();
+
+    $document->reject(verifiedBy: 3, remark: 'again');
+
+    expect($document->status())->toBe($rejectedState)
+        ->and($document->verifiedBy())->toBe(2)
+        ->and($document->remark())->toBe('Blurry image');
+});
+
 test('reupload replaces the file, resets to pending, and clears verification', function () {
     $document = VendorDocument::create(
         vendorProfileId: 10,

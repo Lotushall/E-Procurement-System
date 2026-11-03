@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\User\Domain\Contracts\EmailVerificationSenderInterface;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
 use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
@@ -67,6 +68,18 @@ test('a one-character username is accepted when registering', function () {
     $response->assertCreated();
 
     $this->assertDatabaseHas('users', ['username' => 'a']);
+});
+
+test('an unexpected failure while registering returns a server error and saves nothing', function () {
+    $this->mock(EmailVerificationSenderInterface::class)
+        ->shouldReceive('sendVerificationEmail')
+        ->andThrow(new RuntimeException('mail server is down'));
+
+    $this->postJson('/api/v1/auth/register', companyRegisterPayload())
+        ->assertServerError()
+        ->assertJson(['message' => 'สมัครสมาชิกไม่สำเร็จ']);
+
+    $this->assertDatabaseMissing('users', ['username' => 'acmeco']);
 });
 
 test('store name is not required when registering as a company vendor', function () {

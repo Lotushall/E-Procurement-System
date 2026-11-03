@@ -6,6 +6,7 @@ use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
+use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
@@ -109,6 +110,45 @@ test('an individual vendor can update their business info', function () {
         'store_name' => "John's New Store",
         'firstname' => 'Johnny',
     ]);
+});
+
+test('a masked tax id sent back unchanged keeps the stored tax id', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $repository = new VendorRepository;
+    $profile = $repository->saveProfile(VendorProfile::create(userId: $user->id));
+    $repository->saveCompanyDetail(VendorCompanyDetail::create(
+        vendorProfileId: $profile->id(),
+        companyName: 'Acme Co., Ltd.',
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
+        branchNo: '00000',
+        businessType: 'Trading',
+        address: '123 Main St.',
+        province: 'Bangkok',
+        postalCode: PostalCode::fromString('10110'),
+    ));
+    $this->actingAs($user, 'web');
+
+    $this->postJson('/api/v1/vendor/info', companyInfoPayload(['taxId' => 'xxxxxxxxx0123']))
+        ->assertOk();
+
+    $detail = VendorCompanyDetails::where('vendor_profile_id', $profile->id())->sole();
+
+    expect($detail->tax_id)->toBe('1234567840123')
+        ->and($detail->company_name)->toBe('Acme Holdings Co., Ltd.');
+});
+
+test('an unexpected failure while updating vendor info returns a server error', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    (new VendorRepository)->saveProfile(VendorProfile::create(userId: $user->id));
+    $repository = Mockery::mock(VendorRepository::class)->makePartial();
+    $repository->shouldReceive('saveCompanyDetail')->andThrow(new RuntimeException('database is down'));
+    app()->instance(VendorRepositoryInterface::class, $repository);
+    $this->actingAs($user, 'web');
+
+    $this->postJson('/api/v1/vendor/info', companyInfoPayload())
+        ->assertServerError()
+        ->assertJson(['message' => 'บันทึกข้อมูลกิจการไม่สำเร็จ']);
 });
 
 /**

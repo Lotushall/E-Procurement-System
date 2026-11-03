@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\User\Domain\Contracts\PasswordResetLinkSenderInterface;
 use App\Modules\User\Infrastructure\Models\User as UserModel;
 use App\Modules\User\Infrastructure\Notifications\QueuedResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +34,16 @@ test('requesting a reset link for an email that does not exist returns the same 
         ->assertJson(['message' => 'หากมีบัญชีที่ใช้อีเมลนี้อยู่ในระบบ เราได้ส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ให้แล้ว']);
 
     Notification::assertNothingSent();
+});
+
+test('an unexpected failure while sending the reset link returns a server error', function () {
+    $this->mock(PasswordResetLinkSenderInterface::class)
+        ->shouldReceive('sendResetLink')
+        ->andThrow(new RuntimeException('mail server is down'));
+
+    $this->postJson('/api/v1/auth/password/forgot', ['email' => 'jdoe@example.com'])
+        ->assertServerError()
+        ->assertJson(['message' => 'ไม่สามารถส่งลิงก์ตั้งรหัสผ่านใหม่ได้']);
 });
 
 test('forgot password validation requires a valid email', function () {
