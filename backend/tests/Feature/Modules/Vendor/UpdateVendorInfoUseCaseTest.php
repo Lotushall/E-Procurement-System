@@ -10,6 +10,7 @@ use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
+use App\Shared\Support\IdentityHash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -24,7 +25,7 @@ function companyInfoData(array $overrides = []): UpdateVendorInfoData
     return UpdateVendorInfoData::from(array_merge([
         'vendorType' => 'company',
         'companyName' => 'Acme Holdings Co., Ltd.',
-        'businessRegistrationNo' => '9999999999999',
+        'businessRegistrationNo' => '9999999989999',
         'branchNo' => '00001',
         'storeName' => null,
         'prefix' => null,
@@ -32,7 +33,7 @@ function companyInfoData(array $overrides = []): UpdateVendorInfoData
         'lastname' => null,
         'citizenId' => null,
         'businessType' => 'Manufacturing',
-        'taxId' => '9876543210123',
+        'taxId' => '9876543250123',
         'address' => '456 New St.',
         'province' => 'Chonburi',
         'postalCode' => '20000',
@@ -50,7 +51,7 @@ function individualInfoData(array $overrides = []): UpdateVendorInfoData
         'prefix' => 'Mr.',
         'firstname' => 'Johnny',
         'lastname' => 'Doe',
-        'citizenId' => '9876543210123',
+        'citizenId' => '9876543250123',
         'businessType' => 'Retail',
         'taxId' => null,
         'address' => '456 Side St.',
@@ -67,8 +68,8 @@ test('execute updates an existing company detail', function () {
     $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $profile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: '00000',
         businessType: 'Trading',
         address: '123 Main St.',
@@ -81,10 +82,10 @@ test('execute updates an existing company detail', function () {
     $this->assertDatabaseHas('vendor_company_details', [
         'vendor_profile_id' => $profile->id(),
         'company_name' => 'Acme Holdings Co., Ltd.',
-        'business_registration_no' => '9999999999999',
+        'business_registration_no' => '9999999989999',
         'branch_no' => '00001',
         'business_type' => 'Manufacturing',
-        'tax_id_hash' => hash('sha256', '9876543210123'),
+        'tax_id_hash' => IdentityHash::make('9876543250123'),
     ]);
 
     $this->assertDatabaseCount('vendor_company_details', 1);
@@ -98,8 +99,8 @@ test('execute preserves the stored tax id and registration number when the incom
     $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $profile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: '00000',
         businessType: 'Trading',
         address: '123 Main St.',
@@ -114,8 +115,8 @@ test('execute preserves the stored tax id and registration number when the incom
 
     $this->assertDatabaseHas('vendor_company_details', [
         'vendor_profile_id' => $profile->id(),
-        'business_registration_no' => '0123456789012',
-        'tax_id_hash' => hash('sha256', '1234567890123'),
+        'business_registration_no' => '0123456709012',
+        'tax_id_hash' => IdentityHash::make('1234567840123'),
     ]);
 });
 
@@ -143,9 +144,9 @@ test('execute updates an existing individual detail', function () {
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890123'),
+        citizenId: CitizenId::fromString('1234567840123'),
         businessType: 'Retail',
-        taxId: TaxId::fromString('1111111111111'),
+        taxId: TaxId::fromString('1111111151111'),
         address: '456 Side St.',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
@@ -157,7 +158,7 @@ test('execute updates an existing individual detail', function () {
         'vendor_profile_id' => $profile->id(),
         'store_name' => "John's New Store",
         'firstname' => 'Johnny',
-        'citizen_id_hash' => hash('sha256', '9876543210123'),
+        'citizen_id_hash' => IdentityHash::make('9876543250123'),
     ]);
 });
 
@@ -172,19 +173,19 @@ test('execute updates the citizen id when a new value is submitted', function ()
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890123'),
+        citizenId: CitizenId::fromString('1234567840123'),
         businessType: 'Retail',
-        taxId: TaxId::fromString('1111111111111'),
+        taxId: TaxId::fromString('1111111151111'),
         address: '456 Side St.',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
     ));
 
-    updateVendorInfoUseCase()->execute($profile->id(), individualInfoData(['citizenId' => '9876543210123']));
+    updateVendorInfoUseCase()->execute($profile->id(), individualInfoData(['citizenId' => '9876543250123']));
 
     $this->assertDatabaseHas('vendor_individual_details', [
         'vendor_profile_id' => $profile->id(),
-        'citizen_id_hash' => hash('sha256', '9876543210123'),
+        'citizen_id_hash' => IdentityHash::make('9876543250123'),
     ]);
 });
 
@@ -199,7 +200,7 @@ test('execute preserves the stored citizen id when the incoming value is masked'
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890123'),
+        citizenId: CitizenId::fromString('1234567840123'),
         businessType: 'Retail',
         taxId: null,
         address: '456 Side St.',
@@ -213,7 +214,7 @@ test('execute preserves the stored citizen id when the incoming value is masked'
 
     $this->assertDatabaseHas('vendor_individual_details', [
         'vendor_profile_id' => $profile->id(),
-        'citizen_id_hash' => hash('sha256', '1234567890123'),
+        'citizen_id_hash' => IdentityHash::make('1234567840123'),
     ]);
 });
 

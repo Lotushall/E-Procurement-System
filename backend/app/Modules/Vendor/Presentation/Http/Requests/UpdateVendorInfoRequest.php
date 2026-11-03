@@ -2,6 +2,7 @@
 
 namespace App\Modules\Vendor\Presentation\Http\Requests;
 
+use App\Rules\ThaiIdNumberRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateVendorInfoRequest extends FormRequest
@@ -31,12 +32,17 @@ class UpdateVendorInfoRequest extends FormRequest
         ]);
     }
 
-    private function digitsOnly(string $key): ?string
+    private function digitsOnly(string $key): mixed
     {
         $value = $this->input($key);
 
         if ($value === null || $value === '') {
             return null;
+        }
+
+        // Anything but text (an array, a number) is left for the rules to reject.
+        if (! is_string($value)) {
+            return $value;
         }
 
         // ถ้ายังเป็นค่าที่ frontend mask มา
@@ -67,7 +73,7 @@ class UpdateVendorInfoRequest extends FormRequest
              |---------------------------------
              */
             'companyName' => ['required_if:vendorType,company', 'string', 'max:255'],
-            'businessRegistrationNo' => ['nullable', 'required_if:vendorType,company', 'min:13'],
+            'businessRegistrationNo' => ['nullable', 'required_if:vendorType,company', new ThaiIdNumberRule('เลขทะเบียนนิติบุคคล', allowsMasked: true)],
             'branchNo' => ['nullable', 'string', 'max:255'],
 
             /*
@@ -79,7 +85,7 @@ class UpdateVendorInfoRequest extends FormRequest
             'prefix' => ['nullable', 'string', 'max:255'],
             'firstname' => ['required_if:vendorType,individual', 'string', 'max:255'],
             'lastname' => ['required_if:vendorType,individual', 'string', 'max:255'],
-            'citizenId' => ['nullable', 'required_if:vendorType,individual', 'min:13'],
+            'citizenId' => ['nullable', 'required_if:vendorType,individual', new ThaiIdNumberRule('เลขบัตรประจำตัวประชาชน', allowsMasked: true)],
 
             /*
              |---------------------------------
@@ -87,7 +93,7 @@ class UpdateVendorInfoRequest extends FormRequest
              |---------------------------------
              */
             'businessType' => ['required', 'string', 'max:255'],
-            'taxId' => ['nullable', 'min:13'],
+            'taxId' => ['nullable', 'required_if:vendorType,company', new ThaiIdNumberRule('เลขประจำตัวผู้เสียภาษี', allowsMasked: true)],
             'address' => ['required', 'string'],
             'province' => ['required', 'string', 'max:255'],
             'postalCode' => ['required', 'digits:5'],

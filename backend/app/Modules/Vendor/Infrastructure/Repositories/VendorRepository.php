@@ -18,7 +18,9 @@ use App\Modules\Vendor\Infrastructure\Models\VendorContact as VendorContactModel
 use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Shared\Support\IdentityHash;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
 class VendorRepository implements VendorRepositoryInterface
@@ -251,6 +253,34 @@ class VendorRepository implements VendorRepositoryInterface
         }
     }
 
+    public function isIdentityTakenByAnotherVendor(
+        ?string $taxId,
+        ?string $citizenId,
+        ?string $businessRegistrationNo,
+        ?int $exceptVendorProfileId = null,
+    ): bool {
+        $others = fn (Builder $query): Builder => $exceptVendorProfileId !== null
+            ? $query->where('vendor_profile_id', '!=', $exceptVendorProfileId)
+            : $query;
+
+        if ($taxId !== null) {
+            $taxIdHash = IdentityHash::make($taxId);
+
+            if ($others(VendorCompanyDetails::where('tax_id_hash', $taxIdHash))->exists()
+                || $others(VendorIndividualDetails::where('tax_id_hash', $taxIdHash))->exists()) {
+                return true;
+            }
+        }
+
+        if ($citizenId !== null
+            && $others(VendorIndividualDetails::where('citizen_id_hash', IdentityHash::make($citizenId)))->exists()) {
+            return true;
+        }
+
+        return $businessRegistrationNo !== null
+            && $others(VendorCompanyDetails::where('business_registration_no', $businessRegistrationNo))->exists();
+    }
+
     private function mapProfileToEntity(VendorProfiles $model): VendorProfile
     {
         return VendorProfile::reconstitute(
@@ -270,7 +300,7 @@ class VendorRepository implements VendorRepositoryInterface
             vendorProfileId: $model->vendor_profile_id,
             companyName: $model->company_name,
             businessRegistrationNo: $model->business_registration_no,
-            taxId: TaxId::fromString($model->tax_id),
+            taxId: TaxId::fromPersisted($model->tax_id),
             branchNo: $model->branch_no,
             businessType: $model->business_type,
             address: $model->address,
@@ -288,9 +318,9 @@ class VendorRepository implements VendorRepositoryInterface
             prefix: $model->prefix,
             firstname: $model->firstname,
             lastname: $model->lastname,
-            citizenId: CitizenId::fromString($model->citizen_id),
+            citizenId: CitizenId::fromPersisted($model->citizen_id),
             businessType: $model->business_type,
-            taxId: $model->tax_id !== null ? TaxId::fromString($model->tax_id) : null,
+            taxId: $model->tax_id !== null ? TaxId::fromPersisted($model->tax_id) : null,
             address: $model->address,
             province: $model->province,
             postalCode: $model->postal_code !== null ? PostalCode::fromString($model->postal_code) : null,

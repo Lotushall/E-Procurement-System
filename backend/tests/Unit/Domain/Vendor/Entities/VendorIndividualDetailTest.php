@@ -13,9 +13,9 @@ function makeVendorIndividualDetail(): VendorIndividualDetail
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890123'),
+        citizenId: CitizenId::fromString('1234567840123'),
         businessType: 'Retail',
-        taxId: TaxId::fromString('9876543210123'),
+        taxId: TaxId::fromString('9876543250123'),
         address: '456 Side St.',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
@@ -30,17 +30,17 @@ test('create builds a new detail with no id', function () {
         ->and($detail->prefix())->toBe('Mr.')
         ->and($detail->firstname())->toBe('John')
         ->and($detail->lastname())->toBe('Doe')
-        ->and($detail->citizenId()->value)->toBe('1234567890123')
+        ->and($detail->citizenId()->value)->toBe('1234567840123')
         ->and($detail->storeName())->toBe("John's Store")
         ->and($detail->businessType())->toBe('Retail')
-        ->and($detail->taxId()->value)->toBe('9876543210123')
+        ->and($detail->taxId()->value)->toBe('9876543250123')
         ->and($detail->address())->toBe('456 Side St.')
         ->and($detail->province())->toBe('Bangkok')
         ->and($detail->postalCode()->value)->toBe('10110');
 });
 
 test('reconstitute rebuilds a detail from persisted values', function () {
-    $citizenId = CitizenId::fromString('1234567890123');
+    $citizenId = CitizenId::fromString('1234567840123');
 
     $detail = VendorIndividualDetail::reconstitute(
         id: 1,
@@ -51,7 +51,7 @@ test('reconstitute rebuilds a detail from persisted values', function () {
         lastname: 'Doe',
         citizenId: $citizenId,
         businessType: 'Retail',
-        taxId: TaxId::fromString('9876543210123'),
+        taxId: TaxId::fromString('9876543250123'),
         address: '456 Side St.',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
@@ -63,8 +63,8 @@ test('reconstitute rebuilds a detail from persisted values', function () {
 
 test('update replaces the editable detail fields including the citizen id', function () {
     $detail = makeVendorIndividualDetail();
-    $newCitizenId = CitizenId::fromString('9998887776665');
-    $newTaxId = TaxId::fromString('1112223334445');
+    $newCitizenId = CitizenId::fromString('9998887756665');
+    $newTaxId = TaxId::fromString('1112223734445');
     $newPostalCode = PostalCode::fromString('20000');
 
     $detail->update(

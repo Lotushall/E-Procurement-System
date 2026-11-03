@@ -7,6 +7,8 @@ use App\Modules\Vendor\Infrastructure\Models\VendorDocuments;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
+use App\Shared\Support\IdentityHash;
+use App\Shared\Support\ThaiIdNumber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -47,6 +49,18 @@ test('VendorCompanyDetails factory can create multiple rows without unique const
     $details = VendorCompanyDetails::factory()->count(3)->create();
 
     expect($details)->toHaveCount(3);
+});
+
+test('vendor detail factories generate ID numbers with valid check digits and matching hashes', function () {
+    $company = VendorCompanyDetails::factory()->create();
+    $individual = VendorIndividualDetails::factory()->create();
+
+    expect(ThaiIdNumber::isValid($company->tax_id))->toBeTrue()
+        ->and(ThaiIdNumber::isValid($company->business_registration_no))->toBeTrue()
+        ->and(ThaiIdNumber::isValid($individual->citizen_id))->toBeTrue()
+        ->and(ThaiIdNumber::isValid($individual->tax_id))->toBeTrue()
+        ->and($company->tax_id_hash)->toBe(IdentityHash::make($company->tax_id))
+        ->and($individual->citizen_id_hash)->toBe(IdentityHash::make($individual->citizen_id));
 });
 
 test('VendorIndividualDetails factory creates a detail row with its own parent profile', function () {

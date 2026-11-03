@@ -36,8 +36,8 @@ test('an internal user can fetch a vendor profile by id', function () {
     $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $companyProfile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: '00000',
         businessType: 'Trading',
         address: '123 Main St.',

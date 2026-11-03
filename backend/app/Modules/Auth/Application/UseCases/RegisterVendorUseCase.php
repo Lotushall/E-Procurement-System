@@ -13,6 +13,7 @@ use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorContact;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
 use App\Modules\Vendor\Domain\Entities\VendorProfile;
+use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
@@ -27,9 +28,19 @@ final class RegisterVendorUseCase
         private readonly EmailVerificationSenderInterface $verificationSender,
     ) {}
 
+    /**
+     * @throws VendorIdentityAlreadyRegisteredException when the tax ID or citizen ID is already registered
+     */
     public function execute(RegisterVendorData $data): User
     {
-        return DB::transaction(function () use ($data): User {
+        $taxId = $data->isCompany() ? TaxId::fromString($data->taxId) : null;
+        $citizenId = $data->isCompany() ? null : CitizenId::fromString($data->idCard);
+
+        if ($this->vendors->isIdentityTakenByAnotherVendor($taxId?->value, $citizenId?->value, null)) {
+            throw new VendorIdentityAlreadyRegisteredException;
+        }
+
+        return DB::transaction(function () use ($data, $taxId, $citizenId): User {
             $user = $this->users->save(User::register(
                 username: $data->username,
                 email: Email::fromString($data->email),
@@ -51,7 +62,7 @@ final class RegisterVendorUseCase
                     vendorProfileId: $profile->id(),
                     companyName: $data->companyName,
                     businessRegistrationNo: null,
-                    taxId: TaxId::fromString($data->taxId),
+                    taxId: $taxId,
                     branchNo: null,
                     businessType: null,
                     address: null,
@@ -67,7 +78,7 @@ final class RegisterVendorUseCase
                     prefix: null,
                     firstname: $firstname,
                     lastname: $lastname,
-                    citizenId: CitizenId::fromString($data->idCard),
+                    citizenId: $citizenId,
                     businessType: null,
                     taxId: null,
                     address: null,

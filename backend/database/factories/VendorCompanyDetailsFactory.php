@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Shared\Support\ThaiIdNumber;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,12 +19,13 @@ class VendorCompanyDetailsFactory extends Factory
      */
     public function definition(): array
     {
-        $taxId = fake()->unique()->numerify('#############');
+        // Juristic person numbers start with 0 and end in a valid check digit.
+        $taxId = ThaiIdNumber::withCheckDigit(fake()->unique()->numerify('0###########'));
 
         return [
             'vendor_profile_id' => VendorProfiles::factory(),
             'company_name' => fake()->company(),
-            'business_registration_no' => fake()->unique()->numerify('#############'),
+            'business_registration_no' => ThaiIdNumber::withCheckDigit(fake()->unique()->numerify('0###########')),
             'tax_id' => $taxId,
             'tax_id_hash' => VendorCompanyDetails::hashTaxId($taxId),
             'branch_no' => '00000',

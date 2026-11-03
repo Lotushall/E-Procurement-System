@@ -2,6 +2,7 @@
 
 namespace App\Modules\Vendor\Infrastructure\Models;
 
+use App\Shared\Support\IdentityHash;
 use Database\Factories\VendorCompanyDetailsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -51,7 +52,7 @@ class VendorCompanyDetails extends Model
      */
     public static function hashTaxId(string $taxId): string
     {
-        return hash('sha256', $taxId);
+        return IdentityHash::make($taxId);
     }
 
     // Relations

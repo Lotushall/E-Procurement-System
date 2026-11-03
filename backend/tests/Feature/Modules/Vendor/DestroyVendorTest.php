@@ -118,8 +118,8 @@ test('deleting a company vendor frees its tax id and business registration numbe
     $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $profile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: null,
         businessType: null,
         address: null,
@@ -134,8 +134,8 @@ test('deleting a company vendor frees its tax id and business registration numbe
     $newDetail = $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $newProfile->id(),
         companyName: 'Reincorporated Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: null,
         businessType: null,
         address: null,

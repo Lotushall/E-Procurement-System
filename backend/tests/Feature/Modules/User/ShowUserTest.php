@@ -48,8 +48,8 @@ test('fetching a company user returns its vendorProfileId', function () {
     $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $profile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: null,
         businessType: null,
         address: null,

@@ -1,5 +1,10 @@
 <?php
 
+use App\Modules\User\Infrastructure\Models\User as UserModel;
+use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
+use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
+use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
+use App\Shared\Support\IdentityHash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -9,7 +14,7 @@ function individualRegisterPayload(array $overrides = []): array
     return array_merge([
         'vendorType' => 'individual',
         'fullName' => 'John Doe',
-        'idCard' => '1234567890123',
+        'idCard' => '1234567840123',
         'storeName' => "John's Store",
         'phone' => '0812345678',
         'username' => 'johndoe',
@@ -26,7 +31,7 @@ function companyRegisterPayload(array $overrides = []): array
     return array_merge([
         'vendorType' => 'company',
         'companyName' => 'Acme Co., Ltd.',
-        'taxId' => '1234567890123',
+        'taxId' => '1234567840123',
         'phone' => '0812345678',
         'username' => 'acmeco',
         'email' => 'acme@example.com',
@@ -73,3 +78,54 @@ test('store name is not required when registering as a company vendor', function
         'company_name' => 'Acme Co., Ltd.',
     ]);
 });
+
+test('registering rejects a tax ID or citizen ID whose check digit does not match', function (array $payload, string $field, string $message) {
+    $this->postJson('/api/v1/auth/register', $payload)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([$field => $message]);
+
+    $this->assertDatabaseCount('users', 0);
+})->with([
+    'company tax ID' => fn () => [companyRegisterPayload(['taxId' => '0105536000314']), 'taxId', 'เลขประจำตัวผู้เสียภาษีไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง'],
+    'individual citizen ID' => fn () => [individualRegisterPayload(['idCard' => '1101700230709']), 'idCard', 'เลขบัตรประจำตัวประชาชนไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง'],
+]);
+
+test('registering accepts a valid number typed with dashes or spaces', function () {
+    $this->postJson('/api/v1/auth/register', companyRegisterPayload(['taxId' => '0 1055-36000-31-3']))
+        ->assertCreated();
+
+    expect(VendorCompanyDetails::sole()->tax_id)->toBe('0105536000313');
+});
+
+test('registering rejects an ID number sent as an array instead of failing', function () {
+    $this->postJson('/api/v1/auth/register', companyRegisterPayload(['taxId' => ['0105536000313']]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['taxId' => 'เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลัก']);
+});
+
+test('registering with a tax ID or citizen ID another vendor holds is rejected without saying which', function (string $model, array $existing, array $payload) {
+    $model::factory()->create($existing);
+    $usersBefore = UserModel::count();
+
+    $this->postJson('/api/v1/auth/register', $payload)
+        ->assertUnprocessable()
+        ->assertExactJson(['message' => VendorIdentityAlreadyRegisteredException::PUBLIC_MESSAGE]);
+
+    expect(UserModel::count())->toBe($usersBefore);
+})->with([
+    'company tax ID held by a company' => fn () => [
+        VendorCompanyDetails::class,
+        ['tax_id' => '0105536000313', 'tax_id_hash' => IdentityHash::make('0105536000313')],
+        companyRegisterPayload(['taxId' => '0105536000313']),
+    ],
+    'company tax ID held by an individual as their tax ID' => fn () => [
+        VendorIndividualDetails::class,
+        ['tax_id' => '0105536000313', 'tax_id_hash' => IdentityHash::make('0105536000313')],
+        companyRegisterPayload(['taxId' => '0105536000313']),
+    ],
+    'citizen ID held by an individual' => fn () => [
+        VendorIndividualDetails::class,
+        ['citizen_id' => '1101700230708', 'citizen_id_hash' => IdentityHash::make('1101700230708')],
+        individualRegisterPayload(['idCard' => '1101700230708']),
+    ],
+]);

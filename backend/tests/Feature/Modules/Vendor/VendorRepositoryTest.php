@@ -16,6 +16,7 @@ use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Models\VendorCompanyDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
+use App\Shared\Support\IdentityHash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 
@@ -64,8 +65,8 @@ test('saveCompanyDetail persists and round-trips through the encrypted tax id', 
     $detail = VendorCompanyDetail::create(
         vendorProfileId: $vendorProfile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: '00000',
         businessType: 'Trading',
         address: '123 Main St.',
@@ -76,14 +77,14 @@ test('saveCompanyDetail persists and round-trips through the encrypted tax id', 
     $saved = $repository->saveCompanyDetail($detail);
 
     expect($saved->id())->not->toBeNull()
-        ->and($saved->taxId()->value)->toBe('1234567890123')
+        ->and($saved->taxId()->value)->toBe('1234567840123')
         ->and($saved->branchNo())->toBe('00000')
         ->and($saved->businessType())->toBe('Trading');
 
     $this->assertDatabaseHas('vendor_company_details', [
         'vendor_profile_id' => $vendorProfile->id(),
         'company_name' => 'Acme Co., Ltd.',
-        'tax_id_hash' => hash('sha256', '1234567890123'),
+        'tax_id_hash' => IdentityHash::make('1234567840123'),
         'branch_no' => '00000',
         'business_type' => 'Trading',
     ]);
@@ -100,9 +101,9 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890123'),
+        citizenId: CitizenId::fromString('1234567840123'),
         businessType: 'Retail',
-        taxId: TaxId::fromString('9876543210123'),
+        taxId: TaxId::fromString('9876543250123'),
         address: '456 Side St.',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
@@ -112,15 +113,15 @@ test('saveIndividualDetail persists and round-trips through the encrypted citize
 
     expect($saved->id())->not->toBeNull()
         ->and($saved->storeName())->toBe("John's Store")
-        ->and($saved->citizenId()->value)->toBe('1234567890123')
-        ->and($saved->taxId()->value)->toBe('9876543210123');
+        ->and($saved->citizenId()->value)->toBe('1234567840123')
+        ->and($saved->taxId()->value)->toBe('9876543250123');
 
     $this->assertDatabaseHas('vendor_individual_details', [
         'vendor_profile_id' => $vendorProfile->id(),
         'store_name' => "John's Store",
         'firstname' => 'John',
-        'citizen_id_hash' => hash('sha256', '1234567890123'),
-        'tax_id_hash' => hash('sha256', '9876543210123'),
+        'citizen_id_hash' => IdentityHash::make('1234567840123'),
+        'tax_id_hash' => IdentityHash::make('9876543250123'),
     ]);
 });
 
@@ -305,8 +306,8 @@ test('findCompanyDetailByVendorProfileId returns the reconstituted detail', func
     $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $vendorProfile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: '00000',
         businessType: 'Trading',
         address: '123 Main St.',
@@ -318,7 +319,7 @@ test('findCompanyDetailByVendorProfileId returns the reconstituted detail', func
 
     expect($found)->not->toBeNull()
         ->and($found->companyName())->toBe('Acme Co., Ltd.')
-        ->and($found->taxId()->value)->toBe('1234567890123');
+        ->and($found->taxId()->value)->toBe('1234567840123');
 });
 
 test('findCompanyDetailByVendorProfileId returns null when no detail exists', function () {
@@ -340,9 +341,9 @@ test('findIndividualDetailByVendorProfileId returns the reconstituted detail', f
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890123'),
+        citizenId: CitizenId::fromString('1234567840123'),
         businessType: 'Retail',
-        taxId: TaxId::fromString('9876543210123'),
+        taxId: TaxId::fromString('9876543250123'),
         address: '456 Side St.',
         province: 'Bangkok',
         postalCode: PostalCode::fromString('10110'),
@@ -352,7 +353,7 @@ test('findIndividualDetailByVendorProfileId returns the reconstituted detail', f
 
     expect($found)->not->toBeNull()
         ->and($found->storeName())->toBe("John's Store")
-        ->and($found->citizenId()->value)->toBe('1234567890123');
+        ->and($found->citizenId()->value)->toBe('1234567840123');
 });
 
 test('findIndividualDetailByVendorProfileId returns null when no detail exists', function () {
@@ -420,21 +421,21 @@ test('freeIdentityForDeletedProfile mutates the company tax id hash and business
     $detail = $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $profile->id(),
         companyName: 'Acme Co., Ltd.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: null,
         businessType: null,
         address: null,
         province: null,
         postalCode: null,
     ));
-    $originalHash = VendorCompanyDetails::hashTaxId('1234567890123');
+    $originalHash = VendorCompanyDetails::hashTaxId('1234567840123');
 
     $repository->freeIdentityForDeletedProfile($profile->id());
 
     $this->assertDatabaseMissing('vendor_company_details', [
         'id' => $detail->id(),
-        'business_registration_no' => '0123456789012',
+        'business_registration_no' => '0123456709012',
     ]);
     $this->assertDatabaseMissing('vendor_company_details', [
         'id' => $detail->id(),
@@ -445,8 +446,8 @@ test('freeIdentityForDeletedProfile mutates the company tax id hash and business
     $newDetail = $repository->saveCompanyDetail(VendorCompanyDetail::create(
         vendorProfileId: $newProfile->id(),
         companyName: 'New Co.',
-        businessRegistrationNo: '0123456789012',
-        taxId: TaxId::fromString('1234567890123'),
+        businessRegistrationNo: '0123456709012',
+        taxId: TaxId::fromString('1234567840123'),
         branchNo: null,
         businessType: null,
         address: null,
@@ -466,15 +467,15 @@ test('freeIdentityForDeletedProfile mutates the individual citizen id hash and t
         prefix: 'Mr.',
         firstname: 'John',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890124'),
+        citizenId: CitizenId::fromString('1234567860124'),
         businessType: null,
-        taxId: TaxId::fromString('9999999999999'),
+        taxId: TaxId::fromString('9999999989999'),
         address: null,
         province: null,
         postalCode: null,
     ));
-    $originalCitizenHash = VendorIndividualDetails::hashCitizenId('1234567890124');
-    $originalTaxHash = VendorIndividualDetails::hashTaxId('9999999999999');
+    $originalCitizenHash = VendorIndividualDetails::hashCitizenId('1234567860124');
+    $originalTaxHash = VendorIndividualDetails::hashTaxId('9999999989999');
 
     $repository->freeIdentityForDeletedProfile($profile->id());
 
@@ -494,9 +495,9 @@ test('freeIdentityForDeletedProfile mutates the individual citizen id hash and t
         prefix: 'Ms.',
         firstname: 'Jane',
         lastname: 'Doe',
-        citizenId: CitizenId::fromString('1234567890124'),
+        citizenId: CitizenId::fromString('1234567860124'),
         businessType: null,
-        taxId: TaxId::fromString('9999999999999'),
+        taxId: TaxId::fromString('9999999989999'),
         address: null,
         province: null,
         postalCode: null,
@@ -510,4 +511,46 @@ test('freeIdentityForDeletedProfile is a no-op when the profile has no company o
     $profile = $repository->saveProfile(VendorProfile::create(userId: User::factory()->create()->id));
 
     expect(fn () => $repository->freeIdentityForDeletedProfile($profile->id()))->not->toThrow(Exception::class);
+});
+
+test('isIdentityTakenByAnotherVendor finds a number held by another vendor', function (string $model, array $detail, array $lookup) {
+    $model::factory()->create($detail);
+
+    expect((new VendorRepository)->isIdentityTakenByAnotherVendor(...$lookup))->toBeTrue();
+})->with([
+    'tax ID of a company' => fn () => [VendorCompanyDetails::class, ['tax_id' => '0105536000313', 'tax_id_hash' => IdentityHash::make('0105536000313')], ['0105536000313', null, null]],
+    'tax ID of an individual' => fn () => [VendorIndividualDetails::class, ['tax_id' => '0105536000313', 'tax_id_hash' => IdentityHash::make('0105536000313')], ['0105536000313', null, null]],
+    'citizen ID of an individual' => fn () => [VendorIndividualDetails::class, ['citizen_id' => '1101700230708', 'citizen_id_hash' => IdentityHash::make('1101700230708')], [null, '1101700230708', null]],
+    'business registration number of a company' => fn () => [VendorCompanyDetails::class, ['business_registration_no' => '0105555123450'], [null, null, '0105555123450']],
+]);
+
+test('isIdentityTakenByAnotherVendor ignores the numbers of the vendor being checked', function () {
+    $detail = VendorCompanyDetails::factory()->create([
+        'tax_id' => '0105536000313',
+        'tax_id_hash' => IdentityHash::make('0105536000313'),
+        'business_registration_no' => '0105555123450',
+    ]);
+
+    expect((new VendorRepository)->isIdentityTakenByAnotherVendor('0105536000313', null, '0105555123450', $detail->vendor_profile_id))->toBeFalse();
+});
+
+test('isIdentityTakenByAnotherVendor is false for free numbers and for no numbers at all', function () {
+    VendorCompanyDetails::factory()->create();
+    $repository = new VendorRepository;
+
+    expect($repository->isIdentityTakenByAnotherVendor('0105536000313', '1101700230708', '0105555123450'))->toBeFalse()
+        ->and($repository->isIdentityTakenByAnotherVendor(null, null, null))->toBeFalse();
+});
+
+test('isIdentityTakenByAnotherVendor no longer finds the numbers of a deleted vendor', function () {
+    $detail = VendorCompanyDetails::factory()->create([
+        'tax_id' => '0105536000313',
+        'tax_id_hash' => IdentityHash::make('0105536000313'),
+        'business_registration_no' => '0105555123450',
+    ]);
+    $repository = new VendorRepository;
+
+    $repository->freeIdentityForDeletedProfile($detail->vendor_profile_id);
+
+    expect($repository->isIdentityTakenByAnotherVendor('0105536000313', null, '0105555123450'))->toBeFalse();
 });

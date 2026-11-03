@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Modules\Vendor\Infrastructure\Models\VendorIndividualDetails;
 use App\Modules\Vendor\Infrastructure\Models\VendorProfiles;
+use App\Shared\Support\ThaiIdNumber;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,8 +19,9 @@ class VendorIndividualDetailsFactory extends Factory
      */
     public function definition(): array
     {
-        $citizenId = fake()->unique()->numerify('#############');
-        $taxId = fake()->unique()->numerify('#############');
+        // Citizen IDs start with 1-8 and end in a valid check digit.
+        $citizenId = ThaiIdNumber::withCheckDigit(fake()->unique()->numerify(fake()->numberBetween(1, 8).'###########'));
+        $taxId = ThaiIdNumber::withCheckDigit(fake()->unique()->numerify(fake()->numberBetween(1, 8).'###########'));
 
         return [
             'vendor_profile_id' => VendorProfiles::factory(),

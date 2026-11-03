@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Presentation\Http\Requests;
 
+use App\Rules\ThaiIdNumberRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -29,13 +30,16 @@ class RegisterRequest extends FormRequest
         ]);
     }
 
-    private function digitsOnly(string $key): ?string
+    private function digitsOnly(string $key): mixed
     {
-        if (! $this->filled($key)) {
-            return $this->input($key);
+        $value = $this->input($key);
+
+        // Blank input, or anything but text (an array), is left for the rules to judge.
+        if (! $this->filled($key) || ! is_string($value)) {
+            return $value;
         }
 
-        return preg_replace('/\D/', '', (string) $this->input($key));
+        return preg_replace('/\D/', '', $value);
     }
 
     /**
@@ -46,9 +50,9 @@ class RegisterRequest extends FormRequest
         return [
             'vendorType' => ['required', 'in:company,individual'],
             'companyName' => ['required_if:vendorType,company', 'nullable', 'string', 'max:255'],
-            'taxId' => ['required_if:vendorType,company', 'nullable', 'digits:13'],
+            'taxId' => ['required_if:vendorType,company', 'nullable', new ThaiIdNumberRule('เลขประจำตัวผู้เสียภาษี')],
             'fullName' => ['required_if:vendorType,individual', 'nullable', 'string', 'max:255'],
-            'idCard' => ['required_if:vendorType,individual', 'nullable', 'digits:13'],
+            'idCard' => ['required_if:vendorType,individual', 'nullable', new ThaiIdNumberRule('เลขบัตรประจำตัวประชาชน')],
             'storeName' => ['required_if:vendorType,individual', 'nullable', 'string', 'max:255'],
             'phone' => ['required', 'digits_between:9,10'],
             'username' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('users', 'username')],

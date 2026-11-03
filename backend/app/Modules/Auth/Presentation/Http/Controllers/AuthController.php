@@ -25,6 +25,7 @@ use App\Modules\Auth\Presentation\Http\Requests\ResendVerificationRequest;
 use App\Modules\Auth\Presentation\Http\Requests\ResetPasswordRequest;
 use App\Modules\Auth\Presentation\Http\Requests\UpdateAccountRequest;
 use App\Modules\User\Presentation\Http\Resources\AuthenticatedUserResource;
+use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,12 @@ class AuthController extends Controller
                     'userType' => $user->userType()->value,
                 ],
             ], 201);
+        } catch (VendorIdentityAlreadyRegisteredException) {
+            app_log('Registration rejected: identification number already registered.', [
+                'vendor_type' => $request->validated('vendorType'),
+            ], 'warning', 'auth');
+
+            return response()->json(['message' => VendorIdentityAlreadyRegisteredException::PUBLIC_MESSAGE], 422);
         } catch (\Throwable $th) {
 
             app_log('Registration failed.', [

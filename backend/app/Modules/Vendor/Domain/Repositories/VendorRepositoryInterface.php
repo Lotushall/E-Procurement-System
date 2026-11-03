@@ -61,4 +61,17 @@ interface VendorRepositoryInterface
      * whichever detail type the profile doesn't have.
      */
     public function freeIdentityForDeletedProfile(int $vendorProfileId): void;
+
+    /**
+     * Whether any of the given identification numbers is already held by a
+     * vendor other than $exceptVendorProfileId: a tax ID by any company or
+     * individual detail, a citizen ID by any individual detail, a business
+     * registration number by any company detail. Null numbers are skipped.
+     */
+    public function isIdentityTakenByAnotherVendor(
+        ?string $taxId,
+        ?string $citizenId,
+        ?string $businessRegistrationNo,
+        ?int $exceptVendorProfileId = null,
+    ): bool;
 }

@@ -119,6 +119,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Identity Hash Key
+    |--------------------------------------------------------------------------
+    |
+    | Secret for the keyed lookup hashes of encrypted identification numbers
+    | (citizen ID, tax ID). Kept apart from APP_KEY so rotating the encryption
+    | key does not change every stored hash. Changing this key requires
+    | recomputing the stored hashes.
+    |
+    */
+
+    'identity_hash_key' => env('IDENTITY_HASH_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

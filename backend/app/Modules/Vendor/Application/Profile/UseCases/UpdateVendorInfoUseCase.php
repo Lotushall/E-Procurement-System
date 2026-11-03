@@ -6,11 +6,13 @@ use App\Modules\Shared\Domain\ValueObjects\PostalCode;
 use App\Modules\Vendor\Application\Profile\DTOs\UpdateVendorInfoData;
 use App\Modules\Vendor\Domain\Entities\VendorCompanyDetail;
 use App\Modules\Vendor\Domain\Entities\VendorIndividualDetail;
+use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
 use App\Modules\Vendor\Domain\Repositories\VendorRepositoryInterface;
 use App\Modules\Vendor\Domain\ValueObjects\CitizenId;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Shared\Support\ChangeLogger;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 final class UpdateVendorInfoUseCase
 {
@@ -34,7 +36,7 @@ final class UpdateVendorInfoUseCase
     {
         $existing = $this->vendors->findCompanyDetailByVendorProfileId($vendorProfileId);
 
-        $taxId = TaxId::fromString($this->resolveMaskedValue($data->taxId, $existing?->taxId()->value));
+        $taxId = $this->resolveTaxId($data->taxId, $existing?->taxId());
 
         $businessRegistrationNo = $this->resolveMaskedValue(
             $data->businessRegistrationNo,
@@ -42,6 +44,8 @@ final class UpdateVendorInfoUseCase
         );
 
         $postalCode = PostalCode::fromString($data->postalCode);
+
+        $this->ensureIdentityIsFree($vendorProfileId, $taxId->value, null, $businessRegistrationNo);
 
         if ($existing === null) {
             $this->vendors->saveCompanyDetail(VendorCompanyDetail::create(
@@ -110,12 +114,14 @@ final class UpdateVendorInfoUseCase
     {
         $existing = $this->vendors->findIndividualDetailByVendorProfileId($vendorProfileId);
 
-        $citizenId = CitizenId::fromString(
-            $this->resolveMaskedValue($data->citizenId, $existing?->citizenId()->value)
-        );
-        $taxIdValue = $this->resolveMaskedValue($data->taxId, $existing?->taxId()?->value);
-        $taxId = $taxIdValue !== null ? TaxId::fromString($taxIdValue) : null;
+        $citizenIdValue = $this->resolveMaskedValue($data->citizenId, $existing?->citizenId()->value);
+        $citizenId = $existing !== null && $citizenIdValue === $existing->citizenId()->value
+            ? $existing->citizenId()
+            : CitizenId::fromString($citizenIdValue);
+        $taxId = $this->resolveTaxId($data->taxId, $existing?->taxId());
         $postalCode = PostalCode::fromString($data->postalCode);
+
+        $this->ensureIdentityIsFree($vendorProfileId, $taxId?->value, $citizenId->value, null);
 
         if ($existing === null) {
             $this->vendors->saveIndividualDetail(VendorIndividualDetail::create(
@@ -189,10 +195,37 @@ final class UpdateVendorInfoUseCase
     }
 
     /**
+     * The tax ID to save. The stored one is kept as is, so a number saved
+     * before the check digit was enforced does not block other edits; a new
+     * number must pass the check digit.
+     */
+    private function resolveTaxId(?string $incoming, ?TaxId $current): ?TaxId
+    {
+        $value = $this->resolveMaskedValue($incoming, $current?->value);
+
+        if ($value === null) {
+            return null;
+        }
+
+        return $value === $current?->value ? $current : TaxId::fromString($value);
+    }
+
+    /**
+     * @throws VendorIdentityAlreadyRegisteredException when another vendor already holds one of the numbers
+     */
+    private function ensureIdentityIsFree(int $vendorProfileId, ?string $taxId, ?string $citizenId, ?string $businessRegistrationNo): void
+    {
+        if ($this->vendors->isIdentityTakenByAnotherVendor($taxId, $citizenId, $businessRegistrationNo, $vendorProfileId)) {
+            throw new VendorIdentityAlreadyRegisteredException;
+        }
+    }
+
+    /**
      * Frontend echoes sensitive IDs back masked (e.g. "xxxxxxxxx1234"). If the
      * submitted value still carries mask characters, the field was never
      * edited by the user, so keep the currently stored value instead of
-     * persisting the mask itself.
+     * persisting the mask itself. A masked value with nothing stored behind
+     * it cannot stand for anything and is rejected.
      */
     private function resolveMaskedValue(?string $incoming, ?string $current): ?string
     {
@@ -200,10 +233,14 @@ final class UpdateVendorInfoUseCase
             return null;
         }
 
-        if ($current !== null && stripos($incoming, 'x') !== false) {
-            return $current;
+        if (stripos($incoming, 'x') === false) {
+            return $incoming;
         }
 
-        return $incoming;
+        if ($current === null) {
+            throw new InvalidArgumentException('A masked identification number was sent but none is stored.');
+        }
+
+        return $current;
     }
 }

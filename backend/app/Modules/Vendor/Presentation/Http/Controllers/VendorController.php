@@ -14,6 +14,7 @@ use App\Modules\Vendor\Application\Profile\UseCases\SaveVendorContactUseCase;
 use App\Modules\Vendor\Application\Profile\UseCases\SaveVendorDocumentUseCase;
 use App\Modules\Vendor\Application\Profile\UseCases\UpdateVendorInfoUseCase;
 use App\Modules\Vendor\Application\Profile\UseCases\ViewVendorDocumentUseCase;
+use App\Modules\Vendor\Domain\Exceptions\VendorIdentityAlreadyRegisteredException;
 use App\Modules\Vendor\Presentation\Http\Requests\SaveVendorContactRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\SaveVendorDocumentRequest;
 use App\Modules\Vendor\Presentation\Http\Requests\UpdateVendorInfoRequest;
@@ -21,6 +22,7 @@ use App\Modules\Vendor\Presentation\Http\Resources\VendorProfileResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -54,6 +56,16 @@ class VendorController extends Controller
                 $vendorProfile->id,
                 UpdateVendorInfoData::from($request->validated())
             );
+        } catch (VendorIdentityAlreadyRegisteredException) {
+            app_log('Vendor info update rejected: identification number already registered.', [
+                'vendor_profile_id' => $vendorProfile->id,
+            ], 'warning', 'vendor');
+
+            return response()->json(['message' => VendorIdentityAlreadyRegisteredException::PUBLIC_MESSAGE], 422);
+        } catch (InvalidArgumentException $e) {
+            app_log('Vendor info update rejected: invalid value.', ['error' => $e->getMessage()], 'warning', 'vendor');
+
+            return response()->json(['message' => 'ข้อมูลกิจการไม่ถูกต้อง กรุณาตรวจสอบข้อมูลอีกครั้ง'], 422);
         } catch (Throwable $th) {
             app_log('Vendor info update failed.', ['error' => $th], 'error', 'vendor');
 

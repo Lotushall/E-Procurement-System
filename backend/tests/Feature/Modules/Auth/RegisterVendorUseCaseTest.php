@@ -17,7 +17,7 @@ test('registering an individual vendor saves the store name on the vendor indivi
         companyName: null,
         taxId: null,
         fullName: 'John Doe',
-        idCard: '1234567890123',
+        idCard: '1234567840123',
         storeName: "John's Store",
         phone: '0812345678',
         username: 'johndoe',
@@ -43,7 +43,7 @@ test('registering a company vendor does not require a store name', function () {
     $user = registerVendorUseCase()->execute(new RegisterVendorData(
         vendorType: 'company',
         companyName: 'Acme Co., Ltd.',
-        taxId: '1234567890123',
+        taxId: '1234567840123',
         fullName: null,
         idCard: null,
         storeName: null,
