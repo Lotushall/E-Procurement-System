@@ -17,14 +17,14 @@ use Spatie\ModelStates\Exceptions\TransitionNotFound;
 function makeTor(): Tor
 {
     return Tor::create(
-        torCode: TorCode::fromString('TOR-2569-0001'),
+        torCode: TorCode::fromString('TOR-2026-0001'),
         title: 'จัดซื้อคอมพิวเตอร์ 50 เครื่อง',
         scopeOfWork: 'ขอบเขตงานจัดซื้อคอมพิวเตอร์',
         departmentId: 1,
         tenderProjectId: null,
         budgetEstimate: Money::fromString('500000'),
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         biddingStartAt: null,
         biddingEndAt: null,
         createdBy: 3,
@@ -35,13 +35,13 @@ test('create builds a new draft TOR with no id', function () {
     $tor = makeTor();
 
     expect($tor->id())->toBeNull()
-        ->and($tor->torCode()->value)->toBe('TOR-2569-0001')
+        ->and($tor->torCode()->value)->toBe('TOR-2026-0001')
         ->and($tor->title())->toBe('จัดซื้อคอมพิวเตอร์ 50 เครื่อง')
         ->and($tor->departmentId())->toBe(1)
         ->and($tor->tenderProjectId())->toBeNull()
         ->and($tor->budgetEstimate()->amount)->toBe('500000.00')
         ->and($tor->procurementMethod())->toBe('e-bidding')
-        ->and($tor->fiscalYear())->toBe(2569)
+        ->and($tor->fiscalYear())->toBe(2026)
         ->and($tor->status())->toBeInstanceOf(Draft::class)
         ->and($tor->createdBy())->toBe(3)
         ->and($tor->approvedBy())->toBeNull()
@@ -50,7 +50,7 @@ test('create builds a new draft TOR with no id', function () {
 });
 
 test('reconstitute rebuilds a TOR from persisted values', function () {
-    $torCode = TorCode::fromString('TOR-2569-0001');
+    $torCode = TorCode::fromString('TOR-2026-0001');
     $approvedAt = CarbonImmutable::parse('2026-08-01 10:00:00');
     $status = new Approved(null);
 
@@ -63,7 +63,7 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
         tenderProjectId: 9,
         budgetEstimate: Money::fromString('500000'),
         procurementMethod: 'specific',
-        fiscalYear: 2570,
+        fiscalYear: 2027,
         biddingStartAt: null,
         biddingEndAt: null,
         status: $status,
@@ -77,7 +77,7 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
         ->and($tor->torCode())->toBe($torCode)
         ->and($tor->tenderProjectId())->toBe(9)
         ->and($tor->procurementMethod())->toBe('specific')
-        ->and($tor->fiscalYear())->toBe(2570)
+        ->and($tor->fiscalYear())->toBe(2027)
         ->and($tor->status())->toBe($status)
         ->and($tor->approvedBy())->toBe(4)
         ->and($tor->approvedAt())->toBe($approvedAt)
@@ -86,7 +86,7 @@ test('reconstitute rebuilds a TOR from persisted values', function () {
 
 test('update replaces the editable TOR fields', function () {
     $tor = makeTor();
-    $newCode = TorCode::fromString('TOR-2569-0002');
+    $newCode = TorCode::fromString('TOR-2026-0002');
     $newBudget = Money::fromString('600000');
 
     $tor->update(
@@ -97,7 +97,7 @@ test('update replaces the editable TOR fields', function () {
         tenderProjectId: 9,
         budgetEstimate: $newBudget,
         procurementMethod: 'specific',
-        fiscalYear: 2570,
+        fiscalYear: 2027,
         biddingStartAt: null,
         biddingEndAt: null,
     );
@@ -108,7 +108,7 @@ test('update replaces the editable TOR fields', function () {
         ->and($tor->tenderProjectId())->toBe(9)
         ->and($tor->budgetEstimate())->toBe($newBudget)
         ->and($tor->procurementMethod())->toBe('specific')
-        ->and($tor->fiscalYear())->toBe(2570);
+        ->and($tor->fiscalYear())->toBe(2027);
 });
 
 test('approve moves an in-review TOR to approved with approver, timestamp, and remark', function () {
@@ -146,14 +146,14 @@ function makeTorIn(TorStatus $status): Tor
 {
     return Tor::reconstitute(
         id: 1,
-        torCode: TorCode::fromString('TOR-2569-0001'),
+        torCode: TorCode::fromString('TOR-2026-0001'),
         title: 'จัดซื้อคอมพิวเตอร์ 50 เครื่อง',
         scopeOfWork: 'ขอบเขตงานจัดซื้อคอมพิวเตอร์',
         departmentId: 1,
         tenderProjectId: null,
         budgetEstimate: Money::fromString('500000'),
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         biddingStartAt: null,
         biddingEndAt: null,
         status: $status,

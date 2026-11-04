@@ -6,7 +6,7 @@ import { makeDepartment } from "@/tests/fixtures/internal-profiles";
 import { makeTenderProjectOption } from "@/tests/fixtures/tender-projects";
 
 const DEPARTMENTS = [makeDepartment({ id: 1, name: "จัดซื้อ" }), makeDepartment({ id: 2, name: "บัญชี" })];
-const PROJECTS = [makeTenderProjectOption({ id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" })];
+const PROJECTS = [makeTenderProjectOption({ id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" })];
 
 type Props = React.ComponentProps<typeof TorFilterSheet>;
 

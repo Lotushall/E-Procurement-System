@@ -4,9 +4,8 @@ import { toast } from "sonner";
 import { useCreateTenderProject } from "@/lib/tender/tender-projects/mutations/useCreateTenderProject";
 import type { CreateTenderProjectPayload } from "@/lib/tender/tender-projects/types";
 import { handleServerError } from "@/lib/form/server-errors";
+import { NEXT_FISCAL_YEAR } from "@/lib/tender/fiscal-year-options";
 import { CreateTenderProjectSchema, type CreateTenderProjectFormValues } from "../_schemas/schema";
-
-const CURRENT_BUDDHIST_YEAR = new Date().getFullYear() + 543;
 
 const DEFAULT_VALUES: CreateTenderProjectFormValues = {
   name: "",
@@ -15,7 +14,7 @@ const DEFAULT_VALUES: CreateTenderProjectFormValues = {
   departmentId: "",
   personInChargeId: "",
   procurementMethod: "",
-  fiscalYear: String(CURRENT_BUDDHIST_YEAR + 1),
+  fiscalYear: String(NEXT_FISCAL_YEAR),
   projectStartAt: "",
   projectEndAt: "",
 };

@@ -20,7 +20,7 @@ const PAYLOAD: CreateTenderProjectPayload = {
   budget: 500000.5,
   departmentId: 3,
   procurementMethod: "คัดเลือก",
-  fiscalYear: 2569,
+  fiscalYear: 2026,
 };
 
 describe("fetchTenderProjectsList", () => {
@@ -52,7 +52,7 @@ describe("fetchTenderProjectsList", () => {
         search: "คอม",
         status: "published",
         department_id: 4,
-        fiscal_year: "2569",
+        fiscal_year: "2026",
         date_from: "2026-01-01",
         date_to: "2026-06-30",
         sort_by: "budget",
@@ -66,7 +66,7 @@ describe("fetchTenderProjectsList", () => {
       search: "คอม",
       status: "published",
       department_id: "4",
-      fiscal_year: "2569",
+      fiscal_year: "2026",
       date_from: "2026-01-01",
       date_to: "2026-06-30",
       sort_by: "budget",
@@ -77,7 +77,7 @@ describe("fetchTenderProjectsList", () => {
   });
 
   it("returns the rows and maps meta including stats, dropping unrelated meta keys", async () => {
-    const rows = [makeTenderProject({ id: 1 }), makeTenderProject({ id: 2, projectCode: "TP-2569-002" })];
+    const rows = [makeTenderProject({ id: 1 }), makeTenderProject({ id: 2, projectCode: "TP-2026-002" })];
     const stats = makeTenderProjectStats({ totalCount: 90, totalBudget: 1234.5, inProgressCount: 4, completedCount: 6 });
     server.use(
       http.get(apiUrl(BASE), () =>
@@ -107,11 +107,11 @@ describe("createTenderProject", () => {
     server.use(
       http.post(apiUrl(BASE), async ({ request }) => {
         body = await request.json();
-        return HttpResponse.json({ data: { projectCode: "TP-2569-009" } }, { status: 201 });
+        return HttpResponse.json({ data: { projectCode: "TP-2026-009" } }, { status: 201 });
       }),
     );
 
-    await expect(createTenderProject(PAYLOAD)).resolves.toEqual({ projectCode: "TP-2569-009" });
+    await expect(createTenderProject(PAYLOAD)).resolves.toEqual({ projectCode: "TP-2026-009" });
     expect(body).toEqual(PAYLOAD);
   });
 
@@ -150,11 +150,11 @@ describe("updateTenderProject", () => {
     server.use(
       http.put(apiUrl(`${BASE}/:id`), async ({ params, request }) => {
         received = { id: params.id, body: await request.json() };
-        return HttpResponse.json({ data: { projectCode: "TP-2569-001" } });
+        return HttpResponse.json({ data: { projectCode: "TP-2026-001" } });
       }),
     );
 
-    await expect(updateTenderProject(5, PAYLOAD)).resolves.toEqual({ projectCode: "TP-2569-001" });
+    await expect(updateTenderProject(5, PAYLOAD)).resolves.toEqual({ projectCode: "TP-2026-001" });
     expect(received).toEqual({ id: "5", body: PAYLOAD });
   });
 });
@@ -199,7 +199,7 @@ describe("deleteTenderProject", () => {
 
 describe("fetchTenderProjectOptions", () => {
   it("gets the select options and unwraps data", async () => {
-    const options = [makeTenderProjectOption({ id: 1 }), makeTenderProjectOption({ id: 2, projectCode: "TP-2569-002" })];
+    const options = [makeTenderProjectOption({ id: 1 }), makeTenderProjectOption({ id: 2, projectCode: "TP-2026-002" })];
     server.use(http.get(apiUrl(`${BASE}/select`), () => HttpResponse.json({ data: options })));
 
     await expect(fetchTenderProjectOptions()).resolves.toEqual(options);

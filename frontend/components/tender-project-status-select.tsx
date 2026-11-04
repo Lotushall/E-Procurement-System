@@ -13,7 +13,7 @@ import {
 } from "@/components/tender-project-status-badge";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useUpdateTenderProjectStatus } from "@/lib/tender/tender-projects/mutations/useUpdateTenderProjectStatus";
-import { allowedNextStatuses } from "@/lib/tender/tender-projects/status-rules";
+import { allowedNextStatuses, MANAGE_ANY_STATUS_PERMISSION } from "@/lib/tender/tender-projects/status-rules";
 import type { TenderProjectStatus } from "@/lib/tender/tender-projects/types";
 import { cn } from "@/lib/utils";
 
@@ -29,15 +29,15 @@ function getErrorMessage(error: unknown): string {
 
 export function TenderProjectStatusSelect({ id, status }: { id: number; status: TenderProjectStatus }) {
   const updateStatus = useUpdateTenderProjectStatus(id);
-  const { hasRole } = useAuthPermissions();
+  const { hasPermission } = useAuthPermissions();
   const style = TENDER_PROJECT_STATUS_STYLE[status];
 
   // สถานะปัจจุบัน + สถานะถัดไปที่เปลี่ยนได้ เรียงตามลำดับของ TENDER_PROJECT_STATUSES
-  const nextStatuses = allowedNextStatuses(status, hasRole("admin"));
+  const nextStatuses = allowedNextStatuses(status, hasPermission(MANAGE_ANY_STATUS_PERMISSION));
   const options = TENDER_PROJECT_STATUSES.filter((value) => value === status || nextStatuses.includes(value));
   const items = options.map((value) => ({ value, label: TENDER_PROJECT_STATUS_STYLE[value].label }));
 
-  // ไม่มีสถานะให้เปลี่ยนต่อแล้ว (archived สำหรับผู้ที่ไม่ใช่ admin) — แสดงเป็น badge เฉย ๆ
+  // ไม่มีสถานะให้เปลี่ยนต่อแล้ว (archived เมื่อไม่มีสิทธิ์ manageAnyStatus) — แสดงเป็น badge เฉย ๆ
   if (nextStatuses.length === 0) {
     return <TenderProjectStatusBadge status={status} />;
   }

@@ -74,11 +74,11 @@ test('a vendor user cannot list TORs even when granted tors.viewAny', function (
 
 test('the TOR list returns every key and uses null for missing values', function () {
     $this->actingAs(torApiViewer(), 'web');
-    $project = TenderProjects::factory()->create(['project_code' => 'TP-2569-0001', 'name' => 'จัดซื้อคอมพิวเตอร์']);
+    $project = TenderProjects::factory()->create(['project_code' => 'TP-2026-0001', 'name' => 'จัดซื้อคอมพิวเตอร์']);
     $approver = torApiInternalUser();
 
     torForApiTest([
-        'tor_code' => 'TOR-2569-0001',
+        'tor_code' => 'TOR-2026-0001',
         'status' => 'draft',
         'created_by' => torApiInternalUser()->id,
         'approved_by' => null,
@@ -89,13 +89,13 @@ test('the TOR list returns every key and uses null for missing values', function
         'created_at' => now()->subDay(),
     ]);
     torForApiTest([
-        'tor_code' => 'TOR-2569-0002',
+        'tor_code' => 'TOR-2026-0002',
         'status' => 'bidding',
         'tender_project_id' => $project->id,
         'created_by' => torApiInternalUser()->id,
         'approved_by' => $approver->id,
         'budget_estimate' => '500000.00',
-        'fiscal_year' => 2569,
+        'fiscal_year' => 2026,
         'created_at' => now(),
     ]);
 
@@ -112,13 +112,13 @@ test('the TOR list returns every key and uses null for missing values', function
         ->assertJsonPath('meta.total', 2)
         ->assertJsonPath('meta.currentPage', 1)
         ->assertJsonPath('meta.perPage', 20)
-        ->assertJsonPath('data.0.torCode', 'TOR-2569-0002')
+        ->assertJsonPath('data.0.torCode', 'TOR-2026-0002')
         ->assertJsonPath('data.0.budgetEstimate', '500000.00')
-        ->assertJsonPath('data.0.fiscalYear', 2569)
+        ->assertJsonPath('data.0.fiscalYear', 2026)
         ->assertJsonPath('data.0.status', 'bidding')
         ->assertJsonPath('data.0.tenderProject', [
             'id' => $project->id,
-            'projectCode' => 'TP-2569-0001',
+            'projectCode' => 'TP-2026-0001',
             'name' => 'จัดซื้อคอมพิวเตอร์',
         ])
         ->assertJsonPath('data.0.approvedBy', [
@@ -127,7 +127,7 @@ test('the TOR list returns every key and uses null for missing values', function
             'department' => ['id' => Department::where('name', 'IT')->value('id'), 'name' => 'IT'],
         ])
         ->assertJsonMissingPath('data.0.approvedBy.email')
-        ->assertJsonPath('data.1.torCode', 'TOR-2569-0001')
+        ->assertJsonPath('data.1.torCode', 'TOR-2026-0001')
         ->assertJsonPath('data.1.tenderProject', null)
         ->assertJsonPath('data.1.approvedBy', null)
         ->assertJsonPath('data.1.approvedAt', null)

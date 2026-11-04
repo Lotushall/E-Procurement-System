@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('execute changes the status and returns no error message', function () {
-    $model = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2569-0002']);
+    $model = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2026-0002']);
     $actor = User::factory()->create(['user_type' => 'internal']);
 
     $message = app(UpdateTenderProjectStatusUseCase::class)->execute($model->id, 'cancelled', $actor->id, false);
@@ -17,7 +17,7 @@ test('execute changes the status and returns no error message', function () {
     expect($message)->toBeNull();
     $this->assertDatabaseHas('tenders_projects', [
         'id' => $model->id,
-        'project_code' => 'TP-2569-0002',
+        'project_code' => 'TP-2026-0002',
         'status' => 'cancelled',
     ]);
 });

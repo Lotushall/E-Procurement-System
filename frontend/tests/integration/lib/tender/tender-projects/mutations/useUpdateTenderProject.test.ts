@@ -13,7 +13,7 @@ const PAYLOAD: UpdateTenderProjectPayload = {
   departmentId: 2,
   personInChargeId: 4,
   procurementMethod: "เฉพาะเจาะจง",
-  fiscalYear: 2569,
+  fiscalYear: 2026,
   projectStartAt: "2026-01-01",
   projectEndAt: "2026-06-30",
 };
@@ -24,7 +24,7 @@ describe("useUpdateTenderProject", () => {
     server.use(
       http.put(URL_, async ({ params, request }) => {
         received = { id: params.id, body: await request.json() };
-        return HttpResponse.json({ data: { projectCode: "TP-2569-001" } });
+        return HttpResponse.json({ data: { projectCode: "TP-2026-001" } });
       }),
     );
     const { result, queryClient } = renderHookWithQueryClient(() => useUpdateTenderProject());
@@ -32,7 +32,7 @@ describe("useUpdateTenderProject", () => {
 
     await act(async () => {
       await expect(result.current.mutateAsync({ id: 5, payload: PAYLOAD })).resolves.toEqual({
-        projectCode: "TP-2569-001",
+        projectCode: "TP-2026-001",
       });
     });
 

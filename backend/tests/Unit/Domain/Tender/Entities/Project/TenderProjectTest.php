@@ -8,7 +8,7 @@ use Carbon\CarbonImmutable;
 function makeTenderProject(): TenderProject
 {
     return TenderProject::create(
-        projectCode: ProjectCode::fromString('e-GP-2569-0001'),
+        projectCode: ProjectCode::fromString('e-GP-2026-0001'),
         name: 'จัดซื้อครุภัณฑ์คอมพิวเตอร์',
         description: 'จัดซื้อคอมพิวเตอร์สำหรับหน่วยงาน',
         budget: Money::fromString('500000'),
@@ -16,7 +16,7 @@ function makeTenderProject(): TenderProject
         personInChargeId: 2,
         createdBy: 3,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: CarbonImmutable::parse('2026-09-01'),
         projectEndAt: CarbonImmutable::parse('2026-12-31'),
     );
@@ -26,19 +26,19 @@ test('create builds a new draft project with no id', function () {
     $project = makeTenderProject();
 
     expect($project->id())->toBeNull()
-        ->and($project->projectCode()->value)->toBe('e-GP-2569-0001')
+        ->and($project->projectCode()->value)->toBe('e-GP-2026-0001')
         ->and($project->name())->toBe('จัดซื้อครุภัณฑ์คอมพิวเตอร์')
         ->and($project->budget()->amount)->toBe('500000.00')
         ->and($project->departmentId())->toBe(1)
         ->and($project->personInChargeId())->toBe(2)
         ->and($project->createdBy())->toBe(3)
         ->and($project->procurementMethod())->toBe('e-bidding')
-        ->and($project->fiscalYear())->toBe(2569)
+        ->and($project->fiscalYear())->toBe(2026)
         ->and($project->status())->toBe('draft');
 });
 
 test('reconstitute rebuilds a project from persisted values', function () {
-    $projectCode = ProjectCode::fromString('e-GP-2569-0001');
+    $projectCode = ProjectCode::fromString('e-GP-2026-0001');
     $budget = Money::fromString('500000');
 
     $project = TenderProject::reconstitute(
@@ -51,7 +51,7 @@ test('reconstitute rebuilds a project from persisted values', function () {
         personInChargeId: null,
         createdBy: 3,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: null,
         projectEndAt: null,
         status: 'published',
@@ -65,7 +65,7 @@ test('reconstitute rebuilds a project from persisted values', function () {
 
 test('update replaces the editable project fields', function () {
     $project = makeTenderProject();
-    $newCode = ProjectCode::fromString('e-GP-2569-0002');
+    $newCode = ProjectCode::fromString('e-GP-2026-0002');
     $newBudget = Money::fromString('750000');
 
     $project->update(
@@ -76,7 +76,7 @@ test('update replaces the editable project fields', function () {
         departmentId: 4,
         personInChargeId: 5,
         procurementMethod: 'selective',
-        fiscalYear: 2570,
+        fiscalYear: 2027,
         projectStartAt: null,
         projectEndAt: null,
     );
@@ -87,7 +87,7 @@ test('update replaces the editable project fields', function () {
         ->and($project->departmentId())->toBe(4)
         ->and($project->personInChargeId())->toBe(5)
         ->and($project->procurementMethod())->toBe('selective')
-        ->and($project->fiscalYear())->toBe(2570);
+        ->and($project->fiscalYear())->toBe(2027);
 });
 
 test('changeStatus updates the status', function () {

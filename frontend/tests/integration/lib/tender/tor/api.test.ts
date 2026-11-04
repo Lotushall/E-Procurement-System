@@ -21,7 +21,7 @@ function captureQuery() {
 
 describe("fetchTorsList", () => {
   it("defaults to page 1 of 20 with no filters and returns the rows untouched", async () => {
-    const rows = [makeTor({ id: 1 }), makeTor({ id: 2, torCode: "TOR-2569-002" })];
+    const rows = [makeTor({ id: 1 }), makeTor({ id: 2, torCode: "TOR-2026-002" })];
     let query: URLSearchParams | undefined;
     server.use(
       http.get(LIST_URL, ({ request }) => {
@@ -44,7 +44,7 @@ describe("fetchTorsList", () => {
         search: "คอม",
         status: "approved",
         department_id: 3,
-        fiscal_year: 2569,
+        fiscal_year: 2026,
         tender_project_id: 7,
         procurement_method: "คัดเลือก",
         sort_by: "budget_estimate",
@@ -58,7 +58,7 @@ describe("fetchTorsList", () => {
       search: "คอม",
       status: "approved",
       department_id: "3",
-      fiscal_year: "2569",
+      fiscal_year: "2026",
       tender_project_id: "7",
       procurement_method: "คัดเลือก",
       sort_by: "budget_estimate",

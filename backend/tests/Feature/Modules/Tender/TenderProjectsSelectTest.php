@@ -36,16 +36,16 @@ test('an internal user with no role or permission can fetch tender project selec
 });
 
 test('tender project select options include only id, projectCode and name, ordered by projectCode', function () {
-    $second = TenderProjects::factory()->create(['project_code' => 'TP-2569-0002', 'name' => 'จัดซื้อวัสดุสำนักงาน']);
-    $first = TenderProjects::factory()->create(['project_code' => 'TP-2569-0001', 'name' => 'จัดซื้อยานพาหนะ']);
+    $second = TenderProjects::factory()->create(['project_code' => 'TP-2026-0002', 'name' => 'จัดซื้อวัสดุสำนักงาน']);
+    $first = TenderProjects::factory()->create(['project_code' => 'TP-2026-0001', 'name' => 'จัดซื้อยานพาหนะ']);
     $this->actingAs(internalUserForTenderProjectOptions(), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/tender-projects/select');
 
     $response->assertOk()->assertExactJson([
         'data' => [
-            ['id' => $first->id, 'projectCode' => 'TP-2569-0001', 'name' => 'จัดซื้อยานพาหนะ'],
-            ['id' => $second->id, 'projectCode' => 'TP-2569-0002', 'name' => 'จัดซื้อวัสดุสำนักงาน'],
+            ['id' => $first->id, 'projectCode' => 'TP-2026-0001', 'name' => 'จัดซื้อยานพาหนะ'],
+            ['id' => $second->id, 'projectCode' => 'TP-2026-0002', 'name' => 'จัดซื้อวัสดุสำนักงาน'],
         ],
     ]);
 });

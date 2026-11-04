@@ -5,11 +5,11 @@ import { TenderProjectFilterCombobox } from "@/app/dashboard/tors/_components/fi
 import { makeTenderProjectOption } from "@/tests/fixtures/tender-projects";
 
 const PROJECTS = [
-  makeTenderProjectOption({ id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" }),
-  makeTenderProjectOption({ id: 8, projectCode: "TP-2569-008", name: "จัดซื้อโต๊ะทำงาน" }),
+  makeTenderProjectOption({ id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" }),
+  makeTenderProjectOption({ id: 8, projectCode: "TP-2026-008", name: "จัดซื้อโต๊ะทำงาน" }),
 ];
-const PROJECT_7 = "TP-2569-007 · จัดซื้อคอมพิวเตอร์";
-const PROJECT_8 = "TP-2569-008 · จัดซื้อโต๊ะทำงาน";
+const PROJECT_7 = "TP-2026-007 · จัดซื้อคอมพิวเตอร์";
+const PROJECT_8 = "TP-2026-008 · จัดซื้อโต๊ะทำงาน";
 
 type Props = React.ComponentProps<typeof TenderProjectFilterCombobox>;
 
@@ -79,7 +79,7 @@ describe("TenderProjectFilterCombobox — options", () => {
     const { user } = setup();
     await user.click(trigger());
 
-    await user.type(await screen.findByPlaceholderText("ค้นหาโครงการ"), "TP-2569-008");
+    await user.type(await screen.findByPlaceholderText("ค้นหาโครงการ"), "TP-2026-008");
 
     expect(await screen.findByRole("option", { name: PROJECT_8 })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: PROJECT_7 })).not.toBeInTheDocument();

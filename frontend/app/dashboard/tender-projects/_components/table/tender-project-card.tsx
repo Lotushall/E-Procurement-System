@@ -30,15 +30,15 @@ export function TenderProjectCard({
     canUpdateStatus,
     canUpdate: canUpdateAny,
     canDelete: canDeleteAny,
-    isAdmin,
+    canManageAnyStatus,
 }: {
     project: TenderProjects;
     canUpdateStatus: boolean;
     canUpdate: boolean;
     canDelete: boolean;
-    isAdmin: boolean;
+    canManageAnyStatus: boolean;
 }) {
-    const locked = isTenderProjectLocked(project.status, isAdmin);
+    const locked = isTenderProjectLocked(project.status, canManageAnyStatus);
     const canEdit = canUpdateAny && !locked;
     const canDelete = canDeleteAny && !locked;
     const [editOpen, setEditOpen] = useState(false);

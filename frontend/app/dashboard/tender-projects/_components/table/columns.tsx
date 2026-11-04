@@ -29,7 +29,7 @@ export function createColumns(
     canUpdateStatus: boolean,
     canUpdate: boolean,
     canDelete: boolean,
-    isAdmin: boolean,
+    canManageAnyStatus: boolean,
 ): ColumnDef<TenderProjects>[] {
     return [
         {
@@ -145,7 +145,7 @@ export function createColumns(
             header: () => <ColumnHeader label="Actions" align="center" />,
             enableHiding: false,
             cell: ({ row }) => {
-                const locked = isTenderProjectLocked(row.original.status, isAdmin);
+                const locked = isTenderProjectLocked(row.original.status, canManageAnyStatus);
                 return (
                     <div className="flex justify-center gap-1.5">
                         {canUpdate && !locked && (

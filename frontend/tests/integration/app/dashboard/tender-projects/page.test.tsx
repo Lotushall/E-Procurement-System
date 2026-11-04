@@ -26,7 +26,7 @@ const DEPARTMENTS = [makeDepartment({ id: 1, name: "จัดซื้อ" }), m
 
 const COMPUTERS = makeTenderProject({
   id: 1,
-  projectCode: "TP-2569-001",
+  projectCode: "TP-2026-001",
   name: "จัดซื้อคอมพิวเตอร์",
   status: "draft",
   budget: "1000000.00",
@@ -35,7 +35,7 @@ const COMPUTERS = makeTenderProject({
 });
 const DESKS = makeTenderProject({
   id: 2,
-  projectCode: "TP-2569-002",
+  projectCode: "TP-2026-002",
   name: "จัดซื้อโต๊ะทำงาน",
   status: "published",
   department: { id: 2, name: "บัญชี" },
@@ -152,7 +152,7 @@ describe("TenderProjectsPage — populated", () => {
     expect(within(table).getByText("จัดซื้อโต๊ะทำงาน")).toBeInTheDocument();
     const cards = screen.getAllByRole("article");
     expect(cards).toHaveLength(2);
-    expect(within(cards[1]).getByRole("link")).toHaveTextContent("TP-2569-002");
+    expect(within(cards[1]).getByRole("link")).toHaveTextContent("TP-2026-002");
   });
 
   it("links each project to its detail page", async () => {
@@ -161,7 +161,7 @@ describe("TenderProjectsPage — populated", () => {
     await renderPage();
 
     const table = await loadedTable();
-    expect(within(table).getByRole("link", { name: "TP-2569-002" })).toHaveAttribute(
+    expect(within(table).getByRole("link", { name: "TP-2026-002" })).toHaveAttribute(
       "href",
       "/dashboard/tender-projects/detail?id=2",
     );
@@ -562,7 +562,7 @@ describe("TenderProjectsPage — skeleton while refetching", () => {
 
     await waitFor(() => expect(screen.queryAllByText("จัดซื้อคอมพิวเตอร์")).toHaveLength(0));
     expect(within(screen.getByRole("table")).getAllByRole("columnheader")).toHaveLength(8);
-    expect(screen.queryByRole("link", { name: "TP-2569-002" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "TP-2026-002" })).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText(PLACEHOLDER)).toBeInTheDocument();
 
     act(() => release());
@@ -576,7 +576,7 @@ describe("TenderProjectsPage — empty and error states", () => {
     [BASE, "ยังไม่มีโครงการในระบบ"],
     [`${BASE}?status=draft`, "ไม่พบโครงการที่ตรงกับเงื่อนไขที่เลือก"],
     [`${BASE}?department_id=2`, "ไม่พบโครงการที่ตรงกับเงื่อนไขที่เลือก"],
-    [`${BASE}?fiscal_year=2569`, "ไม่พบโครงการที่ตรงกับเงื่อนไขที่เลือก"],
+    [`${BASE}?fiscal_year=2026`, "ไม่พบโครงการที่ตรงกับเงื่อนไขที่เลือก"],
     [`${BASE}?date_from=2026-01-01`, "ไม่พบโครงการที่ตรงกับเงื่อนไขที่เลือก"],
     [`${BASE}?search=xyz`, "ไม่พบโครงการที่ตรงกับคำค้นหา"],
     [`${BASE}?search=xyz&status=draft`, "ไม่พบโครงการที่ตรงกับคำค้นหา"],

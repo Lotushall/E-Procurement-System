@@ -14,7 +14,7 @@ uses(RefreshDatabase::class);
 test('nextSequenceForFiscalYear starts at 1 when no project exists for that fiscal year', function () {
     $repository = app(TenderProjectRepositoryInterface::class);
 
-    expect($repository->nextSequenceForFiscalYear(2569))->toBe(1);
+    expect($repository->nextSequenceForFiscalYear(2026))->toBe(1);
 });
 
 test('nextSequenceForFiscalYear increments per existing project in that fiscal year', function () {
@@ -22,7 +22,7 @@ test('nextSequenceForFiscalYear increments per existing project in that fiscal y
     $repository = app(TenderProjectRepositoryInterface::class);
 
     $repository->save(TenderProject::create(
-        projectCode: ProjectCode::fromString('TP-2569-0001'),
+        projectCode: ProjectCode::fromString('TP-2026-0001'),
         name: 'จัดซื้อคอมพิวเตอร์',
         description: null,
         budget: Money::fromString('500000'),
@@ -30,12 +30,12 @@ test('nextSequenceForFiscalYear increments per existing project in that fiscal y
         personInChargeId: null,
         createdBy: null,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: null,
         projectEndAt: null,
     ));
 
-    expect($repository->nextSequenceForFiscalYear(2569))->toBe(2);
+    expect($repository->nextSequenceForFiscalYear(2026))->toBe(2);
 });
 
 test('nextSequenceForFiscalYear resets to 1 for a different fiscal year', function () {
@@ -43,7 +43,7 @@ test('nextSequenceForFiscalYear resets to 1 for a different fiscal year', functi
     $repository = app(TenderProjectRepositoryInterface::class);
 
     $repository->save(TenderProject::create(
-        projectCode: ProjectCode::fromString('TP-2569-0001'),
+        projectCode: ProjectCode::fromString('TP-2026-0001'),
         name: 'จัดซื้อคอมพิวเตอร์',
         description: null,
         budget: Money::fromString('500000'),
@@ -51,19 +51,19 @@ test('nextSequenceForFiscalYear resets to 1 for a different fiscal year', functi
         personInChargeId: null,
         createdBy: null,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: null,
         projectEndAt: null,
     ));
 
-    expect($repository->nextSequenceForFiscalYear(2570))->toBe(1);
+    expect($repository->nextSequenceForFiscalYear(2027))->toBe(1);
 });
 
 test('save persists a new tender project and returns it reconstituted with an id', function () {
     $department = Department::create(['name' => 'IT']);
 
     $project = TenderProject::create(
-        projectCode: ProjectCode::fromString('TP-2569-0001'),
+        projectCode: ProjectCode::fromString('TP-2026-0001'),
         name: 'จัดซื้อคอมพิวเตอร์',
         description: 'รายละเอียด',
         budget: Money::fromString('500000'),
@@ -71,7 +71,7 @@ test('save persists a new tender project and returns it reconstituted with an id
         personInChargeId: null,
         createdBy: null,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: null,
         projectEndAt: null,
     );
@@ -79,25 +79,25 @@ test('save persists a new tender project and returns it reconstituted with an id
     $saved = app(TenderProjectRepositoryInterface::class)->save($project);
 
     expect($saved->id())->not->toBeNull()
-        ->and($saved->projectCode()->value)->toBe('TP-2569-0001')
+        ->and($saved->projectCode()->value)->toBe('TP-2026-0001')
         ->and($saved->status())->toBe('draft')
         ->and($saved->budget()->amount)->toBe('500000.00');
 
     $this->assertDatabaseHas('tenders_projects', [
         'id' => $saved->id(),
-        'project_code' => 'TP-2569-0001',
+        'project_code' => 'TP-2026-0001',
         'department_id' => $department->id,
         'status' => 'draft',
     ]);
 });
 
 test('findById reconstitutes an existing tender project', function () {
-    $model = TenderProjects::factory()->status('published')->create(['project_code' => 'TP-2569-0007']);
+    $model = TenderProjects::factory()->status('published')->create(['project_code' => 'TP-2026-0007']);
 
     $project = app(TenderProjectRepositoryInterface::class)->findById($model->id);
 
     expect($project->id())->toBe($model->id)
-        ->and($project->projectCode()->value)->toBe('TP-2569-0007')
+        ->and($project->projectCode()->value)->toBe('TP-2026-0007')
         ->and($project->status())->toBe('published');
 });
 

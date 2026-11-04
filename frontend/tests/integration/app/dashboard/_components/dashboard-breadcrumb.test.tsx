@@ -37,17 +37,17 @@ describe("DashboardBreadcrumb", () => {
   });
 
   it("renders an item with an href as a link to that target", () => {
-    setBreadcrumb([{ label: "การจัดการ TOR", href: "/dashboard/tors" }, { label: "TOR-2570-001" }]);
+    setBreadcrumb([{ label: "การจัดการ TOR", href: "/dashboard/tors" }, { label: "TOR-2027-001" }]);
     render(<DashboardBreadcrumb />);
 
     expect(screen.getByRole("link", { name: "การจัดการ TOR" })).toHaveAttribute("href", "/dashboard/tors");
   });
 
   it("renders the item without an href as the current page, not as a navigable link", () => {
-    setBreadcrumb([{ label: "การจัดการ TOR", href: "/dashboard/tors" }, { label: "TOR-2570-001" }]);
+    setBreadcrumb([{ label: "การจัดการ TOR", href: "/dashboard/tors" }, { label: "TOR-2027-001" }]);
     render(<DashboardBreadcrumb />);
 
-    const current = screen.getByText("TOR-2570-001");
+    const current = screen.getByText("TOR-2027-001");
     expect(current).toHaveAttribute("aria-current", "page");
     expect(current).toHaveAttribute("aria-disabled", "true");
     expect(current).not.toHaveAttribute("href");

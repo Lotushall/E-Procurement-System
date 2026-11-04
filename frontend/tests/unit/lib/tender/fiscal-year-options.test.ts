@@ -11,14 +11,14 @@ async function loadOptions() {
 describe("FISCAL_YEAR_OPTIONS", () => {
   freezeTimeAt("2026-11-02T10:00:00+07:00");
 
-  it("lists 'all' then next Buddhist year back through five years", async () => {
+  it("lists 'all' then next fiscal year back through five years", async () => {
     expect(await loadOptions()).toEqual([
       { value: "all", label: "ทุกปีงบประมาณ" },
-      { value: "2570", label: "ปีงบประมาณ 2570" },
-      { value: "2569", label: "ปีงบประมาณ 2569" },
-      { value: "2568", label: "ปีงบประมาณ 2568" },
-      { value: "2567", label: "ปีงบประมาณ 2567" },
-      { value: "2566", label: "ปีงบประมาณ 2566" },
+      { value: "2027", label: "ปีงบประมาณ 2027" },
+      { value: "2026", label: "ปีงบประมาณ 2026" },
+      { value: "2025", label: "ปีงบประมาณ 2025" },
+      { value: "2024", label: "ปีงบประมาณ 2024" },
+      { value: "2023", label: "ปีงบประมาณ 2023" },
     ]);
   });
 });

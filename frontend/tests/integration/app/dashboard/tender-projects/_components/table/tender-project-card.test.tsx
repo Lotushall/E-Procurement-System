@@ -17,7 +17,7 @@ freezeTimeAt("2026-11-02T10:00:00+07:00");
 function setup(
   project: Partial<TenderProjects> = {},
   canUpdateStatus = false,
-  { canUpdate = true, canDelete = true, isAdmin = false } = {},
+  { canUpdate = true, canDelete = true, canManageAnyStatus = false } = {},
 ) {
   server.use(http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [makeDepartment()] })));
   renderWithQueryClient(
@@ -26,7 +26,7 @@ function setup(
       canUpdateStatus={canUpdateStatus}
       canUpdate={canUpdate}
       canDelete={canDelete}
-      isAdmin={isAdmin}
+      canManageAnyStatus={canManageAnyStatus}
     />,
   );
   return { user: userEvent.setup(), card: screen.getByRole("article") };
@@ -34,11 +34,11 @@ function setup(
 
 describe("TenderProjectCard — content", () => {
   it("links the code, name and department to the detail page", () => {
-    const { card } = setup({ id: 42, projectCode: "TP-2569-042", name: "จัดซื้อโต๊ะ", department: { id: 3, name: "บัญชี" } });
+    const { card } = setup({ id: 42, projectCode: "TP-2026-042", name: "จัดซื้อโต๊ะ", department: { id: 3, name: "บัญชี" } });
 
     const link = within(card).getByRole("link");
     expect(link).toHaveAttribute("href", "/dashboard/tender-projects/detail?id=42");
-    expect(link).toHaveTextContent("TP-2569-042");
+    expect(link).toHaveTextContent("TP-2026-042");
     expect(link).toHaveTextContent("จัดซื้อโต๊ะ");
     expect(link).toHaveTextContent("บัญชี");
   });
@@ -50,9 +50,9 @@ describe("TenderProjectCard — content", () => {
   });
 
   it("shows the fiscal year and the budget with a baht sign", () => {
-    const { card } = setup({ fiscalYear: 2570, budget: "1250000.00" });
+    const { card } = setup({ fiscalYear: 2027, budget: "1250000.00" });
 
-    expect(card).toHaveTextContent("งบประมาณ ปี 2570");
+    expect(card).toHaveTextContent("งบประมาณ ปี 2027");
     expect(card).toHaveTextContent("฿1,250,000");
   });
 
@@ -141,8 +141,8 @@ describe("TenderProjectCard — status", () => {
   });
 
   it("shows the status select with the update-status permission and patches this project", async () => {
-    // status select อ่าน role ของผู้ใช้ — draft → published เป็นขั้นถัดไปที่ทำได้แม้ไม่ใช่ admin
-    signInAs({ roles: ["officer"] });
+    // status select อ่านสิทธิ์ของผู้ใช้ — draft → published เป็นขั้นถัดไปที่ทำได้แม้ไม่มี manageAnyStatus
+    signInAs({ permissions: [] });
     const patched: unknown[] = [];
     const { user, card } = setup({ id: 9, status: "draft" }, true);
     server.use(
@@ -219,7 +219,7 @@ describe("TenderProjectCard — menu", () => {
   });
 
   it.each(["completed", "cancelled", "archived"] as const)(
-    "hides the menu on a %s project from a non-admin",
+    "hides the menu on a %s project without manageAnyStatus",
     (status) => {
       const { card } = setup({ status });
 
@@ -227,8 +227,8 @@ describe("TenderProjectCard — menu", () => {
     },
   );
 
-  it("still offers edit and delete on a finished project to an admin", async () => {
-    const { user, card } = setup({ status: "archived" }, false, { isAdmin: true });
+  it("still offers edit and delete on a finished project with manageAnyStatus", async () => {
+    const { user, card } = setup({ status: "archived" }, false, { canManageAnyStatus: true });
 
     await user.click(within(card).getByRole("button", { name: "ตัวเลือกของโครงการ" }));
 

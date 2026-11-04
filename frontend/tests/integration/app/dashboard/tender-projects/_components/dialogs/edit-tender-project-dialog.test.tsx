@@ -33,14 +33,14 @@ const PROFILES = [
 
 const PROJECT = makeTenderProject({
   id: 42,
-  projectCode: "TP-2569-042",
+  projectCode: "TP-2026-042",
   name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์",
   description: "จัดซื้อคอมพิวเตอร์สำหรับสำนักงาน",
   budget: "1000000.00",
   department: DEPARTMENTS[0],
   personInCharge: makeInternalProfile({ id: 7, firstname: "สมหญิง", lastname: "รักงาน" }),
   procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
-  fiscalYear: 2569,
+  fiscalYear: 2026,
   projectStartAt: "2026-01-01T00:00:00.000000Z",
   projectEndAt: "2026-12-31T00:00:00.000000Z",
 });
@@ -52,7 +52,7 @@ function serve() {
     http.get(PROFILES_URL, () => HttpResponse.json({ data: PROFILES })),
     http.put(UPDATE_URL, async ({ params, request }) => {
       state.puts.push({ id: params.id, body: await request.json() });
-      return HttpResponse.json({ data: { projectCode: "TP-2569-042" } });
+      return HttpResponse.json({ data: { projectCode: "TP-2026-042" } });
     }),
   );
   return state;
@@ -136,7 +136,7 @@ describe("EditTenderProjectDialog — opening", () => {
     await waitFor(() => expect(combo("ผู้รับผิดชอบ")).toHaveTextContent("สมหญิง รักงาน"));
     expect(textbox("งบประมาณ")).toHaveValue("1,000,000");
     expect(combo("วิธีจัดซื้อ")).toHaveTextContent("ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)");
-    expect(combo("ปีงบประมาณ")).toHaveTextContent("ปีงบประมาณ 2569");
+    expect(combo("ปีงบประมาณ")).toHaveTextContent("ปีงบประมาณ 2026");
     expect(screen.getByRole("button", { name: /1 ม\.ค\. \d{4} ถึง 31 ธ\.ค\. \d{4}/ })).toBeInTheDocument();
     expect(textbox("รายละเอียด")).toHaveValue("จัดซื้อคอมพิวเตอร์สำหรับสำนักงาน");
   });
@@ -281,7 +281,7 @@ describe("EditTenderProjectDialog — submitting", () => {
         departmentId: 1,
         personInChargeId: 7,
         procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: "2026-01-01",
         projectEndAt: "2026-12-31",
       },
@@ -300,7 +300,7 @@ describe("EditTenderProjectDialog — submitting", () => {
     await user.clear(textbox("งบประมาณ"));
     await user.type(textbox("งบประมาณ"), "2500000.75");
     await pickOption(user, "วิธีจัดซื้อ", "เฉพาะเจาะจง");
-    await pickOption(user, "ปีงบประมาณ", "ปีงบประมาณ 2570");
+    await pickOption(user, "ปีงบประมาณ", "ปีงบประมาณ 2027");
     await user.click(screen.getByRole("button", { name: /ถึง/ }));
     // ปฏิทินเปิดที่เดือนเริ่มต้นเดิม (ม.ค. 2026) — ล้างช่วงเดิมก่อนแล้วเลือกใหม่
     await user.click(await screen.findByRole("button", { name: "ล้างค่า" }));
@@ -322,7 +322,7 @@ describe("EditTenderProjectDialog — submitting", () => {
         departmentId: 2,
         personInChargeId: 8,
         procurementMethod: "เฉพาะเจาะจง",
-        fiscalYear: 2570,
+        fiscalYear: 2027,
         projectStartAt: "2026-01-15",
         projectEndAt: "2026-01-20",
       },
@@ -343,7 +343,7 @@ describe("EditTenderProjectDialog — submitting", () => {
     const { body } = state.puts[0] as { body: Record<string, unknown> };
     expect(body).not.toHaveProperty("description");
     expect(body).not.toHaveProperty("personInChargeId");
-    expect(body).toMatchObject({ name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์", budget: 1000000, departmentId: 1, fiscalYear: 2569 });
+    expect(body).toMatchObject({ name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์", budget: 1000000, departmentId: 1, fiscalYear: 2026 });
   });
 
   it("blocks saving and asks for the project period once it is cleared", async () => {
@@ -401,7 +401,7 @@ describe("EditTenderProjectDialog — submitting", () => {
       http.put(UPDATE_URL, async ({ request }) => {
         puts.push(await request.json());
         await gate;
-        return HttpResponse.json({ data: { projectCode: "TP-2569-042" } });
+        return HttpResponse.json({ data: { projectCode: "TP-2026-042" } });
       }),
     );
     const { user } = renderUncontrolled();

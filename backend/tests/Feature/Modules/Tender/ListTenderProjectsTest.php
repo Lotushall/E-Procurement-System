@@ -65,10 +65,10 @@ test('listing tender projects searches by name', function () {
 
 test('listing tender projects searches by project code', function () {
     $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
-    $target = TenderProjects::factory()->create(['project_code' => 'TP-2569-0042']);
-    TenderProjects::factory()->create(['project_code' => 'TP-2569-0043']);
+    $target = TenderProjects::factory()->create(['project_code' => 'TP-2026-0042']);
+    TenderProjects::factory()->create(['project_code' => 'TP-2026-0043']);
 
-    $response = $this->getJson('/api/v1/dashboard/tender-projects?search=TP-2569-0042');
+    $response = $this->getJson('/api/v1/dashboard/tender-projects?search=TP-2026-0042');
 
     $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $target->id);
 });
@@ -97,12 +97,12 @@ test('listing tender projects filters by department', function () {
 
 test('listing tender projects filters by fiscal year', function () {
     $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
-    TenderProjects::factory()->create(['fiscal_year' => 2569]);
-    TenderProjects::factory()->create(['fiscal_year' => 2570]);
+    TenderProjects::factory()->create(['fiscal_year' => 2026]);
+    TenderProjects::factory()->create(['fiscal_year' => 2027]);
 
-    $response = $this->getJson('/api/v1/dashboard/tender-projects?fiscal_year=2570');
+    $response = $this->getJson('/api/v1/dashboard/tender-projects?fiscal_year=2027');
 
-    $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.fiscalYear', 2570);
+    $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.fiscalYear', 2027);
 });
 
 test('listing tender projects sorts by the given column', function () {
@@ -198,8 +198,8 @@ test('listing tender projects includes a count of each project\'s TORs', functio
     $user = internalUserWithTenderProjectViewAnyPermission();
     $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tors.viewAny', 'guard_name' => 'web']));
     $this->actingAs($user, 'web');
-    $withTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0001']);
-    $withoutTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0002']);
+    $withTors = TenderProjects::factory()->create(['project_code' => 'TP-2026-0001']);
+    $withoutTors = TenderProjects::factory()->create(['project_code' => 'TP-2026-0002']);
     Tors::factory()->count(2)->create(['tender_project_id' => $withTors->id]);
     Tors::factory()->create(['tender_project_id' => null]);
 
@@ -228,8 +228,8 @@ test('the TOR count only includes TORs the viewer may see', function () {
 
 test('listing tender projects includes the allocated budget of non-cancelled TORs', function () {
     $this->actingAs(internalUserWithTenderProjectViewAnyPermission(), 'web');
-    $withTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0001']);
-    $withoutTors = TenderProjects::factory()->create(['project_code' => 'TP-2569-0002']);
+    $withTors = TenderProjects::factory()->create(['project_code' => 'TP-2026-0001']);
+    $withoutTors = TenderProjects::factory()->create(['project_code' => 'TP-2026-0002']);
     Tors::factory()->status('draft')->create(['tender_project_id' => $withTors->id, 'budget_estimate' => 300000.50]);
     Tors::factory()->status('awarded')->create(['tender_project_id' => $withTors->id, 'budget_estimate' => 200000]);
     Tors::factory()->status('cancelled')->create(['tender_project_id' => $withTors->id, 'budget_estimate' => 999999]);

@@ -15,9 +15,9 @@ function setup(tor: Partial<Tor> = {}) {
 
 describe("TorCard — content", () => {
   it("shows the code beside the status badge", () => {
-    const card = setup({ torCode: "TOR-2569-042", status: "approved" });
+    const card = setup({ torCode: "TOR-2026-042", status: "approved" });
 
-    expect(card).toHaveTextContent("TOR-2569-042");
+    expect(card).toHaveTextContent("TOR-2026-042");
     expect(card).toHaveTextContent("อนุมัติแล้ว");
   });
 
@@ -31,9 +31,9 @@ describe("TorCard — content", () => {
   });
 
   it("shows the fiscal year and the budget", () => {
-    const card = setup({ fiscalYear: 2570, budgetEstimate: "1250000.00" });
+    const card = setup({ fiscalYear: 2027, budgetEstimate: "1250000.00" });
 
-    expect(card).toHaveTextContent("ราคากลาง · ปี 2570");
+    expect(card).toHaveTextContent("ราคากลาง · ปี 2027");
     expect(card).toHaveTextContent("1,250,000");
   });
 
@@ -82,7 +82,7 @@ describe("TorCard — bidding window", () => {
 describe("TorCard — tender project", () => {
   // เหมือนคอลัมน์โครงการในตาราง — ชื่อโครงการเป็นลิงก์แยกจากลิงก์ของ TOR
   it("links the tender project name to the project detail page", () => {
-    const card = setup({ tenderProject: { id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" } });
+    const card = setup({ tenderProject: { id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" } });
 
     expect(within(card).getByRole("link", { name: "จัดซื้อคอมพิวเตอร์" })).toHaveAttribute(
       "href",

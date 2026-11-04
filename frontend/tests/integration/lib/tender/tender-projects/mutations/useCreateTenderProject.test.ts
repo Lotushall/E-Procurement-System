@@ -12,7 +12,7 @@ const PAYLOAD: CreateTenderProjectPayload = {
   budget: 1000,
   departmentId: 2,
   procurementMethod: "คัดเลือก",
-  fiscalYear: 2569,
+  fiscalYear: 2026,
 };
 
 describe("useCreateTenderProject", () => {
@@ -21,14 +21,14 @@ describe("useCreateTenderProject", () => {
     server.use(
       http.post(URL_, async ({ request }) => {
         body = await request.json();
-        return HttpResponse.json({ data: { projectCode: "TP-2569-010" } }, { status: 201 });
+        return HttpResponse.json({ data: { projectCode: "TP-2026-010" } }, { status: 201 });
       }),
     );
     const { result, queryClient } = renderHookWithQueryClient(() => useCreateTenderProject());
     const invalidate = vi.spyOn(queryClient, "invalidateQueries");
 
     await act(async () => {
-      await expect(result.current.mutateAsync(PAYLOAD)).resolves.toEqual({ projectCode: "TP-2569-010" });
+      await expect(result.current.mutateAsync(PAYLOAD)).resolves.toEqual({ projectCode: "TP-2026-010" });
     });
 
     expect(body).toEqual(PAYLOAD);

@@ -21,6 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DepartmentSelect } from "@/components/department-select";
 import { InternalProfileCombobox } from "@/components/internal-profile-combobox";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
+import { FISCAL_YEAR_CHOICES } from "@/lib/tender/fiscal-year-options";
 import { useCreateTenderProjectForm } from "../../_hooks/use-create-tender-project-form";
 import { ProcurementMethodCombobox } from "./procurement-method-combobox";
 
@@ -76,15 +77,6 @@ function handleBudgetChange(onChange: (value: string) => void) {
         });
     };
 }
-
-const CURRENT_BUDDHIST_YEAR = new Date().getFullYear() + 543;
-const FISCAL_YEAR_OPTIONS: { value: string; label: string }[] = Array.from(
-    { length: 5 },
-    (_, i) => {
-        const year = CURRENT_BUDDHIST_YEAR + 1 - i;
-        return { value: String(year), label: `ปีงบประมาณ ${year}` };
-    },
-);
 
 // ไม่มีปุ่มเปิดในตัว: หน้าเปิดผ่าน FloatingActionButton แล้วคุม open จากข้างนอก
 export function CreateTenderProjectDialog({
@@ -188,7 +180,7 @@ export function CreateTenderProjectDialog({
                         render={({ field: { value, onChange } }) => (
                             <InputField label="ปีงบประมาณ" error={errors.fiscalYear?.message}>
                                 <Select
-                                    items={FISCAL_YEAR_OPTIONS}
+                                    items={FISCAL_YEAR_CHOICES}
                                     value={value}
                                     onValueChange={(next) => onChange(next ?? "")}
                                 >
@@ -196,7 +188,7 @@ export function CreateTenderProjectDialog({
                                         <SelectValue placeholder="เลือกปีงบประมาณ" />
                                     </SelectTrigger>
                                     <SelectContent side="bottom" alignItemWithTrigger={false}>
-                                        {FISCAL_YEAR_OPTIONS.map((option) => (
+                                        {FISCAL_YEAR_CHOICES.map((option) => (
                                             <SelectItem key={option.value} value={option.value}>
                                                 {option.label}
                                             </SelectItem>

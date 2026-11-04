@@ -25,12 +25,12 @@ const FULL_ACCESS = ["tender_projects.viewAny", "tender_projects.updateStatus", 
 
 freezeTimeAt("2026-11-02T10:00:00+07:00");
 
-const TOR_A = makeTor({ id: 21, torCode: "TOR-2569-001", title: "จัดซื้อโน้ตบุ๊ก", status: "draft" });
-const TOR_B = makeTor({ id: 22, torCode: "TOR-2569-002", title: "จัดซื้อเครื่องพิมพ์", status: "approved" });
+const TOR_A = makeTor({ id: 21, torCode: "TOR-2026-001", title: "จัดซื้อโน้ตบุ๊ก", status: "draft" });
+const TOR_B = makeTor({ id: 22, torCode: "TOR-2026-002", title: "จัดซื้อเครื่องพิมพ์", status: "approved" });
 
 const PROJECT = makeTenderProject({
   id: 7,
-  projectCode: "TP-2569-007",
+  projectCode: "TP-2026-007",
   name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์",
   description: "จัดซื้อคอมพิวเตอร์สำหรับสำนักงาน",
   budget: "1000000.00",
@@ -156,7 +156,7 @@ describe("TenderProjectDetailPage — project details", () => {
     await renderPage();
 
     expect(await screen.findByText(PROJECT.name)).toBeInTheDocument();
-    expect(screen.getByText("TP-2569-007")).toBeInTheDocument();
+    expect(screen.getByText("TP-2026-007")).toBeInTheDocument();
     expect(screen.getByText("จัดซื้อคอมพิวเตอร์สำหรับสำนักงาน")).toBeInTheDocument();
 
     const field = (label: string) => screen.getByText(label).nextElementSibling as HTMLElement;
@@ -332,7 +332,7 @@ describe("TenderProjectDetailPage — TOR card", () => {
     expect(screen.getByText("เอกสารข้อกำหนดการจัดซื้อจัดจ้างภายใต้โครงการนี้")).toBeInTheDocument();
     const rows = within(screen.getByRole("table")).getAllByRole("row").slice(1);
     expect(rows).toHaveLength(2);
-    expect(within(rows[0]).getByRole("link", { name: "TOR-2569-001" })).toHaveAttribute(
+    expect(within(rows[0]).getByRole("link", { name: "TOR-2026-001" })).toHaveAttribute(
       "href",
       routes.dashboards.tors.detail(21),
     );
@@ -364,7 +364,7 @@ describe("TenderProjectDetailPage — TOR card", () => {
     await renderPage(undefined, { id: 1000, permissions: ["tender_projects.viewAny", permission] });
 
     expect(await screen.findByText("TOR ที่เกี่ยวข้อง")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "TOR-2569-001" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "TOR-2026-001" })).toBeInTheDocument();
   });
 
   it("hides the card without any tors.view* permission, even if the backend sent TORs", async () => {
@@ -436,19 +436,19 @@ describe("TenderProjectDetailPage — edit and delete", () => {
     expect(deleted).toEqual(["7"]);
   });
 
-  it("hides edit and delete on a finished project from a non-admin", async () => {
+  it("hides edit and delete on a finished project without manageAnyStatus", async () => {
     serveProject({ ...PROJECT, status: "completed" });
-    const { queryClient } = await renderPage(undefined, { id: 1000, roles: ["officer"], permissions: EDIT_ACCESS });
+    const { queryClient } = await renderPage(undefined, { id: 1000, permissions: EDIT_ACCESS });
     await settled(queryClient);
 
     expect(screen.queryByRole("button", { name: "แก้ไข" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "ลบ" })).not.toBeInTheDocument();
   });
 
-  it("still offers edit and delete on a finished project to an admin", async () => {
+  it("still offers edit and delete on a finished project with manageAnyStatus", async () => {
     serveProject({ ...PROJECT, status: "completed" });
     serveEditLookups();
-    const { queryClient } = await renderPage(undefined, { id: 1000, roles: ["admin"], permissions: EDIT_ACCESS });
+    const { queryClient } = await renderPage(undefined, { id: 1000, permissions: [...EDIT_ACCESS, "tender_projects.manageAnyStatus"] });
     await settled(queryClient);
 
     expect(screen.getByRole("button", { name: "แก้ไข" })).toBeInTheDocument();

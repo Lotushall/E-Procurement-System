@@ -318,7 +318,13 @@
       "Bash(grep -iv \"fiscal_year'\\\\s*=>\\\\s*\\\\$\\\\|->fiscal\")",
       "Bash(grep \"api\\\\.\\\\|\\\\`/api\")",
       "Bash(perl -pi -e 's/^use Spatie\\\\\\\\Permission\\\\\\\\Models\\\\\\\\Permission;\\\\r?$/use Spatie\\\\\\\\Permission\\\\\\\\Models\\\\\\\\Permission;\\\\nuse Spatie\\\\\\\\Permission\\\\\\\\Models\\\\\\\\Role;/' tests/Feature/Modules/Tender/UpdateTenderProjectTest.php)",
-      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\backend; php artisan test tests/Feature/Modules/Tender 2>&1 | Out-String | Select-String -Pattern '\"tests\":\\\\d+,\"passed\":\\\\d+' -AllMatches | ForEach-Object { $_.Matches.Value }; git status --short -- . | Select-Object -First 30)"
+      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\backend; php artisan test tests/Feature/Modules/Tender 2>&1 | Out-String | Select-String -Pattern '\"tests\":\\\\d+,\"passed\":\\\\d+' -AllMatches | ForEach-Object { $_.Matches.Value }; git status --short -- . | Select-Object -First 30)",
+      "Bash(sed -i '8s/\"บริษัท\"/\\\\&quot;บริษัท\\\\&quot;/' components/legal/privacy-content.tsx)",
+      "Bash(sed -i '8s/\"ข้อกำหนด\"/\\\\&quot;ข้อกำหนด\\\\&quot;/; 8s/\"บริษัท\"/\\\\&quot;บริษัท\\\\&quot;/; 9s/\"ผู้ค้า\"/\\\\&quot;ผู้ค้า\\\\&quot;/' components/legal/terms-content.tsx)",
+      "Bash(sed -i 's#^import { isTenderProjectLocked } from \"@/lib/tender/tender-projects/status-rules\";#import { isTenderProjectLocked, MANAGE_ANY_STATUS_PERMISSION } from \"@/lib/tender/tender-projects/status-rules\";#' app/dashboard/tender-projects/detail/page.tsx)",
+      "Bash(sed -i 's#^import { allowedNextStatuses } from \"@/lib/tender/tender-projects/status-rules\";#import { allowedNextStatuses, MANAGE_ANY_STATUS_PERMISSION } from \"@/lib/tender/tender-projects/status-rules\";#; s#\\(archived สำหรับผู้ที่ไม่ใช่ admin\\)#\\(archived เมื่อไม่มีสิทธิ์ manageAnyStatus\\)#' components/tender-project-status-select.tsx)",
+      "Bash(sed -i 's#^import { useAuthPermissions } from \"@/lib/auth/permissions\";#&\\\\nimport { MANAGE_ANY_STATUS_PERMISSION } from \"@/lib/tender/tender-projects/status-rules\";#' app/dashboard/tender-projects/page.tsx)",
+      "Bash(sed -i 's#// โครงการที่จบแล้ว ผู้ที่ไม่ใช่ admin แก้ไข/ลบไม่ได้ \\(เหมือนในหน้ารายการ\\)#// โครงการที่จบแล้ว แก้ไข/ลบได้เฉพาะผู้ที่มี tender_projects.manageAnyStatus \\(เหมือนในหน้ารายการ\\)#' app/dashboard/tender-projects/detail/page.tsx)"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

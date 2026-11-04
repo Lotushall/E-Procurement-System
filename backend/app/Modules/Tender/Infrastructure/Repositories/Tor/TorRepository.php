@@ -91,7 +91,7 @@ class TorRepository implements TorRepositoryInterface
 
     /**
      * The highest sequence among TOR codes of the year that predate the
-     * counter, compared as numbers so TOR-2569-10000 outranks TOR-2569-9999.
+     * counter, compared as numbers so TOR-2027-10000 outranks TOR-2027-9999.
      */
     private function highestExistingSequence(int $fiscalYear): int
     {

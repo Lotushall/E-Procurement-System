@@ -19,7 +19,7 @@ test('execute creates a draft tender project with an auto-generated project code
         departmentId: $department->id,
         personInChargeId: null,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: null,
         projectEndAt: null,
     );
@@ -27,7 +27,7 @@ test('execute creates a draft tender project with an auto-generated project code
     $project = app(CreateTenderProjectUseCase::class)->execute($data, $creator->id);
 
     expect($project->id())->not->toBeNull()
-        ->and($project->projectCode()->value)->toBe('TP-2569-0001')
+        ->and($project->projectCode()->value)->toBe('TP-2026-0001')
         ->and($project->status())->toBe('draft')
         ->and($project->budget()->amount)->toBe('500000.00')
         ->and($project->createdBy())->toBe($creator->id);
@@ -43,7 +43,7 @@ test('execute assigns the next sequence number for a second project in the same 
         departmentId: $department->id,
         personInChargeId: null,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: null,
         projectEndAt: null,
     );
@@ -51,7 +51,7 @@ test('execute assigns the next sequence number for a second project in the same 
     app(CreateTenderProjectUseCase::class)->execute($makeData(), $creator->id);
     $second = app(CreateTenderProjectUseCase::class)->execute($makeData(), $creator->id);
 
-    expect($second->projectCode()->value)->toBe('TP-2569-0002');
+    expect($second->projectCode()->value)->toBe('TP-2026-0002');
 });
 
 test('execute parses nullable start and end dates', function () {
@@ -65,7 +65,7 @@ test('execute parses nullable start and end dates', function () {
         departmentId: $department->id,
         personInChargeId: null,
         procurementMethod: 'e-bidding',
-        fiscalYear: 2569,
+        fiscalYear: 2026,
         projectStartAt: '2026-09-01',
         projectEndAt: '2026-12-31',
     );

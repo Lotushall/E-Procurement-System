@@ -5,7 +5,7 @@ export default function PrivacyContent() {
         <div className="flex flex-col gap-5">
             <LegalSection title="1. ขอบเขตของนโยบาย">
                 <p>
-                    นโยบายความเป็นส่วนตัวฉบับนี้อธิบายวิธีที่ Lotushall Mining ("บริษัท") เก็บรวบรวม ใช้ เปิดเผย
+                    นโยบายความเป็นส่วนตัวฉบับนี้อธิบายวิธีที่ Lotushall Mining (&quot;บริษัท&quot;) เก็บรวบรวม ใช้ เปิดเผย
                     และคุ้มครองข้อมูลส่วนบุคคลของผู้ค้าที่สมัครและใช้งานระบบ e-Bidding ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล
                     พ.ศ. 2562 (PDPA)
                 </p>

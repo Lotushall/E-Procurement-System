@@ -3,16 +3,16 @@
 use App\Modules\Tender\Domain\ValueObjects\Tor\TorCode;
 
 test('creates a TOR code from a non-blank string', function () {
-    $code = TorCode::fromString('TOR-2569-0001');
+    $code = TorCode::fromString('TOR-2026-0001');
 
-    expect($code->value)->toBe('TOR-2569-0001')
-        ->and((string) $code)->toBe('TOR-2569-0001');
+    expect($code->value)->toBe('TOR-2026-0001')
+        ->and((string) $code)->toBe('TOR-2026-0001');
 });
 
 test('trims surrounding whitespace', function () {
-    $code = TorCode::fromString('  TOR-2569-0001  ');
+    $code = TorCode::fromString('  TOR-2026-0001  ');
 
-    expect($code->value)->toBe('TOR-2569-0001');
+    expect($code->value)->toBe('TOR-2026-0001');
 });
 
 test('rejects a blank TOR code', function () {

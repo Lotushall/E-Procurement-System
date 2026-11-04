@@ -26,12 +26,12 @@ freezeTimeAt("2026-11-02T10:00:00+07:00");
 
 const TOR = makeTor({
   id: 7,
-  torCode: "TOR-2569-007",
+  torCode: "TOR-2026-007",
   title: "จัดซื้อคอมพิวเตอร์โน้ตบุ๊ก",
   scopeOfWork: "บรรทัดแรก\nบรรทัดที่สอง",
   budgetEstimate: "1234567.50",
   procurementMethod: "คัดเลือก",
-  fiscalYear: 2569,
+  fiscalYear: 2026,
   status: "bidding",
   biddingStartAt: "2026-11-01T09:00:00+07:00",
   biddingEndAt: "2026-11-20T16:00:00+07:00",
@@ -39,7 +39,7 @@ const TOR = makeTor({
   approvedAt: "2026-10-30T09:00:00+07:00",
   createdAt: "2026-01-05T08:00:00+07:00",
   department: { id: 3, name: "สำนักงานเลขา" },
-  tenderProject: { id: 12, projectCode: "TP-2569-012", name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์" },
+  tenderProject: { id: 12, projectCode: "TP-2026-012", name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์" },
   createdBy: makeTorUserSummary({ id: 5, name: "สมชาย ใจดี", department: { id: 1, name: "จัดซื้อ" } }),
   approvedBy: makeTorUserSummary({ id: 6, name: "สมศรี รักงาน", department: { id: 2, name: "บัญชี" } }),
 });
@@ -165,11 +165,11 @@ describe("TorDetailPage — summary card", () => {
     await renderPage();
 
     expect(await screen.findByText(TOR.title)).toBeInTheDocument();
-    expect(screen.getByText("TOR-2569-007")).toBeInTheDocument();
-    expect(within(screen.getByText("TOR-2569-007").parentElement!).getByText("เปิดรับซอง")).toBeInTheDocument();
+    expect(screen.getByText("TOR-2026-007")).toBeInTheDocument();
+    expect(within(screen.getByText("TOR-2026-007").parentElement!).getByText("เปิดรับซอง")).toBeInTheDocument();
     expect(field("หน่วยงาน")).toHaveTextContent("สำนักงานเลขา");
     expect(field("ราคากลาง")).toHaveTextContent("฿1,234,567.5");
-    expect(field("ปีงบประมาณ")).toHaveTextContent("2569");
+    expect(field("ปีงบประมาณ")).toHaveTextContent("2026");
     expect(field("วิธีจัดซื้อจัดจ้าง")).toHaveTextContent("คัดเลือก");
     expect(field("วันที่สร้าง")).toHaveTextContent("5 ม.ค. 2026");
   });
@@ -179,7 +179,7 @@ describe("TorDetailPage — summary card", () => {
 
     await renderPage();
 
-    const link = await screen.findByRole("link", { name: "TP-2569-012 · จัดซื้อครุภัณฑ์คอมพิวเตอร์" });
+    const link = await screen.findByRole("link", { name: "TP-2026-012 · จัดซื้อครุภัณฑ์คอมพิวเตอร์" });
     expect(link).toHaveAttribute("href", routes.dashboards.tender_project.detail(12));
     expect(field("โครงการ")).toContainElement(link);
   });

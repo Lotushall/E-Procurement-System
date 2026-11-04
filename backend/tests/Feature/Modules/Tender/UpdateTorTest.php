@@ -30,8 +30,8 @@ function updateTorUser(array $permissions = ['tors.update', 'tors.viewAny']): Us
 function updatableTor(string $status, array $attributes = []): Tors
 {
     return Tors::factory()->status($status)->create(array_merge([
-        'tor_code' => 'TOR-2569-0005',
-        'fiscal_year' => 2569,
+        'tor_code' => 'TOR-2026-0005',
+        'fiscal_year' => 2026,
         'tender_project_id' => null,
         'created_by' => null,
     ], $attributes));
@@ -52,7 +52,7 @@ function updateTorPayload(array $overrides = []): array
         'tenderProjectId' => null,
         'budgetEstimate' => '650000.50',
         'procurementMethod' => 'e-bidding',
-        'fiscalYear' => 2569,
+        'fiscalYear' => 2026,
         'biddingStartAt' => null,
         'biddingEndAt' => '2026-12-31 16:30:00',
     ], $overrides);
@@ -107,7 +107,7 @@ test('a draft or sent-back TOR is updated and keeps its status and code', functi
 
     $this->putJson('/api/v1/dashboard/tors/'.$tor->id, updateTorPayload())
         ->assertOk()
-        ->assertJsonPath('data.torCode', 'TOR-2569-0005')
+        ->assertJsonPath('data.torCode', 'TOR-2026-0005')
         ->assertJsonPath('data.status', $status)
         ->assertJsonPath('data.title', 'จัดซื้อคอมพิวเตอร์ 60 เครื่อง')
         ->assertJsonPath('data.budgetEstimate', '650000.50');
@@ -304,13 +304,13 @@ test('a department viewer may still update a TOR they created after moving it to
 
 test('moving a TOR to another fiscal year issues the next code of that year', function () {
     $this->actingAs(updateTorUser(), 'web');
-    Tors::factory()->status('draft')->create(['tor_code' => 'TOR-2570-0003', 'fiscal_year' => 2570, 'tender_project_id' => null]);
+    Tors::factory()->status('draft')->create(['tor_code' => 'TOR-2027-0003', 'fiscal_year' => 2027, 'tender_project_id' => null]);
     $tor = updatableTor('draft');
 
-    $this->putJson('/api/v1/dashboard/tors/'.$tor->id, updateTorPayload(['fiscalYear' => 2570]))
+    $this->putJson('/api/v1/dashboard/tors/'.$tor->id, updateTorPayload(['fiscalYear' => 2027]))
         ->assertOk()
-        ->assertJsonPath('data.torCode', 'TOR-2570-0004')
-        ->assertJsonPath('data.fiscalYear', 2570);
+        ->assertJsonPath('data.torCode', 'TOR-2027-0004')
+        ->assertJsonPath('data.fiscalYear', 2027);
 });
 
 test('updating a TOR validates the payload like creating one', function () {

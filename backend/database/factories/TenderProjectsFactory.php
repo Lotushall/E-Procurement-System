@@ -46,7 +46,7 @@ class TenderProjectsFactory extends Factory
      */
     public function definition(): array
     {
-        $fiscalYear = fake()->numberBetween(2567, 2569);
+        $fiscalYear = fake()->numberBetween(2024, 2026);
 
         return [
             'project_code' => 'TP-'.$fiscalYear.'-'.fake()->unique()->numerify('####'),

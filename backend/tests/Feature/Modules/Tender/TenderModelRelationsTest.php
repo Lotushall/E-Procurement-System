@@ -11,23 +11,23 @@ test('tender project and TOR relations resolve after the module reorg', function
     $department = Department::create(['name' => 'IT']);
 
     $project = TenderProjects::create([
-        'project_code' => 'TP-2569-0001',
+        'project_code' => 'TP-2026-0001',
         'name' => 'จัดซื้อคอมพิวเตอร์',
         'budget' => '500000.00',
         'department_id' => $department->id,
         'procurement_method' => 'e-bidding',
-        'fiscal_year' => 2569,
+        'fiscal_year' => 2026,
     ]);
 
     $tor = Tors::create([
-        'tor_code' => 'TOR-2569-0001',
+        'tor_code' => 'TOR-2026-0001',
         'title' => 'จัดซื้อคอมพิวเตอร์ 50 เครื่อง',
         'scope_of_work' => 'ขอบเขตงาน',
         'department_id' => $department->id,
         'tender_project_id' => $project->id,
         'budget_estimate' => '500000.00',
         'procurement_method' => 'e-bidding',
-        'fiscal_year' => 2569,
+        'fiscal_year' => 2026,
     ]);
 
     expect($project->TenderProjectsTors)->toHaveCount(1)

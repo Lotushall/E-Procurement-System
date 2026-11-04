@@ -39,7 +39,7 @@ function validTorPayload(array $overrides = []): array
         'tenderProjectId' => null,
         'budgetEstimate' => 500000,
         'procurementMethod' => 'e-bidding',
-        'fiscalYear' => 2569,
+        'fiscalYear' => 2026,
         'biddingStartAt' => '2026-12-01 09:00:00',
         'biddingEndAt' => '2026-12-15 16:30:00',
     ], $overrides);
@@ -69,7 +69,7 @@ test('an internal user with tors.create creates a draft TOR with a generated cod
 
     $this->postJson('/api/v1/dashboard/tors', validTorPayload())
         ->assertCreated()
-        ->assertJsonPath('data.torCode', 'TOR-2569-0001')
+        ->assertJsonPath('data.torCode', 'TOR-2026-0001')
         ->assertJsonPath('data.status', 'draft')
         ->assertJsonPath('data.title', 'จัดซื้อคอมพิวเตอร์ 50 เครื่อง')
         ->assertJsonPath('data.budgetEstimate', '500000.00')
@@ -77,7 +77,7 @@ test('an internal user with tors.create creates a draft TOR with a generated cod
         ->assertJsonPath('data.approvedBy', null);
 
     $this->assertDatabaseHas('tors', [
-        'tor_code' => 'TOR-2569-0001',
+        'tor_code' => 'TOR-2026-0001',
         'status' => 'draft',
         'created_by' => $user->id,
         'approved_by' => null,
@@ -90,9 +90,9 @@ test('the TOR code sequence increments within a fiscal year and restarts for a n
     $this->postJson('/api/v1/dashboard/tors', validTorPayload());
 
     $this->postJson('/api/v1/dashboard/tors', validTorPayload())
-        ->assertJsonPath('data.torCode', 'TOR-2569-0002');
-    $this->postJson('/api/v1/dashboard/tors', validTorPayload(['fiscalYear' => 2570]))
-        ->assertJsonPath('data.torCode', 'TOR-2570-0001');
+        ->assertJsonPath('data.torCode', 'TOR-2026-0002');
+    $this->postJson('/api/v1/dashboard/tors', validTorPayload(['fiscalYear' => 2027]))
+        ->assertJsonPath('data.torCode', 'TOR-2027-0001');
 });
 
 test('a deleted TOR code is never issued again', function () {
@@ -102,17 +102,17 @@ test('a deleted TOR code is never issued again', function () {
     $this->deleteJson('/api/v1/dashboard/tors/'.$first)->assertNoContent();
 
     $this->postJson('/api/v1/dashboard/tors', validTorPayload())
-        ->assertJsonPath('data.torCode', 'TOR-2569-0002');
+        ->assertJsonPath('data.torCode', 'TOR-2026-0002');
 });
 
 test('the first code of a year continues after the highest existing code, compared as a number', function () {
     $this->actingAs(storeTorUser(), 'web');
-    Tors::factory()->create(['tor_code' => 'TOR-2569-9999', 'fiscal_year' => 2569, 'tender_project_id' => null]);
-    Tors::factory()->create(['tor_code' => 'TOR-2569-10000', 'fiscal_year' => 2569, 'tender_project_id' => null]);
+    Tors::factory()->create(['tor_code' => 'TOR-2026-9999', 'fiscal_year' => 2026, 'tender_project_id' => null]);
+    Tors::factory()->create(['tor_code' => 'TOR-2026-10000', 'fiscal_year' => 2026, 'tender_project_id' => null]);
 
     $this->postJson('/api/v1/dashboard/tors', validTorPayload())
         ->assertCreated()
-        ->assertJsonPath('data.torCode', 'TOR-2569-10001');
+        ->assertJsonPath('data.torCode', 'TOR-2026-10001');
 });
 
 test('a department viewer still sees a TOR they created for another department', function () {
@@ -127,7 +127,7 @@ test('a department viewer still sees a TOR they created for another department',
 
     $id = $this->postJson('/api/v1/dashboard/tors', validTorPayload())
         ->assertCreated()
-        ->assertJsonPath('data.torCode', 'TOR-2569-0001')
+        ->assertJsonPath('data.torCode', 'TOR-2026-0001')
         ->json('data.id');
 
     $this->getJson('/api/v1/dashboard/tors/'.$id)->assertOk();

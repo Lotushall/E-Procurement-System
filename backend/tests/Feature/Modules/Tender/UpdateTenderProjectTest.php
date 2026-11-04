@@ -5,7 +5,6 @@ use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -28,7 +27,7 @@ function validUpdateTenderProjectPayload(array $overrides = []): array
         'departmentId' => $department->id,
         'personInChargeId' => null,
         'procurementMethod' => 'วิธีคัดเลือก',
-        'fiscalYear' => 2569,
+        'fiscalYear' => 2026,
         'projectStartAt' => '2026-10-01',
         'projectEndAt' => '2027-03-31',
     ], $overrides);
@@ -65,8 +64,8 @@ test('a non-internal user is not authorized to update even when directly granted
 test('an internal user with the update permission can update a tender project', function () {
     $creator = User::factory()->create(['user_type' => 'internal']);
     $project = TenderProjects::factory()->status('published')->create([
-        'project_code' => 'TP-2569-0001',
-        'fiscal_year' => 2569,
+        'project_code' => 'TP-2026-0001',
+        'fiscal_year' => 2026,
         'created_by' => $creator->id,
     ]);
     $this->actingAs(internalUserWithTenderProjectUpdatePermission(), 'web');
@@ -75,39 +74,39 @@ test('an internal user with the update permission can update a tender project', 
 
     $response->assertOk()
         ->assertJsonPath('data.id', $project->id)
-        ->assertJsonPath('data.projectCode', 'TP-2569-0001')
+        ->assertJsonPath('data.projectCode', 'TP-2026-0001')
         ->assertJsonPath('data.name', 'จัดซื้อคอมพิวเตอร์ (แก้ไข)')
         ->assertJsonPath('data.status', 'published')
         ->assertJsonMissingPath('data.createdBy');
 
     $this->assertDatabaseHas('tenders_projects', [
         'id' => $project->id,
-        'project_code' => 'TP-2569-0001',
+        'project_code' => 'TP-2026-0001',
         'name' => 'จัดซื้อคอมพิวเตอร์ (แก้ไข)',
         'description' => 'รายละเอียดใหม่',
         'procurement_method' => 'วิธีคัดเลือก',
         'department_id' => Department::where('name', 'Finance')->value('id'),
-        'fiscal_year' => 2569,
+        'fiscal_year' => 2026,
         'status' => 'published',
         'created_by' => $creator->id,
     ]);
 });
 
 test('changing the fiscal year issues the next project code for the new fiscal year', function () {
-    $project = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2569-0001', 'fiscal_year' => 2569]);
-    TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2570-0004', 'fiscal_year' => 2570]);
+    $project = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2026-0001', 'fiscal_year' => 2026]);
+    TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2027-0004', 'fiscal_year' => 2027]);
     $this->actingAs(internalUserWithTenderProjectUpdatePermission(), 'web');
 
     $response = $this->putJson(
         "/api/v1/dashboard/tender-projects/{$project->id}",
-        validUpdateTenderProjectPayload(['fiscalYear' => 2570]),
+        validUpdateTenderProjectPayload(['fiscalYear' => 2027]),
     );
 
-    $response->assertOk()->assertJsonPath('data.projectCode', 'TP-2570-0005');
+    $response->assertOk()->assertJsonPath('data.projectCode', 'TP-2027-0005');
     $this->assertDatabaseHas('tenders_projects', [
         'id' => $project->id,
-        'project_code' => 'TP-2570-0005',
-        'fiscal_year' => 2570,
+        'project_code' => 'TP-2027-0005',
+        'fiscal_year' => 2027,
     ]);
 });
 
@@ -205,7 +204,7 @@ test('updating a tender project rejects a budget of zero or less', function (int
     $response->assertStatus(422)->assertJsonValidationErrors(['budget']);
 })->with([0, 0.00, -1]);
 
-test('a finished tender project cannot be edited by a non-admin', function (string $status) {
+test('a finished tender project cannot be edited without tender_projects.manageAnyStatus', function (string $status) {
     $project = TenderProjects::factory()->status($status)->create(['name' => 'ชื่อเดิม']);
     $this->actingAs(internalUserWithTenderProjectUpdatePermission(), 'web');
 
@@ -215,11 +214,11 @@ test('a finished tender project cannot be edited by a non-admin', function (stri
     $this->assertDatabaseHas('tenders_projects', ['id' => $project->id, 'name' => 'ชื่อเดิม']);
 })->with(['completed', 'cancelled', 'archived']);
 
-test('an admin can still edit a finished tender project', function () {
+test('a user with tender_projects.manageAnyStatus can still edit a finished tender project', function () {
     $project = TenderProjects::factory()->status('completed')->create();
-    $admin = internalUserWithTenderProjectUpdatePermission();
-    $admin->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
-    $this->actingAs($admin, 'web');
+    $manager = internalUserWithTenderProjectUpdatePermission();
+    $manager->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.manageAnyStatus', 'guard_name' => 'web']));
+    $this->actingAs($manager, 'web');
 
     $response = $this->putJson("/api/v1/dashboard/tender-projects/{$project->id}", validUpdateTenderProjectPayload());
 

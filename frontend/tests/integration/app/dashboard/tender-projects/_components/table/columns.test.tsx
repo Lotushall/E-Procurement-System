@@ -18,7 +18,7 @@ function renderTable(
     canUpdateStatus = false,
     canUpdate = true,
     canDelete = true,
-    isAdmin = false,
+    canManageAnyStatus = false,
     sorting = [] as SortingState,
     onSortingChange = vi.fn(),
   } = {},
@@ -27,7 +27,7 @@ function renderTable(
   server.use(http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [makeDepartment()] })));
   renderWithQueryClient(
     <DataTable
-      columns={createColumns(canUpdateStatus, canUpdate, canDelete, isAdmin)}
+      columns={createColumns(canUpdateStatus, canUpdate, canDelete, canManageAnyStatus)}
       data={data}
       pageCount={1}
       total={data.length}
@@ -87,10 +87,10 @@ describe("createColumns — header", () => {
 
 describe("createColumns — code and name cells", () => {
   it("links the code and the name to the detail page", () => {
-    renderTable([makeTenderProject({ id: 42, projectCode: "TP-2569-042", name: "จัดซื้อโต๊ะ" })]);
+    renderTable([makeTenderProject({ id: 42, projectCode: "TP-2026-042", name: "จัดซื้อโต๊ะ" })]);
 
     const row = dataRow();
-    expect(within(cell(row, 0)).getByRole("link", { name: "TP-2569-042" })).toHaveAttribute(
+    expect(within(cell(row, 0)).getByRole("link", { name: "TP-2026-042" })).toHaveAttribute(
       "href",
       "/dashboard/tender-projects/detail?id=42",
     );
@@ -137,10 +137,10 @@ describe("createColumns — person in charge", () => {
 
 describe("createColumns — budget and allocation", () => {
   it("shows the fiscal year above the grouped budget", () => {
-    renderTable([makeTenderProject({ fiscalYear: 2570, budget: "1250000.00" })]);
+    renderTable([makeTenderProject({ fiscalYear: 2027, budget: "1250000.00" })]);
 
     const budget = cell(dataRow(), 3);
-    expect(budget).toHaveTextContent("ปีงบประมาณ 2570");
+    expect(budget).toHaveTextContent("ปีงบประมาณ 2027");
     // แสดง ฿ เหมือนการ์ด
     expect(budget).toHaveTextContent("฿1,250,000");
   });
@@ -180,7 +180,7 @@ describe("createColumns — period", () => {
       makeTenderProject({ projectStartAt: "2026-01-05T00:00:00.000000Z", projectEndAt: "2026-12-31T00:00:00.000000Z" }),
     ]);
 
-    // คำถามค้างให้คนตัดสิน: ปีในคอลัมน์ระยะเวลาเป็น ค.ศ. (2026) แต่ปีงบประมาณเป็น พ.ศ. (2569) — ต้องการแบบไหน
+    // วันที่และปีงบประมาณใช้ ค.ศ. ทั้งระบบ
     expect(cell(dataRow(), 5)).toHaveTextContent("5 ม.ค. 2026 - 31 ธ.ค. 2026");
   });
 
@@ -239,8 +239,8 @@ describe("createColumns — status", () => {
   });
 
   it("changes the status of the right row", async () => {
-    // status select อ่าน role ของผู้ใช้ — published → closed เป็นขั้นถัดไปที่ทำได้แม้ไม่ใช่ admin
-    signInAs({ roles: ["officer"] });
+    // status select อ่านสิทธิ์ของผู้ใช้ — published → closed เป็นขั้นถัดไปที่ทำได้แม้ไม่มี manageAnyStatus
+    signInAs({ permissions: [] });
     const patched: unknown[] = [];
     server.use(
       http.patch(apiUrl("/api/v1/dashboard/tender-projects/:id/status"), async ({ params, request }) => {
@@ -301,7 +301,7 @@ describe("createColumns — action permissions", () => {
   });
 
   it.each(["completed", "cancelled", "archived"] as const)(
-    "hides edit and delete on a %s project from a non-admin",
+    "hides edit and delete on a %s project without manageAnyStatus",
     (status) => {
       renderTable([makeTenderProject({ status })]);
 
@@ -311,8 +311,8 @@ describe("createColumns — action permissions", () => {
     },
   );
 
-  it("still offers edit and delete on a finished project to an admin", () => {
-    renderTable([makeTenderProject({ status: "completed" })], { isAdmin: true });
+  it("still offers edit and delete on a finished project with manageAnyStatus", () => {
+    renderTable([makeTenderProject({ status: "completed" })], { canManageAnyStatus: true });
 
     const actions = cell(dataRow(), 8);
     expect(within(actions).getByRole("button", { name: "แก้ไขโครงการ" })).toBeInTheDocument();
@@ -330,12 +330,12 @@ describe("createColumns — action permissions", () => {
 describe("createColumns — several rows", () => {
   it("renders one row per project in order", () => {
     renderTable([
-      makeTenderProject({ id: 1, projectCode: "TP-2569-001" }),
-      makeTenderProject({ id: 2, projectCode: "TP-2569-002" }),
+      makeTenderProject({ id: 1, projectCode: "TP-2026-001" }),
+      makeTenderProject({ id: 2, projectCode: "TP-2026-002" }),
     ]);
 
     expect(screen.getAllByRole("row")).toHaveLength(3);
-    expect(within(cell(dataRow(0), 0)).getByRole("link")).toHaveTextContent("TP-2569-001");
-    expect(within(cell(dataRow(1), 0)).getByRole("link")).toHaveTextContent("TP-2569-002");
+    expect(within(cell(dataRow(0), 0)).getByRole("link")).toHaveTextContent("TP-2026-001");
+    expect(within(cell(dataRow(1), 0)).getByRole("link")).toHaveTextContent("TP-2026-002");
   });
 });

@@ -4,7 +4,6 @@ use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -16,15 +15,15 @@ function internalUserWithTenderProjectUpdateStatusPermission(): User
     return $user;
 }
 
-function internalAdminWithTenderProjectUpdateStatusPermission(): User
+function internalStatusManagerWithTenderProjectUpdateStatusPermission(): User
 {
     $user = internalUserWithTenderProjectUpdateStatusPermission();
-    $user->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.manageAnyStatus', 'guard_name' => 'web']));
 
     return $user;
 }
 
-// ขั้นถัดไปที่ผู้ที่ไม่ใช่ admin เปลี่ยนได้ (TenderProject::canMoveForwardTo())
+// ขั้นถัดไปที่เปลี่ยนได้เมื่อไม่มี tender_projects.manageAnyStatus (TenderProject::canMoveForwardTo())
 const TENDER_PROJECT_FORWARD_STATUSES = [
     'draft' => ['published', 'cancelled'],
     'published' => ['closed', 'cancelled'],
@@ -105,9 +104,9 @@ test('a non-internal user is not authorized to change a tender project status ev
 
 test('an internal user with the updateStatus permission can change a tender project status without touching other fields', function () {
     $project = TenderProjects::factory()->status('draft')->create([
-        'project_code' => 'TP-2569-0001',
+        'project_code' => 'TP-2026-0001',
         'name' => 'จัดซื้อครุภัณฑ์คอมพิวเตอร์',
-        'fiscal_year' => 2569,
+        'fiscal_year' => 2026,
     ]);
     $this->actingAs(internalUserWithTenderProjectUpdateStatusPermission(), 'web');
 
@@ -115,21 +114,21 @@ test('an internal user with the updateStatus permission can change a tender proj
 
     $response->assertOk()
         ->assertJsonPath('data.id', $project->id)
-        ->assertJsonPath('data.projectCode', 'TP-2569-0001')
+        ->assertJsonPath('data.projectCode', 'TP-2026-0001')
         ->assertJsonPath('data.status', 'published');
 
     $this->assertDatabaseHas('tenders_projects', [
         'id' => $project->id,
-        'project_code' => 'TP-2569-0001',
+        'project_code' => 'TP-2026-0001',
         'name' => 'จัดซื้อครุภัณฑ์คอมพิวเตอร์',
-        'fiscal_year' => 2569,
+        'fiscal_year' => 2026,
         'status' => 'published',
     ]);
 });
 
-test('an admin can change any tender project status directly to any other status', function (string $from, string $to) {
+test('a user with tender_projects.manageAnyStatus can change any status directly to any other status', function (string $from, string $to) {
     $project = TenderProjects::factory()->status($from)->create();
-    $this->actingAs(internalAdminWithTenderProjectUpdateStatusPermission(), 'web');
+    $this->actingAs(internalStatusManagerWithTenderProjectUpdateStatusPermission(), 'web');
 
     $response = $this->patchJson("/api/v1/dashboard/tender-projects/{$project->id}/status", ['status' => $to]);
 
@@ -137,7 +136,7 @@ test('an admin can change any tender project status directly to any other status
     $this->assertDatabaseHas('tenders_projects', ['id' => $project->id, 'status' => $to]);
 })->with('tender project status transitions');
 
-test('a non-admin can move a tender project one step forward', function (string $from, string $to) {
+test('without tender_projects.manageAnyStatus a tender project moves one step forward', function (string $from, string $to) {
     $project = TenderProjects::factory()->status($from)->create();
     $this->actingAs(internalUserWithTenderProjectUpdateStatusPermission(), 'web');
 
@@ -146,7 +145,7 @@ test('a non-admin can move a tender project one step forward', function (string 
     $response->assertOk()->assertJsonPath('data.status', $to);
 })->with('tender project forward steps');
 
-test('a non-admin cannot skip a step or move a tender project backwards', function (string $from, string $to) {
+test('without tender_projects.manageAnyStatus a tender project cannot skip a step or move backwards', function (string $from, string $to) {
     $project = TenderProjects::factory()->status($from)->create();
     $this->actingAs(internalUserWithTenderProjectUpdateStatusPermission(), 'web');
 

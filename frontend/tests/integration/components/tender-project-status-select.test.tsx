@@ -23,9 +23,9 @@ const LABELS: Record<TenderProjectStatus, string> = {
 };
 const ALL_LABELS = Object.values(LABELS);
 
-// ค่าเริ่มต้นเป็น admin (เปลี่ยนเป็นสถานะไหนก็ได้) — รอให้โหลด user เสร็จก่อน ไม่งั้นจะเห็นตัวเลือกแบบผู้ที่ไม่ใช่ admin
-async function setup(status: TenderProjectStatus = "draft", id = 7, { roles = ["admin"] } = {}) {
-  signInAs({ roles });
+// ค่าเริ่มต้นมี tender_projects.manageAnyStatus (เปลี่ยนเป็นสถานะไหนก็ได้) — รอให้โหลด user เสร็จก่อน ไม่งั้นจะเห็นตัวเลือกแบบไม่มีสิทธิ์นี้
+async function setup(status: TenderProjectStatus = "draft", id = 7, { permissions = ["tender_projects.manageAnyStatus"] } = {}) {
+  signInAs({ permissions });
   const rendered = renderWithQueryClient(<TenderProjectStatusSelect id={id} status={status} />);
   await waitFor(() => expect(rendered.queryClient.getQueryData(AUTH_USER_QUERY_KEY)).toBeTruthy());
   return { ...rendered, user: userEvent.setup() };
@@ -55,7 +55,7 @@ describe("TenderProjectStatusSelect — display", () => {
     expect(screen.getByRole("combobox")).toHaveTextContent(label);
   });
 
-  it.each(Object.keys(LABELS))("offers an admin all six statuses in order when the current status is %s", async (status) => {
+  it.each(Object.keys(LABELS))("offers all six statuses in order with manageAnyStatus when the current status is %s", async (status) => {
     const { user } = await setup(status as TenderProjectStatus);
 
     await user.click(screen.getByRole("combobox"));
@@ -64,15 +64,15 @@ describe("TenderProjectStatusSelect — display", () => {
     expect(options.map((o) => o.textContent)).toEqual(ALL_LABELS);
   });
 
-  // ผู้ที่ไม่ใช่ admin: สถานะปัจจุบัน + สถานะถัดไปตาม flow เท่านั้น (เรียงตามลำดับปกติ)
+  // ไม่มี manageAnyStatus: สถานะปัจจุบัน + สถานะถัดไปตาม flow เท่านั้น (เรียงตามลำดับปกติ)
   it.each([
     ["draft", ["ร่าง", "กำลังดำเนินการ", "ยกเลิก"]],
     ["published", ["กำลังดำเนินการ", "ปิดรับซอง", "ยกเลิก"]],
     ["closed", ["ปิดรับซอง", "เสร็จสิ้น", "ยกเลิก"]],
     ["completed", ["เสร็จสิ้น", "เก็บถาวร"]],
     ["cancelled", ["ยกเลิก", "เก็บถาวร"]],
-  ] as const)("offers a non-admin only the next steps from %s", async (status, labels) => {
-    const { user } = await setup(status, 7, { roles: ["officer"] });
+  ] as const)("offers only the next steps from %s without manageAnyStatus", async (status, labels) => {
+    const { user } = await setup(status, 7, { permissions: [] });
 
     await user.click(screen.getByRole("combobox"));
 
@@ -80,8 +80,8 @@ describe("TenderProjectStatusSelect — display", () => {
     expect(options.map((o) => o.textContent)).toEqual(labels);
   });
 
-  it("shows an archived project to a non-admin as a plain badge with nothing to choose", async () => {
-    await setup("archived", 7, { roles: ["officer"] });
+  it("shows an archived project as a plain badge with nothing to choose without manageAnyStatus", async () => {
+    await setup("archived", 7, { permissions: [] });
 
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     expect(screen.getByText("เก็บถาวร")).toBeInTheDocument();

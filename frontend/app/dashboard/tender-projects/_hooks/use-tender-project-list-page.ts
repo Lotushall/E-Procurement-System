@@ -36,7 +36,7 @@ function parseDepartmentId(value: string | null): number | undefined {
   return value && Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-// ปีงบประมาณ (พ.ศ.) 4 หลัก — ค่าอื่นจาก URL ไม่ส่งไป API และไม่นับเป็นตัวกรอง
+// ปีงบประมาณ (ค.ศ.) 4 หลัก — ค่าอื่นจาก URL ไม่ส่งไป API และไม่นับเป็นตัวกรอง
 function parseFiscalYear(value: string | null): string | undefined {
   return value && /^\d{4}$/.test(value) ? value : undefined;
 }

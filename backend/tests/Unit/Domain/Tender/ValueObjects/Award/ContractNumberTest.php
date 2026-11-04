@@ -3,16 +3,16 @@
 use App\Modules\Tender\Domain\ValueObjects\Award\ContractNumber;
 
 test('creates a contract number from a non-blank string', function () {
-    $number = ContractNumber::fromString('CN-2569-0001');
+    $number = ContractNumber::fromString('CN-2026-0001');
 
-    expect($number->value)->toBe('CN-2569-0001')
-        ->and((string) $number)->toBe('CN-2569-0001');
+    expect($number->value)->toBe('CN-2026-0001')
+        ->and((string) $number)->toBe('CN-2026-0001');
 });
 
 test('trims surrounding whitespace', function () {
-    $number = ContractNumber::fromString('  CN-2569-0001  ');
+    $number = ContractNumber::fromString('  CN-2026-0001  ');
 
-    expect($number->value)->toBe('CN-2569-0001');
+    expect($number->value)->toBe('CN-2026-0001');
 });
 
 test('rejects a blank contract number', function () {

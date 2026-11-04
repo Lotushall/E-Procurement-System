@@ -28,25 +28,25 @@ const ERROR_TEXT = "ไม่สามารถโหลดข้อมูล TO
 const FORBIDDEN = "คุณไม่มีสิทธิ์เข้าถึงหน้านี้";
 const DEPARTMENTS = [makeDepartment({ id: 1, name: "จัดซื้อ" }), makeDepartment({ id: 2, name: "บัญชี" })];
 const PROJECTS = [
-  makeTenderProjectOption({ id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" }),
-  makeTenderProjectOption({ id: 8, projectCode: "TP-2569-008", name: "จัดซื้อโต๊ะทำงาน" }),
+  makeTenderProjectOption({ id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" }),
+  makeTenderProjectOption({ id: 8, projectCode: "TP-2026-008", name: "จัดซื้อโต๊ะทำงาน" }),
 ];
-const PROJECT_7 = "TP-2569-007 · จัดซื้อคอมพิวเตอร์";
+const PROJECT_7 = "TP-2026-007 · จัดซื้อคอมพิวเตอร์";
 const YEAR = FISCAL_YEAR_OPTIONS[1];
 
 const NOTEBOOKS = makeTor({
   id: 1,
-  torCode: "TOR-2569-001",
+  torCode: "TOR-2026-001",
   title: "จัดซื้อโน้ตบุ๊ก",
   status: "draft",
   budgetEstimate: "500000.00",
   biddingEndAt: "2026-11-20T16:00:00+07:00",
   department: { id: 1, name: "จัดซื้อ" },
-  tenderProject: { id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" },
+  tenderProject: { id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" },
 });
 const PRINTERS = makeTor({
   id: 2,
-  torCode: "TOR-2569-002",
+  torCode: "TOR-2026-002",
   title: "จัดซื้อเครื่องพิมพ์",
   status: "approved",
   budgetEstimate: "120000.50",
@@ -207,7 +207,7 @@ describe("TorsPage — populated", () => {
 
     const table = await loadedTable();
     const first = within(within(table).getAllByRole("row")[1]);
-    expect(first.getByRole("link", { name: "TOR-2569-001" })).toBeInTheDocument();
+    expect(first.getByRole("link", { name: "TOR-2026-001" })).toBeInTheDocument();
     expect(first.getByRole("link", { name: "จัดซื้อคอมพิวเตอร์" })).toHaveAttribute(
       "href",
       routes.dashboards.tender_project.detail(7),
@@ -228,7 +228,7 @@ describe("TorsPage — populated", () => {
     await renderPage();
 
     const table = await loadedTable();
-    expect(within(table).getByRole("link", { name: "TOR-2569-002" })).toHaveAttribute(
+    expect(within(table).getByRole("link", { name: "TOR-2026-002" })).toHaveAttribute(
       "href",
       routes.dashboards.tors.detail(2),
     );
@@ -774,7 +774,7 @@ describe("TorsPage — options that fail to load", () => {
       "ทุกโครงการ",
       "ไม่สังกัดโครงการ",
       PROJECT_7,
-      "TP-2569-008 · จัดซื้อโต๊ะทำงาน",
+      "TP-2026-008 · จัดซื้อโต๊ะทำงาน",
     ]);
   });
 });
@@ -804,7 +804,7 @@ describe("TorsPage — skeleton while refetching", () => {
 
     await waitFor(() => expect(screen.queryAllByText(NOTEBOOKS.title)).toHaveLength(0));
     expect(within(screen.getByRole("table")).getAllByRole("columnheader")).toHaveLength(7);
-    expect(screen.queryByRole("link", { name: "TOR-2569-002" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "TOR-2026-002" })).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText(PLACEHOLDER)).toBeInTheDocument();
 
     act(() => release());

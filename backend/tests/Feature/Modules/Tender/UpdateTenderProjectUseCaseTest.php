@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-function makeUpdateTenderProjectData(int $departmentId, int $fiscalYear = 2569): UpdateTenderProjectData
+function makeUpdateTenderProjectData(int $departmentId, int $fiscalYear = 2026): UpdateTenderProjectData
 {
     return new UpdateTenderProjectData(
         name: 'จัดซื้อคอมพิวเตอร์ (แก้ไข)',
@@ -30,15 +30,15 @@ test('execute replaces the editable fields and keeps the project code within the
     $department = Department::create(['name' => 'Finance']);
     $creator = User::factory()->create(['user_type' => 'internal']);
     $model = TenderProjects::factory()->status('closed')->create([
-        'project_code' => 'TP-2569-0003',
-        'fiscal_year' => 2569,
+        'project_code' => 'TP-2026-0003',
+        'fiscal_year' => 2026,
         'created_by' => $creator->id,
     ]);
 
     $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id), false);
 
     expect($project->id())->toBe($model->id)
-        ->and($project->projectCode()->value)->toBe('TP-2569-0003')
+        ->and($project->projectCode()->value)->toBe('TP-2026-0003')
         ->and($project->name())->toBe('จัดซื้อคอมพิวเตอร์ (แก้ไข)')
         ->and($project->budget()->amount)->toBe('750000.00')
         ->and($project->departmentId())->toBe($department->id)
@@ -51,12 +51,12 @@ test('execute replaces the editable fields and keeps the project code within the
 
 test('execute issues the next project code of the new fiscal year when the fiscal year changes', function () {
     $department = Department::create(['name' => 'Finance']);
-    $model = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2569-0003', 'fiscal_year' => 2569]);
+    $model = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2026-0003', 'fiscal_year' => 2026]);
 
-    $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id, 2570), false);
+    $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id, 2027), false);
 
-    expect($project->projectCode()->value)->toBe('TP-2570-0001')
-        ->and($project->fiscalYear())->toBe(2570);
+    expect($project->projectCode()->value)->toBe('TP-2027-0001')
+        ->and($project->fiscalYear())->toBe(2027);
 });
 
 test('execute throws when the tender project does not exist', function () {

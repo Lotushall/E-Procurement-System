@@ -106,7 +106,7 @@ class TorsFactory extends Factory
             'department_id' => fn (array $attributes) => $this->project($attributes)?->department_id
                 ?? Department::inRandomOrder()->value('id')
                 ?? Department::firstOrCreate(['name' => 'IT'])->id,
-            'fiscal_year' => fn (array $attributes) => $this->project($attributes)?->fiscal_year ?? fake()->numberBetween(2567, 2569),
+            'fiscal_year' => fn (array $attributes) => $this->project($attributes)?->fiscal_year ?? fake()->numberBetween(2024, 2026),
             'procurement_method' => fn (array $attributes) => $this->project($attributes)?->procurement_method ?? fake()->randomElement(self::PROCUREMENT_METHODS),
             'tor_code' => fn (array $attributes) => 'TOR-'.$attributes['fiscal_year'].'-'.fake()->unique()->numerify('####'),
             'title' => $tor['title'],

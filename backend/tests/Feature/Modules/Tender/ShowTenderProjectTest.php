@@ -26,12 +26,12 @@ test('showing a tender project includes its TORs in the summary shape, ordered b
     $project = TenderProjects::factory()->create();
     $second = Tors::factory()->status('bidding')->create([
         'tender_project_id' => $project->id,
-        'tor_code' => 'TOR-2569-0002',
+        'tor_code' => 'TOR-2026-0002',
         'budget_estimate' => 150000,
     ]);
     $first = Tors::factory()->status('draft')->create([
         'tender_project_id' => $project->id,
-        'tor_code' => 'TOR-2569-0001',
+        'tor_code' => 'TOR-2026-0001',
         'bidding_start_at' => null,
         'bidding_end_at' => '2026-12-01 10:00:00',
     ]);
@@ -43,7 +43,7 @@ test('showing a tender project includes its TORs in the summary shape, ordered b
         ->assertJsonCount(2, 'data.tors')
         ->assertJsonPath('data.tors.0', [
             'id' => $first->id,
-            'torCode' => 'TOR-2569-0001',
+            'torCode' => 'TOR-2026-0001',
             'title' => $first->title,
             'procurementMethod' => $first->procurement_method,
             'budgetEstimate' => $first->fresh()->budget_estimate,

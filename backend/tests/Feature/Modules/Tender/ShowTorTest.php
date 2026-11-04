@@ -38,7 +38,7 @@ test('an internal user without a TOR view permission cannot show a TOR', functio
 test('showing a visible TOR returns it with every key', function () {
     $this->actingAs(showTorViewer(['tors.viewAny']), 'web');
     $tor = Tors::factory()->create([
-        'tor_code' => 'TOR-2569-0007',
+        'tor_code' => 'TOR-2026-0007',
         'status' => 'draft',
         'created_by' => null,
         'tender_project_id' => null,
@@ -53,7 +53,7 @@ test('showing a visible TOR returns it with every key', function () {
             'createdAt', 'department', 'tenderProject', 'createdBy', 'approvedBy',
         ]])
         ->assertJsonPath('data.id', $tor->id)
-        ->assertJsonPath('data.torCode', 'TOR-2569-0007')
+        ->assertJsonPath('data.torCode', 'TOR-2026-0007')
         ->assertJsonPath('data.department.id', $tor->department_id)
         ->assertJsonPath('data.tenderProject', null)
         ->assertJsonPath('data.createdBy', null)
@@ -98,7 +98,7 @@ test('showing a TOR renders createdBy, approvedBy and tenderProject as slim summ
     $department = Department::firstOrCreate(['name' => 'IT']);
     $creator = showTorViewerWithProfile('Somchai', 'Jaidee', $department);
     $approver = showTorViewerWithProfile('Malee', 'Rakdee', $department);
-    $project = TenderProjects::factory()->create(['project_code' => 'TP-2569-0009', 'name' => 'จัดซื้อเซิร์ฟเวอร์']);
+    $project = TenderProjects::factory()->create(['project_code' => 'TP-2026-0009', 'name' => 'จัดซื้อเซิร์ฟเวอร์']);
     $tor = Tors::factory()->create([
         'created_by' => $creator->id,
         'approved_by' => $approver->id,
@@ -119,7 +119,7 @@ test('showing a TOR renders createdBy, approvedBy and tenderProject as slim summ
         ])
         ->assertJsonPath('data.tenderProject', [
             'id' => $project->id,
-            'projectCode' => 'TP-2569-0009',
+            'projectCode' => 'TP-2026-0009',
             'name' => 'จัดซื้อเซิร์ฟเวอร์',
         ])
         ->assertJsonMissingPath('data.createdBy.email');

@@ -4,12 +4,12 @@ import type { Tor, TorUserSummary } from "@/lib/tender/tor/types";
 export function makeTor(overrides: Partial<Tor> = {}): Tor {
   return {
     id: 1,
-    torCode: "TOR-2569-001",
+    torCode: "TOR-2026-001",
     title: "จัดซื้อคอมพิวเตอร์โน้ตบุ๊ก",
     scopeOfWork: "จัดซื้อคอมพิวเตอร์โน้ตบุ๊กจำนวน 50 เครื่อง",
     budgetEstimate: "500000.00",
     procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
-    fiscalYear: 2569,
+    fiscalYear: 2026,
     biddingStartAt: null,
     biddingEndAt: null,
     status: "draft",

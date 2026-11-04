@@ -10,10 +10,10 @@ import { makeTenderProjectOption } from "@/tests/fixtures/tender-projects";
 
 const DEPARTMENTS = [makeDepartment({ id: 1, name: "จัดซื้อ" }), makeDepartment({ id: 2, name: "บัญชี" })];
 const PROJECTS = [
-  makeTenderProjectOption({ id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" }),
-  makeTenderProjectOption({ id: 8, projectCode: "TP-2569-008", name: "จัดซื้อโต๊ะทำงาน" }),
+  makeTenderProjectOption({ id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" }),
+  makeTenderProjectOption({ id: 8, projectCode: "TP-2026-008", name: "จัดซื้อโต๊ะทำงาน" }),
 ];
-const PROJECT_8 = "TP-2569-008 · จัดซื้อโต๊ะทำงาน";
+const PROJECT_8 = "TP-2026-008 · จัดซื้อโต๊ะทำงาน";
 const STATUS_LABELS = ["ทั้งหมด", ...TOR_STATUSES.map((status) => TOR_STATUS_STYLE[status].label)];
 
 type Props = React.ComponentProps<typeof TorFilterFields>;

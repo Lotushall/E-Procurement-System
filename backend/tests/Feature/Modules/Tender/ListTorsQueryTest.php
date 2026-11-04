@@ -162,10 +162,10 @@ test('execute searches by title', function () {
 });
 
 test('execute searches by TOR code', function () {
-    $target = torForQueryTest(['tor_code' => 'TOR-2569-0042']);
-    torForQueryTest(['tor_code' => 'TOR-2569-0043']);
+    $target = torForQueryTest(['tor_code' => 'TOR-2026-0042']);
+    torForQueryTest(['tor_code' => 'TOR-2026-0043']);
 
-    $result = listTorsQuery()->execute(torQueryViewer(['tors.viewAny']), search: 'TOR-2569-0042');
+    $result = listTorsQuery()->execute(torQueryViewer(['tors.viewAny']), search: 'TOR-2026-0042');
 
     expect($result->total())->toBe(1)
         ->and($result->items()[0]->id)->toBe($target->id);
@@ -194,10 +194,10 @@ test('execute filters by department', function () {
 });
 
 test('execute filters by fiscal year', function () {
-    $target = torForQueryTest(['fiscal_year' => 2569]);
-    torForQueryTest(['fiscal_year' => 2568]);
+    $target = torForQueryTest(['fiscal_year' => 2026]);
+    torForQueryTest(['fiscal_year' => 2025]);
 
-    $result = listTorsQuery()->execute(torQueryViewer(['tors.viewAny']), fiscalYear: 2569);
+    $result = listTorsQuery()->execute(torQueryViewer(['tors.viewAny']), fiscalYear: 2026);
 
     expect($result->total())->toBe(1)
         ->and($result->items()[0]->id)->toBe($target->id);
@@ -254,10 +254,10 @@ test('execute sorts by a whitelisted column and direction', function (string $co
     expect(collect($ascending->items())->pluck('id')->all())->toBe([$lowTor->id, $highTor->id])
         ->and(collect($descending->items())->pluck('id')->all())->toBe([$highTor->id, $lowTor->id]);
 })->with([
-    'tor_code' => ['tor_code', 'TOR-2569-0001', 'TOR-2569-0002'],
+    'tor_code' => ['tor_code', 'TOR-2026-0001', 'TOR-2026-0002'],
     'title' => ['title', 'ก', 'ข'],
     'budget_estimate' => ['budget_estimate', '100000.00', '900000.00'],
-    'fiscal_year' => ['fiscal_year', 2568, 2569],
+    'fiscal_year' => ['fiscal_year', 2025, 2026],
     'bidding_end_at' => ['bidding_end_at', '2026-01-01 00:00:00', '2026-06-01 00:00:00'],
 ]);
 

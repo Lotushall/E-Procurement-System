@@ -106,3 +106,23 @@ test('a non-internal user is not authorized to change status even when directly 
 
     expect(Gate::forUser($user)->allows('tender-projects.updateStatus'))->toBeFalse();
 });
+
+test('an internal user with tender_projects.manageAnyStatus may lift the status lock', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.manageAnyStatus', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.ignoreStatusLock'))->toBeTrue();
+});
+
+test('an internal user without tender_projects.manageAnyStatus may not lift the status lock', function () {
+    $user = User::factory()->create(['user_type' => 'internal']);
+
+    expect(Gate::forUser($user)->allows('tender-projects.ignoreStatusLock'))->toBeFalse();
+});
+
+test('a non-internal user may not lift the status lock even when directly granted the permission', function () {
+    $user = User::factory()->create(['user_type' => 'company']);
+    $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.manageAnyStatus', 'guard_name' => 'web']));
+
+    expect(Gate::forUser($user)->allows('tender-projects.ignoreStatusLock'))->toBeFalse();
+});

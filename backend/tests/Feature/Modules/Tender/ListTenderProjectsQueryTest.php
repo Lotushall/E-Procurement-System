@@ -37,10 +37,10 @@ test('execute searches by name', function () {
 });
 
 test('execute searches by project code', function () {
-    $target = TenderProjects::factory()->create(['project_code' => 'TP-2569-0042']);
-    TenderProjects::factory()->create(['project_code' => 'TP-2569-0043']);
+    $target = TenderProjects::factory()->create(['project_code' => 'TP-2026-0042']);
+    TenderProjects::factory()->create(['project_code' => 'TP-2026-0043']);
 
-    $result = listTenderProjectsQuery()->execute(listTenderProjectsViewer(), search: 'TP-2569-0042');
+    $result = listTenderProjectsQuery()->execute(listTenderProjectsViewer(), search: 'TP-2026-0042');
 
     expect($result->total())->toBe(1)
         ->and($result->items()[0]->id)->toBe($target->id);
@@ -69,13 +69,13 @@ test('execute filters by department', function () {
 });
 
 test('execute filters by fiscal year', function () {
-    TenderProjects::factory()->create(['fiscal_year' => 2569]);
-    TenderProjects::factory()->create(['fiscal_year' => 2570]);
+    TenderProjects::factory()->create(['fiscal_year' => 2026]);
+    TenderProjects::factory()->create(['fiscal_year' => 2027]);
 
-    $result = listTenderProjectsQuery()->execute(listTenderProjectsViewer(), fiscalYear: 2570);
+    $result = listTenderProjectsQuery()->execute(listTenderProjectsViewer(), fiscalYear: 2027);
 
     expect($result->total())->toBe(1)
-        ->and($result->items()[0]->fiscal_year)->toBe(2570);
+        ->and($result->items()[0]->fiscal_year)->toBe(2027);
 });
 
 test('execute filters by date range to projects whose period falls entirely within it', function () {

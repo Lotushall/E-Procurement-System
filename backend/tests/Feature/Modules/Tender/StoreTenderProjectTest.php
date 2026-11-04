@@ -27,7 +27,7 @@ function validTenderProjectPayload(array $overrides = []): array
         'departmentId' => $department->id,
         'personInChargeId' => null,
         'procurementMethod' => 'e-bidding',
-        'fiscalYear' => 2569,
+        'fiscalYear' => 2026,
         'projectStartAt' => '2026-09-01',
         'projectEndAt' => '2026-12-31',
     ], $overrides);
@@ -55,13 +55,13 @@ test('an internal user with the permission can create a tender project', functio
     $response = $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload());
 
     $response->assertStatus(201)
-        ->assertJsonPath('data.projectCode', 'TP-2569-0001')
+        ->assertJsonPath('data.projectCode', 'TP-2026-0001')
         ->assertJsonPath('data.status', 'draft')
         ->assertJsonPath('data.name', 'จัดซื้อคอมพิวเตอร์')
         ->assertJsonMissingPath('data.createdBy');
 
     $this->assertDatabaseHas('tenders_projects', [
-        'project_code' => 'TP-2569-0001',
+        'project_code' => 'TP-2026-0001',
         'status' => 'draft',
         'created_by' => $user->id,
     ]);
@@ -73,16 +73,16 @@ test('the project code sequence increments for a second project in the same fisc
     $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload());
     $response = $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload());
 
-    $response->assertJsonPath('data.projectCode', 'TP-2569-0002');
+    $response->assertJsonPath('data.projectCode', 'TP-2026-0002');
 });
 
 test('the project code sequence resets to 0001 for a new fiscal year', function () {
     $this->actingAs(internalUserWithTenderProjectCreatePermission(), 'web');
 
     $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload());
-    $response = $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload(['fiscalYear' => 2570]));
+    $response = $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload(['fiscalYear' => 2027]));
 
-    $response->assertJsonPath('data.projectCode', 'TP-2570-0001');
+    $response->assertJsonPath('data.projectCode', 'TP-2027-0001');
 });
 
 test('creating a tender project requires the required fields', function () {

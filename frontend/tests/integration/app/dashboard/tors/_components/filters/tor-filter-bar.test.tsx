@@ -7,7 +7,7 @@ import { makeTenderProjectOption } from "@/tests/fixtures/tender-projects";
 
 const PLACEHOLDER = "ค้นหาชื่อ TOR | รหัส TOR";
 const DEPARTMENTS = [makeDepartment({ id: 1, name: "จัดซื้อ" }), makeDepartment({ id: 2, name: "บัญชี" })];
-const PROJECTS = [makeTenderProjectOption({ id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" })];
+const PROJECTS = [makeTenderProjectOption({ id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" })];
 
 type Props = React.ComponentProps<typeof TorFilterBar>;
 
@@ -55,9 +55,9 @@ describe("TorFilterBar — search", () => {
   it("reports what is typed", () => {
     const { setSearch } = setup();
 
-    fireEvent.change(screen.getByPlaceholderText(PLACEHOLDER), { target: { value: "TOR-2569" } });
+    fireEvent.change(screen.getByPlaceholderText(PLACEHOLDER), { target: { value: "TOR-2026" } });
 
-    expect(setSearch).toHaveBeenCalledExactlyOnceWith("TOR-2569");
+    expect(setSearch).toHaveBeenCalledExactlyOnceWith("TOR-2026");
   });
 
   it("clears the search with the inline clear button", async () => {
@@ -122,7 +122,7 @@ describe("TorFilterBar — filters", () => {
     expect(comboWithText("เปิดรับซอง")).toBeInTheDocument();
     expect(comboWithText("บัญชี")).toBeInTheDocument();
     expect(comboWithText("คัดเลือก")).toBeInTheDocument();
-    expect(comboWithText("TP-2569-007 · จัดซื้อคอมพิวเตอร์")).toBeInTheDocument();
+    expect(comboWithText("TP-2026-007 · จัดซื้อคอมพิวเตอร์")).toBeInTheDocument();
   });
 
   it("forwards a status choice from the wide filter row", async () => {

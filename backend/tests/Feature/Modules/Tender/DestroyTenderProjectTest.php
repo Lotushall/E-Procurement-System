@@ -4,7 +4,6 @@ use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -65,7 +64,7 @@ test('a project still in progress can be deleted', function (string $status) {
     $this->assertDatabaseMissing('tenders_projects', ['id' => $project->id]);
 })->with(['draft', 'published', 'closed']);
 
-test('a finished project cannot be deleted by a non-admin', function (string $status) {
+test('a finished project cannot be deleted without tender_projects.manageAnyStatus', function (string $status) {
     $project = TenderProjects::factory()->status($status)->create();
     $this->actingAs(internalUserWithTenderProjectDeletePermission(), 'web');
 
@@ -75,11 +74,11 @@ test('a finished project cannot be deleted by a non-admin', function (string $st
     $this->assertDatabaseHas('tenders_projects', ['id' => $project->id]);
 })->with(['completed', 'cancelled', 'archived']);
 
-test('an admin can still delete a finished project', function () {
+test('a user with tender_projects.manageAnyStatus can still delete a finished project', function () {
     $project = TenderProjects::factory()->status('archived')->create();
-    $admin = internalUserWithTenderProjectDeletePermission();
-    $admin->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
-    $this->actingAs($admin, 'web');
+    $manager = internalUserWithTenderProjectDeletePermission();
+    $manager->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.manageAnyStatus', 'guard_name' => 'web']));
+    $this->actingAs($manager, 'web');
 
     $response = $this->deleteJson("/api/v1/dashboard/tender-projects/{$project->id}");
 

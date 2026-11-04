@@ -52,9 +52,9 @@ describe("TenderProjectFilterBar — search", () => {
   it("reports what is typed", () => {
     const { setSearch } = setup();
 
-    fireEvent.change(screen.getByPlaceholderText(PLACEHOLDER), { target: { value: "TP-2569" } });
+    fireEvent.change(screen.getByPlaceholderText(PLACEHOLDER), { target: { value: "TP-2026" } });
 
-    expect(setSearch).toHaveBeenCalledExactlyOnceWith("TP-2569");
+    expect(setSearch).toHaveBeenCalledExactlyOnceWith("TP-2026");
   });
 
   it("clears the search with the inline clear button", async () => {

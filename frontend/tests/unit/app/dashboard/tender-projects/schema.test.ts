@@ -11,7 +11,7 @@ const validProject: CreateTenderProjectFormValues = {
   budget: "1500000",
   departmentId: "3",
   procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
-  fiscalYear: "2570",
+  fiscalYear: "2027",
   projectStartAt: "2026-10-01",
   projectEndAt: "2027-09-30",
 };

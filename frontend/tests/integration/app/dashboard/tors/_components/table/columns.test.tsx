@@ -92,10 +92,10 @@ describe("torColumns — header", () => {
 
 describe("torColumns — code and title cells", () => {
   it("links the code and the title to the TOR detail page", () => {
-    renderTable([makeTor({ id: 42, torCode: "TOR-2569-042", title: "จัดซื้อโต๊ะ" })]);
+    renderTable([makeTor({ id: 42, torCode: "TOR-2026-042", title: "จัดซื้อโต๊ะ" })]);
 
     const row = dataRow();
-    expect(within(cell(row, 0)).getByRole("link", { name: "TOR-2569-042" })).toHaveAttribute(
+    expect(within(cell(row, 0)).getByRole("link", { name: "TOR-2026-042" })).toHaveAttribute(
       "href",
       routes.dashboards.tors.detail(42),
     );
@@ -113,7 +113,7 @@ describe("torColumns — code and title cells", () => {
 
 describe("torColumns — tender project", () => {
   it("links the project name to the project detail page", () => {
-    renderTable([makeTor({ tenderProject: { id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" } })]);
+    renderTable([makeTor({ tenderProject: { id: 7, projectCode: "TP-2026-007", name: "จัดซื้อคอมพิวเตอร์" } })]);
 
     const link = within(cell(dataRow(), 2)).getByRole("link", { name: "จัดซื้อคอมพิวเตอร์" });
     expect(link).toHaveAttribute("href", routes.dashboards.tender_project.detail(7));
@@ -139,10 +139,10 @@ describe("torColumns — procurement method", () => {
 
 describe("torColumns — budget", () => {
   it("shows the fiscal year above the grouped budget", () => {
-    renderTable([makeTor({ fiscalYear: 2570, budgetEstimate: "1250000.00" })]);
+    renderTable([makeTor({ fiscalYear: 2027, budgetEstimate: "1250000.00" })]);
 
     const budget = cell(dataRow(), 4);
-    expect(budget).toHaveTextContent("ปีงบประมาณ 2570");
+    expect(budget).toHaveTextContent("ปีงบประมาณ 2027");
     expect(budget).toHaveTextContent("1,250,000");
   });
 
@@ -210,10 +210,10 @@ describe("torColumns — status", () => {
 
 describe("torColumns — several rows", () => {
   it("renders one row per TOR in order", () => {
-    renderTable([makeTor({ id: 1, torCode: "TOR-2569-001" }), makeTor({ id: 2, torCode: "TOR-2569-002" })]);
+    renderTable([makeTor({ id: 1, torCode: "TOR-2026-001" }), makeTor({ id: 2, torCode: "TOR-2026-002" })]);
 
     expect(screen.getAllByRole("row")).toHaveLength(3);
-    expect(within(cell(dataRow(0), 0)).getByRole("link")).toHaveTextContent("TOR-2569-001");
-    expect(within(cell(dataRow(1), 0)).getByRole("link")).toHaveTextContent("TOR-2569-002");
+    expect(within(cell(dataRow(0), 0)).getByRole("link")).toHaveTextContent("TOR-2026-001");
+    expect(within(cell(dataRow(1), 0)).getByRole("link")).toHaveTextContent("TOR-2026-002");
   });
 });

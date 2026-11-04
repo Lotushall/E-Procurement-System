@@ -13,7 +13,7 @@ import { TenderProjectStatusSelect } from "@/components/tender-project-status-se
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { TOR_VIEW_PERMISSIONS } from "@/lib/tender/tor/types";
-import { isTenderProjectLocked } from "@/lib/tender/tender-projects/status-rules";
+import { isTenderProjectLocked, MANAGE_ANY_STATUS_PERMISSION } from "@/lib/tender/tender-projects/status-rules";
 import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { routes } from "@/lib/routes";
 import { DeleteTenderProjectDialog } from "../_components/dialogs/delete-tender-project-dialog";
@@ -34,7 +34,7 @@ function TenderProjectDetailContent() {
     const router = useRouter();
     const { project, isValidId, isPending, loadFailed, notFound } = useTenderProjectDetailPage(id);
 
-    const { hasPermission, hasAnyPermission, hasRole } = useAuthPermissions();
+    const { hasPermission, hasAnyPermission } = useAuthPermissions();
     const canUpdateStatus = hasPermission("tender_projects.updateStatus");
     // ไม่มีสิทธิ์ดู TOR เลย backend จะส่ง tors เป็น [] เสมอ — ซ่อนการ์ดแทนการบอกว่า "ไม่มี TOR"
     const canViewTors = hasAnyPermission(TOR_VIEW_PERMISSIONS);
@@ -59,8 +59,8 @@ function TenderProjectDetailContent() {
         );
     }
 
-    // โครงการที่จบแล้ว ผู้ที่ไม่ใช่ admin แก้ไข/ลบไม่ได้ (เหมือนในหน้ารายการ)
-    const locked = isTenderProjectLocked(project.status, hasRole("admin"));
+    // โครงการที่จบแล้ว แก้ไข/ลบได้เฉพาะผู้ที่มี tender_projects.manageAnyStatus (เหมือนในหน้ารายการ)
+    const locked = isTenderProjectLocked(project.status, hasPermission(MANAGE_ANY_STATUS_PERMISSION));
     const canUpdate = hasPermission("tender_projects.update") && !locked;
     const canDelete = hasPermission("tender_projects.delete") && !locked;
 

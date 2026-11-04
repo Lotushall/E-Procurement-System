@@ -33,12 +33,12 @@ class TenderProjectPolicy
     }
 
     /**
-     * Lifts the status lock: an admin may move a project to any status and
-     * still edit or delete a finished one; everyone else follows the
-     * one-step-forward flow and cannot touch a finished project.
+     * Lifts the status lock: the project may move to any status and a
+     * finished one may still be edited or deleted. Without it the project
+     * follows the one-step-forward flow and a finished one is locked.
      */
     public function manageAnyStatus(User $user): bool
     {
-        return $user->user_type === UserType::Internal && $user->hasRole('admin');
+        return $user->user_type === UserType::Internal && $user->checkPermissionTo('tender_projects.manageAnyStatus');
     }
 }

@@ -45,7 +45,7 @@ describe("dashboard metadata", () => {
 describe("DashboardLayout", () => {
   it("wraps the page in the navbar, the sidebar menu and the breadcrumb for an internal user", async () => {
     signInAs({ userType: "internal", roles: ["admin"], permissions: ["tors.viewAny"] });
-    useBreadcrumbStore.setState({ items: [{ label: "TOR-2570-001" }] });
+    useBreadcrumbStore.setState({ items: [{ label: "TOR-2027-001" }] });
 
     renderLayout();
 
@@ -58,7 +58,7 @@ describe("DashboardLayout", () => {
       "/dashboard/tors",
     );
     expect(screen.getByRole("navigation", { name: "breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByText("TOR-2570-001", { selector: '[data-slot="breadcrumb-page"]' })).toBeInTheDocument();
+    expect(screen.getByText("TOR-2027-001", { selector: '[data-slot="breadcrumb-page"]' })).toBeInTheDocument();
   });
 
   it("places the page content and the breadcrumb together inside the main area", async () => {

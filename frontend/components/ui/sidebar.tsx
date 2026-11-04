@@ -44,6 +44,17 @@ type SidebarContextProps = {
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
+// The cookie only changes through setOpen below, which also updates state, so
+// there is nothing to subscribe to.
+const subscribeToNothing = () => () => {}
+
+function readSidebarCookie(): boolean | null {
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${SIDEBAR_COOKIE_NAME}=([^;]*)`)
+  )
+  return match ? match[1] === "true" : null
+}
+
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
@@ -69,22 +80,20 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen)
-  const open = openProp ?? _open
-
   // This app uses `output: "export"`, so there is no server available to read
-  // the cookie before render. Sync the saved state in on mount instead.
-  React.useEffect(() => {
-    if (openProp !== undefined) return
-    const match = document.cookie.match(
-      new RegExp(`(?:^|; )${SIDEBAR_COOKIE_NAME}=([^;]*)`)
-    )
-    if (match) {
-      _setOpen(match[1] === "true")
-    }
-  }, [openProp])
+  // the cookie before render. useSyncExternalStore renders the server snapshot
+  // (null → defaultOpen) during hydration, then the saved cookie value.
+  const savedOpen = React.useSyncExternalStore(
+    subscribeToNothing,
+    readSidebarCookie,
+    () => null
+  )
+
+  // This is the internal state of the sidebar: null until the user toggles it.
+  // We use openProp and setOpenProp for control from outside the component.
+  const [_open, _setOpen] = React.useState<boolean | null>(null)
+  const open = openProp ?? _open ?? savedOpen ?? defaultOpen
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value

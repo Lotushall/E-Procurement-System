@@ -9,7 +9,7 @@ freezeTimeAt("2026-11-02T10:00:00+07:00");
 
 const OPEN = makeTor({
   id: 11,
-  torCode: "TOR-2569-001",
+  torCode: "TOR-2026-001",
   title: "จัดซื้อโน้ตบุ๊ก",
   procurementMethod: "e-bidding",
   budgetEstimate: "1234567.50",
@@ -19,7 +19,7 @@ const OPEN = makeTor({
 });
 const DRAFT = makeTor({
   id: 12,
-  torCode: "TOR-2569-002",
+  torCode: "TOR-2026-002",
   title: "จัดซื้อโต๊ะ",
   procurementMethod: "วิธีเฉพาะเจาะจง",
   budgetEstimate: "5000.00",
@@ -56,7 +56,7 @@ describe("TenderProjectTorList", () => {
     expect(rows).toHaveLength(2);
 
     const first = within(rows[0]);
-    expect(first.getByRole("link", { name: "TOR-2569-001" })).toBeInTheDocument();
+    expect(first.getByRole("link", { name: "TOR-2026-001" })).toBeInTheDocument();
     expect(first.getByRole("link", { name: "จัดซื้อโน้ตบุ๊ก" })).toBeInTheDocument();
     expect(first.getByText("e-bidding")).toBeInTheDocument();
     expect(first.getByText("1,234,567.5")).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe("TenderProjectTorList", () => {
     expect(first.getByText("ประกาศแล้ว")).toBeInTheDocument();
 
     const second = within(rows[1]);
-    expect(second.getByRole("link", { name: "TOR-2569-002" })).toBeInTheDocument();
+    expect(second.getByRole("link", { name: "TOR-2026-002" })).toBeInTheDocument();
     expect(second.getByText("5,000")).toBeInTheDocument();
     expect(second.getByText("ยังไม่กำหนด")).toBeInTheDocument();
     expect(second.getByText("ร่าง")).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe("TenderProjectTorList", () => {
     render(<TenderProjectTorList tors={[OPEN]} />);
 
     const table = within(screen.getByRole("table"));
-    expect(table.getByRole("link", { name: "TOR-2569-001" })).toHaveAttribute("href", routes.dashboards.tors.detail(11));
+    expect(table.getByRole("link", { name: "TOR-2026-001" })).toHaveAttribute("href", routes.dashboards.tors.detail(11));
     expect(table.getByRole("link", { name: "จัดซื้อโน้ตบุ๊ก" })).toHaveAttribute("href", routes.dashboards.tors.detail(11));
   });
 
@@ -85,7 +85,7 @@ describe("TenderProjectTorList", () => {
     expect(items).toHaveLength(2);
 
     const first = within(items[0]);
-    expect(first.getByText("TOR-2569-001")).toBeInTheDocument();
+    expect(first.getByText("TOR-2026-001")).toBeInTheDocument();
     expect(first.getByRole("link", { name: "จัดซื้อโน้ตบุ๊ก" })).toHaveAttribute("href", routes.dashboards.tors.detail(11));
     expect(first.getByText("e-bidding")).toBeInTheDocument();
     expect(first.getByText("1,234,567.5")).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe("TenderProjectTorList", () => {
   });
 
   it("shows every TOR it is given without filtering (visibility is applied by the backend)", () => {
-    const cancelled = makeTor({ id: 13, torCode: "TOR-2569-003", title: "ยกเลิกแล้ว", status: "cancelled" });
+    const cancelled = makeTor({ id: 13, torCode: "TOR-2026-003", title: "ยกเลิกแล้ว", status: "cancelled" });
     render(<TenderProjectTorList tors={[cancelled]} />);
 
     const row = within(screen.getByRole("table")).getAllByRole("row")[1];

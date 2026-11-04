@@ -36,7 +36,7 @@ function serve() {
     http.get(PROFILES_URL, () => HttpResponse.json({ data: PROFILES })),
     http.post(CREATE_URL, async ({ request }) => {
       state.posts.push(await request.json());
-      return HttpResponse.json({ data: { projectCode: "TP-2570-001" } }, { status: 201 });
+      return HttpResponse.json({ data: { projectCode: "TP-2027-001" } }, { status: 201 });
     }),
   );
   return state;
@@ -113,7 +113,7 @@ describe("CreateTenderProjectDialog — opening", () => {
     expect(combo("แผนก")).toHaveTextContent("---");
     expect(combo("ผู้รับผิดชอบ")).toHaveTextContent("---");
     expect(textbox("งบประมาณ")).toHaveValue("");
-    expect(combo("ปีงบประมาณ")).toHaveTextContent("ปีงบประมาณ 2570");
+    expect(combo("ปีงบประมาณ")).toHaveTextContent("ปีงบประมาณ 2027");
     expect(screen.getByRole("button", { name: /เลือกระยะเวลาโครงการ/ })).toBeInTheDocument();
     expect(textbox("รายละเอียด")).toHaveValue("");
   });
@@ -126,11 +126,11 @@ describe("CreateTenderProjectDialog — opening", () => {
 
     const options = await screen.findAllByRole("option");
     expect(options.map((o) => o.textContent)).toEqual([
-      "ปีงบประมาณ 2570",
-      "ปีงบประมาณ 2569",
-      "ปีงบประมาณ 2568",
-      "ปีงบประมาณ 2567",
-      "ปีงบประมาณ 2566",
+      "ปีงบประมาณ 2027",
+      "ปีงบประมาณ 2026",
+      "ปีงบประมาณ 2025",
+      "ปีงบประมาณ 2024",
+      "ปีงบประมาณ 2023",
     ]);
   });
 
@@ -288,7 +288,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
       budget: 1500000.5,
       departmentId: 2,
       procurementMethod: "คัดเลือก",
-      fiscalYear: 2570,
+      fiscalYear: 2027,
       projectStartAt: "2026-11-15",
       projectEndAt: "2026-11-20",
     });
@@ -299,7 +299,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
     const { user } = await setup();
     await fillRequired(user);
     await pickOption(user, "ผู้รับผิดชอบ", "สมศักดิ์ ทำดี");
-    await pickOption(user, "ปีงบประมาณ", "ปีงบประมาณ 2569");
+    await pickOption(user, "ปีงบประมาณ", "ปีงบประมาณ 2026");
     await user.type(textbox("รายละเอียด"), "รายละเอียดเพิ่มเติม");
 
     await user.click(submit());
@@ -312,7 +312,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
       departmentId: 2,
       personInChargeId: 8,
       procurementMethod: "คัดเลือก",
-      fiscalYear: 2569,
+      fiscalYear: 2026,
       projectStartAt: "2026-11-15",
       projectEndAt: "2026-11-20",
     });
@@ -356,7 +356,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("สร้างโครงการสำเร็จ (TP-2570-001)"));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("สร้างโครงการสำเร็จ (TP-2027-001)"));
     expect(onOpenChange).toHaveBeenCalledWith(false);
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["tenders_projects"] });
@@ -388,7 +388,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
       http.post(CREATE_URL, async ({ request }) => {
         posts.push(await request.json());
         await gate;
-        return HttpResponse.json({ data: { projectCode: "TP-2570-001" } }, { status: 201 });
+        return HttpResponse.json({ data: { projectCode: "TP-2027-001" } }, { status: 201 });
       }),
     );
     const { user } = await setup();
@@ -402,7 +402,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
 
     release();
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("สร้างโครงการสำเร็จ (TP-2570-001)"));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("สร้างโครงการสำเร็จ (TP-2027-001)"));
     expect(posts).toHaveLength(1);
   });
 });

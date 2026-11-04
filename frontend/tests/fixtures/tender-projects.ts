@@ -8,14 +8,14 @@ import { makeInternalProfile } from "@/tests/fixtures/internal-profiles";
 export function makeTenderProject(overrides: Partial<TenderProjects> = {}): TenderProjects {
   return {
     id: 1,
-    projectCode: "TP-2569-001",
+    projectCode: "TP-2026-001",
     name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์",
     description: "จัดซื้อคอมพิวเตอร์สำหรับสำนักงาน",
     budget: "1000000.00",
     department: { id: 1, name: "จัดซื้อ" },
     personInCharge: makeInternalProfile(),
     procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
-    fiscalYear: 2569,
+    fiscalYear: 2026,
     projectStartAt: "2026-01-01T00:00:00.000000Z",
     projectEndAt: "2026-12-31T00:00:00.000000Z",
     status: "draft",
@@ -27,7 +27,7 @@ export function makeTenderProject(overrides: Partial<TenderProjects> = {}): Tend
 
 // GET /dashboard/tender-projects/select
 export function makeTenderProjectOption(overrides: Partial<TenderProjectOption> = {}): TenderProjectOption {
-  return { id: 1, projectCode: "TP-2569-001", name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์", ...overrides };
+  return { id: 1, projectCode: "TP-2026-001", name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์", ...overrides };
 }
 
 // meta.stats ของรายการโครงการ
