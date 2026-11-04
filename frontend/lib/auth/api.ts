@@ -1,5 +1,5 @@
 import { isAxiosError } from "axios";
-import { api, ensureCsrfCookie } from "@/lib/api";
+import { api, CURRENT_USER_PATH, ensureCsrfCookie } from "@/lib/api";
 import type {
   ChangePasswordPayload,
   CurrentUser,
@@ -12,7 +12,7 @@ import type {
 
 export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   try {
-    const { data } = await api.get<{ data: CurrentUser }>("/api/v1/auth/user");
+    const { data } = await api.get<{ data: CurrentUser }>(CURRENT_USER_PATH);
     return data.data;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 401) {

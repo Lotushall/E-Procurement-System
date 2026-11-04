@@ -14,9 +14,12 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _csrfRetry?: boolean;
 }
 
+// endpoint เช็ค user ปัจจุบัน — 401 ที่นี่แปลว่ายังไม่ได้ login (fetchCurrentUser คืน null เอง) ไม่ใช่ session หมดอายุ
+export const CURRENT_USER_PATH = "/api/v1/auth/user";
+
 let onUnauthorized: (() => void) | null = null;
 
-export function setUnauthorizedHandler(handler: () => void): void {
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
 }
 
@@ -30,7 +33,7 @@ api.interceptors.response.use(
     const config = error.config as RetryableRequestConfig;
     const status = error.response?.status;
 
-    if (status === 401 && config.url !== "/api/user") {
+    if (status === 401 && config.url !== CURRENT_USER_PATH) {
       onUnauthorized?.();
       return Promise.reject(error);
     }

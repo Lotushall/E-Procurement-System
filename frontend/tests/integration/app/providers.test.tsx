@@ -1,8 +1,14 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 import { Providers } from "@/app/providers";
+import { api } from "@/lib/api";
+import { useRequireAuth } from "@/lib/auth/guards/useRequireAuth";
+import { AUTH_USER_QUERY_KEY } from "@/lib/auth/queries/useUser";
+import { makeCurrentUser } from "@/tests/fixtures/users";
+import { signInAs } from "@/tests/helpers/auth";
+import { router } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 
 const devtoolsProps = vi.hoisted(() => ({ calls: [] as Record<string, unknown>[] }));
@@ -18,6 +24,11 @@ vi.mock("@tanstack/react-query-devtools", () => ({
 function CaptureClient({ onClient }: { onClient: (client: QueryClient) => void }) {
   onClient(useQueryClient());
   return null;
+}
+
+function GuardedPage() {
+  const { isChecking } = useRequireAuth();
+  return isChecking ? null : <p>หน้าที่ต้อง login</p>;
 }
 
 function GreetingQuery() {
@@ -87,6 +98,70 @@ describe("Providers", () => {
     );
 
     expect(first[0]).not.toBe(second[0]);
+  });
+
+  it("signs the user out of the cache as soon as any API call answers 401 (session expired)", async () => {
+    server.use(http.get(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 401 })));
+    let client!: QueryClient;
+    render(
+      <Providers>
+        <CaptureClient onClient={(c) => (client = c)} />
+      </Providers>,
+    );
+    client.setQueryData(AUTH_USER_QUERY_KEY, makeCurrentUser());
+
+    await expect(api.get("/api/v1/tors")).rejects.toMatchObject({ response: { status: 401 } });
+
+    expect(client.getQueryData(AUTH_USER_QUERY_KEY)).toBeNull();
+  });
+
+  it("sends a guarded page to the login page right after a 401, without waiting for the user refetch", async () => {
+    signInAs();
+    server.use(http.get(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 401 })));
+    render(
+      <Providers>
+        <GuardedPage />
+      </Providers>,
+    );
+    expect(await screen.findByText("หน้าที่ต้อง login")).toBeInTheDocument();
+
+    await expect(api.get("/api/v1/tors")).rejects.toMatchObject({ response: { status: 401 } });
+
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login"));
+    expect(screen.queryByText("หน้าที่ต้อง login")).not.toBeInTheDocument();
+  });
+
+  it("keeps the user when the 401 is the current-user check itself", async () => {
+    server.use(http.get(apiUrl("/api/v1/auth/user"), () => new HttpResponse(null, { status: 401 })));
+    let client!: QueryClient;
+    render(
+      <Providers>
+        <CaptureClient onClient={(c) => (client = c)} />
+      </Providers>,
+    );
+    const user = makeCurrentUser();
+    client.setQueryData(AUTH_USER_QUERY_KEY, user);
+
+    await expect(api.get("/api/v1/auth/user")).rejects.toMatchObject({ response: { status: 401 } });
+
+    expect(client.getQueryData(AUTH_USER_QUERY_KEY)).toEqual(user);
+  });
+
+  it("stops handling 401s after it unmounts", async () => {
+    server.use(http.get(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 401 })));
+    let client!: QueryClient;
+    const { unmount } = render(
+      <Providers>
+        <CaptureClient onClient={(c) => (client = c)} />
+      </Providers>,
+    );
+    const user = makeCurrentUser();
+    client.setQueryData(AUTH_USER_QUERY_KEY, user);
+    unmount();
+
+    await expect(api.get("/api/v1/tors")).rejects.toMatchObject({ response: { status: 401 } });
+
+    expect(client.getQueryData(AUTH_USER_QUERY_KEY)).toEqual(user);
   });
 
   it("mounts the React Query devtools closed, in the bottom-left corner", () => {

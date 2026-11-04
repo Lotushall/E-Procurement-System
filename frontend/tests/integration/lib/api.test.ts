@@ -5,7 +5,7 @@ import { apiUrl, server } from "@/tests/msw/server";
 
 describe("api client", () => {
   afterEach(() => {
-    setUnauthorizedHandler(() => {});
+    setUnauthorizedHandler(null);
   });
 
   it("calls the unauthorized handler on 401", async () => {
@@ -20,10 +20,16 @@ describe("api client", () => {
   it("does not call the unauthorized handler for the current-user check", async () => {
     const onUnauthorized = vi.fn();
     setUnauthorizedHandler(onUnauthorized);
-    server.use(http.get(apiUrl("/api/user"), () => new HttpResponse(null, { status: 401 })));
+    server.use(http.get(apiUrl("/api/v1/auth/user"), () => new HttpResponse(null, { status: 401 })));
 
-    await expect(api.get("/api/user")).rejects.toMatchObject({ response: { status: 401 } });
+    await expect(api.get("/api/v1/auth/user")).rejects.toMatchObject({ response: { status: 401 } });
     expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it("rejects a 401 without a registered handler", async () => {
+    server.use(http.get(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 401 })));
+
+    await expect(api.get("/api/v1/tors")).rejects.toMatchObject({ response: { status: 401 } });
   });
 
   it("refreshes the CSRF cookie and retries once on 419", async () => {
