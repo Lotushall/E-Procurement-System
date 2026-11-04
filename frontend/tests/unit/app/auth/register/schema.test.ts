@@ -15,7 +15,7 @@ const validCompany: RegisterValues = {
   ...shared,
   vendorType: "company",
   companyName: "บริษัท ตัวอย่าง จำกัด",
-  taxId: "0105512345678",
+  taxId: "0105512345671",
 };
 
 const validIndividual: RegisterValues = {
@@ -23,7 +23,7 @@ const validIndividual: RegisterValues = {
   vendorType: "individual",
   fullName: "สมชาย ใจดี",
   storeName: "ร้านสมชาย",
-  idCard: "1103700012345",
+  idCard: "1103700012346",
 };
 
 describe("RegisterSchema — company", () => {
@@ -32,7 +32,7 @@ describe("RegisterSchema — company", () => {
   });
 
   it("accepts a tax id typed with dashes", () => {
-    expect(fieldErrorsOf(RegisterSchema, { ...validCompany, taxId: "0-1055-12345-67-8" })).toEqual({});
+    expect(fieldErrorsOf(RegisterSchema, { ...validCompany, taxId: "0-1055-12345-67-1" })).toEqual({});
   });
 
   it("requires a company name", () => {
@@ -44,6 +44,12 @@ describe("RegisterSchema — company", () => {
   it.each(["", "010551234567", "01055123456789"])("rejects tax id %j that is not 13 digits", (taxId) => {
     expect(fieldErrorsOf(RegisterSchema, { ...validCompany, taxId })).toEqual({
       taxId: ["เลขประจำตัวผู้เสียภาษีต้องมี 13 หลัก"],
+    });
+  });
+
+  it("rejects a tax id with a wrong check digit", () => {
+    expect(fieldErrorsOf(RegisterSchema, { ...validCompany, taxId: "0105512345678" })).toEqual({
+      taxId: ["เลขประจำตัวผู้เสียภาษีไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง"],
     });
   });
 
@@ -70,6 +76,12 @@ describe("RegisterSchema — individual", () => {
   it("rejects an id card that is not 13 digits", () => {
     expect(fieldErrorsOf(RegisterSchema, { ...validIndividual, idCard: "12345" })).toEqual({
       idCard: ["เลขบัตรประชาชนต้องมี 13 หลัก"],
+    });
+  });
+
+  it("rejects an id card with a wrong check digit", () => {
+    expect(fieldErrorsOf(RegisterSchema, { ...validIndividual, idCard: "1-1037-00012-34-5" })).toEqual({
+      idCard: ["เลขบัตรประชาชนไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง"],
     });
   });
 });

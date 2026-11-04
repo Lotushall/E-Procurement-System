@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { digitsOnly, isValidPhone } from "@/lib/utils";
+import { isValidPhone, thaiIdError } from "@/lib/utils";
 
 export const RegisterSchema = z
     .object({
@@ -21,8 +21,9 @@ export const RegisterSchema = z
             if (!data.companyName?.trim()) {
                 ctx.addIssue({ code: "custom", message: "กรุณากรอกชื่อบริษัท / นิติบุคคล", path: ["companyName"] });
             }
-            if (digitsOnly(data.taxId ?? "").length !== 13) {
-                ctx.addIssue({ code: "custom", message: "เลขประจำตัวผู้เสียภาษีต้องมี 13 หลัก", path: ["taxId"] });
+            const taxIdError = thaiIdError(data.taxId ?? "", "เลขประจำตัวผู้เสียภาษี");
+            if (taxIdError) {
+                ctx.addIssue({ code: "custom", message: taxIdError, path: ["taxId"] });
             }
         } else {
             if (!data.fullName?.trim()) {
@@ -31,8 +32,9 @@ export const RegisterSchema = z
             if (!data.storeName?.trim()) {
                 ctx.addIssue({ code: "custom", message: "กรุณากรอกชื่อร้านค้า", path: ["storeName"] });
             }
-            if (digitsOnly(data.idCard ?? "").length !== 13) {
-                ctx.addIssue({ code: "custom", message: "เลขบัตรประชาชนต้องมี 13 หลัก", path: ["idCard"] });
+            const idCardError = thaiIdError(data.idCard ?? "", "เลขบัตรประชาชน");
+            if (idCardError) {
+                ctx.addIssue({ code: "custom", message: idCardError, path: ["idCard"] });
             }
         }
 

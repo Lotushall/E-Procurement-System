@@ -32,9 +32,17 @@ Element.prototype.scrollIntoView ??= () => {};
 Element.prototype.hasPointerCapture ??= () => false;
 Element.prototype.releasePointerCapture ??= () => {};
 
-// request ที่ไม่มี handler รองรับให้ test fail ทันที — กันไม่ให้หลุดไปยิง API จริง
+// request ที่ไม่มี handler รองรับให้ test fail — "error" อย่างเดียวแค่ log + ทำให้ request error
+// (React Query จับไว้เป็น isError ได้ test จึงยังผ่าน) เลยเก็บไว้แล้ว throw ใน afterEach
+const unhandled: string[] = [];
+
 beforeAll(() => {
-  server.listen({ onUnhandledFrame: "error" });
+  server.listen({
+    async onUnhandledFrame({ frame, defaults }) {
+      unhandled.push(await frame.getUnhandledMessage());
+      defaults.error();
+    },
+  });
 });
 
 afterEach(() => {
@@ -42,6 +50,10 @@ afterEach(() => {
   server.resetHandlers();
   resetNavigation();
   resetToast();
+  if (unhandled.length > 0) {
+    const messages = unhandled.splice(0);
+    throw new Error(`Unhandled request(s) without an MSW handler:\n${messages.join("\n")}`);
+  }
 });
 
 afterAll(() => {

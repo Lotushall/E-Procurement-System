@@ -92,3 +92,193 @@ describe("useListPageControls — writing the URL", () => {
     }
   });
 });
+
+describe("useListPageControls — updateParams", () => {
+  it("deletes params whose value is null or an empty string and keeps the rest", () => {
+    const { result } = renderControls("/x?status=open&owner=7&page=3");
+
+    act(() => result.current.updateParams({ status: null, owner: "", kind: "a", limit: 5 }));
+
+    expect(router.replace).toHaveBeenCalledWith("/x?page=3&kind=a&limit=5", { scroll: false });
+  });
+
+  it("drops the page param when resetPage is true", () => {
+    const { result } = renderControls("/x?page=3");
+
+    act(() => result.current.updateParams({ status: "open" }, true));
+
+    expect(router.replace).toHaveBeenCalledWith("/x?status=open", { scroll: false });
+  });
+});
+
+describe("useListPageControls — per_page", () => {
+  it("writes per_page only when it differs from a custom default", () => {
+    setUrl("/x");
+    const { result } = renderHook(() => useListPageControls({ sortByValues: SORT_BY, defaultPageSize: 10 }));
+
+    act(() => result.current.setPagination({ pageIndex: 0, pageSize: 10 }));
+    expect(router.replace).toHaveBeenLastCalledWith("/x", { scroll: false });
+
+    act(() => result.current.setPagination({ pageIndex: 0, pageSize: 20 }));
+    expect(router.replace).toHaveBeenLastCalledWith("/x?per_page=20", { scroll: false });
+  });
+
+  it("accepts an updater function for pagination", () => {
+    const { result } = renderControls("/x?page=2");
+
+    act(() => result.current.setPagination((old) => ({ ...old, pageIndex: old.pageIndex + 1 })));
+
+    expect(router.replace).toHaveBeenCalledWith("/x?page=3", { scroll: false });
+  });
+
+  it("accepts an updater function for sorting and flips to descending", () => {
+    const { result } = renderControls("/x?sort_by=name&sort_direction=asc");
+
+    act(() => result.current.setSorting(() => [{ id: "budget", desc: true }]));
+
+    expect(router.replace).toHaveBeenCalledWith("/x?sort_by=budget&sort_direction=desc", { scroll: false });
+  });
+});
+
+describe("useListPageControls — search", () => {
+  it("applies normalizeSearch to the trimmed text before writing it", () => {
+    vi.useFakeTimers();
+    try {
+      setUrl("/x");
+      const { result } = renderHook(() =>
+        useListPageControls({ sortByValues: SORT_BY, normalizeSearch: (value) => value.toUpperCase() }),
+      );
+
+      act(() => result.current.setSearch("  tp-001 "));
+      act(() => vi.advanceTimersByTime(350));
+
+      expect(router.replace).toHaveBeenCalledWith("/x?search=TP-001", { scroll: false });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("uses a custom debounce delay", () => {
+    vi.useFakeTimers();
+    try {
+      setUrl("/x");
+      const { result } = renderHook(() => useListPageControls({ sortByValues: SORT_BY, searchDebounceMs: 100 }));
+
+      act(() => result.current.setSearch("abc"));
+      act(() => vi.advanceTimersByTime(99));
+      expect(router.replace).not.toHaveBeenCalled();
+
+      act(() => vi.advanceTimersByTime(1));
+      expect(router.replace).toHaveBeenCalledWith("/x?search=abc", { scroll: false });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("removes the search param and the page when the input is cleared", () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = renderControls("/x?search=abc&page=2");
+
+      act(() => result.current.setSearch("   "));
+      act(() => vi.advanceTimersByTime(350));
+
+      expect(router.replace).toHaveBeenCalledWith("/x", { scroll: false });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not write the URL when the typed text already matches the URL", () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = renderControls("/x?search=abc");
+
+      act(() => result.current.setSearch(" abc "));
+      act(() => vi.advanceTimersByTime(1000));
+
+      expect(router.replace).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("resyncs the input when the search param changes from outside", () => {
+    setUrl("/x?search=old");
+    const { result, rerender } = renderHook(() => useListPageControls({ sortByValues: SORT_BY }));
+    expect(result.current.search).toBe("old");
+
+    setUrl("/x?search=new");
+    rerender();
+
+    expect(result.current.debouncedSearch).toBe("new");
+    expect(result.current.search).toBe("new");
+  });
+});
+
+describe("useListPageControls — resolveIsFetching", () => {
+  it("never shows the skeleton for a fetch that was not triggered by search", () => {
+    const { result } = renderControls("/x");
+
+    expect(result.current.resolveIsFetching(false)).toBe(false);
+    let shown = true;
+    act(() => {
+      shown = result.current.resolveIsFetching(true);
+    });
+    expect(shown).toBe(false);
+  });
+
+  it("shows the skeleton for fetches after setSkipSkeleton(false)", () => {
+    const { result } = renderControls("/x");
+
+    act(() => result.current.setSkipSkeleton(false));
+    let shown = false;
+    act(() => {
+      shown = result.current.resolveIsFetching(true);
+    });
+
+    expect(shown).toBe(true);
+  });
+
+  it("is false when not fetching even if skeleton is enabled", () => {
+    const { result } = renderControls("/x");
+
+    act(() => result.current.setSkipSkeleton(false));
+
+    expect(result.current.resolveIsFetching(false)).toBe(false);
+  });
+
+  it("resets to skipping the skeleton after the fetch ends", () => {
+    const { result } = renderControls("/x");
+
+    act(() => result.current.setSkipSkeleton(false));
+    act(() => {
+      result.current.resolveIsFetching(true);
+    });
+    expect(result.current.resolveIsFetching(true)).toBe(true);
+
+    act(() => {
+      result.current.resolveIsFetching(false);
+    });
+    let shown = true;
+    act(() => {
+      shown = result.current.resolveIsFetching(true);
+    });
+
+    expect(shown).toBe(false);
+  });
+
+  it("skips the skeleton again after paging or sorting", () => {
+    const { result } = renderControls("/x");
+
+    act(() => result.current.setSkipSkeleton(false));
+    act(() => result.current.setPagination({ pageIndex: 1, pageSize: 20 }));
+
+    expect(result.current.resolveIsFetching(true)).toBe(false);
+
+    act(() => result.current.setSkipSkeleton(false));
+    act(() => result.current.setSorting([{ id: "name", desc: true }]));
+
+    expect(result.current.resolveIsFetching(true)).toBe(false);
+  });
+});

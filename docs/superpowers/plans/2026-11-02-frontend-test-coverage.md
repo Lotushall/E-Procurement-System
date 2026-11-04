@@ -384,7 +384,7 @@ Must cover:
 
 Must cover:
 - `formatThaiId`: digits and `X` kept, grouping `X-XXXX-XXXXX-XX-X`, max 13 characters, lowercase `x` upper-cased.
-- Both forms: prefilled from the profile (masked ids shown formatted); saving without touching a masked id sends it unchanged and succeeds; postal code and 13-digit rules block submit with their messages; `vendorType` is added to the payload; success toast "บันทึกข้อมูลกิจการสำเร็จ"; 422 field errors land on the fields and the toast says "กรุณาตรวจสอบข้อมูลที่กรอก"; other failure falls back to "บันทึกข้อมูลกิจการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"; the cancel/reset button restores the profile values; warnings on empty fields (`warning={!detail.x}`).
+- Both forms: prefilled from the profile (masked ids shown formatted); saving without touching a masked id sends it unchanged and succeeds; postal code, 13-digit and Thai ID check-digit rules block submit with their messages ("…ต้องมี 13 หลัก", "…ไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง" — check digits come from `thaiIdError` in lib/utils.ts, masked values `xxxxxxxxx1234` pass untouched); `vendorType` is added to the payload; success toast "บันทึกข้อมูลกิจการสำเร็จ"; 422 field errors land on the fields and the toast says "กรุณาตรวจสอบข้อมูลที่กรอก"; other failure falls back to "บันทึกข้อมูลกิจการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"; the cancel/reset button restores the profile values; warnings on empty fields (`warning={!detail.x}`).
 - Individual form: default prefix "นาย" when empty.
 - Page: picks the company or individual form by vendor type; loading and error states.
 

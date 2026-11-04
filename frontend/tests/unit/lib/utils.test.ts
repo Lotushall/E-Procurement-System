@@ -7,7 +7,9 @@ import {
   formatPhone,
   getInitials,
   isValidPhone,
+  isValidThaiId,
   maskCitizenId,
+  thaiIdError,
 } from "@/lib/utils";
 
 describe("cn", () => {
@@ -55,6 +57,44 @@ describe("formatCitizenId", () => {
 
   it("reformats an already formatted id", () => {
     expect(formatCitizenId("1-1037-00012-34-5")).toBe("1-1037-00012-34-5");
+  });
+});
+
+describe("isValidThaiId", () => {
+  it.each(["1103700012346", "0105512345671", "1-1037-00012-34-6"])("accepts %j with a correct check digit", (id) => {
+    expect(isValidThaiId(id)).toBe(true);
+  });
+
+  it.each([
+    ["1103700012345", "wrong check digit"],
+    ["0105512345678", "wrong check digit"],
+    ["110370001234", "12 digits"],
+    ["11037000123466", "14 digits"],
+    ["", "empty"],
+  ])("rejects %j (%s)", (id) => {
+    expect(isValidThaiId(id)).toBe(false);
+  });
+
+  // (11 - sum % 11) % 10: เศษ 1 → check digit 0, เศษ 0 → check digit 1 (ไม่ใช่ 11)
+  it.each([
+    ["1103700012010", "remainder 1"],
+    ["1103700012061", "remainder 0"],
+  ])("accepts %j (%s)", (id) => {
+    expect(isValidThaiId(id)).toBe(true);
+  });
+});
+
+describe("thaiIdError", () => {
+  it("returns null for a valid id", () => {
+    expect(thaiIdError("1103700012346", "เลขบัตรประชาชน")).toBeNull();
+  });
+
+  it("reports the digit count before the check digit", () => {
+    expect(thaiIdError("12345", "เลขบัตรประชาชน")).toBe("เลขบัตรประชาชนต้องมี 13 หลัก");
+  });
+
+  it("reports a wrong check digit", () => {
+    expect(thaiIdError("1103700012345", "เลขบัตรประชาชน")).toBe("เลขบัตรประชาชนไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง");
   });
 });
 

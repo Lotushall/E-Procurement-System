@@ -1,7 +1,20 @@
 import { z } from "zod";
+import { thaiIdError } from "@/lib/utils";
 
-// เลข 13 หลักเหมือนตอนสมัคร — ค่าที่ยังเป็น mask จาก backend (เช่น xxxxxxxxx1234) แปลว่าไม่ได้แก้ ให้ผ่านได้ backend จะคงค่าเดิมไว้
-const isThirteenDigitId = (value: string) => value.replace(/[^0-9x]/gi, "").length === 13;
+// ค่าที่ยังเป็น mask จาก backend (xxxxxxxxx1234) แปลว่าไม่ได้แก้ ให้ผ่านได้ backend จะคงค่าเดิมไว้
+const stripIdFormatting = (value: string) => value.replace(/[^0-9x]/gi, "");
+const isMaskedThaiId = (value: string) => /^x{9}\d{4}$/i.test(stripIdFormatting(value));
+
+// ช่องจัดรูปแบบ mask ใหม่เป็น X-XXXX-XXXX1-23-4 แต่ ThaiIdNumberRule allowsMasked รับแค่ /^[xX]{9}\d{4}$/ — ส่งแบบไม่มีขีด
+const compactMaskedThaiId = <T extends string | undefined>(value: T): T =>
+  (value && isMaskedThaiId(value) ? stripIdFormatting(value) : value) as T;
+
+// เลข 13 หลักต้องครบและ check digit ถูกต้องเหมือนตอนสมัคร — ค่าว่างปล่อยให้ min(1) หรือ optional ตัดสิน
+const thaiId = (label: string) => (value: string | undefined, ctx: z.RefinementCtx) => {
+  if (!value || isMaskedThaiId(value)) return;
+  const message = thaiIdError(value, label);
+  if (message) ctx.addIssue({ code: "custom", message });
+};
 
 const postalCode = z
   .string()
@@ -16,11 +29,13 @@ export const VendorCompanyInfoSchema = z.object({
   businessRegistrationNo: z
     .string()
     .min(1, "กรุณากรอกเลขทะเบียนนิติบุคคล")
-    .refine(isThirteenDigitId, "เลขทะเบียนนิติบุคคลต้องมี 13 หลัก"),
+    .superRefine(thaiId("เลขทะเบียนนิติบุคคล"))
+    .transform(compactMaskedThaiId),
   taxId: z
     .string()
     .min(1, "กรุณากรอกเลขผู้เสียภาษี")
-    .refine(isThirteenDigitId, "เลขประจำตัวผู้เสียภาษีต้องมี 13 หลัก"),
+    .superRefine(thaiId("เลขประจำตัวผู้เสียภาษี"))
+    .transform(compactMaskedThaiId),
   address: z.string().min(1, "กรุณากรอกที่อยู่"),
   province: z.string().min(1, "กรุณากรอกจังหวัด"),
   postalCode,
@@ -37,11 +52,9 @@ export const VendorIndividualInfoSchema = z.object({
   citizenId: z
     .string()
     .min(1, "กรุณากรอกเลขบัตรประชาชน")
-    .refine(isThirteenDigitId, "เลขบัตรประชาชนต้องมี 13 หลัก"),
-  taxId: z
-    .string()
-    .optional()
-    .refine((v) => !v || isThirteenDigitId(v), "เลขประจำตัวผู้เสียภาษีต้องมี 13 หลัก"),
+    .superRefine(thaiId("เลขบัตรประชาชน"))
+    .transform(compactMaskedThaiId),
+  taxId: z.string().superRefine(thaiId("เลขประจำตัวผู้เสียภาษี")).transform(compactMaskedThaiId).optional(),
   address: z.string().min(1, "กรุณากรอกที่อยู่"),
   province: z.string().min(1, "กรุณากรอกจังหวัด"),
   postalCode,

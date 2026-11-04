@@ -32,6 +32,21 @@ const formatWithGroups = (digits: string, groups: number[]) => {
 export const formatCitizenId = (value: string) =>
   formatWithGroups(digitsOnly(value).slice(0, 13), [1, 4, 5, 2, 1]);
 
+// เลข 13 หลักของไทย (บัตรประชาชน / เลขผู้เสียภาษี / เลขทะเบียนนิติบุคคล): หลักที่ 13 เป็น check digit
+// mod 11 ของ 12 หลักแรก ถ่วงน้ำหนัก 13 ลงไปถึง 2 — ตรงกับ ThaiIdNumber ฝั่ง backend
+export const isValidThaiId = (value: string) => {
+  const digits = digitsOnly(value);
+  if (digits.length !== 13) return false;
+  const sum = [...digits.slice(0, 12)].reduce((total, digit, index) => total + Number(digit) * (13 - index), 0);
+  return (11 - (sum % 11)) % 10 === Number(digits[12]);
+};
+
+// ข้อความ error ของเลข 13 หลัก (null = ถูกต้อง) — แยกเคสจำนวนหลักผิดกับ check digit ผิดเหมือน ThaiIdNumberRule ฝั่ง backend
+export const thaiIdError = (value: string, label: string): string | null => {
+  if (digitsOnly(value).length !== 13) return `${label}ต้องมี 13 หลัก`;
+  return isValidThaiId(value) ? null : `${label}ไม่ถูกต้อง กรุณาตรวจสอบเลขอีกครั้ง`;
+};
+
 // เลขบัตรประชาชนแบบปกปิดกลาง: X-XXXX-*****-XX-X
 export const maskCitizenId = (value: string) => {
   const digits = digitsOnly(value).slice(0, 13);
