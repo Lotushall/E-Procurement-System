@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 import Document from "@/app/(public)/profiles/document/page";
@@ -105,14 +105,14 @@ describe("Document page", () => {
     expect(screen.getAllByText("ยังไม่มีเอกสาร")).toHaveLength(REQUIRED_DOCUMENTS.company.length);
   });
 
-  it.skip("BUG: document page spins forever when the vendor profile is 404 — app/(public)/profiles/document/page.tsx:16", async () => {
-    server.use(http.get(PROFILE_URL, () => HttpResponse.json({}, { status: 404 })));
+  it.each([404, 500])("stops the spinner and shows a load-error message when the profile request fails (%i)", async (status) => {
+    server.use(http.get(PROFILE_URL, () => HttpResponse.json({}, { status })));
 
     renderWithQueryClient(<Document />);
 
     await screen.findByRole("heading", { name: "เอกสารประกอบการขึ้นทะเบียน" });
-    // เหมือน contract/page: โหลดเสร็จแล้วต้องเลิกหมุน (ไม่มีโปรไฟล์ = ไม่มีแถวเอกสาร)
-    await waitFor(() => expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument());
+    expect(await screen.findByText("ไม่สามารถโหลดข้อมูลผู้ค้าได้ กรุณาลองใหม่อีกครั้ง")).toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /แนบไฟล์/ })).not.toBeInTheDocument();
   });
 });

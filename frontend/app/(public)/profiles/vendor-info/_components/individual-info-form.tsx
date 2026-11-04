@@ -122,7 +122,8 @@ export default function IndividualInfoForm({ detail }: { detail: VendorIndividua
               control={control}
               name="province"
               render={({ field: { value, onChange, ...field } }) => (
-                <Combobox items={PROVINCES} value={value} onValueChange={onChange} {...field}>
+                // base-ui แสดง placeholder เฉพาะ value เป็น null — ฟอร์มเก็บค่าว่างเป็น ""
+                <Combobox items={PROVINCES} value={value || null} onValueChange={(next) => onChange(next ?? "")} {...field}>
                   <ComboboxTrigger
                     render={
                       <Button

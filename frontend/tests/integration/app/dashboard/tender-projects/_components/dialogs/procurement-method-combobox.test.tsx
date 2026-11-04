@@ -27,7 +27,7 @@ function setup(props: { initial?: string; onChange?: (next: string) => void } = 
 const trigger = () => screen.getByRole("combobox");
 
 describe("ProcurementMethodCombobox", () => {
-  it.skip("BUG: procurement-method-combobox.tsx:34 passes value=\"\" (the form default) so the trigger is blank instead of showing the placeholder; it should pass null when empty", () => {
+  it("shows the placeholder when the value is empty (\"\", the form default)", () => {
     setup();
 
     expect(trigger()).toHaveTextContent("เลือกวิธีจัดซื้อ");

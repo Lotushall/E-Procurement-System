@@ -305,7 +305,7 @@ describe("CompanyInfoForm", () => {
   });
 
   // base-ui ถือว่า "" คือมีค่าที่เลือกแล้ว (เฉพาะ null เท่านั้นที่แสดง placeholder) แต่ฟอร์มส่ง "" เมื่อยังไม่เลือก
-  it.skip("BUG: empty province (\"\") shows a blank trigger instead of the placeholder — app/(public)/profiles/vendor-info/_components/company-info-form.tsx:104", () => {
+  it("shows the province placeholder when the province is empty (\"\")", () => {
     renderForm({ province: "" });
 
     expect(within(box("จังหวัด")).getByRole("combobox")).toHaveTextContent("เลือกจังหวัด");

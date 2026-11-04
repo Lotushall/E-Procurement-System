@@ -43,20 +43,14 @@ describe("VendorInfo page", () => {
     expect(screen.queryByText("ชื่อบริษัท / นิติบุคคล")).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: vendor-info page spins forever when the profile request fails (500) — app/(public)/profiles/vendor-info/page.tsx:25", async () => {
-    server.use(http.get(PROFILE_URL, () => new HttpResponse(null, { status: 500 })));
+  it.each([404, 500])("stops the spinner and shows a load-error message when the profile request fails (%i)", async (status) => {
+    server.use(http.get(PROFILE_URL, () => new HttpResponse(null, { status })));
 
     renderWithQueryClient(<VendorInfo />);
 
-    await waitFor(() => expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument());
-  });
-
-  it.skip("BUG: vendor-info page spins forever when the vendor has no profile (404) — app/(public)/profiles/vendor-info/page.tsx:25", async () => {
-    server.use(http.get(PROFILE_URL, () => new HttpResponse(null, { status: 404 })));
-
-    renderWithQueryClient(<VendorInfo />);
-
-    await waitFor(() => expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument());
+    expect(await screen.findByText("ไม่สามารถโหลดข้อมูลผู้ค้าได้ กรุณาลองใหม่อีกครั้ง")).toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
   });
 
   it("covers the form with an overlay spinner while saving and refetches the profile afterwards", async () => {

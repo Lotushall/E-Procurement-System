@@ -22,16 +22,21 @@ export default function VendorInfo() {
 
       <SectionTitle title="ข้อมูลบริษัท / นิติบุคคล" desc="ข้อมูลนี้จะปรากฏในเอกสารการเสนอราคาและสัญญา" />
 
-      {vendor && !isLoading ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center h-70">
+          <Spinner className="size-8" />
+        </div>
+      ) : vendor ? (
         vendor.detail.type === "company" ? (
           <CompanyInfoForm detail={vendor.detail} />
         ) : (
           <IndividualInfoForm detail={vendor.detail} />
         )
       ) : (
-        <div className="flex justify-center items-center h-70">
-          <Spinner className="size-8" />
-        </div>
+        // โหลดไม่สำเร็จหรือยังไม่มีโปรไฟล์ — ไม่รู้ประเภทผู้ค้าจึงเลือกฟอร์มไม่ได้
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          ไม่สามารถโหลดข้อมูลผู้ค้าได้ กรุณาลองใหม่อีกครั้ง
+        </p>
       )}
     </div>
   );

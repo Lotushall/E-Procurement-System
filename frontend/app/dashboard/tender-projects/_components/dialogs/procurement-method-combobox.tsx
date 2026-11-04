@@ -31,7 +31,8 @@ export function ProcurementMethodCombobox({
   return (
     <Combobox
       items={PROCUREMENT_METHODS}
-      value={value}
+      // base-ui แสดง placeholder เฉพาะ value เป็น null — ฟอร์มเก็บค่าว่างเป็น ""
+      value={value || null}
       onValueChange={(next) => onValueChange(next ?? "")}
       onInputValueChange={setQuery}
       {...field}
