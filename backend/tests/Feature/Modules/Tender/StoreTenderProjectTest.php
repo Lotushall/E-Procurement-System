@@ -91,8 +91,18 @@ test('creating a tender project requires the required fields', function () {
     $response = $this->postJson('/api/v1/dashboard/tender-projects', []);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['name', 'budget', 'departmentId', 'procurementMethod', 'fiscalYear']);
+        ->assertJsonValidationErrors([
+            'name', 'budget', 'departmentId', 'procurementMethod', 'fiscalYear', 'projectStartAt', 'projectEndAt',
+        ]);
 });
+
+test('creating a tender project rejects a budget of zero or less', function (int|float $budget) {
+    $this->actingAs(internalUserWithTenderProjectCreatePermission(), 'web');
+
+    $response = $this->postJson('/api/v1/dashboard/tender-projects', validTenderProjectPayload(['budget' => $budget]));
+
+    $response->assertStatus(422)->assertJsonValidationErrors(['budget']);
+})->with([0, 0.00, -1]);
 
 test('creating a tender project rejects a nonexistent department', function () {
     $this->actingAs(internalUserWithTenderProjectCreatePermission(), 'web');

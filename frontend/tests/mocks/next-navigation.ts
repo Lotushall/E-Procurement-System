@@ -19,6 +19,8 @@ export function setUrl(url: string) {
   const parsed = new URL(url, "http://localhost:3000");
   pathname = parsed.pathname;
   searchParams = new URLSearchParams(parsed.search);
+  // ให้ window.location ตรงกันด้วย — โค้ดที่อ่าน URL ใน effect (เช่น guard ที่จำหน้าก่อนไป login) อ่านจากตรงนั้น
+  window.history.replaceState(null, "", `${parsed.pathname}${parsed.search}`);
 }
 
 export function setParams(next: Record<string, string>) {
@@ -30,6 +32,7 @@ export function resetNavigation() {
   pathname = "/";
   searchParams = new URLSearchParams();
   params = {};
+  window.history.replaceState(null, "", "/");
 }
 
 export const useRouter = () => router;

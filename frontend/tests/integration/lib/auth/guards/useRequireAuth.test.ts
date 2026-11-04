@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { useRequireAuth } from "@/lib/auth/guards/useRequireAuth";
 import { signInAs, signOut } from "@/tests/helpers/auth";
 import { renderHookWithQueryClient } from "@/tests/helpers/query-client";
-import { router } from "@/tests/mocks/next-navigation";
+import { router, setUrl } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 
 describe("useRequireAuth", () => {
@@ -25,6 +25,17 @@ describe("useRequireAuth", () => {
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login"));
     expect(router.replace).toHaveBeenCalledTimes(1);
     expect(result.current.isChecking).toBe(true);
+  });
+
+  it("remembers the page it was on so login can come back to it", async () => {
+    setUrl("/profiles/document?tab=2");
+    signOut();
+
+    renderHookWithQueryClient(() => useRequireAuth());
+
+    await waitFor(() =>
+      expect(router.replace).toHaveBeenCalledWith("/login?redirect=%2Fprofiles%2Fdocument%3Ftab%3D2"),
+    );
   });
 
   it("stops checking and does not redirect when signed in", async () => {

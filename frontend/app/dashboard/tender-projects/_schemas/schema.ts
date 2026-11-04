@@ -16,12 +16,12 @@ export const CreateTenderProjectSchema = z
     personInChargeId: z.string().optional(),
     procurementMethod: z.string().min(1, "กรุณาเลือกวิธีจัดซื้อ").max(255, "วิธีจัดซื้อต้องไม่เกิน 255 ตัวอักษร"),
     fiscalYear: z.string().min(1, "กรุณาเลือกปีงบประมาณ"),
-    projectStartAt: z.string().optional(),
-    projectEndAt: z.string().optional(),
+    projectStartAt: z.string().min(1, "กรุณาเลือกระยะเวลาโครงการ"),
+    projectEndAt: z.string().min(1, "กรุณาเลือกวันที่สิ้นสุดโครงการ"),
   })
   .refine(
-    (values) =>
-      !values.projectStartAt || !values.projectEndAt || values.projectEndAt >= values.projectStartAt,
+    // zod ยังรัน refine แม้ช่องวันที่ว่าง (ซึ่ง min(1) แจ้งไปแล้ว) — ข้ามไปจะได้ไม่มีข้อความซ้อน
+    (values) => !values.projectStartAt || !values.projectEndAt || values.projectEndAt >= values.projectStartAt,
     { message: "วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มต้น", path: ["projectEndAt"] },
   );
 
@@ -43,12 +43,12 @@ export const UpdateTenderProjectSchema = z
     personInChargeId: z.string().optional(),
     procurementMethod: z.string().min(1, "กรุณาเลือกวิธีจัดซื้อ").max(255, "วิธีจัดซื้อต้องไม่เกิน 255 ตัวอักษร"),
     fiscalYear: z.string().min(1, "กรุณาเลือกปีงบประมาณ"),
-    projectStartAt: z.string().optional(),
-    projectEndAt: z.string().optional(),
+    projectStartAt: z.string().min(1, "กรุณาเลือกระยะเวลาโครงการ"),
+    projectEndAt: z.string().min(1, "กรุณาเลือกวันที่สิ้นสุดโครงการ"),
   })
   .refine(
-    (values) =>
-      !values.projectStartAt || !values.projectEndAt || values.projectEndAt >= values.projectStartAt,
+    // zod ยังรัน refine แม้ช่องวันที่ว่าง (ซึ่ง min(1) แจ้งไปแล้ว) — ข้ามไปจะได้ไม่มีข้อความซ้อน
+    (values) => !values.projectStartAt || !values.projectEndAt || values.projectEndAt >= values.projectStartAt,
     { message: "วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มต้น", path: ["projectEndAt"] },
   );
 

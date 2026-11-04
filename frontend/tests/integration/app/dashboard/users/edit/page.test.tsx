@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { describe, expect, it, vi } from "vitest";
 import EditUserPage from "@/app/dashboard/users/edit/page";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import type { UserDetail } from "@/lib/user/management/types";
 import { makePermission, makeRole, makeUserDetail } from "@/tests/fixtures/user-management";
 import { signInAs } from "@/tests/helpers/auth";
@@ -93,7 +94,7 @@ function serveUpdate(
 }
 
 async function renderPage(detail: UserDetail = INTERNAL) {
-  signInAs({ permissions: ["users.update"] });
+  signInAs({ roles: ["admin"], permissions: ["users.update"] });
   serveLookups();
   serveDetail(detail);
   setUrl(`/dashboard/users/edit?id=${detail.id}`);
@@ -106,8 +107,8 @@ async function renderPage(detail: UserDetail = INTERNAL) {
 const save = () => screen.getByRole("button", { name: "บันทึกการแก้ไข" });
 
 describe("EditUserPage — permission gate", () => {
-  it("shows the forbidden screen and requests nothing without users.update", async () => {
-    signInAs({ permissions: ["users.viewAny"] });
+  it("shows the forbidden screen and requests nothing to a non-admin, even one holding users.update", async () => {
+    signInAs({ roles: ["officer"], permissions: ["users.viewAny", "users.update"] });
     const requested: string[] = [];
     server.use(
       http.get(DETAIL_URL, () => {
@@ -132,7 +133,7 @@ describe("EditUserPage — permission gate", () => {
     expect(requested).toEqual([]);
   });
 
-  it("renders the form with users.update", async () => {
+  it("renders the form for an admin", async () => {
     await renderPage();
 
     expect(screen.getByRole("heading", { name: "แก้ไข user" })).toBeInTheDocument();
@@ -142,7 +143,7 @@ describe("EditUserPage — permission gate", () => {
 
 describe("EditUserPage — loading the user", () => {
   it("reads the user id from ?id= and sets the breadcrumb to the user's name", async () => {
-    signInAs({ permissions: ["users.update"] });
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     serveLookups();
     const ids = serveDetail(INTERNAL);
     setUrl("/dashboard/users/edit?id=7");
@@ -158,7 +159,7 @@ describe("EditUserPage — loading the user", () => {
   });
 
   it("shows a spinner and a loading breadcrumb while the user is pending", async () => {
-    signInAs({ permissions: ["users.update"] });
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     serveLookups();
     server.use(http.get(DETAIL_URL, () => new Promise<Response>(() => {})));
     setUrl("/dashboard/users/edit?id=7");
@@ -177,17 +178,17 @@ describe("EditUserPage — loading the user", () => {
   });
 
   it.each([
-    ["404", 404],
-    ["500", 500],
-  ])("shows the not-found message (not a spinner) when the detail request returns %s", async (_name, status) => {
-    signInAs({ permissions: ["users.update"] });
+    ["404", 404, NOT_FOUND],
+    ["500", 500, LOAD_ERROR_MESSAGE],
+  ])("shows its message (not a spinner) when the detail request returns %s", async (_name, status, message) => {
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     serveLookups();
     server.use(http.get(DETAIL_URL, () => new HttpResponse(null, { status })));
     setUrl("/dashboard/users/edit?id=7");
 
     renderWithQueryClient(<EditUserPage />);
 
-    expect(await screen.findByText(NOT_FOUND)).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "บันทึกการแก้ไข" })).not.toBeInTheDocument();
     expect(useBreadcrumbStore.getState().items).toEqual([
@@ -201,8 +202,9 @@ describe("EditUserPage — loading the user", () => {
     ["zero", "/dashboard/users/edit?id=0"],
     ["negative", "/dashboard/users/edit?id=-3"],
     ["non-numeric", "/dashboard/users/edit?id=abc"],
+    ["fractional", "/dashboard/users/edit?id=1.5"],
   ])("shows not-found and requests no user when the id is %s", async (_name, url) => {
-    signInAs({ permissions: ["users.update"] });
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     const requested: string[] = [];
     server.use(
       http.get(DETAIL_URL, () => {
@@ -259,7 +261,7 @@ describe("EditUserPage — internal user form", () => {
   });
 
   it("shows a spinner in place of the form while permissions load", async () => {
-    signInAs({ permissions: ["users.update"] });
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     server.use(
       http.get(ROLES_URL, () => HttpResponse.json({ data: ROLES })),
       http.get(PERMISSIONS_URL, () => new Promise<Response>(() => {})),
@@ -275,7 +277,7 @@ describe("EditUserPage — internal user form", () => {
   });
 
   it("shows the permission load error when the permission list fails", async () => {
-    signInAs({ permissions: ["users.update"] });
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     server.use(
       http.get(ROLES_URL, () => HttpResponse.json({ data: ROLES })),
       http.get(PERMISSIONS_URL, () => new HttpResponse(null, { status: 500 })),
@@ -463,7 +465,7 @@ describe("EditUserPage — vendor (non-internal) user", () => {
   });
 
   it("does not request roles or permissions", async () => {
-    signInAs({ permissions: ["users.update"] });
+    signInAs({ roles: ["admin"], permissions: ["users.update"] });
     const requested: string[] = [];
     server.use(
       http.get(ROLES_URL, () => {

@@ -6,6 +6,7 @@ import { MoreHorizontal, Pencil, Trash2, UserRound } from "lucide-react";
 import { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { cn, formatCurrency } from "@/lib/utils";
 import { routes } from "@/lib/routes";
+import { isTenderProjectLocked } from "@/lib/tender/tender-projects/status-rules";
 import {
     isAllocationOverBudget,
     TenderProjectBudgetAllocation,
@@ -27,14 +28,19 @@ import { EditTenderProjectDialog } from "../dialogs/edit-tender-project-dialog";
 export function TenderProjectCard({
     project,
     canUpdateStatus,
-    canUpdate,
-    canDelete,
+    canUpdate: canUpdateAny,
+    canDelete: canDeleteAny,
+    isAdmin,
 }: {
     project: TenderProjects;
     canUpdateStatus: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    isAdmin: boolean;
 }) {
+    const locked = isTenderProjectLocked(project.status, isAdmin);
+    const canEdit = canUpdateAny && !locked;
+    const canDelete = canDeleteAny && !locked;
     const [editOpen, setEditOpen] = useState(false);
     // เปลี่ยน key ทุกครั้งที่เปิดแก้ไข ให้ฟอร์ม seed ค่าจาก project ล่าสุด
     const [editSession, setEditSession] = useState(0);
@@ -61,7 +67,7 @@ export function TenderProjectCard({
                     <TenderProjectStatusBadge status={project.status} />
                 )}
 
-                {(canUpdate || canDelete) && (
+                {(canEdit || canDelete) && (
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             render={<Button variant="ghost" aria-label="ตัวเลือกของโครงการ" className="size-11 shrink-0" />}
@@ -69,7 +75,7 @@ export function TenderProjectCard({
                             <MoreHorizontal className="size-5 text-gray-500" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-44">
-                            {canUpdate && (
+                            {canEdit && (
                                 <DropdownMenuItem
                                     onClick={() => {
                                         setEditSession((session) => session + 1);
@@ -131,7 +137,7 @@ export function TenderProjectCard({
                 />
             </div>
 
-            {canUpdate && (
+            {canEdit && (
                 <EditTenderProjectDialog key={editSession} project={project} open={editOpen} onOpenChange={setEditOpen} />
             )}
             {canDelete && (

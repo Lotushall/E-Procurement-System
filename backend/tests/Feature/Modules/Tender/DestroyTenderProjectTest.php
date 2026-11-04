@@ -4,6 +4,7 @@ use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -16,7 +17,7 @@ function internalUserWithTenderProjectDeletePermission(): User
 }
 
 test('deleting a tender project requires authentication', function () {
-    $project = TenderProjects::factory()->create();
+    $project = TenderProjects::factory()->status('draft')->create();
 
     $response = $this->deleteJson("/api/v1/dashboard/tender-projects/{$project->id}");
 
@@ -24,7 +25,7 @@ test('deleting a tender project requires authentication', function () {
 });
 
 test('an internal user without the delete permission cannot delete a tender project', function () {
-    $project = TenderProjects::factory()->create();
+    $project = TenderProjects::factory()->status('draft')->create();
     $user = User::factory()->create(['user_type' => 'internal']);
     $this->actingAs($user, 'web');
 
@@ -34,7 +35,7 @@ test('an internal user without the delete permission cannot delete a tender proj
 });
 
 test('an internal user with the delete permission can delete a tender project', function () {
-    $project = TenderProjects::factory()->create();
+    $project = TenderProjects::factory()->status('draft')->create();
     $this->actingAs(internalUserWithTenderProjectDeletePermission(), 'web');
 
     $response = $this->deleteJson("/api/v1/dashboard/tender-projects/{$project->id}");
@@ -44,7 +45,7 @@ test('an internal user with the delete permission can delete a tender project', 
 });
 
 test('a non-internal user is not authorized to delete even when directly granted the permission', function () {
-    $project = TenderProjects::factory()->create();
+    $project = TenderProjects::factory()->status('draft')->create();
     $user = User::factory()->create(['user_type' => 'company']);
     $user->givePermissionTo(Permission::firstOrCreate(['name' => 'tender_projects.delete', 'guard_name' => 'web']));
     $this->actingAs($user, 'web');
@@ -54,9 +55,31 @@ test('a non-internal user is not authorized to delete even when directly granted
     $response->assertStatus(403);
 });
 
-test('deleting a tender project is unconditional regardless of status', function () {
-    $project = TenderProjects::factory()->status('published')->create();
+test('a project still in progress can be deleted', function (string $status) {
+    $project = TenderProjects::factory()->status($status)->create();
     $this->actingAs(internalUserWithTenderProjectDeletePermission(), 'web');
+
+    $response = $this->deleteJson("/api/v1/dashboard/tender-projects/{$project->id}");
+
+    $response->assertStatus(204);
+    $this->assertDatabaseMissing('tenders_projects', ['id' => $project->id]);
+})->with(['draft', 'published', 'closed']);
+
+test('a finished project cannot be deleted by a non-admin', function (string $status) {
+    $project = TenderProjects::factory()->status($status)->create();
+    $this->actingAs(internalUserWithTenderProjectDeletePermission(), 'web');
+
+    $response = $this->deleteJson("/api/v1/dashboard/tender-projects/{$project->id}");
+
+    $response->assertStatus(422)->assertJsonStructure(['message']);
+    $this->assertDatabaseHas('tenders_projects', ['id' => $project->id]);
+})->with(['completed', 'cancelled', 'archived']);
+
+test('an admin can still delete a finished project', function () {
+    $project = TenderProjects::factory()->status('archived')->create();
+    $admin = internalUserWithTenderProjectDeletePermission();
+    $admin->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+    $this->actingAs($admin, 'web');
 
     $response = $this->deleteJson("/api/v1/dashboard/tender-projects/{$project->id}");
 

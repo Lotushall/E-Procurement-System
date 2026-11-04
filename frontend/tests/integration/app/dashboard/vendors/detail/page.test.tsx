@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import VendorDetailPage from "@/app/dashboard/vendors/detail/page";
 import type { CurrentUser } from "@/lib/auth/types";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import type { VendorDetail, VendorVerificationStatus } from "@/lib/vendor/approval/types";
 import { makeVendorDetail } from "@/tests/fixtures/vendor-approval";
 import {
@@ -86,6 +87,7 @@ describe("VendorDetailPage — id and not-found states", () => {
   it.each([
     ["missing", "/dashboard/vendors/detail"],
     ["non-numeric", "/dashboard/vendors/detail?id=abc"],
+    ["fractional", "/dashboard/vendors/detail?id=1.5"],
     ["zero", "/dashboard/vendors/detail?id=0"],
     ["negative", "/dashboard/vendors/detail?id=-3"],
   ])("shows the not-found text without any request when the id is %s", async (_name, url) => {
@@ -131,11 +133,12 @@ describe("VendorDetailPage — id and not-found states", () => {
     expect(useBreadcrumbStore.getState().items.at(-1)).toEqual({ label: "ไม่พบข้อมูล" });
   });
 
-  it("shows the not-found text on a server error", async () => {
+  it("shows a load error, not not-found, on a server error", async () => {
     server.use(http.get(DETAIL_URL, () => new HttpResponse(null, { status: 500 })));
     await renderPage();
 
-    expect(await screen.findByText(NOT_FOUND)).toBeInTheDocument();
+    expect(await screen.findByText(LOAD_ERROR_MESSAGE)).toBeInTheDocument();
+    expect(screen.queryByText(NOT_FOUND)).not.toBeInTheDocument();
     expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
   });
 });
@@ -143,7 +146,8 @@ describe("VendorDetailPage — id and not-found states", () => {
 describe("VendorDetailPage — content", () => {
   it("shows a company vendor: name, email, account link, status, breadcrumb", async () => {
     serveVendor(companyVendor({ user: { id: 10, username: "vendor01", email: "vendor01@example.com" } }));
-    await renderPage();
+    // ลิงก์ไปบัญชีผู้ใช้แสดงเฉพาะ admin (หน้าจัดการผู้ใช้เปิดได้เฉพาะ admin)
+    await renderPage(undefined, { roles: ["admin"], permissions: FULL_ACCESS });
 
     // header ซ้ำสองชุด (มือถือ / sm ขึ้นไป) ซ่อนด้วย CSS
     expect((await heading()).map((h) => h.textContent)).toEqual([COMPANY_NAME, COMPANY_NAME]);
@@ -183,7 +187,15 @@ describe("VendorDetailPage — content", () => {
 
   it("omits the account link when the vendor has no user", async () => {
     serveVendor(companyVendor({ user: undefined }));
-    await renderPage();
+    await renderPage(undefined, { roles: ["admin"], permissions: FULL_ACCESS });
+
+    await heading();
+    expect(screen.queryByRole("link", { name: "ดูบัญชีผู้ใช้" })).not.toBeInTheDocument();
+  });
+
+  it("omits the account link for a non-admin, who cannot open the user pages", async () => {
+    serveVendor(companyVendor({ user: { id: 10, username: "vendor01", email: "vendor01@example.com" } }));
+    await renderPage(undefined, { roles: ["officer"], permissions: FULL_ACCESS });
 
     await heading();
     expect(screen.queryByRole("link", { name: "ดูบัญชีผู้ใช้" })).not.toBeInTheDocument();
@@ -222,7 +234,7 @@ describe("VendorDetailPage — content", () => {
     serveVendor(
       companyVendor({
         contact: [
-          makeVendorContact({ id: 1, contactName: "รอง คนที่สอง", contactPosition: "เลขา", contactPhone: "", contactEmail: "", lineId: "", isMainContact: false as unknown as string }),
+          makeVendorContact({ id: 1, contactName: "รอง คนที่สอง", contactPosition: "เลขา", contactPhone: "", contactEmail: "", lineId: "", isMainContact: false }),
           makeVendorContact({
             id: 2,
             contactName: "หลัก คนแรก",
@@ -231,7 +243,7 @@ describe("VendorDetailPage — content", () => {
             contactEmail: "main@example.com",
             lineId: "mainline",
             otherContact: "โทรหลัง 5 โมง",
-            isMainContact: true as unknown as string,
+            isMainContact: true,
           }),
         ],
       }),

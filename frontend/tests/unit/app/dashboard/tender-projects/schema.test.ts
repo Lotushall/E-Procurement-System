@@ -12,6 +12,8 @@ const validProject: CreateTenderProjectFormValues = {
   departmentId: "3",
   procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
   fiscalYear: "2570",
+  projectStartAt: "2026-10-01",
+  projectEndAt: "2027-09-30",
 };
 
 // ฟอร์มสร้างและแก้ไขใช้กฎเดียวกัน — รัน test ชุดเดียวกับทั้งสอง schema
@@ -29,6 +31,8 @@ describe.each([
     ["departmentId", "กรุณาเลือกแผนก"],
     ["procurementMethod", "กรุณาเลือกวิธีจัดซื้อ"],
     ["fiscalYear", "กรุณาเลือกปีงบประมาณ"],
+    ["projectStartAt", "กรุณาเลือกระยะเวลาโครงการ"],
+    ["projectEndAt", "กรุณาเลือกวันที่สิ้นสุดโครงการ"],
   ])("requires %s", (field, message) => {
     expect(fieldErrorsOf(schema, { ...validProject, [field]: "" })[field]?.[0]).toBe(message);
   });
@@ -70,9 +74,10 @@ describe.each([
       ).toEqual({});
     });
 
-    it("accepts only one of the two dates", () => {
-      expect(fieldErrorsOf(schema, { ...validProject, projectStartAt: "2026-10-01" })).toEqual({});
-      expect(fieldErrorsOf(schema, { ...validProject, projectEndAt: "2027-09-30" })).toEqual({});
+    it("asks for the end date when only the start date is picked", () => {
+      expect(fieldErrorsOf(schema, { ...validProject, projectEndAt: "" })).toEqual({
+        projectEndAt: ["กรุณาเลือกวันที่สิ้นสุดโครงการ"],
+      });
     });
 
     it("rejects an end date before the start date", () => {

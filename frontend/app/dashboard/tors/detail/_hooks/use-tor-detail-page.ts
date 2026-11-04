@@ -3,11 +3,13 @@
 import { useTorDetail } from "@/lib/tender/tor/queries/useTorDetail";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
+import { isNotFoundError, isPositiveId } from "@/lib/detail-page";
 
-// 404 จาก API (ไม่มี TOR นี้ หรืออยู่นอกขอบเขตที่ผู้ใช้ดูได้) จะเป็น isError → notFound
+// 404 จาก API (ไม่มี TOR นี้ หรืออยู่นอกขอบเขตที่ผู้ใช้ดูได้) → notFound, error อื่น → loadFailed
 export function useTorDetailPage(id: number) {
-  const isValidId = Number.isFinite(id) && id > 0;
-  const { data: tor, isPending, isError } = useTorDetail(id);
+  const isValidId = isPositiveId(id);
+  const { data: tor, isPending, isError, error } = useTorDetail(id);
+  const loadFailed = isValidId && isError && !tor && !isNotFoundError(error);
   const notFound =
     !isValidId || (isError && !tor) || (!isPending && !tor);
 
@@ -21,5 +23,5 @@ export function useTorDetailPage(id: number) {
       : { label: tor?.title ?? "ไม่พบข้อมูล" },
   ]);
 
-  return { tor, isValidId, isPending, notFound };
+  return { tor, isValidId, isPending, loadFailed, notFound };
 }

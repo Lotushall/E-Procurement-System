@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useLogin } from "@/lib/auth/mutations/useLogin";
 import { handleServerError } from "@/lib/form/server-errors";
-import { routes } from "@/lib/routes";
+import { postLoginPath } from "@/lib/auth/redirect";
 import { LoginSchema, LoginValues } from "../_schemas/schema";
 
 export function useLoginForm() {
@@ -22,7 +22,7 @@ export function useLoginForm() {
 
     const onSubmit = form.handleSubmit((values) => {
         loginMutation.mutate(values, {
-            onSuccess: () => router.push(routes.home),
+            onSuccess: () => router.push(postLoginPath()),
             onError: (error) => {
                 toast.error(handleServerError(error, form, "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"));
             },

@@ -161,15 +161,15 @@ describe("AppSidebar menu items", () => {
     expect(tor).not.toHaveAttribute("target");
   });
 
-  it("shows จัดการผู้ใช้ to a user holding users.viewAny and links it to the user list", async () => {
-    signInAs({ permissions: ["users.viewAny"] });
+  it("shows จัดการผู้ใช้ to an admin and links it to the user list", async () => {
+    signInAs({ roles: ["admin"] });
     renderSidebar();
 
     expect(await screen.findByRole("link", { name: "จัดการผู้ใช้" })).toHaveAttribute("href", "/dashboard/users");
   });
 
-  it("hides จัดการผู้ใช้ from a user without users.viewAny", async () => {
-    await renderAsTorViewerOnly();
+  it("hides จัดการผู้ใช้ from a non-admin, even one holding users.viewAny", async () => {
+    await renderAsTorViewerOnly({ roles: ["officer"], permissions: ["tors.viewAny", "users.viewAny"] });
 
     expect(link("จัดการผู้ใช้")).not.toBeInTheDocument();
   });

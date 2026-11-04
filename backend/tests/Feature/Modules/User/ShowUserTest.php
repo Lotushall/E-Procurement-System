@@ -7,8 +7,18 @@ use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
+
+// หน้าจัดการผู้ใช้เปิดได้เฉพาะ admin (route group role:admin)
+function asUserShowAdmin(User $user): User
+{
+    $user->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+
+    return $user;
+}
 
 test('fetching a user by id requires authentication', function () {
     $response = $this->getJson('/api/v1/dashboard/users/1');
@@ -25,11 +35,21 @@ test('a non-internal user cannot fetch a user by id', function () {
     $response->assertStatus(403);
 });
 
+test('an internal user who is not an admin cannot fetch a user by id, even with users.viewAny', function () {
+    $officer = User::factory()->create(['user_type' => 'internal']);
+    $officer->givePermissionTo(Permission::firstOrCreate(['name' => 'users.viewAny', 'guard_name' => 'web']));
+    $this->actingAs($officer, 'web');
+
+    $response = $this->getJson("/api/v1/dashboard/users/{$officer->id}");
+
+    $response->assertStatus(403);
+});
+
 test('fetching an internal user returns a null vendorProfileId', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     InternalProfiles::create(['user_id' => $internalUser->id, 'firstname' => 'Somchai', 'lastname' => 'Jaidee']);
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserShowAdmin($internalUser), 'web');
 
     $response = $this->getJson("/api/v1/dashboard/users/{$internalUser->id}");
 
@@ -57,7 +77,7 @@ test('fetching a company user returns its vendorProfileId', function () {
         postalCode: null,
     ));
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserShowAdmin($internalUser), 'web');
 
     $response = $this->getJson("/api/v1/dashboard/users/{$companyUser->id}");
 
@@ -69,7 +89,7 @@ test('fetching a company user returns its vendorProfileId', function () {
 
 test('fetching a nonexistent user returns 404', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserShowAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users/999999');
 

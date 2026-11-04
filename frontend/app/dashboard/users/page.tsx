@@ -5,7 +5,7 @@ import { ShieldCheck, UserPlus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { FloatingActionButton, type FloatingAction } from "@/components/floating-action-button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
-import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { RequireRole } from "@/lib/auth/guards/RequireRole";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { useUserListPage } from "./_hooks/use-user-list-page";
@@ -17,23 +17,20 @@ import { UserCard } from "./_components/table/user-card";
 function UsersPageContent() {
   useBreadcrumb([{ label: "จัดการผู้ใช้" }]);
 
-  const { user, hasPermission, hasRole } = useAuthPermissions();
+  const { user, hasPermission } = useAuthPermissions();
   const canCreateUser = hasPermission("users.create");
   const canUpdateStatus = hasPermission("users.updateStatus");
   const canUpdateUser = hasPermission("users.update");
   const canDeleteUser = hasPermission("users.delete");
-  const canManageRoles = hasRole("admin");
   const columns = useMemo(
     () => createColumns(canUpdateStatus, canUpdateUser, canDeleteUser, user?.id),
     [canUpdateStatus, canUpdateUser, canDeleteUser, user?.id],
   );
 
-  // มีสิทธิ์เดียว = ปุ่มลอยทำทันที, ทั้งสอง = เมนู, ไม่มีเลย = ไม่แสดงปุ่ม
+  // หน้านี้เปิดได้เฉพาะ admin จึงจัดการ role ได้เสมอ — มี users.create ด้วยเป็นเมนู ไม่มีเป็นปุ่มลอยไปหน้า role ตรง ๆ
   const fabActions: FloatingAction[] = [
     ...(canCreateUser ? [{ label: "เพิ่ม user", icon: UserPlus, href: routes.dashboards.user.create }] : []),
-    ...(canManageRoles
-      ? [{ label: "จัดการ Role และ Permission", icon: ShieldCheck, href: routes.dashboards.user.roles }]
-      : []),
+    { label: "จัดการ Role และ Permission", icon: ShieldCheck, href: routes.dashboards.user.roles },
   ];
 
   const {
@@ -131,9 +128,9 @@ function UsersPageContent() {
 export default function UsersPage() {
   return (
     <Suspense fallback={<UserListSkeleton />}>
-      <RequirePermission permission="users.viewAny">
+      <RequireRole role="admin">
         <UsersPageContent />
-      </RequirePermission>
+      </RequireRole>
     </Suspense>
   );
 }

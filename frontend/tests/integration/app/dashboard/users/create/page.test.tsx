@@ -69,7 +69,7 @@ function serveCreate(
 }
 
 async function renderPage() {
-  signInAs({ permissions: ["users.create"] });
+  signInAs({ roles: ["admin"], permissions: ["users.create"] });
   serveLookups();
   setUrl("/dashboard/users/create");
   const rendered = renderWithQueryClient(<CreateUserPage />);
@@ -97,8 +97,8 @@ async function fillValid(user: UserEvent) {
 }
 
 describe("CreateUserPage — permission gate", () => {
-  it("shows the forbidden screen and requests nothing without users.create", async () => {
-    signInAs({ permissions: ["users.viewAny"] });
+  it("shows the forbidden screen and requests nothing to a non-admin, even one holding users.create", async () => {
+    signInAs({ roles: ["officer"], permissions: ["users.viewAny", "users.create"] });
     const requested: string[] = [];
     server.use(
       http.get(ROLES_URL, () => {
@@ -123,7 +123,7 @@ describe("CreateUserPage — permission gate", () => {
     expect(requested).toEqual([]);
   });
 
-  it("renders the form with users.create", async () => {
+  it("renders the form for an admin", async () => {
     await renderPage();
 
     expect(screen.getByRole("heading", { name: "เพิ่ม user" })).toBeInTheDocument();
@@ -134,7 +134,7 @@ describe("CreateUserPage — permission gate", () => {
 
 describe("CreateUserPage — loading the form", () => {
   it("shows a spinner while the lookups are pending", async () => {
-    signInAs({ permissions: ["users.create"] });
+    signInAs({ roles: ["admin"], permissions: ["users.create"] });
     server.use(
       http.get(ROLES_URL, () => HttpResponse.json({ data: ROLES })),
       http.get(PERMISSIONS_URL, () => new Promise<Response>(() => {})),
@@ -150,7 +150,7 @@ describe("CreateUserPage — loading the form", () => {
   });
 
   it("shows the load error when the permission list fails", async () => {
-    signInAs({ permissions: ["users.create"] });
+    signInAs({ roles: ["admin"], permissions: ["users.create"] });
     server.use(
       http.get(ROLES_URL, () => HttpResponse.json({ data: ROLES })),
       http.get(PERMISSIONS_URL, () => new HttpResponse(null, { status: 500 })),
@@ -165,7 +165,7 @@ describe("CreateUserPage — loading the form", () => {
   });
 
   it("shows the load error when the available profiles fail", async () => {
-    signInAs({ permissions: ["users.create"] });
+    signInAs({ roles: ["admin"], permissions: ["users.create"] });
     server.use(
       http.get(ROLES_URL, () => HttpResponse.json({ data: ROLES })),
       http.get(PERMISSIONS_URL, () => HttpResponse.json({ data: PERMISSIONS })),

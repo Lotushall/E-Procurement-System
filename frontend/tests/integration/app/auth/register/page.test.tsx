@@ -320,8 +320,28 @@ describe("Register page - submit", () => {
 
     expect(await screen.findByText("อีเมลนี้ถูกใช้งานแล้ว")).toBeInTheDocument();
     expect(screen.getByText("ชื่อผู้ใช้นี้ถูกใช้งานแล้ว")).toBeInTheDocument();
-    expect(toast.error).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith("กรุณาตรวจสอบข้อมูลที่กรอก");
     expect(screen.queryByText("กรุณายืนยันอีเมลของคุณ")).not.toBeInTheDocument();
+  });
+
+  // backend ส่ง key ที่ไม่มีช่องในฟอร์ม — ไม่ให้ข้อความหายเงียบ แสดงเป็น toast แทน
+  it("toasts a 422 message whose key matches no field", async () => {
+    server.use(
+      http.post(REGISTER_URL, () =>
+        HttpResponse.json(
+          { message: "invalid", errors: { vendor_type: ["ประเภทผู้ค้าไม่ถูกต้อง"] } },
+          { status: 422 },
+        ),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithQueryClient(<Register />);
+
+    await fillCompany(user);
+    await acceptTerms(user);
+    await submit(user);
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("ประเภทผู้ค้าไม่ถูกต้อง"));
   });
 
   it("shows the backend message in a toast for other failures", async () => {

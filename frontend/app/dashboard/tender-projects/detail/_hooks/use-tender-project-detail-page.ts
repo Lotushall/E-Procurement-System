@@ -3,10 +3,12 @@
 import { useTendersProjectDetail } from "@/lib/tender/tender-projects/queries/useTendersProjectDetail";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
+import { isNotFoundError, isPositiveId } from "@/lib/detail-page";
 
 export function useTenderProjectDetailPage(id: number) {
-  const isValidId = Number.isFinite(id) && id > 0;
-  const { data: project, isPending, isError } = useTendersProjectDetail(id);
+  const isValidId = isPositiveId(id);
+  const { data: project, isPending, isError, error } = useTendersProjectDetail(id);
+  const loadFailed = isValidId && isError && !project && !isNotFoundError(error);
   const notFound =
     !isValidId || (isError && !project) || (!isPending && !project);
 
@@ -20,5 +22,5 @@ export function useTenderProjectDetailPage(id: number) {
       : { label: project?.name ?? "ไม่พบข้อมูล" },
   ]);
 
-  return { project, isValidId, isPending, notFound };
+  return { project, isValidId, isPending, loadFailed, notFound };
 }

@@ -9,15 +9,14 @@ import {
 import {
   TENDER_PROJECT_STATUSES,
   TENDER_PROJECT_STATUS_STYLE,
+  TenderProjectStatusBadge,
 } from "@/components/tender-project-status-badge";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useUpdateTenderProjectStatus } from "@/lib/tender/tender-projects/mutations/useUpdateTenderProjectStatus";
+import { allowedNextStatuses } from "@/lib/tender/tender-projects/status-rules";
 import type { TenderProjectStatus } from "@/lib/tender/tender-projects/types";
 import { cn } from "@/lib/utils";
 
-const STATUS_ITEMS = TENDER_PROJECT_STATUSES.map((value) => ({
-  value,
-  label: TENDER_PROJECT_STATUS_STYLE[value].label,
-}));
 
 // ใช้ message จาก backend เฉพาะ 422 ซึ่งเป็นภาษาไทย ส่วน 403 และ error อื่นของ Laravel เป็นภาษาอังกฤษ
 function getErrorMessage(error: unknown): string {
@@ -30,7 +29,18 @@ function getErrorMessage(error: unknown): string {
 
 export function TenderProjectStatusSelect({ id, status }: { id: number; status: TenderProjectStatus }) {
   const updateStatus = useUpdateTenderProjectStatus(id);
+  const { hasRole } = useAuthPermissions();
   const style = TENDER_PROJECT_STATUS_STYLE[status];
+
+  // สถานะปัจจุบัน + สถานะถัดไปที่เปลี่ยนได้ เรียงตามลำดับของ TENDER_PROJECT_STATUSES
+  const nextStatuses = allowedNextStatuses(status, hasRole("admin"));
+  const options = TENDER_PROJECT_STATUSES.filter((value) => value === status || nextStatuses.includes(value));
+  const items = options.map((value) => ({ value, label: TENDER_PROJECT_STATUS_STYLE[value].label }));
+
+  // ไม่มีสถานะให้เปลี่ยนต่อแล้ว (archived สำหรับผู้ที่ไม่ใช่ admin) — แสดงเป็น badge เฉย ๆ
+  if (nextStatuses.length === 0) {
+    return <TenderProjectStatusBadge status={status} />;
+  }
 
   const handleChange = (next: string | null) => {
     if (!next || next === status || updateStatus.isPending) return;
@@ -42,7 +52,7 @@ export function TenderProjectStatusSelect({ id, status }: { id: number; status: 
   };
 
   return (
-    <Select items={STATUS_ITEMS} value={status} onValueChange={handleChange}>
+    <Select items={items} value={status} onValueChange={handleChange}>
       <SelectTrigger size="sm" className={cn("rounded-full border-0 tracking-wider", style.badge)}>
         {updateStatus.isPending ? (
           <Loader2Icon className="size-3.5 animate-spin" />
@@ -53,7 +63,7 @@ export function TenderProjectStatusSelect({ id, status }: { id: number; status: 
       </SelectTrigger>
       <SelectContent side="bottom" alignItemWithTrigger={false}>
         <SelectGroup>
-          {TENDER_PROJECT_STATUSES.map((value) => (
+          {options.map((value) => (
             <SelectItem key={value} value={value}>
               {TENDER_PROJECT_STATUS_STYLE[value].label}
             </SelectItem>

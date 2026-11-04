@@ -36,7 +36,7 @@ describe("EditContactDialog", () => {
         contactEmail: "somchai@example.com",
         lineId: "somchai",
         otherContact: "แฟกซ์ 02-111-2222",
-        isMainContact: "1",
+        isMainContact: true,
       }),
     );
 
@@ -51,8 +51,7 @@ describe("EditContactDialog", () => {
   });
 
   it("leaves the main-contact checkbox unchecked for a non-main contact", async () => {
-    // lib/vendor/profile/types.ts:51 ประกาศ isMainContact เป็น string แต่แบ็กเอนด์ส่ง boolean (types.ts:83 ใช้ boolean)
-    await openDialog(makeVendorContact({ isMainContact: false as unknown as string }));
+    await openDialog(makeVendorContact({ isMainContact: false }));
     expect(screen.getByRole("checkbox", { name: "เป็นผู้ติดต่อหลัก" })).not.toBeChecked();
   });
 
@@ -112,7 +111,7 @@ describe("EditContactDialog", () => {
         return new HttpResponse(null, { status: 204 });
       }),
     );
-    const user = await openDialog(makeVendorContact({ id: 6, isMainContact: false as unknown as string }));
+    const user = await openDialog(makeVendorContact({ id: 6, isMainContact: false }));
 
     await user.click(screen.getByRole("checkbox", { name: "เป็นผู้ติดต่อหลัก" }));
     await user.click(screen.getByRole("button", { name: "บันทึกการแก้ไข" }));

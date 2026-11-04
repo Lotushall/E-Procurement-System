@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { RequireRole } from "@/lib/auth/guards/RequireRole";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
@@ -84,8 +84,8 @@ function CreateUserPageContent() {
 
 export default function CreateUserPage() {
   return (
-    <RequirePermission permission="users.create">
+    <RequireRole role="admin">
       <CreateUserPageContent />
-    </RequirePermission>
+    </RequireRole>
   );
 }

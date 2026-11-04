@@ -23,9 +23,6 @@ import {
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { apiUrl, server } from "@/tests/msw/server";
 
-// backend ส่ง isMainContact เป็น boolean (is_main_contact) แม้ type ในฝั่ง frontend จะเป็น string
-const flag = (value: boolean) => value as unknown as string;
-
 function renderTable(data: VendorProfile[], onSortingChange = vi.fn(), sorting: SortingState = []) {
   renderWithQueryClient(
     <DataTable
@@ -91,7 +88,7 @@ describe("columns — company vendor row", () => {
     verificationStatus: "approved",
     created_at: "2026-03-05T10:00:00.000000Z",
     detail: { companyName: "บริษัท ตัวอย่าง จำกัด", businessType: "ซื้อขาย" },
-    contact: [makeVendorContact({ contactPhone: "0812345678", isMainContact: flag(true) })],
+    contact: [makeVendorContact({ contactPhone: "0812345678", isMainContact: true })],
     documentStatusCounts: { approved: 2, pending: 1, rejected: 0 },
   });
 
@@ -179,8 +176,8 @@ describe("getVendorContact", () => {
   it("prefers the main contact's phone, formatted", () => {
     const vendor = makeCompanyVendorProfile({
       contact: [
-        makeVendorContact({ id: 1, contactPhone: "0211111111", isMainContact: flag(false) }),
-        makeVendorContact({ id: 2, contactPhone: "0899999999", isMainContact: flag(true) }),
+        makeVendorContact({ id: 1, contactPhone: "0211111111", isMainContact: false }),
+        makeVendorContact({ id: 2, contactPhone: "0899999999", isMainContact: true }),
       ],
     });
 
@@ -190,8 +187,8 @@ describe("getVendorContact", () => {
   it("falls back to the first contact when none is main", () => {
     const vendor = makeCompanyVendorProfile({
       contact: [
-        makeVendorContact({ contactPhone: "021234567", isMainContact: flag(false) }),
-        makeVendorContact({ contactPhone: "0899999999", isMainContact: flag(false) }),
+        makeVendorContact({ contactPhone: "021234567", isMainContact: false }),
+        makeVendorContact({ contactPhone: "0899999999", isMainContact: false }),
       ],
     });
 
@@ -200,7 +197,7 @@ describe("getVendorContact", () => {
 
   it("falls back to the contact's email when the phone is empty", () => {
     const vendor = makeCompanyVendorProfile({
-      contact: [makeVendorContact({ contactPhone: "", contactEmail: "a@b.co", isMainContact: flag(true) })],
+      contact: [makeVendorContact({ contactPhone: "", contactEmail: "a@b.co", isMainContact: true })],
     });
 
     expect(getVendorContact(vendor)).toBe("a@b.co");

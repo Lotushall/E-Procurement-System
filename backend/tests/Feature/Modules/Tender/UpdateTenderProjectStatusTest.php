@@ -4,6 +4,7 @@ use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -15,12 +16,48 @@ function internalUserWithTenderProjectUpdateStatusPermission(): User
     return $user;
 }
 
+function internalAdminWithTenderProjectUpdateStatusPermission(): User
+{
+    $user = internalUserWithTenderProjectUpdateStatusPermission();
+    $user->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+
+    return $user;
+}
+
+// ขั้นถัดไปที่ผู้ที่ไม่ใช่ admin เปลี่ยนได้ (TenderProject::canMoveForwardTo())
+const TENDER_PROJECT_FORWARD_STATUSES = [
+    'draft' => ['published', 'cancelled'],
+    'published' => ['closed', 'cancelled'],
+    'closed' => ['completed', 'cancelled'],
+    'completed' => ['archived'],
+    'cancelled' => ['archived'],
+    'archived' => [],
+];
+
 dataset('tender project status transitions', function () {
-    $statuses = ['draft', 'published', 'closed', 'completed', 'cancelled', 'archived'];
+    $statuses = array_keys(TENDER_PROJECT_FORWARD_STATUSES);
 
     foreach ($statuses as $from) {
         foreach ($statuses as $to) {
             if ($from !== $to) {
+                yield "{$from} -> {$to}" => [$from, $to];
+            }
+        }
+    }
+});
+
+dataset('tender project forward steps', function () {
+    foreach (TENDER_PROJECT_FORWARD_STATUSES as $from => $nexts) {
+        foreach ($nexts as $to) {
+            yield "{$from} -> {$to}" => [$from, $to];
+        }
+    }
+});
+
+dataset('tender project skipped or backward steps', function () {
+    foreach (TENDER_PROJECT_FORWARD_STATUSES as $from => $nexts) {
+        foreach (array_keys(TENDER_PROJECT_FORWARD_STATUSES) as $to) {
+            if ($to !== $from && ! in_array($to, $nexts, true)) {
                 yield "{$from} -> {$to}" => [$from, $to];
             }
         }
@@ -90,15 +127,34 @@ test('an internal user with the updateStatus permission can change a tender proj
     ]);
 });
 
-test('any tender project status can change directly to any other status', function (string $from, string $to) {
+test('an admin can change any tender project status directly to any other status', function (string $from, string $to) {
     $project = TenderProjects::factory()->status($from)->create();
-    $this->actingAs(internalUserWithTenderProjectUpdateStatusPermission(), 'web');
+    $this->actingAs(internalAdminWithTenderProjectUpdateStatusPermission(), 'web');
 
     $response = $this->patchJson("/api/v1/dashboard/tender-projects/{$project->id}/status", ['status' => $to]);
 
     $response->assertOk()->assertJsonPath('data.status', $to);
     $this->assertDatabaseHas('tenders_projects', ['id' => $project->id, 'status' => $to]);
 })->with('tender project status transitions');
+
+test('a non-admin can move a tender project one step forward', function (string $from, string $to) {
+    $project = TenderProjects::factory()->status($from)->create();
+    $this->actingAs(internalUserWithTenderProjectUpdateStatusPermission(), 'web');
+
+    $response = $this->patchJson("/api/v1/dashboard/tender-projects/{$project->id}/status", ['status' => $to]);
+
+    $response->assertOk()->assertJsonPath('data.status', $to);
+})->with('tender project forward steps');
+
+test('a non-admin cannot skip a step or move a tender project backwards', function (string $from, string $to) {
+    $project = TenderProjects::factory()->status($from)->create();
+    $this->actingAs(internalUserWithTenderProjectUpdateStatusPermission(), 'web');
+
+    $response = $this->patchJson("/api/v1/dashboard/tender-projects/{$project->id}/status", ['status' => $to]);
+
+    $response->assertStatus(422)->assertJsonStructure(['message']);
+    $this->assertDatabaseHas('tenders_projects', ['id' => $project->id, 'status' => $from]);
+})->with('tender project skipped or backward steps');
 
 test('changing a tender project to its current status is rejected with 422', function () {
     $project = TenderProjects::factory()->status('published')->create();

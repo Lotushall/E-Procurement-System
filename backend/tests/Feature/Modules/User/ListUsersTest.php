@@ -7,8 +7,18 @@ use App\Modules\Vendor\Domain\Entities\VendorProfile;
 use App\Modules\Vendor\Domain\ValueObjects\TaxId;
 use App\Modules\Vendor\Infrastructure\Repositories\VendorRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
+
+// หน้าจัดการผู้ใช้เปิดได้เฉพาะ admin (route group role:admin)
+function asUserListAdmin(User $user): User
+{
+    $user->assignRole(Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']));
+
+    return $user;
+}
 
 test('listing users requires authentication', function () {
     $response = $this->getJson('/api/v1/dashboard/users');
@@ -19,6 +29,16 @@ test('listing users requires authentication', function () {
 test('a non-internal user cannot list users', function () {
     $vendorUser = User::factory()->create(['user_type' => 'company']);
     $this->actingAs($vendorUser, 'web');
+
+    $response = $this->getJson('/api/v1/dashboard/users');
+
+    $response->assertStatus(403);
+});
+
+test('an internal user who is not an admin cannot list users, even with users.viewAny', function () {
+    $officer = User::factory()->create(['user_type' => 'internal']);
+    $officer->givePermissionTo(Permission::firstOrCreate(['name' => 'users.viewAny', 'guard_name' => 'web']));
+    $this->actingAs($officer, 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users');
 
@@ -44,7 +64,7 @@ test('an internal user can list all users with resolved names', function () {
         postalCode: null,
     ));
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users');
 
@@ -64,7 +84,7 @@ test('listing users filters by type', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     User::factory()->create(['user_type' => 'company']);
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?type=company');
 
@@ -75,7 +95,7 @@ test('listing users filters by status', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     User::factory()->create(['user_type' => 'internal', 'status' => 'suspended']);
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?status=suspended');
 
@@ -86,7 +106,7 @@ test('listing users searches by keyword', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal', 'username' => 'somchai_j']);
     User::factory()->create(['user_type' => 'internal', 'username' => 'other_user']);
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?search=somchai_j');
 
@@ -97,7 +117,7 @@ test('listing users sorts by the given column', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal', 'username' => 'zzz_admin']);
     User::factory()->create(['user_type' => 'internal', 'username' => 'aaa_user']);
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?sort_by=username&sort_direction=asc');
 
@@ -109,7 +129,7 @@ test('listing users returns camelCase pagination meta with no links', function (
     $internalUser = User::factory()->create(['user_type' => 'internal']);
     User::factory()->count(2)->create(['user_type' => 'internal']);
 
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?page=1&per_page=2');
 
@@ -120,7 +140,7 @@ test('listing users returns camelCase pagination meta with no links', function (
 
 test('an invalid type value is rejected', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?type=bogus');
 
@@ -129,7 +149,7 @@ test('an invalid type value is rejected', function () {
 
 test('an invalid status value is rejected', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?status=bogus');
 
@@ -138,7 +158,7 @@ test('an invalid status value is rejected', function () {
 
 test('an invalid sort_by value is rejected', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?sort_by=name');
 
@@ -147,7 +167,7 @@ test('an invalid sort_by value is rejected', function () {
 
 test('a too long search value is rejected', function () {
     $internalUser = User::factory()->create(['user_type' => 'internal']);
-    $this->actingAs($internalUser, 'web');
+    $this->actingAs(asUserListAdmin($internalUser), 'web');
 
     $response = $this->getJson('/api/v1/dashboard/users?search='.str_repeat('a', 256));
 

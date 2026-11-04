@@ -15,6 +15,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/components/input-field";
 import { formatPhone } from "@/lib/utils";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
 import { usePositionOptions } from "@/lib/internal-profiles/queries/usePositionOptions";
 import { useInternalProfileDetail } from "@/lib/internal-profiles/queries/useInternalProfileDetail";
@@ -40,7 +41,7 @@ export default function EditInternalProfileDialog({
     const setOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setUncontrolledOpen(next));
     const { data: departments } = useDepartmentOptions();
     const { data: positions } = usePositionOptions();
-    const { data: profile, isPending } = useInternalProfileDetail(id, open);
+    const { data: profile, isPending, isError } = useInternalProfileDetail(id, open);
 
     const initialValues = {
         prefix: profile?.prefix ?? "",
@@ -82,6 +83,14 @@ export default function EditInternalProfileDialog({
                     <div className="flex justify-center py-8">
                         <Spinner className="size-6" />
                     </div>
+                ) : isError && !profile ? (
+                    // โหลดไม่ได้ — ไม่แสดงฟอร์มว่าง ไม่งั้นกดบันทึกแล้วจะเขียนทับข้อมูลเดิมด้วยค่าว่าง
+                    <>
+                        <p className="py-8 text-center text-sm text-muted-foreground">{LOAD_ERROR_MESSAGE}</p>
+                        <DialogFooter>
+                            <DialogClose render={<Button type="button" variant="outline" className="h-11 md:w-20" />}>ปิด</DialogClose>
+                        </DialogFooter>
+                    </>
                 ) : (
                     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
                         <div className="grid gap-4 sm:grid-cols-3">

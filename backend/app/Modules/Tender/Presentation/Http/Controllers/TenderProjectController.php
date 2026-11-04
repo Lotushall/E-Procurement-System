@@ -20,6 +20,7 @@ use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectSta
 use App\Modules\Tender\Presentation\Http\Resources\Project\TenderProjectResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class TenderProjectController extends Controller
 {
@@ -92,19 +93,29 @@ class TenderProjectController extends Controller
 
     public function update(UpdateTenderProjectRequest $request, int $id): JsonResponse
     {
-        $project = $this->updateTenderProject->execute(
+        $result = $this->updateTenderProject->execute(
             $id,
             UpdateTenderProjectData::from($request->validated()),
+            Gate::allows('tender-projects.ignoreStatusLock'),
         );
 
+        if (is_string($result)) {
+            return response()->json(['message' => $result], 422);
+        }
+
         return response()->json([
-            'data' => new TenderProjectResource($this->getTenderProjectById->execute($project->id(), $request->user())),
+            'data' => new TenderProjectResource($this->getTenderProjectById->execute($result->id(), $request->user())),
         ]);
     }
 
     public function updateStatus(UpdateTenderProjectStatusRequest $request, int $id): JsonResponse
     {
-        $message = $this->updateTenderProjectStatus->execute($id, $request->validated('status'), $request->user()->id);
+        $message = $this->updateTenderProjectStatus->execute(
+            $id,
+            $request->validated('status'),
+            $request->user()->id,
+            Gate::allows('tender-projects.ignoreStatusLock'),
+        );
 
         if ($message !== null) {
             return response()->json(['message' => $message], 422);
@@ -117,7 +128,11 @@ class TenderProjectController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $this->deleteTenderProject->execute($id);
+        $message = $this->deleteTenderProject->execute($id, Gate::allows('tender-projects.ignoreStatusLock'));
+
+        if ($message !== null) {
+            return response()->json(['message' => $message], 422);
+        }
 
         return response()->json(null, 204);
     }

@@ -4,9 +4,10 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { RequireRole } from "@/lib/auth/guards/RequireRole";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import { isNotFoundError, isPositiveId, LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -20,9 +21,10 @@ type ActiveTab = "overview" | "permissions" | "sessions";
 function UserDetailContent() {
   const searchParams = useSearchParams();
   const userId = Number(searchParams.get("id"));
-  const isValidId = Number.isFinite(userId) && userId > 0;
+  const isValidId = isPositiveId(userId);
 
-  const { data: user, isPending, isError } = useUserDetail(userId);
+  const { data: user, isPending, isError, error } = useUserDetail(userId);
+  const loadFailed = isValidId && isError && !user && !isNotFoundError(error);
   const notFound = !isValidId || (isError && !user) || (!isPending && !user);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
@@ -41,6 +43,10 @@ function UserDetailContent() {
         <Spinner className="size-6" />
       </div>
     );
+  }
+
+  if (loadFailed) {
+    return <p className="py-12 text-center text-sm text-muted-foreground">{LOAD_ERROR_MESSAGE}</p>;
   }
 
   if (notFound || !user) {
@@ -87,9 +93,9 @@ function UserDetailContent() {
 export default function UserDetailPage() {
   return (
     <Suspense fallback={null}>
-      <RequirePermission permission="users.viewAny">
+      <RequireRole role="admin">
         <UserDetailContent />
-      </RequirePermission>
+      </RequireRole>
     </Suspense>
   );
 }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { describe, expect, it, vi } from "vitest";
 import EditInternalProfileDialog from "@/app/dashboard/internal-employees/_components/dialogs/edit-internal-profile-dialog";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import type { InternalProfile } from "@/lib/internal-profiles/types";
 import { makeDepartment, makeInternalProfile, makePosition } from "@/tests/fixtures/internal-profiles";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
@@ -130,16 +131,19 @@ describe("EditInternalProfileDialog — opening", () => {
     expect(screen.queryByRole("button", { name: "บันทึกการแก้ไข" })).not.toBeInTheDocument();
   });
 
-  it("stops the spinner and shows an empty form that cannot be submitted when the profile fails to load", async () => {
+  it("shows a load error instead of the form when the profile fails to load, and closes", async () => {
     const state = serve(null);
     const { user } = renderUncontrolled();
 
     await user.click(screen.getByRole("button", { name: "แก้ไขพนักงาน" }));
 
-    await waitFor(() => expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument());
-    expect(input("ชื่อ")).toHaveValue("");
-    await user.click(submit());
-    expect(await screen.findByText("กรุณากรอกชื่อ")).toBeInTheDocument();
+    expect(await screen.findByText(LOAD_ERROR_MESSAGE)).toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "บันทึกการแก้ไข" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "ปิด" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(state.patches).toEqual([]);
   });
 

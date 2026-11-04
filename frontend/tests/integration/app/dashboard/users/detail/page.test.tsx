@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 import UserDetailPage from "@/app/dashboard/users/detail/page";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import type { UserDetail } from "@/lib/user/management/types";
 import {
   makePermission,
@@ -69,7 +70,7 @@ function serveTabs() {
 const FULL_ACCESS = ["users.viewAny", "users.update"];
 
 async function renderPage(detail: UserDetail = INTERNAL, permissions: string[] = FULL_ACCESS) {
-  signInAs({ id: 1000, permissions });
+  signInAs({ id: 1000, roles: ["admin"], permissions });
   serveTabs();
   const ids = serveDetail(detail);
   setUrl(`/dashboard/users/detail?id=${detail.id}`);
@@ -90,7 +91,7 @@ describe("UserDetailPage — loading the user", () => {
   });
 
   it("shows a spinner and a loading breadcrumb while the user is pending", async () => {
-    signInAs({ permissions: ["users.viewAny"] });
+    signInAs({ roles: ["admin"], permissions: ["users.viewAny"] });
     server.use(http.get(DETAIL_URL, () => new Promise<Response>(() => {})));
     setUrl("/dashboard/users/detail?id=7");
 
@@ -108,16 +109,16 @@ describe("UserDetailPage — loading the user", () => {
   });
 
   it.each([
-    ["404", 404],
-    ["500", 500],
-  ])("shows the not-found message (not a spinner) when the detail request returns %s", async (_name, status) => {
-    signInAs({ permissions: ["users.viewAny"] });
+    ["404", 404, NOT_FOUND],
+    ["500", 500, LOAD_ERROR_MESSAGE],
+  ])("shows its message (not a spinner) when the detail request returns %s", async (_name, status, message) => {
+    signInAs({ roles: ["admin"], permissions: ["users.viewAny"] });
     server.use(http.get(DETAIL_URL, () => new HttpResponse(null, { status })));
     setUrl("/dashboard/users/detail?id=7");
 
     renderWithQueryClient(<UserDetailPage />);
 
-    expect(await screen.findByText(NOT_FOUND)).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
     expect(useBreadcrumbStore.getState().items).toEqual([
@@ -131,8 +132,9 @@ describe("UserDetailPage — loading the user", () => {
     ["zero", "/dashboard/users/detail?id=0"],
     ["negative", "/dashboard/users/detail?id=-3"],
     ["non-numeric", "/dashboard/users/detail?id=abc"],
+    ["fractional", "/dashboard/users/detail?id=1.5"],
   ])("shows not-found and requests no user when the id is %s", async (_name, url) => {
-    signInAs({ permissions: ["users.viewAny"] });
+    signInAs({ roles: ["admin"], permissions: ["users.viewAny"] });
     const requested: string[] = [];
     server.use(
       http.get(DETAIL_URL, () => {
@@ -270,8 +272,8 @@ describe("UserDetailPage — actions by permission", () => {
 });
 
 describe("UserDetailPage — permission gate", () => {
-  it("shows Forbidden and sends no detail request without users.viewAny", async () => {
-    signInAs({ permissions: [] });
+  it("shows Forbidden and sends no detail request to a non-admin, even one holding users.viewAny", async () => {
+    signInAs({ roles: ["officer"], permissions: ["users.viewAny"] });
     const ids = serveDetail(INTERNAL);
     setUrl("/dashboard/users/detail?id=7");
 

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Login from "@/app/(auth)/login/page";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
-import { router } from "@/tests/mocks/next-navigation";
+import { router, setUrl } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 
 const LOGIN_URL = apiUrl("/api/v1/auth/login");
@@ -88,6 +88,17 @@ describe("Login page", () => {
     expect(body).toEqual({ identifier: "officer", password: "secret123", remember: true });
     expect(csrf).toHaveBeenCalledOnce();
     expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("goes back to the page remembered in ?redirect= on success", async () => {
+    server.use(http.post(LOGIN_URL, () => new HttpResponse(null, { status: 204 })));
+    setUrl("/login?redirect=%2Fdashboard%2Ftors%2Fdetail%3Fid%3D7");
+    const user = userEvent.setup();
+    renderWithQueryClient(<Login />);
+
+    await fillAndSubmit(user);
+
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith("/dashboard/tors/detail?id=7"));
   });
 
   it("sends remember=false by default", async () => {

@@ -3,6 +3,7 @@
 use App\Modules\InternalProfiles\Infrastructure\Models\Department;
 use App\Modules\Tender\Application\Project\DTOs\UpdateTenderProjectData;
 use App\Modules\Tender\Application\Project\UseCases\UpdateTenderProjectUseCase;
+use App\Modules\Tender\Domain\Entities\Project\TenderProject;
 use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use App\Modules\User\Infrastructure\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -34,7 +35,7 @@ test('execute replaces the editable fields and keeps the project code within the
         'created_by' => $creator->id,
     ]);
 
-    $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id));
+    $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id), false);
 
     expect($project->id())->toBe($model->id)
         ->and($project->projectCode()->value)->toBe('TP-2569-0003')
@@ -50,9 +51,9 @@ test('execute replaces the editable fields and keeps the project code within the
 
 test('execute issues the next project code of the new fiscal year when the fiscal year changes', function () {
     $department = Department::create(['name' => 'Finance']);
-    $model = TenderProjects::factory()->create(['project_code' => 'TP-2569-0003', 'fiscal_year' => 2569]);
+    $model = TenderProjects::factory()->status('draft')->create(['project_code' => 'TP-2569-0003', 'fiscal_year' => 2569]);
 
-    $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id, 2570));
+    $project = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id, 2570), false);
 
     expect($project->projectCode()->value)->toBe('TP-2570-0001')
         ->and($project->fiscalYear())->toBe(2570);
@@ -61,5 +62,25 @@ test('execute issues the next project code of the new fiscal year when the fisca
 test('execute throws when the tender project does not exist', function () {
     $department = Department::create(['name' => 'Finance']);
 
-    app(UpdateTenderProjectUseCase::class)->execute(999999, makeUpdateTenderProjectData($department->id));
+    app(UpdateTenderProjectUseCase::class)->execute(999999, makeUpdateTenderProjectData($department->id), false);
 })->throws(ModelNotFoundException::class);
+
+test('execute rejects editing a finished project while the status lock applies', function (string $status) {
+    $department = Department::create(['name' => 'Finance']);
+    $model = TenderProjects::factory()->status($status)->create(['name' => 'ชื่อเดิม']);
+
+    $result = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id), false);
+
+    expect($result)->toBeString()->not->toBeEmpty();
+    $this->assertDatabaseHas('tenders_projects', ['id' => $model->id, 'name' => 'ชื่อเดิม']);
+})->with(['completed', 'cancelled', 'archived']);
+
+test('execute edits a finished project once the status lock is lifted', function () {
+    $department = Department::create(['name' => 'Finance']);
+    $model = TenderProjects::factory()->status('completed')->create();
+
+    $result = app(UpdateTenderProjectUseCase::class)->execute($model->id, makeUpdateTenderProjectData($department->id), true);
+
+    expect($result)->toBeInstanceOf(TenderProject::class)
+        ->and($result->name())->toBe('จัดซื้อคอมพิวเตอร์ (แก้ไข)');
+});

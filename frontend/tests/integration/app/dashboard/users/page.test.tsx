@@ -40,11 +40,11 @@ function serveList(users: UserListItem[], meta: Record<string, unknown> = {}) {
   return queries;
 }
 
-// หน้านี้ครอบด้วย RequirePermission(users.viewAny) — ผู้ใช้ที่เรียกผ่านฟังก์ชันนี้มี viewAny เสมอ (บวกสิทธิ์ที่ส่งมา)
-// เคสที่ทดสอบการปฏิเสธต้อง signInAs เองโดยไม่มี viewAny
+// หน้านี้ครอบด้วย RequireRole(admin) — ผู้ใช้ที่เรียกผ่านฟังก์ชันนี้เป็น admin และมี viewAny เสมอ (บวกสิทธิ์ที่ส่งมา)
+// เคสที่ทดสอบการปฏิเสธต้อง signInAs เองโดยไม่มี role admin
 async function renderPage(url = BASE, auth: Partial<CurrentUser> = { id: 1000 }) {
   setUrl(url);
-  signInAs({ ...auth, permissions: ["users.viewAny", ...(auth.permissions ?? [])] });
+  signInAs({ ...auth, roles: ["admin"], permissions: ["users.viewAny", ...(auth.permissions ?? [])] });
   const rendered = renderWithQueryClient(<UsersPage />);
   // รอให้ gate ผ่าน (โหลด /auth/user เสร็จ) ก่อนเช็คเนื้อหาหน้า
   await screen.findByRole("heading", { name: HEADING });
@@ -399,42 +399,25 @@ describe("UsersPage — floating action button", () => {
   const ROLES_LABEL = "จัดการ Role และ Permission";
   const MENU_LABEL = "เพิ่ม user / จัดการ Role และ Permission";
 
-  it("links straight to create when only users.create is held", async () => {
-    serveList([SOMCHAI]);
-    const { queryClient } = await renderPage(BASE, { id: 1000, permissions: ["users.create"] });
-    await settled(queryClient);
-
-    expect(await screen.findByRole("button", { name: CREATE_LABEL })).toHaveAttribute("href", "/dashboard/users/create");
-    expect(screen.queryByRole("button", { name: MENU_LABEL })).not.toBeInTheDocument();
-  });
-
   it("links straight to role management for an admin without users.create", async () => {
     serveList([SOMCHAI]);
-    const { queryClient } = await renderPage(BASE, { id: 1000, roles: ["admin"] });
+    const { queryClient } = await renderPage(BASE, { id: 1000 });
     await settled(queryClient);
 
     expect(await screen.findByRole("button", { name: ROLES_LABEL })).toHaveAttribute("href", "/dashboard/users/roles-permissions");
+    expect(screen.queryByRole("button", { name: CREATE_LABEL })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: MENU_LABEL })).not.toBeInTheDocument();
   });
 
   it("offers a menu with both actions to an admin who can create users", async () => {
     serveList([SOMCHAI]);
-    const { user, queryClient } = await renderPage(BASE, { id: 1000, roles: ["admin"], permissions: ["users.create"] });
+    const { user, queryClient } = await renderPage(BASE, { id: 1000, permissions: ["users.create"] });
     await settled(queryClient);
 
     await user.click(await screen.findByRole("button", { name: MENU_LABEL }));
 
     expect(await screen.findByRole("menuitem", { name: new RegExp(CREATE_LABEL) })).toHaveAttribute("href", "/dashboard/users/create");
     expect(screen.getByRole("menuitem", { name: new RegExp(ROLES_LABEL) })).toHaveAttribute("href", "/dashboard/users/roles-permissions");
-  });
-
-  it("shows no floating button without users.create or the admin role", async () => {
-    serveList([SOMCHAI]);
-    const { queryClient } = await renderPage(BASE, { id: 1000, roles: ["officer"], permissions: ["users.update"] });
-    await settled(queryClient);
-
-    expect(screen.queryByRole("button", { name: CREATE_LABEL })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: ROLES_LABEL })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: MENU_LABEL })).not.toBeInTheDocument();
   });
 });
 
@@ -558,10 +541,10 @@ describe("UsersPage — actions by permission", () => {
 });
 
 describe("UsersPage — permissions", () => {
-  it("shows Forbidden and sends no list request without users.viewAny", async () => {
+  it("shows Forbidden and sends no list request to a non-admin, even one holding users.viewAny", async () => {
     const queries = serveList([SOMCHAI]);
     setUrl(BASE);
-    signInAs({ id: 1000, roles: [], permissions: [] });
+    signInAs({ id: 1000, roles: ["officer"], permissions: ["users.viewAny"] });
     renderWithQueryClient(<UsersPage />);
 
     expect(await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้")).toBeInTheDocument();

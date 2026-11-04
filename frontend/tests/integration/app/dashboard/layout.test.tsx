@@ -106,17 +106,17 @@ describe("DashboardLayout", () => {
 
     renderLayout();
 
-    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login"));
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login?redirect=%2Fdashboard"));
     expect(screen.queryByText("เนื้อหาหน้า")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Scroll to top" })).toBeInTheDocument();
   });
 
-  it("hides the whole dashboard shell and redirects a signed-out visitor to /login", async () => {
+  it("hides the whole dashboard shell and redirects a signed-out visitor to /login, remembering the page", async () => {
     signOut();
 
     renderLayout();
 
-    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login"));
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login?redirect=%2Fdashboard"));
     expect(screen.queryByText("เนื้อหาหน้า")).not.toBeInTheDocument();
     expect(screen.queryByRole("banner")).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "breadcrumb" })).not.toBeInTheDocument();

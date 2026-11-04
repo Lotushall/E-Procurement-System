@@ -13,6 +13,7 @@ import { TenderProjectStatusSelect } from "@/components/tender-project-status-se
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/ui/data-table-sortable-header";
 import { routes } from "@/lib/routes";
+import { isTenderProjectLocked } from "@/lib/tender/tender-projects/status-rules";
 import { DeleteTenderProjectDialog } from "../dialogs/delete-tender-project-dialog";
 import { EditTenderProjectDialog } from "../dialogs/edit-tender-project-dialog";
 
@@ -28,6 +29,7 @@ export function createColumns(
     canUpdateStatus: boolean,
     canUpdate: boolean,
     canDelete: boolean,
+    isAdmin: boolean,
 ): ColumnDef<TenderProjects>[] {
     return [
         {
@@ -142,39 +144,42 @@ export function createColumns(
             id: "actions",
             header: () => <ColumnHeader label="Actions" align="center" />,
             enableHiding: false,
-            cell: ({ row }) => (
-                <div className="flex justify-center gap-1.5">
-                    {canUpdate && (
-                        <EditTenderProjectDialog
-                            key={row.original.id}
-                            project={row.original}
-                            trigger={
-                                <Button
-                                    variant="outline"
-                                    aria-label="แก้ไขโครงการ"
-                                    className="size-8 px-1.5 pt-px rounded-md bg-white"
-                                />
-                            }
-                            triggerChildren={<Pencil className="w-4 h-4 text-gray-500" />}
-                        />
-                    )}
+            cell: ({ row }) => {
+                const locked = isTenderProjectLocked(row.original.status, isAdmin);
+                return (
+                    <div className="flex justify-center gap-1.5">
+                        {canUpdate && !locked && (
+                            <EditTenderProjectDialog
+                                key={row.original.id}
+                                project={row.original}
+                                trigger={
+                                    <Button
+                                        variant="outline"
+                                        aria-label="แก้ไขโครงการ"
+                                        className="size-8 px-1.5 pt-px rounded-md bg-white"
+                                    />
+                                }
+                                triggerChildren={<Pencil className="w-4 h-4 text-gray-500" />}
+                            />
+                        )}
 
-                    {canDelete && (
-                        <DeleteTenderProjectDialog
-                            tenderProjectId={row.original.id}
-                            displayName={row.original.name}
-                            trigger={
-                                <Button
-                                    variant="outline"
-                                    aria-label="ลบโครงการ"
-                                    className="size-8 px-1.5 pt-px rounded-md bg-white"
-                                />
-                            }
-                            triggerChildren={<Trash2 className="w-4 h-4 text-red-600" />}
-                        />
-                    )}
-                </div>
-            ),
+                        {canDelete && !locked && (
+                            <DeleteTenderProjectDialog
+                                tenderProjectId={row.original.id}
+                                displayName={row.original.name}
+                                trigger={
+                                    <Button
+                                        variant="outline"
+                                        aria-label="ลบโครงการ"
+                                        className="size-8 px-1.5 pt-px rounded-md bg-white"
+                                    />
+                                }
+                                triggerChildren={<Trash2 className="w-4 h-4 text-red-600" />}
+                            />
+                        )}
+                    </div>
+                );
+            },
         },
     ];
 }

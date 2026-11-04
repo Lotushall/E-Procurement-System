@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import TorDetailPage from "@/app/dashboard/tors/detail/page";
 import type { CurrentUser } from "@/lib/auth/types";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { routes } from "@/lib/routes";
 import type { Tor } from "@/lib/tender/tor/types";
 import { makeTor, makeTorUserSummary } from "@/tests/fixtures/tors";
@@ -99,6 +100,7 @@ describe("TorDetailPage — ?id= handling", () => {
     ["zero", `${BASE}?id=0`],
     ["negative", `${BASE}?id=-3`],
     ["non-numeric", `${BASE}?id=abc`],
+    ["fractional", `${BASE}?id=1.5`],
     ["partly numeric", `${BASE}?id=7abc`],
     ["empty", `${BASE}?id=`],
   ])("shows not-found without a request or spinner when id is %s", async (_name, url) => {
@@ -142,15 +144,15 @@ describe("TorDetailPage — loading and errors", () => {
   });
 
   it.each([
-    ["404", 404],
-    // OPEN QUESTION (human): a 500 showing the same not-found text as a 404 is current behavior, not confirmed intent
-    ["500", 500],
-  ])("shows not-found and stops the spinner on a %s", async (_name, status) => {
+    ["404", 404, NOT_FOUND],
+    // 500 = โหลดไม่สำเร็จ ไม่ใช่ไม่มีข้อมูล — บอกให้ลองใหม่
+    ["500", 500, LOAD_ERROR_MESSAGE],
+  ])("shows its message and stops the spinner on a %s", async (_name, status, message) => {
     server.use(http.get(DETAIL_URL, () => HttpResponse.json({ message: "x" }, { status })));
 
     await renderPage();
 
-    expect(await screen.findByText(NOT_FOUND)).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
     expect(useBreadcrumbStore.getState().items).toEqual([LIST_CRUMB, { label: "ไม่พบข้อมูล" }]);
   });

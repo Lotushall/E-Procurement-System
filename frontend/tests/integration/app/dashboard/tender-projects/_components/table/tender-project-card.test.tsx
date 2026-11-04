@@ -7,6 +7,7 @@ import { TenderProjectCard } from "@/app/dashboard/tender-projects/_components/t
 import type { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { makeDepartment, makeInternalProfile } from "@/tests/fixtures/internal-profiles";
 import { makeTenderProject } from "@/tests/fixtures/tender-projects";
+import { signInAs } from "@/tests/helpers/auth";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { freezeTimeAt } from "@/tests/helpers/time";
 import { apiUrl, server } from "@/tests/msw/server";
@@ -16,7 +17,7 @@ freezeTimeAt("2026-11-02T10:00:00+07:00");
 function setup(
   project: Partial<TenderProjects> = {},
   canUpdateStatus = false,
-  { canUpdate = true, canDelete = true } = {},
+  { canUpdate = true, canDelete = true, isAdmin = false } = {},
 ) {
   server.use(http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [makeDepartment()] })));
   renderWithQueryClient(
@@ -25,6 +26,7 @@ function setup(
       canUpdateStatus={canUpdateStatus}
       canUpdate={canUpdate}
       canDelete={canDelete}
+      isAdmin={isAdmin}
     />,
   );
   return { user: userEvent.setup(), card: screen.getByRole("article") };
@@ -139,6 +141,8 @@ describe("TenderProjectCard — status", () => {
   });
 
   it("shows the status select with the update-status permission and patches this project", async () => {
+    // status select อ่าน role ของผู้ใช้ — draft → published เป็นขั้นถัดไปที่ทำได้แม้ไม่ใช่ admin
+    signInAs({ roles: ["officer"] });
     const patched: unknown[] = [];
     const { user, card } = setup({ id: 9, status: "draft" }, true);
     server.use(
@@ -212,5 +216,23 @@ describe("TenderProjectCard — menu", () => {
 
     expect(await screen.findByRole("menuitem", { name: "ลบ" })).toBeInTheDocument();
     expect(screen.queryByRole("menuitem", { name: "แก้ไข" })).not.toBeInTheDocument();
+  });
+
+  it.each(["completed", "cancelled", "archived"] as const)(
+    "hides the menu on a %s project from a non-admin",
+    (status) => {
+      const { card } = setup({ status });
+
+      expect(within(card).queryByRole("button", { name: "ตัวเลือกของโครงการ" })).not.toBeInTheDocument();
+    },
+  );
+
+  it("still offers edit and delete on a finished project to an admin", async () => {
+    const { user, card } = setup({ status: "archived" }, false, { isAdmin: true });
+
+    await user.click(within(card).getByRole("button", { name: "ตัวเลือกของโครงการ" }));
+
+    expect(await screen.findByRole("menuitem", { name: "แก้ไข" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "ลบ" })).toBeInTheDocument();
   });
 });

@@ -23,7 +23,7 @@ describe("ViewContactDialog", () => {
         contactEmail: "somchai@example.com",
         lineId: "somchai",
         otherContact: "แฟกซ์ 02-111-2222",
-        isMainContact: "1",
+        isMainContact: true,
       }),
     );
 
@@ -47,7 +47,7 @@ describe("ViewContactDialog", () => {
         contactEmail: "",
         lineId: "",
         otherContact: "",
-        isMainContact: false as unknown as string,
+        isMainContact: false,
       }),
     );
 

@@ -22,7 +22,7 @@ export default function EditContactDialog({ contact }: { contact: VendorContact 
       contactEmail: contact.contactEmail ?? "",
       lineId: contact.lineId ?? "",
       otherContact: contact.otherContact ?? "",
-      isMainContact: Boolean(contact.isMainContact),
+      isMainContact: contact.isMainContact,
     });
 
   return (

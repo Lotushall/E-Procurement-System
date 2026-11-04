@@ -207,7 +207,7 @@ export function CreateTenderProjectDialog({
                         )}
                     />
 
-                    <InputField label="ระยะเวลาโครงการ" required error={errors.projectEndAt?.message ?? errors.projectStartAt?.message}>
+                    <InputField label="ระยะเวลาโครงการ" required error={errors.projectStartAt?.message ?? errors.projectEndAt?.message}>
                         <Popover>
                             <PopoverTrigger
                                 render={

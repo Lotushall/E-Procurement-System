@@ -16,4 +16,12 @@ describe.each([
   it("requires a name", () => {
     expect(fieldErrorsOf(schema, { name: "" })).toEqual({ name: [message] });
   });
+
+  it("treats a name of only spaces as empty", () => {
+    expect(fieldErrorsOf(schema, { name: "   " })).toEqual({ name: [message] });
+  });
+
+  it("sends the name without surrounding spaces", () => {
+    expect(schema.parse({ name: "  ฝ่ายพัสดุ  " })).toEqual({ name: "ฝ่ายพัสดุ" });
+  });
 });

@@ -48,7 +48,7 @@ export interface VendorContact {
   contactEmail: string;
   lineId: string;
   otherContact: string;
-  isMainContact: string;
+  isMainContact: boolean;
 }
 
 export type VendorProfileDetail =

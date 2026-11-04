@@ -37,8 +37,8 @@ export function useCreateTenderProjectForm(onSubmitted: () => void) {
       personInChargeId: values.personInChargeId ? Number(values.personInChargeId) : undefined,
       procurementMethod: values.procurementMethod,
       fiscalYear: Number(values.fiscalYear),
-      projectStartAt: values.projectStartAt || undefined,
-      projectEndAt: values.projectEndAt || undefined,
+      projectStartAt: values.projectStartAt,
+      projectEndAt: values.projectEndAt,
     };
 
     const promise = createTenderProjectMutation.mutateAsync(payload);

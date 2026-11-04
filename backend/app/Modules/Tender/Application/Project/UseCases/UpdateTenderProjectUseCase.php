@@ -19,10 +19,20 @@ final class UpdateTenderProjectUseCase
      * Replace every editable field of the project. The project code is kept
      * as long as the fiscal year stays the same; moving the project to another
      * fiscal year issues the next code in that year's sequence.
+     *
+     * Without $ignoresStatusLock a finished project (TenderProject::isEditable())
+     * may not change.
+     *
+     * @return TenderProject|string the saved project, or an error message if the edit was rejected
      */
-    public function execute(int $id, UpdateTenderProjectData $data): TenderProject
+    public function execute(int $id, UpdateTenderProjectData $data, bool $ignoresStatusLock): TenderProject|string
     {
         $project = $this->tenderProjects->findById($id);
+
+        if (! $ignoresStatusLock && ! $project->isEditable()) {
+            return 'ไม่สามารถแก้ไขโครงการได้ เนื่องจากโครงการเสร็จสิ้น ยกเลิก หรือเก็บถาวรแล้ว';
+        }
+
         $previousProjectCode = (string) $project->projectCode();
 
         $project->update(

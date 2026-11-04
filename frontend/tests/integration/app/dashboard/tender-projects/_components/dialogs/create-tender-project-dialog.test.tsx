@@ -83,6 +83,9 @@ async function pickOption(user: User, label: string, option: string) {
   await user.click(await screen.findByRole("option", { name: option }));
 }
 
+const NOV_15 = "วันอาทิตย์ที่ 15 พฤศจิกายน 2026";
+const NOV_20 = "วันศุกร์ที่ 20 พฤศจิกายน 2026";
+
 async function pickDates(user: User, ...days: string[]) {
   await user.click(screen.getByRole("button", { name: /เลือกระยะเวลาโครงการ|ถึง/ }));
   for (const day of days) {
@@ -93,11 +96,12 @@ async function pickDates(user: User, ...days: string[]) {
   await waitFor(() => expect(screen.queryByRole("grid")).not.toBeInTheDocument());
 }
 
-async function fillRequired(user: User, budget = "1500000.5") {
+async function fillRequired(user: User, budget = "1500000.5", days = [NOV_15, NOV_20]) {
   await user.type(textbox("ชื่อโครงการ"), "จัดซื้อเซิร์ฟเวอร์");
   await pickOption(user, "แผนก", "บัญชี");
   await user.type(textbox("งบประมาณ"), budget);
   await pickOption(user, "วิธีจัดซื้อ", "คัดเลือก");
+  await pickDates(user, ...days);
 }
 
 describe("CreateTenderProjectDialog — opening", () => {
@@ -173,7 +177,7 @@ describe("CreateTenderProjectDialog — budget input", () => {
 });
 
 describe("CreateTenderProjectDialog — validation", () => {
-  it("requires name, department, budget and method and sends no request", async () => {
+  it("requires name, department, budget, method and project period and sends no request", async () => {
     const state = serve();
     const { user } = await setup();
 
@@ -183,6 +187,7 @@ describe("CreateTenderProjectDialog — validation", () => {
     expect(screen.getByText("กรุณาเลือกแผนก")).toBeInTheDocument();
     expect(screen.getByText("กรุณากรอกงบประมาณ")).toBeInTheDocument();
     expect(screen.getByText("กรุณาเลือกวิธีจัดซื้อ")).toBeInTheDocument();
+    expect(screen.getByText("กรุณาเลือกระยะเวลาโครงการ")).toBeInTheDocument();
     expect(state.posts).toEqual([]);
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
@@ -241,7 +246,7 @@ describe("CreateTenderProjectDialog — project period", () => {
     serve();
     const { user } = await setup();
 
-    await pickDates(user, "วันอาทิตย์ที่ 15 พฤศจิกายน 2026", "วันศุกร์ที่ 20 พฤศจิกายน 2026");
+    await pickDates(user, NOV_15, NOV_20);
 
     expect(screen.getByRole("button", { name: /15 พ\.ย\. \d{4} ถึง 20 พ\.ย\. \d{4}/ })).toBeInTheDocument();
   });
@@ -249,9 +254,8 @@ describe("CreateTenderProjectDialog — project period", () => {
   it("allows the start day to equal the end day", async () => {
     const state = serve();
     const { user } = await setup();
-    await fillRequired(user);
+    await fillRequired(user, undefined, [NOV_15]);
 
-    await pickDates(user, "วันอาทิตย์ที่ 15 พฤศจิกายน 2026");
     await user.click(submit());
 
     await waitFor(() => expect(state.posts).toHaveLength(1));
@@ -261,7 +265,7 @@ describe("CreateTenderProjectDialog — project period", () => {
   it("clears both days with the clear button", async () => {
     serve();
     const { user } = await setup();
-    await pickDates(user, "วันอาทิตย์ที่ 15 พฤศจิกายน 2026", "วันศุกร์ที่ 20 พฤศจิกายน 2026");
+    await pickDates(user, NOV_15, NOV_20);
 
     await user.click(screen.getByRole("button", { name: /ถึง/ }));
     await user.click(await screen.findByRole("button", { name: "ล้างค่า" }));
@@ -285,6 +289,8 @@ describe("CreateTenderProjectDialog — submitting", () => {
       departmentId: 2,
       procurementMethod: "คัดเลือก",
       fiscalYear: 2570,
+      projectStartAt: "2026-11-15",
+      projectEndAt: "2026-11-20",
     });
   });
 
@@ -294,7 +300,6 @@ describe("CreateTenderProjectDialog — submitting", () => {
     await fillRequired(user);
     await pickOption(user, "ผู้รับผิดชอบ", "สมศักดิ์ ทำดี");
     await pickOption(user, "ปีงบประมาณ", "ปีงบประมาณ 2569");
-    await pickDates(user, "วันอาทิตย์ที่ 15 พฤศจิกายน 2026", "วันศุกร์ที่ 20 พฤศจิกายน 2026");
     await user.type(textbox("รายละเอียด"), "รายละเอียดเพิ่มเติม");
 
     await user.click(submit());
@@ -335,6 +340,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
     await user.click(combo("วิธีจัดซื้อ"));
     await user.type(await screen.findByPlaceholderText("ค้นหาวิธีจัดซื้อ"), "วิธีพิเศษ");
     await user.click(await screen.findByRole("option", { name: '+ เพิ่ม "วิธีพิเศษ"' }));
+    await pickDates(user, NOV_15, NOV_20);
 
     await user.click(submit());
 

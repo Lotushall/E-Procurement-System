@@ -8,6 +8,19 @@ use Carbon\CarbonImmutable;
 
 final class TenderProject
 {
+    /**
+     * The one-step-forward flow a project follows when the status lock
+     * applies; lifting the lock allows any status.
+     */
+    private const FORWARD_STATUSES = [
+        'draft' => ['published', 'cancelled'],
+        'published' => ['closed', 'cancelled'],
+        'closed' => ['completed', 'cancelled'],
+        'completed' => ['archived'],
+        'cancelled' => ['archived'],
+        'archived' => [],
+    ];
+
     private function __construct(
         private readonly ?int $id,
         private ProjectCode $projectCode,
@@ -113,6 +126,20 @@ final class TenderProject
     public function changeStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function canMoveForwardTo(string $status): bool
+    {
+        return in_array($status, self::FORWARD_STATUSES[$this->status] ?? [], true);
+    }
+
+    /**
+     * A finished project (completed, cancelled or archived) may no longer be
+     * edited or deleted unless the status lock is lifted.
+     */
+    public function isEditable(): bool
+    {
+        return ! in_array($this->status, ['completed', 'cancelled', 'archived'], true);
     }
 
     // -----------------------------

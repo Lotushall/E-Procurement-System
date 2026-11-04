@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/queries/useUser";
-import { routes } from "@/lib/routes";
+import { loginUrlForCurrentPage } from "@/lib/auth/redirect";
 
 export function useRequireAuth() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export function useRequireAuth() {
 
   useEffect(() => {
     if (!isPending && !user) {
-      router.replace(routes.auth.login);
+      router.replace(loginUrlForCurrentPage());
     }
   }, [isPending, user, router]);
 

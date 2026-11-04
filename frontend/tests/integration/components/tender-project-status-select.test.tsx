@@ -4,8 +4,10 @@ import { http, HttpResponse } from "msw/http";
 import { toast } from "sonner";
 import { describe, expect, it } from "vitest";
 import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
+import { AUTH_USER_QUERY_KEY } from "@/lib/auth/queries/useUser";
 import type { TenderProjectStatus } from "@/lib/tender/tender-projects/types";
 import { makeTenderProject } from "@/tests/fixtures/tender-projects";
+import { signInAs } from "@/tests/helpers/auth";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { apiUrl, server } from "@/tests/msw/server";
 
@@ -21,8 +23,11 @@ const LABELS: Record<TenderProjectStatus, string> = {
 };
 const ALL_LABELS = Object.values(LABELS);
 
-function setup(status: TenderProjectStatus = "draft", id = 7) {
+// ค่าเริ่มต้นเป็น admin (เปลี่ยนเป็นสถานะไหนก็ได้) — รอให้โหลด user เสร็จก่อน ไม่งั้นจะเห็นตัวเลือกแบบผู้ที่ไม่ใช่ admin
+async function setup(status: TenderProjectStatus = "draft", id = 7, { roles = ["admin"] } = {}) {
+  signInAs({ roles });
   const rendered = renderWithQueryClient(<TenderProjectStatusSelect id={id} status={status} />);
+  await waitFor(() => expect(rendered.queryClient.getQueryData(AUTH_USER_QUERY_KEY)).toBeTruthy());
   return { ...rendered, user: userEvent.setup() };
 }
 
@@ -44,27 +49,49 @@ async function choose(user: ReturnType<typeof userEvent.setup>, label: string) {
 }
 
 describe("TenderProjectStatusSelect — display", () => {
-  it.each(Object.entries(LABELS))("shows the %s status as %s", (status, label) => {
-    setup(status as TenderProjectStatus);
+  it.each(Object.entries(LABELS))("shows the %s status as %s", async (status, label) => {
+    await setup(status as TenderProjectStatus);
 
     expect(screen.getByRole("combobox")).toHaveTextContent(label);
   });
 
-  // ไม่มีกฎ "สถานะถัดไปที่ทำได้" ฝั่ง UI — เมนูเสนอทั้ง 6 สถานะเสมอ (backend เป็นผู้ตัดสินและตอบ 422)
-  it.each(Object.keys(LABELS))("offers all six statuses in order when the current status is %s", async (status) => {
-    const { user } = setup(status as TenderProjectStatus);
+  it.each(Object.keys(LABELS))("offers an admin all six statuses in order when the current status is %s", async (status) => {
+    const { user } = await setup(status as TenderProjectStatus);
 
     await user.click(screen.getByRole("combobox"));
 
     const options = await screen.findAllByRole("option");
     expect(options.map((o) => o.textContent)).toEqual(ALL_LABELS);
   });
+
+  // ผู้ที่ไม่ใช่ admin: สถานะปัจจุบัน + สถานะถัดไปตาม flow เท่านั้น (เรียงตามลำดับปกติ)
+  it.each([
+    ["draft", ["ร่าง", "กำลังดำเนินการ", "ยกเลิก"]],
+    ["published", ["กำลังดำเนินการ", "ปิดรับซอง", "ยกเลิก"]],
+    ["closed", ["ปิดรับซอง", "เสร็จสิ้น", "ยกเลิก"]],
+    ["completed", ["เสร็จสิ้น", "เก็บถาวร"]],
+    ["cancelled", ["ยกเลิก", "เก็บถาวร"]],
+  ] as const)("offers a non-admin only the next steps from %s", async (status, labels) => {
+    const { user } = await setup(status, 7, { roles: ["officer"] });
+
+    await user.click(screen.getByRole("combobox"));
+
+    const options = await screen.findAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual(labels);
+  });
+
+  it("shows an archived project to a non-admin as a plain badge with nothing to choose", async () => {
+    await setup("archived", 7, { roles: ["officer"] });
+
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.getByText("เก็บถาวร")).toBeInTheDocument();
+  });
 });
 
 describe("TenderProjectStatusSelect — changing the status", () => {
   it("patches the project's status, toasts success and refetches tenders_projects queries", async () => {
     const calls = serveStatus();
-    const { user, queryClient } = setup("draft", 7);
+    const { user, queryClient } = await setup("draft", 7);
     queryClient.setQueryData(["tenders_projects", "list", {}, 1, 20], []);
 
     await choose(user, "กำลังดำเนินการ");
@@ -77,7 +104,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
 
   it("starts a promise toast with the loading text", async () => {
     serveStatus();
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "ยกเลิก");
 
@@ -91,7 +118,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
   it.each(Object.entries(LABELS))("sends status %s when %s is chosen", async (status, label) => {
     const calls = serveStatus();
     // เริ่มจากสถานะที่ไม่ใช่ตัวที่จะเลือก
-    const { user } = setup(status === "draft" ? "archived" : "draft", 3);
+    const { user } = await setup(status === "draft" ? "archived" : "draft", 3);
 
     await choose(user, label);
 
@@ -100,7 +127,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
 
   it("sends no request when the current status is chosen again", async () => {
     const calls = serveStatus();
-    const { user } = setup("published");
+    const { user } = await setup("published");
 
     await choose(user, "กำลังดำเนินการ");
 
@@ -114,7 +141,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
         HttpResponse.json({ message: "ไม่สามารถเปลี่ยนเป็นสถานะนี้ได้" }, { status: 422 }),
       ),
     );
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "เสร็จสิ้น");
 
@@ -125,7 +152,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
 
   it("uses the fallback on a 422 without a message", async () => {
     server.use(http.patch(URL_, () => HttpResponse.json({}, { status: 422 })));
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "เสร็จสิ้น");
 
@@ -135,7 +162,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
   // ข้อความของ 403 เป็นภาษาอังกฤษจาก Laravel จึงจงใจไม่นำมาแสดง (ดู getErrorMessage)
   it("ignores the backend message on a 403 and uses the fallback", async () => {
     server.use(http.patch(URL_, () => HttpResponse.json({ message: "This action is unauthorized." }, { status: 403 })));
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "เสร็จสิ้น");
 
@@ -144,7 +171,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
 
   it("falls back to the generic text on a 500 with no body", async () => {
     server.use(http.patch(URL_, () => new HttpResponse(null, { status: 500 })));
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "เสร็จสิ้น");
 
@@ -153,7 +180,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
 
   it("falls back to the generic text on a network error", async () => {
     server.use(http.patch(URL_, () => HttpResponse.error()));
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "เสร็จสิ้น");
 
@@ -162,7 +189,7 @@ describe("TenderProjectStatusSelect — changing the status", () => {
 
   it("still refetches tenders_projects queries after a failure", async () => {
     server.use(http.patch(URL_, () => new HttpResponse(null, { status: 500 })));
-    const { user, queryClient } = setup("draft");
+    const { user, queryClient } = await setup("draft");
     queryClient.setQueryData(["tenders_projects", "list", {}, 1, 20], []);
 
     await choose(user, "เสร็จสิ้น");
@@ -188,7 +215,7 @@ describe("TenderProjectStatusSelect — pending", () => {
         return HttpResponse.json({ data: makeTenderProject({ status: "published" }) });
       }),
     );
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
 
     await choose(user, "กำลังดำเนินการ");
     await waitFor(() => expect(bodies).toHaveLength(1));
@@ -213,7 +240,7 @@ describe("TenderProjectStatusSelect — pending", () => {
         return HttpResponse.json({ data: makeTenderProject({ status: "published" }) });
       }),
     );
-    const { user } = setup("draft");
+    const { user } = await setup("draft");
     const trigger = screen.getByRole("combobox");
     expect(trigger.querySelector("svg.animate-spin")).toBeNull();
 

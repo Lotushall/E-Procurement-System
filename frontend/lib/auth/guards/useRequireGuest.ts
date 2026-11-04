@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/queries/useUser";
-import { routes } from "@/lib/routes";
+import { postLoginPath } from "@/lib/auth/redirect";
 
 export function useRequireGuest() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export function useRequireGuest() {
 
   useEffect(() => {
     if (!isPending && user) {
-      router.replace(routes.home);
+      router.replace(postLoginPath());
     }
   }, [isPending, user, router]);
 

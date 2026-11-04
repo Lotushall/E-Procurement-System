@@ -17,7 +17,7 @@ export function makeVendorContact(overrides: Partial<VendorContact> = {}): Vendo
     contactEmail: "somchai@example.com",
     lineId: "somchai",
     otherContact: "",
-    isMainContact: "1",
+    isMainContact: true,
     ...overrides,
   };
 }

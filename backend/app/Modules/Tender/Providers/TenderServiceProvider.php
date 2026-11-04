@@ -64,6 +64,7 @@ class TenderServiceProvider extends ModuleServiceProvider
         Gate::define('tender-projects.update', [TenderProjectPolicy::class, 'update']);
         Gate::define('tender-projects.updateStatus', [TenderProjectPolicy::class, 'updateStatus']);
         Gate::define('tender-projects.destroy', [TenderProjectPolicy::class, 'delete']);
+        Gate::define('tender-projects.ignoreStatusLock', [TenderProjectPolicy::class, 'manageAnyStatus']);
 
         // Same reason as above: no TOR ability may equal a TOR permission name
         // (`tors.viewAny`, `tors.viewDepartment`, `tors.viewOwn`, `tors.create`,

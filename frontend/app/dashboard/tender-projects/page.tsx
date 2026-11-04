@@ -22,15 +22,16 @@ import { TenderProjectCard } from "./_components/table/tender-project-card";
 function TenderProjectsPageContent() {
     useBreadcrumb([{ label: "จัดการโครงการจัดซื้อจัดจ้าง" }]);
 
-    const { hasPermission } = useAuthPermissions();
+    const { hasPermission, hasRole } = useAuthPermissions();
     const canCreate = hasPermission("tender_projects.create");
     const canUpdateStatus = hasPermission("tender_projects.updateStatus");
     const canUpdate = hasPermission("tender_projects.update");
     const canDelete = hasPermission("tender_projects.delete");
+    const isAdmin = hasRole("admin");
 
     const columns = useMemo(
-        () => createColumns(canUpdateStatus, canUpdate, canDelete),
-        [canUpdateStatus, canUpdate, canDelete],
+        () => createColumns(canUpdateStatus, canUpdate, canDelete, isAdmin),
+        [canUpdateStatus, canUpdate, canDelete, isAdmin],
     );
 
     const { data: departmentOptions } = useDepartmentOptions();
@@ -132,6 +133,7 @@ function TenderProjectsPageContent() {
                             canUpdateStatus={canUpdateStatus}
                             canUpdate={canUpdate}
                             canDelete={canDelete}
+                            isAdmin={isAdmin}
                         />
                     )}
                     mobileCardGridClassName="sm:grid-cols-1 lg:grid-cols-2"

@@ -11,8 +11,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { InputField } from "@/components/input-field";
 import { PermissionPicker } from "@/components/permission-picker";
 import { RoleSelect } from "@/components/role-select";
-import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { RequireRole } from "@/lib/auth/guards/RequireRole";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import { isNotFoundError, isPositiveId, LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { useRoles } from "@/lib/user/management/queries/useRoles";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
@@ -24,9 +25,10 @@ import { useUpdateInternalUserForm } from "../_hooks/use-update-internal-user-fo
 function EditUserPageContent() {
   const searchParams = useSearchParams();
   const userId = Number(searchParams.get("id"));
-  const isValidId = Number.isFinite(userId) && userId > 0;
+  const isValidId = isPositiveId(userId);
 
-  const { data: user, isPending, isError } = useUserDetail(userId);
+  const { data: user, isPending, isError, error } = useUserDetail(userId);
+  const loadFailed = isValidId && isError && !user && !isNotFoundError(error);
   const notFound = !isValidId || (isError && !user) || (!isPending && !user);
 
   useBreadcrumb([
@@ -40,6 +42,10 @@ function EditUserPageContent() {
         <Spinner className="size-6" />
       </div>
     );
+  }
+
+  if (loadFailed) {
+    return <p className="py-12 text-center text-sm text-muted-foreground">{LOAD_ERROR_MESSAGE}</p>;
   }
 
   if (notFound || !user) {
@@ -122,11 +128,11 @@ function EditAccountForm({ user }: { user: UserDetail }) {
 
 export default function EditUserPage() {
   return (
-    <RequirePermission permission="users.update">
+    <RequireRole role="admin">
       <Suspense fallback={null}>
         <EditUserPageContent />
       </Suspense>
-    </RequirePermission>
+    </RequireRole>
   );
 }
 
@@ -140,7 +146,8 @@ function EditInternalUserForm({ user }: { user: UserDetail }) {
       email: user.email,
       password: "",
       role: user.role ?? "",
-      permissions: user.permissions ?? (roles ?? []).find((r) => r.name === user.role)?.permissions ?? [],
+      // ติ๊กเฉพาะสิทธิ์ที่ให้ผู้ใช้โดยตรง (ไม่รวมที่ได้จาก role) — fetchUserDetail แปลง null เป็น [] ให้แล้ว
+      permissions: user.permissions ?? [],
     });
 
   return permissionsPending ? (

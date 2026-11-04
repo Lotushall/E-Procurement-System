@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { TorBiddingWindow } from "@/components/tor-bidding-window";
 import { TorStatusBadge } from "@/components/tor-status-badge";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { routes } from "@/lib/routes";
 import { TOR_VIEW_PERMISSIONS, type TorUserSummary } from "@/lib/tender/tor/types";
 import { formatCurrency } from "@/lib/utils";
@@ -54,7 +55,7 @@ function TorDetailContent() {
     const searchParams = useSearchParams();
     const id = Number(searchParams.get("id"));
 
-    const { tor, isValidId, isPending, notFound } = useTorDetailPage(id);
+    const { tor, isValidId, isPending, loadFailed, notFound } = useTorDetailPage(id);
 
     if (isValidId && isPending) {
         return (
@@ -62,6 +63,10 @@ function TorDetailContent() {
                 <Spinner className="size-6" />
             </div>
         );
+    }
+
+    if (loadFailed) {
+        return <p className="py-12 text-center text-sm text-muted-foreground">{LOAD_ERROR_MESSAGE}</p>;
     }
 
     if (notFound || !tor) {

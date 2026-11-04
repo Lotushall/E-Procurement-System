@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { useRegister } from "@/lib/auth/mutations/useRegister";
 import { useResendVerificationEmail } from "@/lib/auth/mutations/useResendVerificationEmail";
 import type { RegisterVendorPayload } from "@/lib/auth/types";
+import { handleServerError } from "@/lib/form/server-errors";
 import { RegisterSchema, RegisterValues } from "../_schemas/schema";
 
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -74,27 +74,7 @@ export function useRegisterForm() {
         setResendCooldown(RESEND_COOLDOWN_SECONDS);
       },
       onError: (error) => {
-        if (isAxiosError(error) && error.response?.status === 422) {
-          const fieldErrors = (
-            error.response.data as { errors?: Record<string, string[]> }
-          ).errors;
-          if (fieldErrors) {
-            Object.entries(fieldErrors).forEach(([field, messages]) => {
-              form.setError(field as keyof RegisterValues, {
-                type: "server",
-                message: messages[0],
-              });
-            });
-            return;
-          }
-        }
-
-        const message = isAxiosError(error)
-          ? (error.response?.data as { message?: string } | undefined)?.message
-          : undefined;
-        toast.error(message ?? "สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-
-        console.log(message);
+        toast.error(handleServerError(error, form, "สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"));
       },
     });
   });

@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import TenderProjectDetailPage from "@/app/dashboard/tender-projects/detail/page";
 import type { CurrentUser } from "@/lib/auth/types";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { routes } from "@/lib/routes";
 import type { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { makeInternalProfile } from "@/tests/fixtures/internal-profiles";
@@ -13,7 +14,7 @@ import { makeTor } from "@/tests/fixtures/tors";
 import { signInAs } from "@/tests/helpers/auth";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { freezeTimeAt } from "@/tests/helpers/time";
-import { setUrl } from "@/tests/mocks/next-navigation";
+import { router, setUrl } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 import { toast } from "sonner";
 
@@ -75,6 +76,7 @@ describe("TenderProjectDetailPage — ?id= handling", () => {
     ["zero", "/dashboard/tender-projects/detail?id=0"],
     ["negative", "/dashboard/tender-projects/detail?id=-3"],
     ["non-numeric", "/dashboard/tender-projects/detail?id=abc"],
+    ["fractional", "/dashboard/tender-projects/detail?id=1.5"],
     ["empty", "/dashboard/tender-projects/detail?id="],
   ])("shows not-found without a request or spinner when id is %s", async (_name, url) => {
     const requested = serveProject();
@@ -130,15 +132,15 @@ describe("TenderProjectDetailPage — loading and errors", () => {
   });
 
   it.each([
-    ["404", 404],
-    // OPEN QUESTION (human): a 500 showing the same not-found text as a 404 is current behavior, not confirmed intent
-    ["500", 500],
-  ])("shows not-found and stops the spinner on a %s", async (_name, status) => {
+    ["404", 404, NOT_FOUND],
+    // 500 = โหลดไม่สำเร็จ ไม่ใช่ไม่มีข้อมูล — บอกให้ลองใหม่
+    ["500", 500, LOAD_ERROR_MESSAGE],
+  ])("shows its message and stops the spinner on a %s", async (_name, status, message) => {
     server.use(http.get(DETAIL_URL, () => HttpResponse.json({ message: "x" }, { status })));
 
     await renderPage();
 
-    expect(await screen.findByText(NOT_FOUND)).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.queryByRole("status", { name: "Loading" })).not.toBeInTheDocument();
     expect(useBreadcrumbStore.getState().items).toEqual([
       { label: "จัดการโครงการจัดซื้อจัดจ้าง", href: routes.dashboards.tender_project.index },
@@ -282,7 +284,7 @@ describe("TenderProjectDetailPage — status", () => {
     const { user } = await renderPage();
 
     await user.click(await screen.findByRole("combobox"));
-    await user.click(await screen.findByRole("option", { name: "เสร็จสิ้น" }));
+    await user.click(await screen.findByRole("option", { name: "ยกเลิก" }));
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ไม่สามารถเปลี่ยนสถานะได้"));
   });
@@ -293,7 +295,7 @@ describe("TenderProjectDetailPage — status", () => {
     const { user } = await renderPage();
 
     await user.click(await screen.findByRole("combobox"));
-    await user.click(await screen.findByRole("option", { name: "เสร็จสิ้น" }));
+    await user.click(await screen.findByRole("option", { name: "ยกเลิก" }));
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith("เปลี่ยนสถานะไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"));
   });
@@ -377,5 +379,79 @@ describe("TenderProjectDetailPage — TOR card", () => {
     expect(screen.queryByText("TOR ที่เกี่ยวข้อง")).not.toBeInTheDocument();
     expect(screen.queryByText("ยังไม่มี TOR ภายใต้โครงการนี้")).not.toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+});
+
+describe("TenderProjectDetailPage — edit and delete", () => {
+  const EDIT_ACCESS = [...FULL_ACCESS, "tender_projects.update", "tender_projects.delete"];
+
+  // dialog แก้ไขโหลดตัวเลือกแผนกตั้งแต่ mount
+  function serveEditLookups() {
+    server.use(
+      http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [] })),
+      http.get(apiUrl("/api/v1/dashboard/internal-profiles/select"), () => HttpResponse.json({ data: [] })),
+    );
+  }
+
+  it("shows no edit or delete button without the permissions", async () => {
+    serveProject();
+    const { queryClient } = await renderPage();
+    await settled(queryClient);
+
+    expect(screen.queryByRole("button", { name: "แก้ไข" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "ลบ" })).not.toBeInTheDocument();
+  });
+
+  it("opens the edit dialog seeded with the project", async () => {
+    serveProject();
+    serveEditLookups();
+    const { user, queryClient } = await renderPage(undefined, { id: 1000, permissions: EDIT_ACCESS });
+    await settled(queryClient);
+
+    await user.click(screen.getByRole("button", { name: "แก้ไข" }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("แก้ไขโครงการจัดซื้อจัดจ้าง")).toBeInTheDocument();
+    expect(within(dialog).getByDisplayValue(PROJECT.name)).toBeInTheDocument();
+  });
+
+  it("deletes the project after confirming and goes back to the list", async () => {
+    serveProject();
+    serveEditLookups();
+    const deleted: string[] = [];
+    server.use(
+      http.delete(DETAIL_URL, ({ params }) => {
+        deleted.push(String(params.id));
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { user, queryClient } = await renderPage(undefined, { id: 1000, permissions: EDIT_ACCESS });
+    await settled(queryClient);
+
+    await user.click(screen.getByRole("button", { name: "ลบ" }));
+    const confirm = await screen.findByRole("alertdialog");
+    await user.click(within(confirm).getByRole("button", { name: "ลบโครงการ" }));
+
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith(routes.dashboards.tender_project.index));
+    expect(deleted).toEqual(["7"]);
+  });
+
+  it("hides edit and delete on a finished project from a non-admin", async () => {
+    serveProject({ ...PROJECT, status: "completed" });
+    const { queryClient } = await renderPage(undefined, { id: 1000, roles: ["officer"], permissions: EDIT_ACCESS });
+    await settled(queryClient);
+
+    expect(screen.queryByRole("button", { name: "แก้ไข" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "ลบ" })).not.toBeInTheDocument();
+  });
+
+  it("still offers edit and delete on a finished project to an admin", async () => {
+    serveProject({ ...PROJECT, status: "completed" });
+    serveEditLookups();
+    const { queryClient } = await renderPage(undefined, { id: 1000, roles: ["admin"], permissions: EDIT_ACCESS });
+    await settled(queryClient);
+
+    expect(screen.getByRole("button", { name: "แก้ไข" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ลบ" })).toBeInTheDocument();
   });
 });

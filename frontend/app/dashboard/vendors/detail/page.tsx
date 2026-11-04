@@ -22,6 +22,7 @@ import { useVendorDetailPage } from "./_hooks/use-vendor-detail-page";
 import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useAuthPermissions } from "@/lib/auth/permissions";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
 import { routes } from "@/lib/routes";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
 
@@ -35,6 +36,7 @@ function VendorDetailContent() {
     vendor,
     isValidId,
     isPending,
+    loadFailed,
     notFound,
     displayName,
     approveVendor,
@@ -49,9 +51,11 @@ function VendorDetailContent() {
     approveVendor.isPending || rejectVendor.isPending || pendingVendor.isPending;
 
   // ตรงกับ VendorProfilePolicy: review = อนุมัติ/ปฏิเสธ/รอตรวจสอบ (ผู้ค้าและเอกสาร), delete = ลบผู้ค้า
-  const { hasPermission } = useAuthPermissions();
+  const { hasPermission, hasRole } = useAuthPermissions();
   const canReview = hasPermission("vendors.review");
   const canDelete = hasPermission("vendors.delete");
+  // หน้าจัดการผู้ใช้เปิดได้เฉพาะ admin — คนอื่นไม่ต้องเห็นลิงก์ที่กดแล้วเจอหน้า "ไม่มีสิทธิ์"
+  const canViewUser = hasRole("admin") && !!vendor?.user?.id;
 
   if (isValidId && isPending) {
     return (
@@ -59,6 +63,10 @@ function VendorDetailContent() {
         <Spinner className="size-6" />
       </div>
     );
+  }
+
+  if (loadFailed) {
+    return <p className="py-12 text-center text-sm text-muted-foreground">{LOAD_ERROR_MESSAGE}</p>;
   }
 
   if (notFound || !vendor) {
@@ -107,7 +115,7 @@ function VendorDetailContent() {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <VendorStatusBadge status={vendor.verificationStatus} />
-              {vendor.user?.id && (
+              {canViewUser && vendor.user && (
                 <Link href={routes.dashboards.user.detail(vendor.user.id)} className="text-[13px] text-red-700 hover:underline">
                   ดูบัญชีผู้ใช้
                 </Link>
@@ -134,7 +142,7 @@ function VendorDetailContent() {
             <p className="text-sm text-muted-foreground wrap-anywhere">
               {vendor.user?.email}
 
-              {vendor.user?.id && (
+              {canViewUser && vendor.user && (
                 <Link
                   href={routes.dashboards.user.detail(vendor.user.id)}
                   className="ml-2 text-red-700 hover:underline"

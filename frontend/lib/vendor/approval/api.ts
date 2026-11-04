@@ -4,7 +4,6 @@ import type {
   VendorDetail,
   VendorListParams,
   VendorStatusCounts,
-  VendorVerificationStatus,
 } from "@/lib/vendor/approval/types";
 import { VendorProfile } from "../profile/types";
 
@@ -41,18 +40,6 @@ export async function fetchVendorList(
       lastPage: data.meta.last_page,
     },
   };
-}
-
-export async function fetchVendorCount(
-  status: VendorVerificationStatus,
-): Promise<number> {
-  const { data } = await api.get<{ meta: { total: number } }>(
-    "/api/v1/vendors",
-    {
-      params: { status, per_page: 1 },
-    },
-  );
-  return data.meta.total;
 }
 
 export async function fetchVendorDetail(id: number): Promise<VendorDetail> {

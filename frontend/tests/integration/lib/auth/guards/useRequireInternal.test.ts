@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { useRequireInternal } from "@/lib/auth/guards/useRequireInternal";
 import { signInAs, signOut } from "@/tests/helpers/auth";
 import { renderHookWithQueryClient } from "@/tests/helpers/query-client";
-import { router } from "@/tests/mocks/next-navigation";
+import { router, setUrl } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 
 describe("useRequireInternal", () => {
@@ -24,6 +24,17 @@ describe("useRequireInternal", () => {
 
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/login"));
     expect(result.current.isChecking).toBe(true);
+  });
+
+  it("remembers the dashboard page so login can come back to it", async () => {
+    setUrl("/dashboard/vendors/detail?id=3");
+    signOut();
+
+    renderHookWithQueryClient(() => useRequireInternal());
+
+    await waitFor(() =>
+      expect(router.replace).toHaveBeenCalledWith("/login?redirect=%2Fdashboard%2Fvendors%2Fdetail%3Fid%3D3"),
+    );
   });
 
   it("authorizes an internal user without redirecting", async () => {

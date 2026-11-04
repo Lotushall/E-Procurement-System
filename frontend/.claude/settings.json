@@ -312,7 +312,13 @@
       "Bash(node C:/Users/JR/AppData/Local/Temp/claude/d--E-Procurement-System-frontend/76cf0738-12bd-49a2-a6a4-2ebe6e836bc0/scratchpad/vi.js)",
       "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx vitest run 2>&1 | Select-String -Pattern \"Test Files|Tests |FAIL \"; npx tsc --noEmit; \"tsc $LASTEXITCODE\")",
       "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx vitest run tests/integration/app/providers.test.tsx tests/integration/lib/api.test.ts tests/integration/lib/auth 2>&1 | Select-String -Pattern \"Test Files|Tests |FAIL |×\"; npx tsc --noEmit; \"tsc $LASTEXITCODE\")",
-      "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx vitest run --coverage --coverage.reporter=text-summary 2>&1 | Select-String -Pattern \"Test Files|Tests |Lines|FAIL \"; npx tsc --noEmit; \"tsc $LASTEXITCODE\"; npx eslint tests app lib 2>&1 | Select-String -Pattern \"✖|  error  \"; \"eslint $LASTEXITCODE\"; git status --short)"
+      "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx vitest run --coverage --coverage.reporter=text-summary 2>&1 | Select-String -Pattern \"Test Files|Tests |Lines|FAIL \"; npx tsc --noEmit; \"tsc $LASTEXITCODE\"; npx eslint tests app lib 2>&1 | Select-String -Pattern \"✖|  error  \"; \"eslint $LASTEXITCODE\"; git status --short)",
+      "PowerShell(npx tsc --noEmit 2>&1)",
+      "PowerShell(npx eslint app lib components hooks 2>&1)",
+      "Bash(grep -iv \"fiscal_year'\\\\s*=>\\\\s*\\\\$\\\\|->fiscal\")",
+      "Bash(grep \"api\\\\.\\\\|\\\\`/api\")",
+      "Bash(perl -pi -e 's/^use Spatie\\\\\\\\Permission\\\\\\\\Models\\\\\\\\Permission;\\\\r?$/use Spatie\\\\\\\\Permission\\\\\\\\Models\\\\\\\\Permission;\\\\nuse Spatie\\\\\\\\Permission\\\\\\\\Models\\\\\\\\Role;/' tests/Feature/Modules/Tender/UpdateTenderProjectTest.php)",
+      "PowerShell(Set-Location D:\\\\E-Procurement-System\\\\backend; php artisan test tests/Feature/Modules/Tender 2>&1 | Out-String | Select-String -Pattern '\"tests\":\\\\d+,\"passed\":\\\\d+' -AllMatches | ForEach-Object { $_.Matches.Value }; git status --short -- . | Select-Object -First 30)"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

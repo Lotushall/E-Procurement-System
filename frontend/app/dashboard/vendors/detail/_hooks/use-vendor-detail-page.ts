@@ -8,6 +8,7 @@ import { useRejectVendor } from "@/lib/vendor/approval/mutations/useRejectVendor
 import { usePendingVendor } from "@/lib/vendor/approval/mutations/usePendingVendor";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
+import { isNotFoundError, isPositiveId } from "@/lib/detail-page";
 
 function getErrorMessage(error: unknown): string {
   const message = isAxiosError(error)
@@ -17,12 +18,13 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function useVendorDetailPage(vendorId: number) {
-  const isValidId = Number.isFinite(vendorId) && vendorId > 0;
-  const { data: vendor, isPending, isError } = useVendorDetail(vendorId);
+  const isValidId = isPositiveId(vendorId);
+  const { data: vendor, isPending, isError, error } = useVendorDetail(vendorId);
   const approveVendor = useApproveVendor(vendorId);
   const rejectVendor = useRejectVendor(vendorId);
   const pendingVendor = usePendingVendor(vendorId);
 
+  const loadFailed = isValidId && isError && !vendor && !isNotFoundError(error);
   const notFound = !isValidId || (isError && !vendor) || (!isPending && !vendor);
   const displayName = vendor
     ? vendor.detail.type === "company"
@@ -63,6 +65,7 @@ export function useVendorDetailPage(vendorId: number) {
     vendor,
     isValidId,
     isPending,
+    loadFailed,
     notFound,
     displayName,
     approveVendor,

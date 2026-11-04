@@ -4,7 +4,6 @@ import {
   approveVendor,
   approveVendorDocument,
   deleteVendor,
-  fetchVendorCount,
   fetchVendorDetail,
   fetchVendorList,
   pendingVendor,
@@ -77,21 +76,6 @@ describe("fetchVendorList", () => {
     await fetchVendorList();
 
     expect(Object.fromEntries(query!)).toEqual({ page: "1", per_page: "20" });
-  });
-});
-
-describe("fetchVendorCount", () => {
-  it("asks for one row of the given status and returns meta.total", async () => {
-    let query: URLSearchParams | undefined;
-    server.use(
-      http.get(apiUrl("/api/v1/vendors"), ({ request }) => {
-        query = new URL(request.url).searchParams;
-        return HttpResponse.json({ data: [], meta: { total: 12 } });
-      }),
-    );
-
-    await expect(fetchVendorCount("approved")).resolves.toBe(12);
-    expect(Object.fromEntries(query!)).toEqual({ status: "approved", per_page: "1" });
   });
 });
 

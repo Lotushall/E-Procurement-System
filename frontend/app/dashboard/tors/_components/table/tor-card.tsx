@@ -25,6 +25,22 @@ export function TorCard({ tor }: { tor: Tor }) {
                     <p className="text-xs text-gray-600 tracking-wider">{tor.department.name}</p>
                 </Link>
 
+                {/* แยกจากลิงก์ชื่อ TOR ด้านบน — ลิงก์ซ้อนลิงก์ไม่ได้ */}
+                <p className="min-w-0 truncate text-xs text-gray-600 tracking-wider">
+                    โครงการ ·{" "}
+                    {tor.tenderProject ? (
+                        <Link
+                            href={routes.dashboards.tender_project.detail(tor.tenderProject.id)}
+                            title={tor.tenderProject.name}
+                            className="font-semibold text-gray-700 underline decoration-gray-300 underline-offset-4 hover:decoration-current"
+                        >
+                            {tor.tenderProject.name}
+                        </Link>
+                    ) : (
+                        "ไม่สังกัดโครงการ"
+                    )}
+                </p>
+
                 <div className="flex flex-col gap-0.5 pt-1">
                     <p className="text-xs text-gray-500 tracking-wider">ราคากลาง · ปี {tor.fiscalYear}</p>
                     <p className="text-xl font-bold tracking-wide">{formatCurrency(Number(tor.budgetEstimate))}</p>

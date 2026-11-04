@@ -80,10 +80,21 @@ describe("TorCard — bidding window", () => {
 });
 
 describe("TorCard — tender project", () => {
-  // การ์ดบนจอเล็กไม่แสดงโครงการ ต่างจากตาราง — ยืนยันว่าไม่มีลิงก์ไปโครงการโดยไม่ตั้งใจ
-  it("links only to the TOR, not to its tender project", () => {
+  // เหมือนคอลัมน์โครงการในตาราง — ชื่อโครงการเป็นลิงก์แยกจากลิงก์ของ TOR
+  it("links the tender project name to the project detail page", () => {
     const card = setup({ tenderProject: { id: 7, projectCode: "TP-2569-007", name: "จัดซื้อคอมพิวเตอร์" } });
 
+    expect(within(card).getByRole("link", { name: "จัดซื้อคอมพิวเตอร์" })).toHaveAttribute(
+      "href",
+      "/dashboard/tender-projects/detail?id=7",
+    );
+    expect(within(card).getAllByRole("link")).toHaveLength(2);
+  });
+
+  it("says the TOR has no project when it is not under one", () => {
+    const card = setup({ tenderProject: null });
+
+    expect(within(card).getByText(/ไม่สังกัดโครงการ/)).toBeInTheDocument();
     expect(within(card).getAllByRole("link")).toHaveLength(1);
   });
 });

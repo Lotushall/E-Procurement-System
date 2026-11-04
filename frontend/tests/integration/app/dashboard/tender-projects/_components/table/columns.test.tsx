@@ -8,6 +8,7 @@ import { DataTable } from "@/components/ui/data-table";
 import type { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { makeDepartment, makeInternalProfile } from "@/tests/fixtures/internal-profiles";
 import { makeTenderProject } from "@/tests/fixtures/tender-projects";
+import { signInAs } from "@/tests/helpers/auth";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { apiUrl, server } from "@/tests/msw/server";
 
@@ -17,6 +18,7 @@ function renderTable(
     canUpdateStatus = false,
     canUpdate = true,
     canDelete = true,
+    isAdmin = false,
     sorting = [] as SortingState,
     onSortingChange = vi.fn(),
   } = {},
@@ -25,7 +27,7 @@ function renderTable(
   server.use(http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [makeDepartment()] })));
   renderWithQueryClient(
     <DataTable
-      columns={createColumns(canUpdateStatus, canUpdate, canDelete)}
+      columns={createColumns(canUpdateStatus, canUpdate, canDelete, isAdmin)}
       data={data}
       pageCount={1}
       total={data.length}
@@ -237,6 +239,8 @@ describe("createColumns — status", () => {
   });
 
   it("changes the status of the right row", async () => {
+    // status select อ่าน role ของผู้ใช้ — published → closed เป็นขั้นถัดไปที่ทำได้แม้ไม่ใช่ admin
+    signInAs({ roles: ["officer"] });
     const patched: unknown[] = [];
     server.use(
       http.patch(apiUrl("/api/v1/dashboard/tender-projects/:id/status"), async ({ params, request }) => {
@@ -294,6 +298,32 @@ describe("createColumns — action permissions", () => {
     const actions = cell(dataRow(), 8);
     expect(within(actions).queryByRole("button", { name: "ลบโครงการ" })).not.toBeInTheDocument();
     expect(within(actions).getByRole("button", { name: "แก้ไขโครงการ" })).toBeInTheDocument();
+  });
+
+  it.each(["completed", "cancelled", "archived"] as const)(
+    "hides edit and delete on a %s project from a non-admin",
+    (status) => {
+      renderTable([makeTenderProject({ status })]);
+
+      const actions = cell(dataRow(), 8);
+      expect(within(actions).queryByRole("button", { name: "แก้ไขโครงการ" })).not.toBeInTheDocument();
+      expect(within(actions).queryByRole("button", { name: "ลบโครงการ" })).not.toBeInTheDocument();
+    },
+  );
+
+  it("still offers edit and delete on a finished project to an admin", () => {
+    renderTable([makeTenderProject({ status: "completed" })], { isAdmin: true });
+
+    const actions = cell(dataRow(), 8);
+    expect(within(actions).getByRole("button", { name: "แก้ไขโครงการ" })).toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: "ลบโครงการ" })).toBeInTheDocument();
+  });
+
+  it("locks only the finished row and leaves the others editable", () => {
+    renderTable([makeTenderProject({ id: 1, status: "draft" }), makeTenderProject({ id: 2, status: "archived" })]);
+
+    expect(within(cell(dataRow(0), 8)).getByRole("button", { name: "แก้ไขโครงการ" })).toBeInTheDocument();
+    expect(within(cell(dataRow(1), 8)).queryByRole("button", { name: "แก้ไขโครงการ" })).not.toBeInTheDocument();
   });
 });
 

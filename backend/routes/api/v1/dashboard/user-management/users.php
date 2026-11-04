@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('dashboard')->group(function () {
 
-    Route::prefix('users')->group(function () {
+    // จัดการผู้ใช้ได้เฉพาะ admin — permission ราย route ยังใช้แยกว่า admin คนนั้นทำอะไรได้บ้าง
+    Route::prefix('users')->middleware('role:admin')->group(function () {
 
         Route::get('/', [UserController::class, 'index'])
             ->middleware('can:users.viewAny')

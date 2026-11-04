@@ -8,10 +8,6 @@ import { apiUrl, server } from "@/tests/msw/server";
 
 const PROFILE_URL = apiUrl("/api/v1/vendor/profile");
 
-// แบ็กเอนด์ส่ง is_main_contact เป็น boolean แม้ type ใน types.ts จะเป็น string
-// types.ts:51 declares isMainContact: string, แต่แบ็กเอนด์ส่ง boolean (types.ts:83 ใช้ boolean) — cast จนกว่าจะแก้ type
-const notMain = false as unknown as string;
-
 function serveProfile(contacts: ReturnType<typeof makeVendorContact>[]) {
   server.use(
     http.get(PROFILE_URL, () => HttpResponse.json({ data: makeCompanyVendorProfile({ contact: contacts }) })),
@@ -73,7 +69,7 @@ describe("Contract page", () => {
         contactEmail: "",
         lineId: "",
         otherContact: "",
-        isMainContact: notMain,
+        isMainContact: false,
       }),
     ]);
 
@@ -88,9 +84,9 @@ describe("Contract page", () => {
 
   it("puts the main contact first regardless of the API order", async () => {
     serveProfile([
-      makeVendorContact({ id: 1, contactName: "รอง หนึ่ง", isMainContact: notMain }),
-      makeVendorContact({ id: 2, contactName: "หลัก สอง", isMainContact: true as unknown as string }),
-      makeVendorContact({ id: 3, contactName: "รอง สาม", isMainContact: notMain }),
+      makeVendorContact({ id: 1, contactName: "รอง หนึ่ง", isMainContact: false }),
+      makeVendorContact({ id: 2, contactName: "หลัก สอง", isMainContact: true }),
+      makeVendorContact({ id: 3, contactName: "รอง สาม", isMainContact: false }),
     ]);
 
     renderWithQueryClient(<Contract />);
@@ -106,8 +102,8 @@ describe("Contract page", () => {
 
   it("disables deleting the main contact with a reason", async () => {
     serveProfile([
-      makeVendorContact({ id: 1, contactName: "หลัก", isMainContact: true as unknown as string }),
-      makeVendorContact({ id: 2, contactName: "รอง", isMainContact: notMain }),
+      makeVendorContact({ id: 1, contactName: "หลัก", isMainContact: true }),
+      makeVendorContact({ id: 2, contactName: "รอง", isMainContact: false }),
     ]);
 
     renderWithQueryClient(<Contract />);
@@ -122,7 +118,7 @@ describe("Contract page", () => {
   });
 
   it("disables deleting the only contact with a reason", async () => {
-    serveProfile([makeVendorContact({ id: 1, isMainContact: notMain })]);
+    serveProfile([makeVendorContact({ id: 1, isMainContact: false })]);
 
     renderWithQueryClient(<Contract />);
 
@@ -134,7 +130,7 @@ describe("Contract page", () => {
   });
 
   it("prefers the main-contact reason over the last-contact reason", async () => {
-    serveProfile([makeVendorContact({ id: 1, isMainContact: true as unknown as string })]);
+    serveProfile([makeVendorContact({ id: 1, isMainContact: true })]);
 
     renderWithQueryClient(<Contract />);
     const [only] = await waitForCards();
@@ -145,7 +141,7 @@ describe("Contract page", () => {
   });
 
   it("gives every card view, edit and delete actions", async () => {
-    serveProfile([makeVendorContact({ id: 1 }), makeVendorContact({ id: 2, isMainContact: notMain })]);
+    serveProfile([makeVendorContact({ id: 1 }), makeVendorContact({ id: 2, isMainContact: false })]);
 
     renderWithQueryClient(<Contract />);
 

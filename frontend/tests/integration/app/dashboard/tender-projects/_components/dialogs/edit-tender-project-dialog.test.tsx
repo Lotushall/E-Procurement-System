@@ -329,7 +329,7 @@ describe("EditTenderProjectDialog — submitting", () => {
     });
   });
 
-  it("omits the description, person in charge and days that were cleared", async () => {
+  it("omits the description and person in charge that were cleared", async () => {
     const state = serve();
     const { user } = renderUncontrolled();
     await openDialog(user);
@@ -337,22 +337,27 @@ describe("EditTenderProjectDialog — submitting", () => {
 
     await user.clear(textbox("รายละเอียด"));
     await pickOption(user, "ผู้รับผิดชอบ", "---");
+    await user.click(submit());
+
+    await waitFor(() => expect(state.puts).toHaveLength(1));
+    const { body } = state.puts[0] as { body: Record<string, unknown> };
+    expect(body).not.toHaveProperty("description");
+    expect(body).not.toHaveProperty("personInChargeId");
+    expect(body).toMatchObject({ name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์", budget: 1000000, departmentId: 1, fiscalYear: 2569 });
+  });
+
+  it("blocks saving and asks for the project period once it is cleared", async () => {
+    const state = serve();
+    const { user } = renderUncontrolled();
+    await openDialog(user);
+
     await user.click(screen.getByRole("button", { name: /ถึง/ }));
     await user.click(await screen.findByRole("button", { name: "ล้างค่า" }));
     await closePopover(user);
     await user.click(submit());
 
-    await waitFor(() => expect(state.puts).toHaveLength(1));
-    expect(state.puts[0]).toEqual({
-      id: "42",
-      body: {
-        name: "จัดซื้อครุภัณฑ์คอมพิวเตอร์",
-        budget: 1000000,
-        departmentId: 1,
-        procurementMethod: "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
-        fiscalYear: 2569,
-      },
-    });
+    expect(await screen.findByText("กรุณาเลือกระยะเวลาโครงการ")).toBeInTheDocument();
+    expect(state.puts).toEqual([]);
   });
 
   it("allows the start day to equal the end day", async () => {

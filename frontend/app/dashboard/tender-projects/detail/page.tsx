@@ -1,7 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useTenderProjectDetailPage } from "./_hooks/use-tender-project-detail-page";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +13,11 @@ import { TenderProjectStatusSelect } from "@/components/tender-project-status-se
 import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { TOR_VIEW_PERMISSIONS } from "@/lib/tender/tor/types";
+import { isTenderProjectLocked } from "@/lib/tender/tender-projects/status-rules";
+import { LOAD_ERROR_MESSAGE } from "@/lib/detail-page";
+import { routes } from "@/lib/routes";
+import { DeleteTenderProjectDialog } from "../_components/dialogs/delete-tender-project-dialog";
+import { EditTenderProjectDialog } from "../_components/dialogs/edit-tender-project-dialog";
 import { Separator } from "@/components/ui/separator";
 import { TenderProjectTorList } from "./_components/tender-project-tor-list";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -24,9 +31,10 @@ function TenderProjectDetailContent() {
     const searchParams = useSearchParams();
     const id = Number(searchParams.get("id"));
 
-    const { project, isValidId, isPending, notFound } = useTenderProjectDetailPage(id);
+    const router = useRouter();
+    const { project, isValidId, isPending, loadFailed, notFound } = useTenderProjectDetailPage(id);
 
-    const { hasPermission, hasAnyPermission } = useAuthPermissions();
+    const { hasPermission, hasAnyPermission, hasRole } = useAuthPermissions();
     const canUpdateStatus = hasPermission("tender_projects.updateStatus");
     // ไม่มีสิทธิ์ดู TOR เลย backend จะส่ง tors เป็น [] เสมอ — ซ่อนการ์ดแทนการบอกว่า "ไม่มี TOR"
     const canViewTors = hasAnyPermission(TOR_VIEW_PERMISSIONS);
@@ -39,6 +47,10 @@ function TenderProjectDetailContent() {
         );
     }
 
+    if (loadFailed) {
+        return <p className="py-12 text-center text-sm text-muted-foreground">{LOAD_ERROR_MESSAGE}</p>;
+    }
+
     if (notFound || !project) {
         return (
             <p className="py-12 text-center text-sm text-muted-foreground">
@@ -46,6 +58,11 @@ function TenderProjectDetailContent() {
             </p>
         );
     }
+
+    // โครงการที่จบแล้ว ผู้ที่ไม่ใช่ admin แก้ไข/ลบไม่ได้ (เหมือนในหน้ารายการ)
+    const locked = isTenderProjectLocked(project.status, hasRole("admin"));
+    const canUpdate = hasPermission("tender_projects.update") && !locked;
+    const canDelete = hasPermission("tender_projects.delete") && !locked;
 
     const personInCharge = project.personInCharge?.firstname && project.personInCharge?.lastname
         ? `${project.personInCharge.firstname} ${project.personInCharge.lastname}`
@@ -63,12 +80,35 @@ function TenderProjectDetailContent() {
         <div className="flex flex-col gap-4.5">
             <Card className="shadow-md shadow-gray-200 border-gray-200">
                 <CardHeader className="flex flex-col gap-2.25">
-                    <div className="flex items-center gap-2.5 h-fit">
-                        <p className="text-xs font-medium text-red-700">{project.projectCode}</p>
-                        {canUpdateStatus ? (
-                            <TenderProjectStatusSelect key={project.id} id={project.id} status={project.status} />
-                        ) : (
-                            <TenderProjectStatusBadge status={project.status} />
+                    <div className="flex flex-wrap items-center justify-between gap-2.5">
+                        <div className="flex items-center gap-2.5 h-fit">
+                            <p className="text-xs font-medium text-red-700">{project.projectCode}</p>
+                            {canUpdateStatus ? (
+                                <TenderProjectStatusSelect key={project.id} id={project.id} status={project.status} />
+                            ) : (
+                                <TenderProjectStatusBadge status={project.status} />
+                            )}
+                        </div>
+
+                        {(canUpdate || canDelete) && (
+                            <div className="flex items-center gap-2">
+                                {canUpdate && (
+                                    <EditTenderProjectDialog
+                                        project={project}
+                                        trigger={<Button variant="outline" className="h-9" />}
+                                        triggerChildren={<><Pencil className="size-4" />แก้ไข</>}
+                                    />
+                                )}
+                                {canDelete && (
+                                    <DeleteTenderProjectDialog
+                                        tenderProjectId={project.id}
+                                        displayName={project.name}
+                                        trigger={<Button variant="outline" className="h-9 text-red-700 hover:text-red-700" />}
+                                        triggerChildren={<><Trash2 className="size-4" />ลบ</>}
+                                        onSuccess={() => router.push(routes.dashboards.tender_project.index)}
+                                    />
+                                )}
+                            </div>
                         )}
                     </div>
                     <CardTitle className="text-2xl font-semibold">
