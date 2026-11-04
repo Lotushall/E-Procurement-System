@@ -1,12 +1,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { AUTH_USER_QUERY_KEY } from "@/lib/auth/queries/useUser";
 import { routes } from "@/lib/routes";
 import { useRevokeUserSession } from "@/lib/user/management/mutations/useRevokeUserSession";
 import { useRevokeAllUserSessions } from "@/lib/user/management/mutations/useRevokeAllUserSessions";
 import type { SessionInfo } from "@/lib/user/management/types";
+
+const REVOKE_FALLBACK = "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+
+function getErrorMessage(error: unknown): string {
+  const message = isAxiosError(error)
+    ? (error.response?.data as { message?: string } | undefined)?.message
+    : undefined;
+  return message ?? REVOKE_FALLBACK;
+}
 
 export type SessionConfirmState =
   | { type: "single"; session: SessionInfo }
@@ -35,21 +45,21 @@ export function useSessionRevocation(userId: number, sessions: SessionInfo[] | u
       toast.promise(promise, {
         loading: "กำลังเพิกถอน session...",
         success: "เพิกถอน session แล้ว",
-        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        error: getErrorMessage,
       });
     } else if (confirm.type === "others") {
       promise = revokeAll.mutateAsync(true);
       toast.promise(promise, {
         loading: "กำลังเพิกถอน session อื่นทั้งหมด...",
         success: "เพิกถอน session อื่นทั้งหมดแล้ว",
-        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        error: getErrorMessage,
       });
     } else {
       promise = revokeAll.mutateAsync(false);
       toast.promise(promise, {
         loading: "กำลังเพิกถอน session ทั้งหมด...",
         success: "เพิกถอน session ทั้งหมดแล้ว",
-        error: "เพิกถอน session ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        error: getErrorMessage,
       });
     }
 

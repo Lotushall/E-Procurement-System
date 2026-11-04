@@ -38,6 +38,10 @@ function InternalProfileTableSkeletonDesktop() {
                 <Skeleton className={`h-4 ${width}`} />
               </TableHead>
             ))}
+            {/* คอลัมน์ Actions */}
+            <TableHead className="px-4 py-3">
+              <Skeleton className="mx-auto h-4 w-14" />
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -139,20 +139,14 @@ describe("createColumns — budget and allocation", () => {
 
     const budget = cell(dataRow(), 3);
     expect(budget).toHaveTextContent("ปีงบประมาณ 2570");
-    // ปัจจุบันคอลัมน์ไม่มี ฿ — ดู it.skip "BUG: columns.tsx:75" ด้านล่าง (การ์ดแสดง ฿)
-    expect(budget).toHaveTextContent("1,250,000");
-  });
-
-  it.skip("BUG: columns.tsx:75 budget column omits ฿ — should show ฿1,250,000 like the card", () => {
-    renderTable([makeTenderProject({ budget: "1250000.00" })]);
-
-    expect(cell(dataRow(), 3)).toHaveTextContent("฿1,250,000");
+    // แสดง ฿ เหมือนการ์ด
+    expect(budget).toHaveTextContent("฿1,250,000");
   });
 
   it("keeps the satang of the budget", () => {
     renderTable([makeTenderProject({ budget: "500000.55" })]);
 
-    expect(cell(dataRow(), 3)).toHaveTextContent("500,000.55");
+    expect(cell(dataRow(), 3)).toHaveTextContent("฿500,000.55");
   });
 
   it("shows how much of the budget is allocated and what is left", () => {

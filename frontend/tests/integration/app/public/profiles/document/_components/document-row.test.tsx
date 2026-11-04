@@ -199,7 +199,7 @@ describe("DocumentRow uploading", () => {
     await user.upload(input, new File([new Uint8Array(1536)], "new.pdf", { type: "application/pdf" }));
 
     expect(await screen.findByRole("progressbar", { name: "ความคืบหน้าการอัปโหลด" })).toBeInTheDocument();
-    expect(screen.getByText("new.pdf")).toBeInTheDocument();
+    expect(screen.getByText("new.pdf · 1.5 KB")).toBeInTheDocument();
     // สถานะระหว่างอัปโหลดเป็น "รอตรวจสอบ" เสมอ ไม่ใช่สถานะเดิม
     expect(screen.getByText("รอตรวจสอบ")).toBeInTheDocument();
     expect(screen.queryByText("อนุมัติแล้ว")).not.toBeInTheDocument();
@@ -215,12 +215,11 @@ describe("DocumentRow uploading", () => {
     expect(screen.getByRole("button", { name: "ลบไฟล์" })).toBeInTheDocument();
   });
 
-  it.skip.each([
+  it.each([
     [500, "500 B"],
     [1536, "1.5 KB"],
     [3 * 1024 * 1024, "3.0 MB"],
-  ])("BUG: selected file size is computed but never shown while uploading (%i bytes) — app/(public)/profiles/document/_components/document-row.tsx:177", async (size, text) => {
-    // fileSize อยู่ในกิ่ง viewUrl ซึ่งปิดอยู่เสมอระหว่างอัปโหลด (viewUrl ต้อง !isPending) จึงไม่เคยแสดง
+  ])("shows the selected file's size while uploading (%i bytes)", async (size, text) => {
     let release: () => void = () => {};
     const gate = new Promise<void>((resolve) => {
       release = resolve;

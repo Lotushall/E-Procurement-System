@@ -12,7 +12,9 @@ export interface VendorProfileCompleteness {
 
 export function useVendorProfileCompleteness(): VendorProfileCompleteness {
   const { data: user, isLoading: isUserLoading } = useUser();
-  const { data: vendor, isPending } = useVendorProfile(user?.userType !== "internal");
+  // รอรู้ก่อนว่าเป็นผู้ค้า — ระหว่าง user ยังโหลด (undefined) ห้ามยิง vendor profile
+  const isVendor = !!user && user.userType !== "internal";
+  const { data: vendor, isPending } = useVendorProfile(isVendor);
 
   const hasVertifyEmail = !isUserLoading && !user?.emailVerifiedAt;
 
@@ -37,7 +39,8 @@ export function useVendorProfileCompleteness(): VendorProfileCompleteness {
         .some((doc) => !vendor.document?.some((d) => d.documentType === doc.key)));
 
   return {
-    isLoading: isUserLoading || isPending,
+    // query ที่ถูกปิด (ไม่ใช่ผู้ค้า) ค้าง pending ตลอด จึงนับเฉพาะตอนเป็นผู้ค้า
+    isLoading: isUserLoading || (isVendor && isPending),
     hasVertifyEmail,
     hasIncompleteAddress,
     hasIncompleteContact,

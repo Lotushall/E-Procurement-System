@@ -716,11 +716,14 @@ describe("TenderProjectsPage — permissions", () => {
 });
 
 describe("TenderProjectsPage — invalid URL params", () => {
-  it.skip.each([
+  it.each([
     ["fiscal_year", "abc"],
+    ["fiscal_year", "25690"],
     ["date_from", "garbage"],
     ["date_to", "garbage"],
-  ])("BUG: use-tender-project-list-page.ts:63-65 %s=%s is passed to the API unvalidated — it should be ignored, not counted as a filter", async (key, value) => {
+    ["date_from", "2026-02-30"],
+    ["date_to", "2026-1-5"],
+  ])("ignores an invalid %s=%s: not sent to the API and not counted as a filter", async (key, value) => {
     const queries = serveList([COMPUTERS]);
 
     const { queryClient } = await renderPage(`${BASE}?${key}=${value}`);

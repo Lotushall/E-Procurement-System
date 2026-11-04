@@ -35,11 +35,6 @@ function mockNotifications(count: number, items = [makeNotification({ message: "
   );
 }
 
-// useVendorProfileCompleteness ยิง /vendor/profile ระหว่างที่ user ยังโหลดอยู่ (ยังไม่รู้ว่าเป็น internal) จึงต้องมี handler
-function mockVendorProfile() {
-  server.use(http.get(apiUrl("/api/v1/vendor/profile"), () => new HttpResponse(null, { status: 404 })));
-}
-
 function clearSidebarCookie() {
   document.cookie = "sidebar_state=; path=/; max-age=0";
 }
@@ -47,7 +42,6 @@ function clearSidebarCookie() {
 beforeEach(() => {
   setUrl("/dashboard");
   clearSidebarCookie();
-  mockVendorProfile();
 });
 
 afterEach(clearSidebarCookie);

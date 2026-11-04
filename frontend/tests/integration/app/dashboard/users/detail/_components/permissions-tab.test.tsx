@@ -101,10 +101,10 @@ describe("PermissionsTab — permissions", () => {
 
   it("falls back to the permission name and its prefix as group when metadata is unknown", async () => {
     serveLookups(ROLES, []);
-    await renderTab(makeUserDetail({ role: "officer", permissions: ["tors.approve"] }));
+    await renderTab(makeUserDetail({ role: "officer", permissions: ["reports.export"] }));
 
     // ไม่มี metadata → label = ชื่อ permission, group = ส่วนหน้าจุด (ไม่มีใน GROUP_LABELS จึงแสดงตรงๆ)
-    expect(await screen.findByText("tors")).toBeInTheDocument();
-    expect(within(item("tors.approve")).getAllByText("tors.approve")).toHaveLength(2);
+    expect(await screen.findByText("reports")).toBeInTheDocument();
+    expect(within(item("reports.export")).getAllByText("reports.export")).toHaveLength(2);
   });
 });

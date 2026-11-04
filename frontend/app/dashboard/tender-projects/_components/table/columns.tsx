@@ -76,7 +76,7 @@ export function createColumns(
             cell: ({ getValue, row }) => (
                 <div className="flex flex-col items-end">
                     <p className="text-sm font-normal tracking-wider">ปีงบประมาณ {row.original.fiscalYear}</p>
-                    <p className="text-sm font-bold text-right">{formatCurrency(getValue<number>())}</p>
+                    <p className="text-sm font-bold text-right">฿{formatCurrency(Number(getValue<string>()))}</p>
                 </div>
             )
         },

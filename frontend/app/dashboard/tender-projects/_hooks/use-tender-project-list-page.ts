@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { format, isValid, parse } from "date-fns";
 import { type ListSortDirection, useListPageControls } from "@/hooks/use-list-page-controls";
 import { useTenderProjectsList } from "@/lib/tender/tender-projects/queries/useTendersProjectList";
 import {
@@ -35,6 +36,18 @@ function parseDepartmentId(value: string | null): number | undefined {
   return value && Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
+// ปีงบประมาณ (พ.ศ.) 4 หลัก — ค่าอื่นจาก URL ไม่ส่งไป API และไม่นับเป็นตัวกรอง
+function parseFiscalYear(value: string | null): string | undefined {
+  return value && /^\d{4}$/.test(value) ? value : undefined;
+}
+
+// วันที่ใน URL ต้องเป็น yyyy-MM-dd ที่มีอยู่จริง — ค่าเพี้ยนทำให้ช่องวันที่ format() พัง (Invalid time value)
+function parseDateParam(value: string | null): string | undefined {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  const date = parse(value, "yyyy-MM-dd", new Date());
+  return isValid(date) && format(date, "yyyy-MM-dd") === value ? value : undefined;
+}
+
 /**
  * All filters here are staged locally and only sent to the URL (and thus the
  * query) via submitFilters() — nothing auto-applies as the user types or picks
@@ -60,9 +73,9 @@ export function useTenderProjectListPage() {
   const appliedSearch = searchParams.get("search") ?? "";
   const appliedStatus = parseStatus(searchParams.get("status"));
   const appliedDepartmentId = parseDepartmentId(searchParams.get("department_id"));
-  const appliedFiscalYear = searchParams.get("fiscal_year") ?? undefined;
-  const appliedDateFrom = searchParams.get("date_from") ?? undefined;
-  const appliedDateTo = searchParams.get("date_to") ?? undefined;
+  const appliedFiscalYear = parseFiscalYear(searchParams.get("fiscal_year"));
+  const appliedDateFrom = parseDateParam(searchParams.get("date_from"));
+  const appliedDateTo = parseDateParam(searchParams.get("date_to"));
 
   // Draft filters — what the controls show while the user is still editing them.
   const [search, setSearch] = useState(appliedSearch);

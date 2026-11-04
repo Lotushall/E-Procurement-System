@@ -90,6 +90,8 @@ export const torColumns: ColumnDef<Tor>[] = [
         id: "bidding_end_at",
         header: ({ column }) => <SortableHeader column={column} label="ช่วงรับซอง" className={SORTABLE_HEADER_CLASS} />,
         accessorFn: (tor) => tor.biddingEndAt,
+        // ค่าเป็น null ได้ — tanstack จะเดาว่าไม่ใช่ string แล้วเริ่มที่ desc; ให้คลิกแรกเป็น asc เหมือนคอลัมน์อื่น
+        sortDescFirst: false,
         cell: ({ row }) => (
             <TorBiddingWindow
                 status={row.original.status}

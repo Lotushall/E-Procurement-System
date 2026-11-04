@@ -16,7 +16,7 @@ describe("InternalProfileTableSkeleton", () => {
     expect(table.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(0);
   });
 
-  it.skip("BUG: internal-profile-list-skeleton.tsx:34 header skeleton has 5 cells but each body row has 6 (the actions column has no header cell), so the skeleton columns are misaligned with the real table", () => {
+  it("has one header cell per body cell (including the actions column), so the columns line up", () => {
     const { container } = render(<InternalProfileTableSkeleton />);
 
     const table = container.querySelector("table")!;

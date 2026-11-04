@@ -3,9 +3,12 @@ import { GROUP_LABELS, getGroupLabel } from "@/app/dashboard/users/roles-permiss
 import { makePermission } from "@/tests/fixtures/user-management";
 
 describe("getGroupLabel", () => {
+  // ครบทุก prefix ที่ AdminUserSeeder สร้าง
   it.each([
     ["vendors", "จัดการผู้ค้า"],
     ["users", "จัดการผู้ใช้"],
+    ["tender_projects", "จัดการโครงการจัดซื้อจัดจ้าง"],
+    ["tors", "จัดการ TOR"],
   ])("maps the %s prefix to its Thai label", (prefix, label) => {
     expect(getGroupLabel(prefix)).toBe(label);
   });
@@ -19,12 +22,5 @@ describe("getGroupLabel", () => {
 
   it("falls back to the raw prefix for an unknown group", () => {
     expect(getGroupLabel("reports")).toBe("reports");
-  });
-
-  // Backend seeds (AdminUserSeeder) permissions under tors.* and tender_projects.*,
-  // but GROUP_LABELS has no entry for them, so the permission tab and picker show the raw key.
-  it.skip("BUG: _data/group-labels.ts:1 GROUP_LABELS has no label for the seeded tors and tender_projects prefixes — it should map them to Thai labels", () => {
-    expect(getGroupLabel("tors")).not.toBe("tors");
-    expect(getGroupLabel("tender_projects")).not.toBe("tender_projects");
   });
 });

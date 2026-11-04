@@ -232,7 +232,7 @@ describe("SessionsTab — revoke one session", () => {
     expect(screen.getByText("10.0.0.5")).toBeInTheDocument();
   });
 
-  it.skip("BUG: use-session-revocation.ts:38,45,52 error toasts (revoke one / others / all) ignore the backend message — they should show response.data.message and fall back to the Thai text", async () => {
+  it("toasts the backend message when revoking fails", async () => {
     const { actor } = await renderTab();
     server.use(
       http.delete(ONE_URL, () => HttpResponse.json({ message: "ไม่มีสิทธิ์เพิกถอน session นี้" }, { status: 403 })),

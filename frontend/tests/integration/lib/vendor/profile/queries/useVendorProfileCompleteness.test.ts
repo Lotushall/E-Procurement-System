@@ -149,8 +149,8 @@ describe("useVendorProfileCompleteness", () => {
     });
   });
 
-  // useVendorProfile(user?.userType !== "internal") เปิดใช้งานระหว่าง user ยังโหลด (undefined !== "internal") จึงยิง request ก่อนรู้ว่าเป็น internal
-  it.skip("BUG: fetches the vendor profile for internal users while the user is still loading — lib/vendor/profile/queries/useVendorProfileCompleteness.ts:15", async () => {
+  // ต้องรอรู้ว่าเป็นผู้ค้าก่อน — ไม่ยิง vendor profile ระหว่าง user ยังโหลด
+  it("does not fetch the vendor profile for internal users, even while the user is still loading", async () => {
     const spy = vi.fn(() => HttpResponse.json({ data: makeCompanyVendorProfile() }));
     server.use(http.get(apiUrl("/api/v1/vendor/profile"), spy));
     signInAs({ userType: "internal", emailVerifiedAt: null });
@@ -162,9 +162,9 @@ describe("useVendorProfileCompleteness", () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
-  // query ที่ถูก disable (internal) ค้างสถานะ pending จึงทำให้ isLoading เป็น true ตลอด
-  // ต้องแก้คู่กับ B1 (:15): handler ค้างไว้ — ถ้า request ยังหลุดออกไป (B1) query จะ pending และ test นี้ยัง fail
-  it.skip("BUG: isLoading stays true for internal users because the disabled vendor query stays pending — lib/vendor/profile/queries/useVendorProfileCompleteness.ts:40 (fix together with :15)", async () => {
+  // query ที่ถูกปิด (internal) ค้าง pending — ห้ามทำให้ isLoading ค้าง
+  // handler ค้างไว้: ถ้ามี request หลุดออกไป query จะ pending และ test นี้ fail
+  it("finishes loading for internal users", async () => {
     server.use(http.get(apiUrl("/api/v1/vendor/profile"), () => new Promise<never>(() => {})));
     signInAs({ userType: "internal", emailVerifiedAt: "2026-01-01" });
 

@@ -179,6 +179,8 @@ export default function DocumentRow({
           ) : (
             <p className="flex items-center text-xs text-gray-600 font-thin tracking-wide text-wrap wrap-break-word whitespace-normal">
               {fileName ?? "ยังไม่มีเอกสาร"}
+              {/* ขนาดไฟล์มีเฉพาะไฟล์ที่เพิ่งเลือก — ระหว่างอัปโหลดอยู่กิ่งนี้เพราะยังไม่มี viewUrl */}
+              {fileName && fileSize && ` · ${fileSize}`}
             </p>
           )}
           {statusValue === "rejected" && existingDocument?.remark && (

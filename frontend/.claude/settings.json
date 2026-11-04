@@ -301,7 +301,11 @@
       "Bash(node -e \"for \\(const p of ['msw','vitest','@testing-library/react','@tanstack/react-query','zustand','sonner','next']\\) { try { console.log\\(p, require\\('./node_modules/'+p+'/package.json'\\).version\\) } catch\\(e\\){console.log\\(p,'?'\\)} }\")",
       "PowerShell($S=\"C:\\\\Users\\\\JR\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--E-Procurement-System-frontend\\\\76cf0738-12bd-49a2-a6a4-2ebe6e836bc0\\\\scratchpad\"; cd D:\\\\E-Procurement-System\\\\frontend; npx vitest run --config \"$S\\\\vitest.unskip2.mts\" --allowOnly --reporter=verbose 2>&1 | Out-File -Encoding utf8 \"$S\\\\unskip.txt\"; Get-Content \"$S\\\\unskip.txt\" | Select-String -Pattern \"^\\\\s+\\(✓|×|↓\\)|Test Files|Tests \" | ForEach-Object { $_.Line.Substring\\(0, [Math]::Min\\(230, $_.Line.Length\\)\\) })",
       "PowerShell(cmd /c rmdir \"D:\\\\E-Procurement-System\\\\.superpowers\\\\sdd\\\\unskip-tmp\\\\node_modules\")",
-      "PowerShell(Remove-Item -Recurse -Force D:\\\\E-Procurement-System\\\\.superpowers\\\\sdd\\\\unskip-tmp -Confirm:$false)"
+      "PowerShell(Remove-Item -Recurse -Force D:\\\\E-Procurement-System\\\\.superpowers\\\\sdd\\\\unskip-tmp -Confirm:$false)",
+      "Bash(node -)",
+      "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx tsc --noEmit; \"tsc exit $LASTEXITCODE\"; npx eslint tests; \"eslint exit $LASTEXITCODE\"; npx vitest run 2>&1 | Select-Object -Last 15)",
+      "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx eslint tests/integration/app/public/profiles/document; \"eslint $LASTEXITCODE\"; npx vitest run tests/integration/app/public/profiles/document 2>&1 | Select-String -Pattern \"Tests \"; git status --short -- app)",
+      "PowerShell(cd D:\\\\E-Procurement-System\\\\frontend; npx vitest run --coverage --coverage.reporter=text-summary 2>&1 | Select-String -Pattern \"Test Files|Tests |Lines|FAIL |×\" | Select-Object -First 20; npx tsc --noEmit; \"tsc $LASTEXITCODE\"; npx eslint tests app 2>&1 | Select-String -Pattern \"✖|  error  |warning  \" | Select-Object -First 10; \"eslint $LASTEXITCODE\")"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

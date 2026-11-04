@@ -64,7 +64,7 @@ describe("torColumns — header", () => {
   });
 
   // accessorFn ของ bidding_end_at คืน null เมื่อแถวแรกยังไม่มีวันปิดรับซอง tanstack จึงเริ่มที่ desc ส่วนคอลัมน์อื่นเริ่มที่ asc เสมอ
-  it.skip("BUG: columns.tsx:92 first click on ช่วงรับซอง sorts descending when the first row has no bidding end date — it should start ascending like every other column (set sortDescFirst: false)", async () => {
+  it("sorts ascending on the first click of ช่วงรับซอง even when the first row has no bidding end date", async () => {
     const { user, onSortingChange } = renderTable([makeTor({ biddingEndAt: null })]);
 
     await user.click(within(screen.getByRole("columnheader", { name: "ช่วงรับซอง" })).getByRole("button"));

@@ -17,7 +17,7 @@ function renderLayout() {
   );
 }
 
-// navbar ของแดชบอร์ดดึงการแจ้งเตือนและ vendor profile (ระหว่างที่ user ยังโหลด) จึงต้องมี handler ครบ
+// navbar ของแดชบอร์ดดึงการแจ้งเตือน และดึง vendor profile เมื่อผู้ใช้เป็นผู้ค้า (กรณี company ด้านล่าง)
 function mockNavbarRequests() {
   server.use(
     http.get(apiUrl("/api/v1/notifications/unread-count"), () => HttpResponse.json({ data: { count: 0 } })),
