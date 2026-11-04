@@ -1,25 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useUpdateAccount } from "@/lib/auth/mutations/useUpdateAccount";
 import { useUser } from "@/lib/auth/queries/useUser";
+import { handleServerError } from "@/lib/form/server-errors";
 import { AccountInfoSchema, AccountInfoValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "บันทึกข้อมูลบัญชีไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 export function useAccountInfoForm() {
   const { data: user } = useUser();
@@ -40,7 +25,7 @@ export function useAccountInfoForm() {
         emailChanged
           ? "บันทึกข้อมูลบัญชีแล้ว ระบบส่งลิงก์ยืนยันไปที่อีเมลใหม่ กรุณายืนยันก่อนใช้งาน"
           : "บันทึกข้อมูลบัญชีแล้ว",
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "บันทึกข้อมูลบัญชีไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

@@ -110,8 +110,7 @@ describe("AddContactDialog", () => {
     expect(body).toMatchObject({ contactName: "สมหญิง", contactPhone: "", isMainContact: false });
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("shows the first 422 field error in the toast and stays open", async () => {
+  it("on a 422 toasts a check-the-form message and stays open", async () => {
     server.use(
       http.post(CONTACT_URL, () =>
         HttpResponse.json({ message: "invalid", errors: { contactEmail: ["อีเมลนี้ถูกใช้แล้ว"] } }, { status: 422 }),
@@ -122,11 +121,11 @@ describe("AddContactDialog", () => {
     await user.type(field("ชื่อผู้ติดต่อ"), "สมหญิง");
     await user.click(screen.getByRole("button", { name: "บันทึก" }));
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("อีเมลนี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
-  it.skip("BUG: app/(public)/profiles/contract/_hooks/use-add-contact-form.ts:8-21 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 on the contact email field the backend names", async () => {
     server.use(
       http.post(CONTACT_URL, () =>
         HttpResponse.json({ message: "invalid", errors: { contactEmail: ["อีเมลนี้ถูกใช้แล้ว"] } }, { status: 422 }),
@@ -141,6 +140,26 @@ describe("AddContactDialog", () => {
     const dialog = await screen.findByRole("dialog");
     expect(await within(dialog).findByText("อีเมลนี้ถูกใช้แล้ว")).toBeInTheDocument();
     expect(field("อีเมล")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("shows a 422 on the main-contact checkbox, which has no text input", async () => {
+    server.use(
+      http.post(CONTACT_URL, () =>
+        HttpResponse.json(
+          { message: "invalid", errors: { isMainContact: ["มีผู้ติดต่อหลักอยู่แล้ว"] } },
+          { status: 422 },
+        ),
+      ),
+    );
+    const user = await openDialog();
+
+    await user.type(field("ชื่อผู้ติดต่อ"), "สมหญิง");
+    await user.click(screen.getByRole("button", { name: "บันทึก" }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(await within(dialog).findByText("มีผู้ติดต่อหลักอยู่แล้ว")).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "เป็นผู้ติดต่อหลัก" })).toHaveAttribute("aria-invalid", "true");
+    expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก");
   });
 
   it("shows the backend message for other failures", async () => {

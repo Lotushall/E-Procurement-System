@@ -42,13 +42,13 @@ export default function IndividualInfoForm({ detail }: { detail: VendorIndividua
             />
           </InputField>
 
-          <InputField label="คำนำหน้า">
+          <InputField label="คำนำหน้า" error={errors.prefix?.message}>
             <Controller
               control={control}
               name="prefix"
               render={({ field: { value, onChange, ...field } }) => (
                 <Select value={value || "นาย"} onValueChange={onChange} {...field}>
-                  <SelectTrigger className="w-full h-11! rounded-sm">
+                  <SelectTrigger className="w-full h-11! rounded-sm" aria-invalid={!!errors.prefix}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent side="bottom" alignItemWithTrigger={false}>

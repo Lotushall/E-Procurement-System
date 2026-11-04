@@ -119,8 +119,7 @@ describe("AccountInfoSection", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "บันทึกข้อมูล" })).toBeEnabled());
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("toasts the first 422 field message", async () => {
+  it("on a 422 toasts a check-the-form message", async () => {
     server.use(
       http.post(ACCOUNT_URL, () =>
         HttpResponse.json(
@@ -134,10 +133,10 @@ describe("AccountInfoSection", () => {
 
     await user.click(screen.getByRole("button", { name: "บันทึกข้อมูล" }));
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ชื่อผู้ใช้นี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
   });
 
-  it.skip("BUG: app/(public)/profiles/_hooks/use-account-info-form.ts:9-22 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 username taken on the username field", async () => {
     server.use(
       http.post(ACCOUNT_URL, () =>
         HttpResponse.json({ message: "invalid", errors: { username: ["ชื่อผู้ใช้นี้ถูกใช้แล้ว"] } }, { status: 422 }),

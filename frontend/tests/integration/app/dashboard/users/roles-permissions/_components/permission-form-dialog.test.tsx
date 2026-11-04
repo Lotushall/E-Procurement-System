@@ -254,8 +254,7 @@ describe("PermissionFormDialog — create failures", () => {
     server.use(http.get(LIST_URL, () => HttpResponse.json({ data: [] })), http.post(LIST_URL, respond));
   }
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("toasts the first 422 field message, keeps the dialog open and keeps the values", async () => {
+  it("on a 422 toasts a check-the-form message, keeps the dialog open and keeps the values", async () => {
     serveFailure(() =>
       HttpResponse.json(
         { message: "The given data was invalid.", errors: { name: ["permission นี้มีอยู่แล้ว"], label: ["x"] } },
@@ -268,7 +267,7 @@ describe("PermissionFormDialog — create failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("permission นี้มีอยู่แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(nameInput()).toHaveValue("reports.export");
@@ -276,7 +275,7 @@ describe("PermissionFormDialog — create failures", () => {
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
-  it.skip("BUG: app/dashboard/users/roles-permissions/_hooks/use-permission-form.ts:10-23 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 duplicate name on the permission name field", async () => {
     serveFailure(() =>
       HttpResponse.json(
         { message: "The given data was invalid.", errors: { name: ["permission นี้มีอยู่แล้ว"] } },

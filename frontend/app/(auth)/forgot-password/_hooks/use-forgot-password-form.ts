@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useForgotPassword } from "@/lib/auth/mutations/useForgotPassword";
+import { handleServerError } from "@/lib/form/server-errors";
 import { ForgotPasswordSchema, ForgotPasswordValues } from "../_schemas/schema";
 
 const RESEND_COOLDOWN_SECONDS = 60;
+const SEND_FAILED_MESSAGE = "ส่งลิงก์ตั้งรหัสผ่านใหม่ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 
 export function useForgotPasswordForm() {
     const forgotPasswordMutation = useForgotPassword();
@@ -38,7 +40,7 @@ export function useForgotPasswordForm() {
                 ? (error.response?.data as { message?: string } | undefined)?.message
                 : undefined;
 
-        return message ?? "ส่งลิงก์ตั้งรหัสผ่านใหม่ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+        return message ?? SEND_FAILED_MESSAGE;
     };
 
     const onSubmit = form.handleSubmit((values) => {
@@ -47,7 +49,8 @@ export function useForgotPasswordForm() {
                 setSentTo(values.email);
                 setResendCooldown(RESEND_COOLDOWN_SECONDS);
             },
-            onError: (error) => toast.error(getErrorMessage(error)),
+            onError: (error) =>
+                toast.error(handleServerError(error, form, SEND_FAILED_MESSAGE)),
         });
     });
 

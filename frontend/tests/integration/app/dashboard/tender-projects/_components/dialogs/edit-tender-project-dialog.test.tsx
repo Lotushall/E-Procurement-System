@@ -416,8 +416,7 @@ describe("EditTenderProjectDialog — submitting", () => {
 });
 
 describe("EditTenderProjectDialog — failures", () => {
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("a 422 is only toasted") is fixed
-  it("toasts the first 422 field message, stays open with the edits and re-enables the button", async () => {
+  it("on a 422 toasts a check-the-form message, stays open with the edits and re-enables the button", async () => {
     serve();
     server.use(
       http.put(UPDATE_URL, () =>
@@ -435,7 +434,7 @@ describe("EditTenderProjectDialog — failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ชื่อโครงการซ้ำ"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(textbox("ชื่อโครงการ")).toHaveValue("แก้ไข");
@@ -443,7 +442,7 @@ describe("EditTenderProjectDialog — failures", () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["tenders_projects"] });
   });
 
-  it.skip("BUG: use-edit-tender-project-form.ts:10-23 a 422 is only toasted (getErrorMessage via toast.promise error); it should be shown on the field the backend names", async () => {
+  it("shows a 422 duplicate name on the project name field", async () => {
     serve();
     server.use(
       http.put(UPDATE_URL, () =>

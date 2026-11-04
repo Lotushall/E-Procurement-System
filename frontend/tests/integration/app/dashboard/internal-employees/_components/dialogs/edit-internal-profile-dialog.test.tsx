@@ -285,8 +285,7 @@ describe("EditInternalProfileDialog — submitting", () => {
 });
 
 describe("EditInternalProfileDialog — failures", () => {
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("shows the first 422 field error as a toast and stays open with the edits", async () => {
+  it("on a 422 toasts a check-the-form message and stays open with the edits", async () => {
     serve();
     server.use(
       http.patch(DETAIL_URL, () =>
@@ -300,14 +299,14 @@ describe("EditInternalProfileDialog — failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("รหัสพนักงานซ้ำ"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(input("ชื่อ")).toHaveValue("แก้ไข");
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
-  it.skip("BUG: app/dashboard/internal-employees/_hooks/use-edit-internal-profile-form.ts:9-22 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 duplicate employee number on the employee number field", async () => {
     serve();
     server.use(
       http.patch(DETAIL_URL, () =>

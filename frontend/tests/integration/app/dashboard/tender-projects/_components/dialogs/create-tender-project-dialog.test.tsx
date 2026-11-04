@@ -402,8 +402,7 @@ describe("CreateTenderProjectDialog — submitting", () => {
 });
 
 describe("CreateTenderProjectDialog — failures", () => {
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("a 422 is only toasted") is fixed
-  it("toasts the first 422 field message, stays open with the input and re-enables the button", async () => {
+  it("on a 422 toasts a check-the-form message, stays open with the input and re-enables the button", async () => {
     serve();
     server.use(
       http.post(CREATE_URL, () =>
@@ -419,7 +418,7 @@ describe("CreateTenderProjectDialog — failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ไม่พบแผนกนี้"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(textbox("ชื่อโครงการ")).toHaveValue("จัดซื้อเซิร์ฟเวอร์");
@@ -427,7 +426,7 @@ describe("CreateTenderProjectDialog — failures", () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["tenders_projects"] });
   });
 
-  it.skip("BUG: use-create-tender-project-form.ts:9-22 a 422 is only toasted (getErrorMessage via toast.promise error); it should be shown on the field the backend names", async () => {
+  it("shows a 422 on the department field the backend names", async () => {
     serve();
     server.use(
       http.post(CREATE_URL, () =>
@@ -441,6 +440,25 @@ describe("CreateTenderProjectDialog — failures", () => {
 
     // toast ถูก mock จึงไม่มีข้อความใน DOM — ถ้าเจอใน dialog แปลว่าแสดงที่ช่องแล้ว
     expect(await within(screen.getByRole("dialog")).findByText("ไม่พบแผนกนี้")).toBeInTheDocument();
+  });
+
+  it("shows a 422 on the project period when the backend names projectStartAt", async () => {
+    serve();
+    server.use(
+      http.post(CREATE_URL, () =>
+        HttpResponse.json(
+          { message: "ข้อมูลไม่ถูกต้อง", errors: { projectStartAt: ["วันที่เริ่มต้นไม่ถูกต้อง"] } },
+          { status: 422 },
+        ),
+      ),
+    );
+    const { user } = await setup();
+    await fillRequired(user);
+
+    await user.click(submit());
+
+    expect(await within(screen.getByRole("dialog")).findByText("วันที่เริ่มต้นไม่ถูกต้อง")).toBeInTheDocument();
+    expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก");
   });
 
   it("shows the backend message for other failures", async () => {

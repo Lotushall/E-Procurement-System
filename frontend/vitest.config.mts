@@ -16,6 +16,8 @@ export default defineConfig({
       jsdom: { url: "http://localhost:3000" },
     },
     setupFiles: ["./tests/setup.ts"],
+    // test ฟอร์มยาวๆ (user-event พิมพ์ + เลือก combobox + ปฏิทิน) ใช้ ~0.8s ตอนรันเดี่ยว แต่เกิน 5s ตอนรันทั้งชุดบนเครื่องที่โหลดหนัก
+    testTimeout: 15_000,
     include: ["tests/**/*.test.{ts,tsx}"],
     // ตรงกับ API_URL ใน tests/msw/server.ts — lib/api.ts อ่านค่านี้ตอนโหลด
     env: {

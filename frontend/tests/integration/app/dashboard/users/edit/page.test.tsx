@@ -398,8 +398,7 @@ describe("EditUserPage — saving an internal user", () => {
     expect(calls).toHaveLength(1);
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("use-update-internal-user-form.ts" 422 is only toasted) is fixed
-  it("toasts the first field message of a 422 and stays on the page", async () => {
+  it("on a 422 toasts a check-the-form message and stays on the page", async () => {
     const { user } = await renderPage();
     serveUpdate(() =>
       HttpResponse.json(
@@ -410,7 +409,7 @@ describe("EditUserPage — saving an internal user", () => {
 
     await user.click(save());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("อีเมลนี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(router.push).not.toHaveBeenCalled();
     expect(toast.success).not.toHaveBeenCalled();
     expect(save()).toBeEnabled();
@@ -436,7 +435,7 @@ describe("EditUserPage — saving an internal user", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it.skip("BUG: app/dashboard/users/_hooks/use-update-internal-user-form.ts:8-21 422 username/email taken is only toasted; it should be shown on the username/email field", async () => {
+  it("shows a 422 email taken on the email field", async () => {
     const { user } = await renderPage();
     serveUpdate(() => HttpResponse.json({ errors: { email: ["อีเมลนี้ถูกใช้แล้ว"] } }, { status: 422 }));
 
@@ -544,14 +543,13 @@ describe("EditUserPage — vendor (non-internal) user", () => {
     await waitFor(() => expect(router.push).toHaveBeenCalledExactlyOnceWith("/dashboard/users/detail?id=9"));
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("use-update-account-form.ts" 422 is only toasted) is fixed
-  it("toasts the first field message of a 422", async () => {
+  it("on a 422 toasts a check-the-form message", async () => {
     const { user } = await renderPage(VENDOR);
     serveUpdate(() => HttpResponse.json({ errors: { username: ["Username นี้ถูกใช้แล้ว"] } }, { status: 422 }));
 
     await user.click(save());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("Username นี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(router.push).not.toHaveBeenCalled();
   });
 
@@ -570,7 +568,7 @@ describe("EditUserPage — vendor (non-internal) user", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it.skip("BUG: app/dashboard/users/_hooks/use-update-account-form.ts:8-21 422 username/email taken is only toasted; it should be shown on the username/email field", async () => {
+  it("shows a 422 username taken on the username field", async () => {
     const { user } = await renderPage(VENDOR);
     serveUpdate(() => HttpResponse.json({ errors: { username: ["Username นี้ถูกใช้แล้ว"] } }, { status: 422 }));
 

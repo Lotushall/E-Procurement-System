@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { handleServerError } from "@/lib/form/server-errors";
 import { useUpdateVendorInfo } from "@/lib/vendor/profile/mutations/useUpdateVendorInfo";
 import type {
   VendorCompanyInfoValues,
@@ -12,34 +12,7 @@ import {
   VendorIndividualInfoSchema,
 } from "../_schemas/schema";
 
-function applyFieldErrors<T extends Record<string, unknown>>(
-  error: unknown,
-  setError: (field: keyof T, error: { type: string; message: string }) => void,
-): boolean {
-  if (!isAxiosError(error) || error.response?.status !== 422) return false;
-
-  const fieldErrors = (error.response.data as { errors?: Record<string, string[]> }).errors;
-  if (!fieldErrors) return false;
-
-  Object.entries(fieldErrors).forEach(([field, messages]) => {
-    setError(field as keyof T, { type: "server", message: messages[0] });
-  });
-  return true;
-}
-
-function updateErrorMessage<T extends Record<string, unknown>>(
-  error: unknown,
-  setError: (field: keyof T, error: { type: string; message: string }) => void,
-): string {
-  if (applyFieldErrors<T>(error, setError)) {
-    return "กรุณาตรวจสอบข้อมูลที่กรอก";
-  }
-
-  const message = isAxiosError(error)
-    ? (error.response?.data as { message?: string } | undefined)?.message
-    : undefined;
-  return message ?? "บันทึกข้อมูลกิจการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
+const SAVE_FAILED_MESSAGE = "บันทึกข้อมูลกิจการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 
 export function useVendorCompanyInfoForm(detail: VendorCompanyInfoValues) {
   const updateVendorInfoMutation = useUpdateVendorInfo();
@@ -74,7 +47,7 @@ export function useVendorCompanyInfoForm(detail: VendorCompanyInfoValues) {
       {
         loading: "กำลังบันทึกข้อมูล...",
         success: "บันทึกข้อมูลกิจการสำเร็จ",
-        error: (error) => updateErrorMessage<VendorCompanyInfoValues>(error, form.setError),
+        error: (error) => handleServerError(error, form, SAVE_FAILED_MESSAGE),
       },
     );
   });
@@ -119,7 +92,7 @@ export function useVendorIndividualInfoForm(detail: VendorIndividualInfoValues) 
       {
         loading: "กำลังบันทึกข้อมูล...",
         success: "บันทึกข้อมูลกิจการสำเร็จ",
-        error: (error) => updateErrorMessage<VendorIndividualInfoValues>(error, form.setError),
+        error: (error) => handleServerError(error, form, SAVE_FAILED_MESSAGE),
       },
     );
   });

@@ -107,8 +107,7 @@ describe("Login page", () => {
     expect(body).toMatchObject({ remember: false });
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("shows the first field message of a 422 in a toast", async () => {
+  it("toasts a check-the-form message on a 422 and does not navigate", async () => {
     server.use(
       http.post(LOGIN_URL, () =>
         HttpResponse.json(
@@ -122,11 +121,11 @@ describe("Login page", () => {
 
     await fillAndSubmit(user);
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ข้อมูลเข้าสู่ระบบไม่ถูกต้อง"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it.skip("BUG: app/(auth)/login/_hooks/use-login-form.ts:27-37 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 on the identifier field the backend names", async () => {
     server.use(
       http.post(LOGIN_URL, () =>
         HttpResponse.json(

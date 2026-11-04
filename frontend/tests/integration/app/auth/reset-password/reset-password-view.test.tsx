@@ -129,8 +129,8 @@ describe("ResetPasswordView - form", () => {
     expect(screen.queryByPlaceholderText("อย่างน้อย 8 ตัวอักษร")).not.toBeInTheDocument();
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("shows the first 422 field message in a toast and keeps the form", async () => {
+  // intentional: `token` is not a form field, so its 422 message is toasted instead of being dropped
+  it("toasts the 422 message for a key that is not a form field (token) and keeps the form", async () => {
     setUrl(VALID_URL);
     server.use(
       http.post(RESET_URL, () =>
@@ -147,7 +147,7 @@ describe("ResetPasswordView - form", () => {
     expect(screen.getByPlaceholderText("อย่างน้อย 8 ตัวอักษร")).toBeInTheDocument();
   });
 
-  it.skip("BUG: app/(auth)/reset-password/_hooks/use-reset-password-form.ts:42-52 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 on the password field the backend names", async () => {
     setUrl(VALID_URL);
     server.use(
       http.post(RESET_URL, () =>

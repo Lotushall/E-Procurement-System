@@ -326,8 +326,7 @@ describe("CreateUserPage — submitting", () => {
 });
 
 describe("CreateUserPage — failures", () => {
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 username/email taken is only toasted") is fixed
-  it("toasts the first field message of a 422 and stays on the page with the input kept", async () => {
+  it("on a 422 toasts a check-the-form message and stays on the page with the input kept", async () => {
     const { user } = await renderPage();
     serveCreate(() =>
       HttpResponse.json(
@@ -342,7 +341,7 @@ describe("CreateUserPage — failures", () => {
 
     await user.click(screen.getByRole("button", { name: "บันทึก" }));
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("Username นี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledExactlyOnceWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(router.push).not.toHaveBeenCalled();
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "บันทึก" })).toBeEnabled();
@@ -371,7 +370,7 @@ describe("CreateUserPage — failures", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it.skip("BUG: app/dashboard/users/_hooks/use-create-user-form.ts:9-22 422 username/email taken is only toasted; it should be shown on the username/email field", async () => {
+  it("shows a 422 username taken on the username field", async () => {
     const { user } = await renderPage();
     serveCreate(() => HttpResponse.json({ errors: { username: ["Username นี้ถูกใช้แล้ว"] } }, { status: 422 }));
     await fillValid(user);

@@ -1,26 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useUpdateTenderProject } from "@/lib/tender/tender-projects/mutations/useUpdateTenderProject";
 import type { TenderProjects, UpdateTenderProjectPayload } from "@/lib/tender/tender-projects/types";
+import { handleServerError } from "@/lib/form/server-errors";
 import { UpdateTenderProjectSchema, type UpdateTenderProjectFormValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "บันทึกการแก้ไขไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 // budget มาเป็น "186000000.00": ตัด ".00" ทิ้ง แต่เก็บทศนิยม 2 หลักไว้เมื่อมีสตางค์
 // เพื่อให้ "500000.50" แสดงเป็น 500,000.50 ไม่ใช่ 500,000.5
@@ -76,7 +61,7 @@ export function useEditTenderProjectForm(project: TenderProjects, onSubmitted: (
         onSubmitted();
         return "บันทึกการแก้ไขสำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "บันทึกการแก้ไขไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

@@ -1,25 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreateInternalProfile } from "@/lib/internal-profiles/mutations/useCreateInternalProfile";
 import type { CreateInternalProfilePayload } from "@/lib/internal-profiles/types";
+import { handleServerError } from "@/lib/form/server-errors";
 import { InternalProfileFormSchema, type InternalProfileFormValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "สร้างพนักงานไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 const DEFAULT_VALUES: InternalProfileFormValues = {
   prefix: "",
@@ -59,7 +44,7 @@ export function useInternalProfileForm(onSubmitted: () => void) {
         onSubmitted();
         return "สร้างพนักงานสำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "สร้างพนักงานไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

@@ -100,8 +100,7 @@ describe("ChangePasswordSection", () => {
     await waitFor(() => expect(submitButton()).toBeEnabled());
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("toasts the first 422 message for a wrong current password and keeps the form", async () => {
+  it("on a 422 toasts a check-the-form message and keeps the form", async () => {
     server.use(
       http.post(CHANGE_URL, () =>
         HttpResponse.json(
@@ -116,11 +115,11 @@ describe("ChangePasswordSection", () => {
     await fill(user, "wrong", "newpassword", "newpassword");
     await user.click(submitButton());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("รหัสผ่านปัจจุบันไม่ถูกต้อง"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(field("รหัสผ่านปัจจุบัน")).toHaveValue("wrong");
   });
 
-  it.skip("BUG: app/(public)/profiles/_hooks/use-change-password-form.ts:8-20 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 wrong current password on the current password field", async () => {
     server.use(
       http.post(CHANGE_URL, () =>
         HttpResponse.json(

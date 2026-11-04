@@ -262,8 +262,7 @@ describe("RoleFormDialog — create failures", () => {
     );
   }
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("toasts the first 422 field message, keeps the dialog open and keeps the entered values", async () => {
+  it("on a 422 toasts a check-the-form message, keeps the dialog open and keeps the entered values", async () => {
     serveFailure(() =>
       HttpResponse.json(
         { message: "The given data was invalid.", errors: { name: ["ชื่อ role นี้ถูกใช้แล้ว"], permissions: ["x"] } },
@@ -276,7 +275,7 @@ describe("RoleFormDialog — create failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ชื่อ role นี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(nameInput()).toHaveValue("auditor");
@@ -284,7 +283,7 @@ describe("RoleFormDialog — create failures", () => {
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
-  it.skip("BUG: app/dashboard/users/roles-permissions/_hooks/use-role-form.ts:10-23 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 duplicate name on the role name field", async () => {
     serveFailure(() =>
       HttpResponse.json(
         { message: "The given data was invalid.", errors: { name: ["ชื่อ role นี้ถูกใช้แล้ว"] } },

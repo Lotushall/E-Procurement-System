@@ -1,26 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreateRole } from "@/lib/user/management/mutations/useCreateRole";
 import { useUpdateRole } from "@/lib/user/management/mutations/useUpdateRole";
 import type { RoleDetail } from "@/lib/user/management/types";
+import { handleServerError } from "@/lib/form/server-errors";
 import { RoleFormSchema, type RoleFormValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "บันทึก role ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 export function useRoleForm(onSubmitted: () => void, role?: RoleDetail) {
   const createRoleMutation = useCreateRole();
@@ -50,7 +35,7 @@ export function useRoleForm(onSubmitted: () => void, role?: RoleDetail) {
         onSubmitted();
         return role ? "บันทึกการแก้ไขสำเร็จ" : "สร้าง role สำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "บันทึก role ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

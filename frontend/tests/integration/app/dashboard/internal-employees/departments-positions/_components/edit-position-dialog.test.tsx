@@ -176,8 +176,7 @@ describe("EditPositionDialog — failures", () => {
     );
   }
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("a 422 duplicate name is only toasted") is fixed
-  it("toasts the first field message of a 422 and keeps the dialog open with the typed name", async () => {
+  it("on a 422 toasts a check-the-form message and keeps the dialog open with the typed name", async () => {
     serveFailure(() =>
       HttpResponse.json({ message: "invalid", errors: { name: ["ชื่อตำแหน่งนี้มีอยู่แล้ว"] } }, { status: 422 }),
     );
@@ -187,14 +186,14 @@ describe("EditPositionDialog — failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ชื่อตำแหน่งนี้มีอยู่แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(nameInput()).toHaveValue("เจ้าหน้าที่");
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
-  it.skip("BUG: _hooks/use-edit-position-form.ts:9-22 a 422 duplicate name is only toasted; it should be shown on the name field (brief: 'on the field')", async () => {
+  it("shows a 422 duplicate name on the name field", async () => {
     serveFailure(() =>
       HttpResponse.json({ message: "invalid", errors: { name: ["ชื่อตำแหน่งนี้มีอยู่แล้ว"] } }, { status: 422 }),
     );

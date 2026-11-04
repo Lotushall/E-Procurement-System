@@ -88,8 +88,7 @@ describe("Forgot password page - form", () => {
     expect(screen.getByRole("button", { name: "ลองอีกครั้งได้ใน 60 วินาที" })).toBeDisabled();
   });
 
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("shows the first 422 field message in a toast and stays on the form", async () => {
+  it("toasts a check-the-form message on a 422 and stays on the form", async () => {
     server.use(
       http.post(FORGOT_URL, () =>
         HttpResponse.json({ message: "invalid", errors: { email: ["ไม่พบอีเมลนี้"] } }, { status: 422 }),
@@ -100,11 +99,11 @@ describe("Forgot password page - form", () => {
 
     await submitEmail(user);
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ไม่พบอีเมลนี้"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(screen.queryByText("ตรวจสอบอีเมลของคุณ")).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: app/(auth)/forgot-password/_hooks/use-forgot-password-form.ts:30-42 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 on the email field the backend names", async () => {
     server.use(
       http.post(FORGOT_URL, () =>
         HttpResponse.json({ message: "invalid", errors: { email: ["ไม่พบอีเมลนี้"] } }, { status: 422 }),

@@ -1,25 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useUpdateInternalProfile } from "@/lib/internal-profiles/mutations/useUpdateInternalProfile";
 import type { UpdateInternalProfilePayload } from "@/lib/internal-profiles/types";
+import { handleServerError } from "@/lib/form/server-errors";
 import { InternalProfileFormSchema, type InternalProfileFormValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 export function useEditInternalProfileForm(
   id: number,
@@ -53,7 +38,7 @@ export function useEditInternalProfileForm(
         onSubmitted();
         return "บันทึกข้อมูลสำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

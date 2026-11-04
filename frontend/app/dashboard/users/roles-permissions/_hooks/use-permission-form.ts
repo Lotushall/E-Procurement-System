@@ -1,26 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreatePermission } from "@/lib/user/management/mutations/useCreatePermission";
 import { useUpdatePermission } from "@/lib/user/management/mutations/useUpdatePermission";
 import type { Permission } from "@/lib/user/management/types";
+import { handleServerError } from "@/lib/form/server-errors";
 import { PermissionFormSchema, type PermissionFormValues } from "../_schemas/permission-schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "บันทึก permission ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 export function usePermissionForm(onSubmitted: () => void, permission?: Permission) {
   const createPermissionMutation = useCreatePermission();
@@ -50,7 +35,7 @@ export function usePermissionForm(onSubmitted: () => void, permission?: Permissi
         onSubmitted();
         return permission ? "บันทึกการแก้ไขสำเร็จ" : "สร้าง permission สำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "บันทึก permission ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

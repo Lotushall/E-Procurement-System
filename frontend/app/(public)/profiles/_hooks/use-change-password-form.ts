@@ -1,23 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useChangePassword } from "@/lib/auth/mutations/useChangePassword";
+import { handleServerError } from "@/lib/form/server-errors";
 import { ChangePasswordSchema, ChangePasswordValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors = isAxiosError(error) && error.response?.status === 422
-    ? (error.response.data as { errors?: Record<string, string[]> }).errors
-    : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "เปลี่ยนรหัสผ่านไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 export function useChangePasswordForm() {
   const changePasswordMutation = useChangePassword();
@@ -40,7 +26,7 @@ export function useChangePasswordForm() {
           form.reset();
           return "เปลี่ยนรหัสผ่านแล้ว";
         },
-        error: getErrorMessage,
+        error: (error) => handleServerError(error, form, "เปลี่ยนรหัสผ่านไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
       },
     );
   });

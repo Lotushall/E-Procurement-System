@@ -1,24 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { AddContactSchema, AddContactValues } from "../_schemas/schema";
 import { useSaveVendorContact } from "@/lib/vendor/profile/mutations/useSaveVendorContact";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "บันทึกข้อมูลผู้ติดต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
+import { handleServerError } from "@/lib/form/server-errors";
 
 export function useAddContactForm(
   onSubmitted: () => void,
@@ -48,7 +33,7 @@ export function useAddContactForm(
         onSubmitted();
         return "บันทึกผู้ติดต่อสำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "บันทึกข้อมูลผู้ติดต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

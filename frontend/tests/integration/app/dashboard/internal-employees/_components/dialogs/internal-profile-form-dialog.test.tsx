@@ -255,12 +255,11 @@ describe("InternalProfileFormDialog — submitting", () => {
 });
 
 describe("InternalProfileFormDialog — failures", () => {
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("422 is only toasted") is fixed
-  it("shows the first field error of a 422 as the toast and keeps the dialog and values", async () => {
+  it("on a 422 shows each message on its field, toasts a check-the-form message and keeps the dialog and values", async () => {
     server.use(
       http.post(CREATE_URL, () =>
         HttpResponse.json(
-          { message: "ข้อมูลไม่ถูกต้อง", errors: { employee_no: ["รหัสพนักงานนี้ถูกใช้แล้ว"], phone: ["เบอร์ไม่ถูกต้อง"] } },
+          { message: "ข้อมูลไม่ถูกต้อง", errors: { employeeNo: ["รหัสพนักงานนี้ถูกใช้แล้ว"], phone: ["เบอร์ไม่ถูกต้อง"] } },
           { status: 422 },
         ),
       ),
@@ -272,15 +271,18 @@ describe("InternalProfileFormDialog — failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("รหัสพนักงานนี้ถูกใช้แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("รหัสพนักงานนี้ถูกใช้แล้ว")).toBeInTheDocument();
+    expect(within(dialog).getByText("เบอร์ไม่ถูกต้อง")).toBeInTheDocument();
     expect(toast.success).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(dialog).toBeInTheDocument();
     expect(input("ชื่อ")).toHaveValue("สมชาย");
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
-  it.skip("BUG: app/dashboard/internal-employees/_hooks/use-internal-profile-form.ts:9-22 422 is only toasted; it should be shown on the field the backend names", async () => {
+  it("shows a 422 duplicate employee number on the employee number field", async () => {
     server.use(
       http.post(CREATE_URL, () =>
         HttpResponse.json(

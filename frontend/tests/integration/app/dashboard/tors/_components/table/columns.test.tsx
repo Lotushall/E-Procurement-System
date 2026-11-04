@@ -53,7 +53,6 @@ describe("torColumns — header", () => {
     ["ราคากลาง", "budget_estimate"],
     ["ช่วงรับซอง", "bidding_end_at"],
   ])("sorts by %s through the %s column id", async (label, id) => {
-    // ต้องมีวันปิดรับซอง ไม่งั้น tanstack เดาทิศทางแรกของคอลัมน์ bidding_end_at เป็น desc (ดู it.skip ด้านล่าง)
     const { user, onSortingChange } = renderTable([makeTor({ biddingEndAt: "2026-11-20T16:00:00+07:00" })]);
 
     await user.click(within(screen.getByRole("columnheader", { name: label })).getByRole("button"));
@@ -63,7 +62,7 @@ describe("torColumns — header", () => {
     expect(typeof updater === "function" ? updater([]) : updater).toEqual([{ id, desc: false }]);
   });
 
-  // accessorFn ของ bidding_end_at คืน null เมื่อแถวแรกยังไม่มีวันปิดรับซอง tanstack จึงเริ่มที่ desc ส่วนคอลัมน์อื่นเริ่มที่ asc เสมอ
+  // accessorFn ของ bidding_end_at คืน null ได้ — ถ้าไม่ตั้ง sortDescFirst: false tanstack จะเดาว่าเริ่มที่ desc
   it("sorts ascending on the first click of ช่วงรับซอง even when the first row has no bidding end date", async () => {
     const { user, onSortingChange } = renderTable([makeTor({ biddingEndAt: null })]);
 

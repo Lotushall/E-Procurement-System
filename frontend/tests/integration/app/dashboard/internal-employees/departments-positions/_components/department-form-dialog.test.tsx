@@ -173,8 +173,7 @@ describe("DepartmentFormDialog — submitting", () => {
 });
 
 describe("DepartmentFormDialog — failures", () => {
-  // current toast-only 422 behaviour — remove this test when the BUG skip below ("a 422 duplicate name is only toasted") is fixed
-  it("toasts the first field message of a 422 and keeps the dialog open with the typed name", async () => {
+  it("on a 422 toasts a check-the-form message and keeps the dialog open with the typed name", async () => {
     server.use(
       http.get(URL_, () => HttpResponse.json({ data: [] })),
       http.post(URL_, () =>
@@ -190,14 +189,14 @@ describe("DepartmentFormDialog — failures", () => {
 
     await user.click(submit());
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ชื่อแผนกนี้มีอยู่แล้ว"));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(toast.success).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(nameInput()).toHaveValue("จัดซื้อ");
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
-  it.skip("BUG: _hooks/use-department-form.ts:9-22 a 422 duplicate name is only toasted; it should be shown on the name field (brief: 'on the field')", async () => {
+  it("shows a 422 duplicate name on the name field", async () => {
     server.use(
       http.get(URL_, () => HttpResponse.json({ data: [] })),
       http.post(URL_, () =>

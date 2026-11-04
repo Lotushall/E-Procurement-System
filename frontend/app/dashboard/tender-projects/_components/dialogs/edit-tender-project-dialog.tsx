@@ -223,7 +223,7 @@ export function EditTenderProjectDialog({
                         )}
                     />
 
-                    <InputField label="ระยะเวลาโครงการ" required error={errors.projectEndAt?.message}>
+                    <InputField label="ระยะเวลาโครงการ" required error={errors.projectEndAt?.message ?? errors.projectStartAt?.message}>
                         <Popover>
                             <PopoverTrigger
                                 render={

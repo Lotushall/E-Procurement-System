@@ -274,7 +274,11 @@ describe("IndividualInfoForm", () => {
         HttpResponse.json(
           {
             message: "invalid",
-            errors: { citizenId: ["เลขบัตรประชาชนนี้ถูกใช้แล้ว"], storeName: ["ชื่อร้านซ้ำ", "อื่น"] },
+            errors: {
+              citizenId: ["เลขบัตรประชาชนนี้ถูกใช้แล้ว"],
+              storeName: ["ชื่อร้านซ้ำ", "อื่น"],
+              prefix: ["คำนำหน้าไม่ถูกต้อง"],
+            },
           },
           { status: 422 },
         ),
@@ -287,6 +291,7 @@ describe("IndividualInfoForm", () => {
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith("กรุณาตรวจสอบข้อมูลที่กรอก"));
     expect(within(box("เลขบัตรประชาชน")).getByText("เลขบัตรประชาชนนี้ถูกใช้แล้ว")).toBeInTheDocument();
     expect(within(box("ชื่อร้านค้า")).getByText("ชื่อร้านซ้ำ")).toBeInTheDocument();
+    expect(within(box("คำนำหน้า")).getByText("คำนำหน้าไม่ถูกต้อง")).toBeInTheDocument();
     expect(screen.queryByText("อื่น")).not.toBeInTheDocument();
     expect(toast.success).not.toHaveBeenCalled();
   });

@@ -1,25 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { handleServerError } from "@/lib/form/server-errors";
 import { useCreateDepartment } from "@/lib/internal-profiles/mutations/useCreateDepartment";
 import type { CreateDepartmentPayload } from "@/lib/internal-profiles/types";
 import { DepartmentFormSchema, type DepartmentFormValues } from "../_schemas/schema";
-
-function getErrorMessage(error: unknown): string {
-  const fieldErrors =
-    isAxiosError(error) && error.response?.status === 422
-      ? (error.response.data as { errors?: Record<string, string[]> }).errors
-      : undefined;
-
-  const message = fieldErrors
-    ? Object.values(fieldErrors)[0]?.[0]
-    : isAxiosError(error)
-      ? (error.response?.data as { message?: string } | undefined)?.message
-      : undefined;
-
-  return message ?? "สร้างแผนกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-}
 
 const DEFAULT_VALUES: DepartmentFormValues = {
   name: "",
@@ -45,7 +30,7 @@ export function useDepartmentForm(onSubmitted: () => void) {
         onSubmitted();
         return "สร้างแผนกสำเร็จ";
       },
-      error: getErrorMessage,
+      error: (error) => handleServerError(error, form, "สร้างแผนกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
     });
   });
 

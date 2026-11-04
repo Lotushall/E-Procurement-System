@@ -73,18 +73,22 @@ export function ContactFormFields({
         control={control}
         name="isMainContact"
         render={({ field: { value, onChange, ...field } }) => (
-          <Field orientation="horizontal" className="w-fit">
-            <Checkbox
-              id={isMainContactId}
-              checked={value}
-              onCheckedChange={onChange}
-              className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
-              {...field}
-            />
-            <FieldLabel htmlFor={isMainContactId} className="font-light tracking-wide text-sm cursor-pointer">
-              เป็นผู้ติดต่อหลัก
-            </FieldLabel>
-          </Field>
+          <div className="flex flex-col gap-1.5">
+            <Field orientation="horizontal" className="w-fit">
+              <Checkbox
+                id={isMainContactId}
+                checked={value}
+                onCheckedChange={onChange}
+                aria-invalid={!!errors.isMainContact}
+                className="cursor-pointer data-checked:bg-red-700 data-checked:border-red-700 data-checked:text-white"
+                {...field}
+              />
+              <FieldLabel htmlFor={isMainContactId} className="font-light tracking-wide text-sm cursor-pointer">
+                เป็นผู้ติดต่อหลัก
+              </FieldLabel>
+            </Field>
+            {errors.isMainContact && <p className="text-xs text-destructive">{errors.isMainContact.message}</p>}
+          </div>
         )}
       />
     </>
