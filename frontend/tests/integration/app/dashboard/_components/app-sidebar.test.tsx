@@ -10,7 +10,7 @@ import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { setUrl } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 
-// admin ที่มีสิทธิ์ครบทุกเมนู — ต้องเห็นทุกรายการแม้เพิ่ม gate ให้เมนูที่ยังไม่มี gate แล้ว
+// admin ที่มีสิทธิ์ครบทุกเมนู — ต้องเห็นทุกรายการ (เมนูที่ gate ด้วยสิทธิ์/บทบาทก็ต้องโผล่)
 const EVERYTHING = {
   roles: ["admin"],
   permissions: ["tors.viewAny", "tender_projects.viewAny", "vendors.viewAny", "users.viewAny"],
@@ -110,7 +110,7 @@ describe("AppSidebar menu items", () => {
     );
   });
 
-  it.skip("BUG: app-sidebar.tsx:49 โครงการจัดซื้อจัดจ้าง has no permissions gate, so it is shown without tender_projects.viewAny although GET /dashboard/tender-projects is can:tender-projects.index (backend/routes/api/v1/dashboard/tender-projects.php:14) — it should be hidden", async () => {
+  it("hides โครงการจัดซื้อจัดจ้าง from a user without tender_projects.viewAny", async () => {
     await renderAsTorViewerOnly();
 
     expect(link("โครงการจัดซื้อจัดจ้าง")).not.toBeInTheDocument();
@@ -126,7 +126,7 @@ describe("AppSidebar menu items", () => {
     );
   });
 
-  it.skip("BUG: app-sidebar.tsx:54 ผู้ค้าที่ลงทะเบียน has no permissions gate, so it is shown without vendors.viewAny although GET /dashboard/vendors is can:vendors.list (backend/routes/api/v1/dashboard/vendors.php:7) — it should be hidden", async () => {
+  it("hides ผู้ค้าที่ลงทะเบียน from a user without vendors.viewAny", async () => {
     await renderAsTorViewerOnly();
 
     expect(link("ผู้ค้าที่ลงทะเบียน")).not.toBeInTheDocument();
@@ -168,7 +168,7 @@ describe("AppSidebar menu items", () => {
     expect(await screen.findByRole("link", { name: "จัดการผู้ใช้" })).toHaveAttribute("href", "/dashboard/users");
   });
 
-  it.skip("BUG: app-sidebar.tsx:71 จัดการผู้ใช้ has no permissions gate, so it is shown without users.viewAny although GET /dashboard/users is can:users.viewAny (backend/routes/api/v1/dashboard/user-management/users.php:11) — it should be hidden", async () => {
+  it("hides จัดการผู้ใช้ from a user without users.viewAny", async () => {
     await renderAsTorViewerOnly();
 
     expect(link("จัดการผู้ใช้")).not.toBeInTheDocument();
@@ -184,7 +184,7 @@ describe("AppSidebar menu items", () => {
     );
   });
 
-  it.skip("BUG: app-sidebar.tsx:76 พนักงานภายใน has no role gate, so it is shown to non-admins although every /dashboard/internal-profiles endpoint (except select) is role:admin (backend/routes/api/v1/dashboard/internal-profiles.php:20) — it should be hidden unless the user is an admin", async () => {
+  it("hides พนักงานภายใน from a user who is not an admin", async () => {
     await renderAsTorViewerOnly({ roles: ["officer"] });
 
     expect(link("พนักงานภายใน")).not.toBeInTheDocument();

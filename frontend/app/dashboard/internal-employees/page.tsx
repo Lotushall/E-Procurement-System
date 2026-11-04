@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { Building2, UserPlus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { FloatingActionButton } from "@/components/floating-action-button";
+import { RequireRole } from "@/lib/auth/guards/RequireRole";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { routes } from "@/lib/routes";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
@@ -127,7 +128,9 @@ function InternalProfilesPageContent() {
 export default function InternalProfilesPage() {
     return (
         <Suspense fallback={<InternalProfileListSkeleton />}>
-            <InternalProfilesPageContent />
+            <RequireRole role="admin">
+                <InternalProfilesPageContent />
+            </RequireRole>
         </Suspense>
     );
 }

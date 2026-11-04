@@ -49,11 +49,13 @@ const navItems: NavItem[] = [
     href: routes.dashboards.tender_project.index,
     label: "โครงการจัดซื้อจัดจ้าง",
     icon: FolderKanban,
+    permissions: ["tender_projects.viewAny"],
   },
   {
     href: routes.dashboards.vendors.index,
     label: "ผู้ค้าที่ลงทะเบียน",
     icon: Store,
+    permissions: ["vendors.viewAny"],
   },
   {
     href: routes.dashboards.reports.index,
@@ -71,11 +73,13 @@ const navItems: NavItem[] = [
     href: routes.dashboards.user.index,
     label: "จัดการผู้ใช้",
     icon: UserRound,
+    permissions: ["users.viewAny"],
   },
   {
     href: routes.dashboards.internal_employees.index(),
     label: "พนักงานภายใน",
     icon: IdCardLanyard,
+    role: "admin",
   },
   {
     href: routes.dashboards.setting.index,

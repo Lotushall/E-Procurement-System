@@ -20,6 +20,8 @@ import { VendorDocumentApprovalRow } from "./_components/vendor-document-approva
 import { VendorProfileInfo } from "./_components/vendor-profile-info";
 import { useVendorDetailPage } from "./_hooks/use-vendor-detail-page";
 import { REQUIRED_DOCUMENTS } from "@/app/(public)/profiles/data/document-types";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { cn, formatPhone, getInitials } from "@/lib/utils";
 
@@ -46,6 +48,11 @@ function VendorDetailContent() {
   const isVendorActionPending =
     approveVendor.isPending || rejectVendor.isPending || pendingVendor.isPending;
 
+  // ตรงกับ VendorProfilePolicy: review = อนุมัติ/ปฏิเสธ/รอตรวจสอบ (ผู้ค้าและเอกสาร), delete = ลบผู้ค้า
+  const { hasPermission } = useAuthPermissions();
+  const canReview = hasPermission("vendors.review");
+  const canDelete = hasPermission("vendors.delete");
+
   if (isValidId && isPending) {
     return (
       <div className="flex justify-center py-12">
@@ -70,23 +77,25 @@ function VendorDetailContent() {
 
         {/* จอเล็กกว่า sm: การ์ดโปรไฟล์จัดกลาง — ปุ่มลบอยู่ในเมนู ⋮, เหตุผลที่ปฏิเสธอยู่แถบล่างของการ์ด */}
         <article className="relative overflow-hidden rounded-2xl border bg-white sm:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="ghost" aria-label="ตัวเลือกเพิ่มเติม" className="absolute top-1.5 right-1 size-11" />}
-            >
-              <MoreVertical className="size-4.5 text-gray-500" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem
-                variant="destructive"
-                disabled={isVendorActionPending}
-                onClick={() => setDeleteOpen(true)}
+          {canDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<Button variant="ghost" aria-label="ตัวเลือกเพิ่มเติม" className="absolute top-1.5 right-1 size-11" />}
               >
-                <Trash2 />
-                ลบผู้ค้า
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <MoreVertical className="size-4.5 text-gray-500" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem
+                  variant="destructive"
+                  disabled={isVendorActionPending}
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 />
+                  ลบผู้ค้า
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           <div className="flex flex-col items-center gap-2.5 px-5 pt-6 pb-4.5 text-center">
             <div className="flex size-16 items-center justify-center rounded-xl bg-red-700 text-xl font-bold text-white">
@@ -147,12 +156,13 @@ function VendorDetailContent() {
         </div>
 
         {/* Action Buttons — จอเล็กกว่า sm เป็นแถบติดล่างจอ (data-bottom-bar: layout เว้นที่ให้) */}
+        {(canReview || canDelete) && (
         <div
           data-bottom-bar=""
           className="grid grid-cols-2 gap-2 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-30 max-sm:border-t max-sm:bg-white max-sm:px-4 max-sm:pt-3 max-sm:pb-[calc(1rem+env(safe-area-inset-bottom))] sm:flex sm:items-center"
         >
 
-          {vendor.verificationStatus !== "pending" && (
+          {canReview && vendor.verificationStatus !== "pending" && (
             <Button
               type="button"
               variant="outline"
@@ -164,13 +174,13 @@ function VendorDetailContent() {
             </Button>
           )}
 
-          {vendor.verificationStatus !== "approved" && (
+          {canReview && vendor.verificationStatus !== "approved" && (
             <Button type="button" onClick={handleApprove} disabled={isVendorActionPending} className="max-sm:h-10">
               {approveVendor.isPending ? "กำลังดำเนินการ..." : "อนุมัติผู้ค้า"}
             </Button>
           )}
 
-          {vendor.verificationStatus !== "rejected" && (
+          {canReview && vendor.verificationStatus !== "rejected" && (
             <RejectReasonDialog
               trigger={
                 <Button type="button" variant="destructive" disabled={isVendorActionPending} className="max-sm:h-10" />
@@ -183,24 +193,29 @@ function VendorDetailContent() {
             />
           )}
 
-          <Button
-            type="button"
-            variant="destructive"
-            className="hidden sm:inline-flex"
-            disabled={isVendorActionPending}
-            onClick={() => setDeleteOpen(true)}
-          >
-            ลบผู้ค้า
-          </Button>
+          {canDelete && (
+            <>
+              <Button
+                type="button"
+                variant="destructive"
+                className="hidden sm:inline-flex"
+                disabled={isVendorActionPending}
+                onClick={() => setDeleteOpen(true)}
+              >
+                ลบผู้ค้า
+              </Button>
 
-          <DeleteVendorDialog
-            vendorId={vendorId}
-            displayName={displayName ?? ""}
-            open={deleteOpen}
-            onOpenChange={setDeleteOpen}
-            onSuccess={() => router.push(routes.dashboards.vendors.index)}
-          />
+              <DeleteVendorDialog
+                vendorId={vendorId}
+                displayName={displayName ?? ""}
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                onSuccess={() => router.push(routes.dashboards.vendors.index)}
+              />
+            </>
+          )}
         </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
@@ -265,6 +280,7 @@ function VendorDetailContent() {
               label={docType.label}
               required={docType.required}
               document={vendor.document?.find((doc) => doc.documentType === docType.key)}
+              canReview={canReview}
             />
           ))}
         </div>
@@ -276,7 +292,9 @@ function VendorDetailContent() {
 export default function VendorDetailPage() {
   return (
     <Suspense fallback={null}>
-      <VendorDetailContent />
+      <RequirePermission permission="vendors.viewAny">
+        <VendorDetailContent />
+      </RequirePermission>
     </Suspense>
   );
 }

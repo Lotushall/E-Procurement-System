@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 import VendorListPage from "@/app/dashboard/vendors/page";
+import type { CurrentUser } from "@/lib/auth/types";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
 import type { VendorProfile } from "@/lib/vendor/profile/types";
 import { makeVendorListItem } from "@/tests/fixtures/vendor-approval";
@@ -52,10 +53,16 @@ function serveList(vendors: VendorProfile[], meta: Meta = {}) {
 const COMPANY = makeCompanyVendorProfile({ id: 1, detail: { companyName: "บริษัท เอ จำกัด" } });
 const SHOP = makeIndividualVendorProfile({ id: 2, detail: { storeName: "ร้านบี" } });
 
-async function renderPage(url = "/dashboard/vendors") {
+// หน้านี้ครอบด้วย RequirePermission(vendors.viewAny) และตัดคอลัมน์ Actions/เมนูลบเมื่อไม่มี vendors.delete
+// ค่าเริ่มต้นเห็นครบ — เคสที่ทดสอบการปฏิเสธส่ง permissions ที่จำกัดเอง
+const FULL_ACCESS = ["vendors.viewAny", "vendors.delete"];
+
+async function renderPage(url = "/dashboard/vendors", auth: Partial<CurrentUser> = { permissions: FULL_ACCESS }) {
   setUrl(url);
-  signInAs();
+  signInAs(auth);
   const rendered = renderWithQueryClient(<VendorListPage />);
+  // รอให้ gate ผ่าน (โหลด /auth/user เสร็จ) ก่อนเช็คเนื้อหาหน้า
+  await screen.findByRole("heading", { name: HEADING });
   return { ...rendered, user: userEvent.setup() };
 }
 
@@ -389,5 +396,52 @@ describe("VendorListPage — mixed content", () => {
 
     const table = await loadedTable();
     expect(within(table).getByText("ถูกปฏิเสธ")).toBeInTheDocument();
+  });
+});
+
+describe("VendorListPage — permissions", () => {
+  it("shows Forbidden and sends no list request without vendors.viewAny", async () => {
+    const queries = serveList([COMPANY]);
+    setUrl("/dashboard/vendors");
+    signInAs({ permissions: ["vendors.delete"] });
+    renderWithQueryClient(<VendorListPage />);
+
+    expect(await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: HEADING })).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(PLACEHOLDER)).not.toBeInTheDocument();
+    expect(queries).toHaveLength(0);
+  });
+
+  it("shows the delete button in the table and the delete item in the card menu with vendors.delete", async () => {
+    serveList([COMPANY]);
+    const { user } = await renderPage();
+
+    const table = await loadedTable();
+    expect(within(table).getByRole("columnheader", { name: "Actions" })).toBeInTheDocument();
+    expect(within(table).getByRole("button", { name: "ลบผู้ค้า" })).toBeInTheDocument();
+    await user.click(within(screen.getByRole("article")).getByRole("button", { name: /^ตัวเลือกของ/ }));
+    expect(await screen.findByRole("menuitem", { name: "ลบ" })).toBeInTheDocument();
+  });
+
+  it("hides the Actions column and the delete buttons in the table without vendors.delete", async () => {
+    serveList([COMPANY, SHOP], { total: 2 });
+    await renderPage("/dashboard/vendors", { permissions: ["vendors.viewAny"] });
+
+    const table = await loadedTable();
+    expect(within(table).queryByRole("columnheader", { name: "Actions" })).not.toBeInTheDocument();
+    expect(within(table).queryByRole("button", { name: "ลบผู้ค้า" })).not.toBeInTheDocument();
+    expect(within(table).getAllByRole("row")).toHaveLength(3);
+    expect(within(table).getByRole("link", { name: /บริษัท เอ จำกัด/ })).toBeInTheDocument();
+  });
+
+  it("offers no delete item in the card menu without vendors.delete", async () => {
+    serveList([COMPANY]);
+    const { user } = await renderPage("/dashboard/vendors", { permissions: ["vendors.viewAny"] });
+    await loadedTable();
+
+    await user.click(within(screen.getByRole("article")).getByRole("button", { name: /^ตัวเลือกของ/ }));
+
+    expect(await screen.findByRole("menuitem", { name: "ดูรายละเอียด" })).toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "ลบ" })).not.toBeInTheDocument();
   });
 });

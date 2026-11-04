@@ -1,6 +1,8 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import type { VendorListFilter } from "@/lib/vendor/approval/types";
 import { useVendorListPage } from "./_hooks/use-vendor-list-page";
@@ -20,6 +22,14 @@ const EMPTY_MESSAGE: Record<VendorListFilter, string> = {
 
 function VendorListPageContent() {
   useBreadcrumb([{ label: "ผู้ค้าที่ลงทะเบียน" }]);
+
+  // คอลัมน์ Actions มีแค่ปุ่มลบ — ไม่มี vendors.delete ก็ตัดทั้งคอลัมน์
+  const { hasPermission } = useAuthPermissions();
+  const canDelete = hasPermission("vendors.delete");
+  const visibleColumns = useMemo(
+    () => (canDelete ? columns : columns.filter((column) => column.id !== "actions")),
+    [canDelete],
+  );
 
   const {
     filter,
@@ -75,7 +85,7 @@ function VendorListPageContent() {
             <VendorTableSkeleton />
           ) : visible.length > 0 ? (
             <DataTable
-              columns={columns}
+              columns={visibleColumns}
               data={visible}
               pageCount={pageCount}
               total={total}
@@ -83,7 +93,7 @@ function VendorListPageContent() {
               onPaginationChange={setPagination}
               sorting={sorting}
               onSortingChange={setSorting}
-              renderMobileCard={(row) => <VendorCard vendor={row} />}
+              renderMobileCard={(row) => <VendorCard vendor={row} canDelete={canDelete} />}
               mobileCardGridClassName={CARD_GRID_CLASS}
             />
           ) : (
@@ -100,7 +110,9 @@ function VendorListPageContent() {
 export default function VendorListPage() {
   return (
     <Suspense fallback={<VendorListSkeleton />}>
-      <VendorListPageContent />
+      <RequirePermission permission="vendors.viewAny">
+        <VendorListPageContent />
+      </RequirePermission>
     </Suspense>
   );
 }

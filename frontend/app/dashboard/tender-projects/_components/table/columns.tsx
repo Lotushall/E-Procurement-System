@@ -24,7 +24,11 @@ function ColumnHeader({ label, align }: { label: string; align?: "left" | "cente
     return <p className={`${HEADER_TEXT_CLASS} ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}>{label}</p>;
 }
 
-export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProjects>[] {
+export function createColumns(
+    canUpdateStatus: boolean,
+    canUpdate: boolean,
+    canDelete: boolean,
+): ColumnDef<TenderProjects>[] {
     return [
         {
             id: "project_code",
@@ -140,31 +144,35 @@ export function createColumns(canUpdateStatus: boolean): ColumnDef<TenderProject
             enableHiding: false,
             cell: ({ row }) => (
                 <div className="flex justify-center gap-1.5">
-                    <EditTenderProjectDialog
-                        key={row.original.id}
-                        project={row.original}
-                        trigger={
-                            <Button
-                                variant="outline"
-                                aria-label="แก้ไขโครงการ"
-                                className="size-8 px-1.5 pt-px rounded-md bg-white"
-                            />
-                        }
-                        triggerChildren={<Pencil className="w-4 h-4 text-gray-500" />}
-                    />
+                    {canUpdate && (
+                        <EditTenderProjectDialog
+                            key={row.original.id}
+                            project={row.original}
+                            trigger={
+                                <Button
+                                    variant="outline"
+                                    aria-label="แก้ไขโครงการ"
+                                    className="size-8 px-1.5 pt-px rounded-md bg-white"
+                                />
+                            }
+                            triggerChildren={<Pencil className="w-4 h-4 text-gray-500" />}
+                        />
+                    )}
 
-                    <DeleteTenderProjectDialog
-                        tenderProjectId={row.original.id}
-                        displayName={row.original.name}
-                        trigger={
-                            <Button
-                                variant="outline"
-                                aria-label="ลบโครงการ"
-                                className="size-8 px-1.5 pt-px rounded-md bg-white"
-                            />
-                        }
-                        triggerChildren={<Trash2 className="w-4 h-4 text-red-600" />}
-                    />
+                    {canDelete && (
+                        <DeleteTenderProjectDialog
+                            tenderProjectId={row.original.id}
+                            displayName={row.original.name}
+                            trigger={
+                                <Button
+                                    variant="outline"
+                                    aria-label="ลบโครงการ"
+                                    className="size-8 px-1.5 pt-px rounded-md bg-white"
+                                />
+                            }
+                            triggerChildren={<Trash2 className="w-4 h-4 text-red-600" />}
+                        />
+                    )}
                 </div>
             ),
         },

@@ -102,7 +102,7 @@ describe("TenderProjectDetailPage — ?id= handling", () => {
 });
 
 describe("TenderProjectDetailPage — permission gate", () => {
-  it.skip("BUG: app/dashboard/tender-projects/detail/page.tsx:22 page has no tender_projects.viewAny gate (no RequirePermission) — the backend 403s the detail request (backend/routes/api/v1/dashboard/tender-projects.php:18), so the user sees 'not found'; it should show the no-access message and send no detail request", async () => {
+  it("shows Forbidden and sends no detail request without tender_projects.viewAny", async () => {
     const requested = serveProject();
 
     const { queryClient } = await renderPage(undefined, { id: 1000, permissions: ["tors.viewAny"] });

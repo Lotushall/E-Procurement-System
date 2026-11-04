@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TenderProjectBudgetAllocation } from "@/components/tender-project-budget-allocation";
 import { TenderProjectStatusBadge } from "@/components/tender-project-status-badge";
 import { TenderProjectStatusSelect } from "@/components/tender-project-status-select";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { TOR_VIEW_PERMISSIONS } from "@/lib/tender/tor/types";
 import { Separator } from "@/components/ui/separator";
@@ -112,7 +113,9 @@ function TenderProjectDetailContent() {
 export default function TenderProjectDetailPage() {
     return (
         <Suspense fallback={null}>
-            <TenderProjectDetailContent />
+            <RequirePermission permission="tender_projects.viewAny">
+                <TenderProjectDetailContent />
+            </RequirePermission>
         </Suspense>
     );
 }

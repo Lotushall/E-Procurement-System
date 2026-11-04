@@ -27,9 +27,13 @@ import { EditTenderProjectDialog } from "../dialogs/edit-tender-project-dialog";
 export function TenderProjectCard({
     project,
     canUpdateStatus,
+    canUpdate,
+    canDelete,
 }: {
     project: TenderProjects;
     canUpdateStatus: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
 }) {
     const [editOpen, setEditOpen] = useState(false);
     // เปลี่ยน key ทุกครั้งที่เปิดแก้ไข ให้ฟอร์ม seed ค่าจาก project ล่าสุด
@@ -57,28 +61,34 @@ export function TenderProjectCard({
                     <TenderProjectStatusBadge status={project.status} />
                 )}
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger
-                        render={<Button variant="ghost" aria-label="ตัวเลือกของโครงการ" className="size-11 shrink-0" />}
-                    >
-                        <MoreHorizontal className="size-5 text-gray-500" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuItem
-                            onClick={() => {
-                                setEditSession((session) => session + 1);
-                                setEditOpen(true);
-                            }}
+                {(canUpdate || canDelete) && (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger
+                            render={<Button variant="ghost" aria-label="ตัวเลือกของโครงการ" className="size-11 shrink-0" />}
                         >
-                            <Pencil />
-                            แก้ไข
-                        </DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
-                            <Trash2 />
-                            ลบ
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            <MoreHorizontal className="size-5 text-gray-500" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                            {canUpdate && (
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        setEditSession((session) => session + 1);
+                                        setEditOpen(true);
+                                    }}
+                                >
+                                    <Pencil />
+                                    แก้ไข
+                                </DropdownMenuItem>
+                            )}
+                            {canDelete && (
+                                <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
+                                    <Trash2 />
+                                    ลบ
+                                </DropdownMenuItem>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
             </div>
 
             <Link href={detailHref} className="group flex flex-col gap-1">
@@ -121,13 +131,17 @@ export function TenderProjectCard({
                 />
             </div>
 
-            <EditTenderProjectDialog key={editSession} project={project} open={editOpen} onOpenChange={setEditOpen} />
-            <DeleteTenderProjectDialog
-                tenderProjectId={project.id}
-                displayName={project.name}
-                open={deleteOpen}
-                onOpenChange={setDeleteOpen}
-            />
+            {canUpdate && (
+                <EditTenderProjectDialog key={editSession} project={project} open={editOpen} onOpenChange={setEditOpen} />
+            )}
+            {canDelete && (
+                <DeleteTenderProjectDialog
+                    tenderProjectId={project.id}
+                    displayName={project.name}
+                    open={deleteOpen}
+                    onOpenChange={setDeleteOpen}
+                />
+            )}
         </article>
     );
 }

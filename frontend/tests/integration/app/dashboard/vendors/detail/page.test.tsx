@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { toast } from "sonner";
 import { describe, expect, it, vi } from "vitest";
 import VendorDetailPage from "@/app/dashboard/vendors/detail/page";
+import type { CurrentUser } from "@/lib/auth/types";
 import { useBreadcrumbStore } from "@/lib/breadcrumb/store";
 import type { VendorDetail, VendorVerificationStatus } from "@/lib/vendor/approval/types";
 import { makeVendorDetail } from "@/tests/fixtures/vendor-approval";
@@ -12,6 +13,7 @@ import {
   makeVendorContact,
   makeVendorDocument,
 } from "@/tests/fixtures/vendor-profile";
+import { signInAs } from "@/tests/helpers/auth";
 import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { router, setUrl } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
@@ -62,9 +64,18 @@ function serveVendor(initial: VendorDetail | null) {
   return { state, actions };
 }
 
-async function renderPage(url = "/dashboard/vendors/detail?id=7") {
+// สิทธิ์ครบ: ดู + อนุมัติ/ปฏิเสธ (review) + ลบ (delete) — เคสที่ทดสอบการปฏิเสธส่ง permissions ที่จำกัดเอง
+const FULL_ACCESS = ["vendors.viewAny", "vendors.review", "vendors.delete"];
+
+async function renderPage(
+  url = "/dashboard/vendors/detail?id=7",
+  auth: Partial<CurrentUser> = { permissions: FULL_ACCESS },
+) {
   setUrl(url);
+  signInAs(auth);
   const rendered = renderWithQueryClient(<VendorDetailPage />);
+  // หน้านี้ครอบด้วย RequirePermission — รอให้ /auth/user โหลดเสร็จและ gate ตัดสินก่อนเช็คเนื้อหา
+  await waitFor(() => expect(rendered.queryClient.getQueryData(["auth", "user"])).toBeTruthy());
   return { ...rendered, user: userEvent.setup() };
 }
 
@@ -607,6 +618,74 @@ describe("VendorDetailPage — delete", () => {
     await user.click(within(dialog).getByRole("button", { name: "ลบผู้ค้า" }));
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith("ลบผู้ค้าไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"));
+  });
+});
+
+describe("VendorDetailPage — permissions", () => {
+  const DOCUMENT = makeVendorDocument({ id: 55, documentType: "company_certificate", status: "pending" });
+  const VENDOR_BUTTONS = ["อนุมัติผู้ค้า", "ปฏิเสธผู้ค้า", "รอตรวจสอบ", "ลบผู้ค้า"];
+  const DOCUMENT_BUTTONS = ["อนุมัติ", "ปฏิเสธ"];
+
+  it("shows Forbidden and sends no detail request without vendors.viewAny", async () => {
+    const { state } = serveVendor(companyVendor());
+    await renderPage("/dashboard/vendors/detail?id=7", { permissions: ["vendors.review", "vendors.delete"] });
+
+    expect(await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้")).toBeInTheDocument();
+    expect(screen.queryByText(COMPANY_NAME)).not.toBeInTheDocument();
+    expect(bottomBar()).toBeNull();
+    expect(state.detailRequests).toEqual([]);
+  });
+
+  it.each(["pending", "approved", "rejected"] as const)(
+    "with only vendors.viewAny a %s vendor has no actions, no bottom bar, no options menu and no document actions",
+    async (status) => {
+      serveVendor(companyVendor({ verificationStatus: status, document: [DOCUMENT] }));
+      await renderPage("/dashboard/vendors/detail?id=7", { permissions: ["vendors.viewAny"] });
+      await heading();
+
+      expect(bottomBar()).toBeNull();
+      for (const name of [...VENDOR_BUTTONS, ...DOCUMENT_BUTTONS]) {
+        expect(screen.queryByRole("button", { name })).not.toBeInTheDocument();
+      }
+      expect(screen.queryByRole("button", { name: "ตัวเลือกเพิ่มเติม" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+      // ยังดูเอกสารได้
+      expect(screen.getByRole("link", { name: "ดูไฟล์ หนังสือรับรองบริษัท" })).toBeInTheDocument();
+    },
+  );
+
+  it("with vendors.review but not vendors.delete shows the status buttons and document actions but no delete", async () => {
+    serveVendor(companyVendor({ verificationStatus: "pending", document: [DOCUMENT] }));
+    await renderPage("/dashboard/vendors/detail?id=7", { permissions: ["vendors.viewAny", "vendors.review"] });
+    await heading();
+
+    const bar = within(bottomBar());
+    expect(bar.getByRole("button", { name: "อนุมัติผู้ค้า" })).toBeInTheDocument();
+    expect(bar.getByRole("button", { name: "ปฏิเสธผู้ค้า" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "ลบผู้ค้า" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "ตัวเลือกเพิ่มเติม" })).not.toBeInTheDocument();
+    for (const name of DOCUMENT_BUTTONS) expect(screen.getByRole("button", { name })).toBeInTheDocument();
+  });
+
+  it("with vendors.review but not vendors.delete offers back-to-pending for an approved vendor", async () => {
+    serveVendor(companyVendor({ verificationStatus: "approved" }));
+    await renderPage("/dashboard/vendors/detail?id=7", { permissions: ["vendors.viewAny", "vendors.review"] });
+    await heading();
+
+    expect(within(bottomBar()).getByRole("button", { name: "รอตรวจสอบ" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "ลบผู้ค้า" })).not.toBeInTheDocument();
+  });
+
+  it("with vendors.delete but not vendors.review shows delete and the options menu but no status buttons or document actions", async () => {
+    serveVendor(companyVendor({ verificationStatus: "pending", document: [DOCUMENT] }));
+    await renderPage("/dashboard/vendors/detail?id=7", { permissions: ["vendors.viewAny", "vendors.delete"] });
+    await heading();
+
+    expect(within(bottomBar()).getByRole("button", { name: "ลบผู้ค้า" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ตัวเลือกเพิ่มเติม" })).toBeInTheDocument();
+    for (const name of ["อนุมัติผู้ค้า", "ปฏิเสธผู้ค้า", "รอตรวจสอบ", ...DOCUMENT_BUTTONS]) {
+      expect(screen.queryByRole("button", { name })).not.toBeInTheDocument();
+    }
   });
 });
 

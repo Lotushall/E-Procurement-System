@@ -13,9 +13,20 @@ import { apiUrl, server } from "@/tests/msw/server";
 
 freezeTimeAt("2026-11-02T10:00:00+07:00");
 
-function setup(project: Partial<TenderProjects> = {}, canUpdateStatus = false) {
+function setup(
+  project: Partial<TenderProjects> = {},
+  canUpdateStatus = false,
+  { canUpdate = true, canDelete = true } = {},
+) {
   server.use(http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [makeDepartment()] })));
-  renderWithQueryClient(<TenderProjectCard project={makeTenderProject(project)} canUpdateStatus={canUpdateStatus} />);
+  renderWithQueryClient(
+    <TenderProjectCard
+      project={makeTenderProject(project)}
+      canUpdateStatus={canUpdateStatus}
+      canUpdate={canUpdate}
+      canDelete={canDelete}
+    />,
+  );
   return { user: userEvent.setup(), card: screen.getByRole("article") };
 }
 
@@ -177,5 +188,29 @@ describe("TenderProjectCard — menu", () => {
 
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith("ลบโครงการสำเร็จ"));
     expect(deleted).toEqual(["5"]);
+  });
+
+  it("hides the menu when the user can neither update nor delete", () => {
+    const { card } = setup({}, false, { canUpdate: false, canDelete: false });
+
+    expect(within(card).queryByRole("button", { name: "ตัวเลือกของโครงการ" })).not.toBeInTheDocument();
+  });
+
+  it("offers only edit when the user cannot delete", async () => {
+    const { user, card } = setup({}, false, { canDelete: false });
+
+    await user.click(within(card).getByRole("button", { name: "ตัวเลือกของโครงการ" }));
+
+    expect(await screen.findByRole("menuitem", { name: "แก้ไข" })).toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "ลบ" })).not.toBeInTheDocument();
+  });
+
+  it("offers only delete when the user cannot update", async () => {
+    const { user, card } = setup({}, false, { canUpdate: false });
+
+    await user.click(within(card).getByRole("button", { name: "ตัวเลือกของโครงการ" }));
+
+    expect(await screen.findByRole("menuitem", { name: "ลบ" })).toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "แก้ไข" })).not.toBeInTheDocument();
   });
 });

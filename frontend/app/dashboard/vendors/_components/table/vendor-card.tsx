@@ -32,7 +32,7 @@ const AVATAR_CLASS: Record<"company" | "individual", string> = {
 }
 
 // การ์ดที่ใช้แทนแถวตารางบนจอเล็กกว่า xl (ส่งเข้า DataTable ผ่าน renderMobileCard)
-export function VendorCard({ vendor }: { vendor: VendorProfile }) {
+export function VendorCard({ vendor, canDelete }: { vendor: VendorProfile; canDelete: boolean }) {
     const router = useRouter()
     const [deleteOpen, setDeleteOpen] = useState(false)
     const type = vendor.detail.type
@@ -68,10 +68,12 @@ export function VendorCard({ vendor }: { vendor: VendorProfile }) {
                             <Eye />
                             ดูรายละเอียด
                         </DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
-                            <Trash2 />
-                            ลบ
-                        </DropdownMenuItem>
+                        {canDelete && (
+                            <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
+                                <Trash2 />
+                                ลบ
+                            </DropdownMenuItem>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
@@ -113,12 +115,14 @@ export function VendorCard({ vendor }: { vendor: VendorProfile }) {
                 </dd>
             </dl>
 
-            <DeleteVendorDialog
-                vendorId={vendor.id}
-                displayName={displayName}
-                open={deleteOpen}
-                onOpenChange={setDeleteOpen}
-            />
+            {canDelete && (
+                <DeleteVendorDialog
+                    vendorId={vendor.id}
+                    displayName={displayName}
+                    open={deleteOpen}
+                    onOpenChange={setDeleteOpen}
+                />
+            )}
         </article>
     )
 }

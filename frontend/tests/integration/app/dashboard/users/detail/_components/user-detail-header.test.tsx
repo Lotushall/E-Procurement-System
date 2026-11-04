@@ -15,7 +15,7 @@ const INTERNAL = makeUserDetail({ id: 7, username: "somchai", name: "สมช�
 
 async function renderHeader(
   user: UserDetail = INTERNAL,
-  auth: Parameters<typeof signInAs>[0] = { id: 1000, permissions: [] },
+  auth: Parameters<typeof signInAs>[0] = { id: 1000, permissions: ["users.update"] },
 ) {
   signInAs(auth);
   const rendered = renderWithQueryClient(<UserDetailHeader user={user} status={user.status} />);
@@ -90,6 +90,20 @@ describe("UserDetailHeader — profile link by user type", () => {
       "/dashboard/vendors/detail?id=3",
     );
     expect(screen.queryByRole("button", { name: "ดูข้อมูลพนักงานภายใน" })).not.toBeInTheDocument();
+  });
+});
+
+describe("UserDetailHeader — edit action by permission", () => {
+  it("shows the edit button with users.update", async () => {
+    await renderHeader(INTERNAL, { id: 1000, permissions: ["users.update"] });
+
+    expect(screen.getByRole("button", { name: "แก้ไข" })).toBeInTheDocument();
+  });
+
+  it("hides the edit button without users.update", async () => {
+    await renderHeader(INTERNAL, { id: 1000, permissions: ["users.delete"] });
+
+    expect(screen.queryByRole("button", { name: "แก้ไข" })).not.toBeInTheDocument();
   });
 });
 

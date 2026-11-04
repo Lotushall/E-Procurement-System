@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { FloatingActionButton } from "@/components/floating-action-button";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useTenderProjectListPage } from "./_hooks/use-tender-project-list-page";
 import { TenderProjectStatsCards } from "./_components/tender-project-stats-cards";
@@ -22,11 +23,14 @@ function TenderProjectsPageContent() {
     useBreadcrumb([{ label: "จัดการโครงการจัดซื้อจัดจ้าง" }]);
 
     const { hasPermission } = useAuthPermissions();
+    const canCreate = hasPermission("tender_projects.create");
     const canUpdateStatus = hasPermission("tender_projects.updateStatus");
+    const canUpdate = hasPermission("tender_projects.update");
+    const canDelete = hasPermission("tender_projects.delete");
 
     const columns = useMemo(
-        () => createColumns(canUpdateStatus),
-        [canUpdateStatus],
+        () => createColumns(canUpdateStatus, canUpdate, canDelete),
+        [canUpdateStatus, canUpdate, canDelete],
     );
 
     const { data: departmentOptions } = useDepartmentOptions();
@@ -74,10 +78,14 @@ function TenderProjectsPageContent() {
                 </p>
             </div>
 
-            <FloatingActionButton
-                actions={[{ label: "สร้างโครงการใหม่", icon: Plus, onSelect: () => setCreateOpen(true) }]}
-            />
-            <CreateTenderProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
+            {canCreate && (
+                <>
+                    <FloatingActionButton
+                        actions={[{ label: "สร้างโครงการใหม่", icon: Plus, onSelect: () => setCreateOpen(true) }]}
+                    />
+                    <CreateTenderProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
+                </>
+            )}
 
             <TenderProjectStatsCards stats={stats} isPending={isPending} />
 
@@ -119,7 +127,12 @@ function TenderProjectsPageContent() {
                     sorting={sorting}
                     onSortingChange={setSorting}
                     renderMobileCard={(project) => (
-                        <TenderProjectCard project={project} canUpdateStatus={canUpdateStatus} />
+                        <TenderProjectCard
+                            project={project}
+                            canUpdateStatus={canUpdateStatus}
+                            canUpdate={canUpdate}
+                            canDelete={canDelete}
+                        />
                     )}
                     mobileCardGridClassName="sm:grid-cols-1 lg:grid-cols-2"
                 />
@@ -140,7 +153,9 @@ function TenderProjectsPageContent() {
 export default function TenderProjectsPage() {
     return (
         <Suspense fallback={<TenderProjectListSkeleton />}>
-            <TenderProjectsPageContent />
+            <RequirePermission permission="tender_projects.viewAny">
+                <TenderProjectsPageContent />
+            </RequirePermission>
         </Suspense>
     )
 }

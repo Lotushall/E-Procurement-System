@@ -5,6 +5,7 @@ import { ShieldCheck, UserPlus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { FloatingActionButton, type FloatingAction } from "@/components/floating-action-button";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useAuthPermissions } from "@/lib/auth/permissions";
 import { routes } from "@/lib/routes";
 import { useUserListPage } from "./_hooks/use-user-list-page";
@@ -130,7 +131,9 @@ function UsersPageContent() {
 export default function UsersPage() {
   return (
     <Suspense fallback={<UserListSkeleton />}>
-      <UsersPageContent />
+      <RequirePermission permission="users.viewAny">
+        <UsersPageContent />
+      </RequirePermission>
     </Suspense>
   );
 }

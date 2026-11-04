@@ -26,11 +26,14 @@ export function VendorDocumentApprovalRow({
   document,
   label,
   required,
+  canReview,
 }: {
   vendorId: number;
   document?: VendorDocument;
   label: string;
   required: boolean;
+  // vendors.review — ไม่มีสิทธิ์ก็ดูเอกสารได้อย่างเดียว
+  canReview: boolean;
 }) {
   const approveDoc = useApproveVendorDocument(vendorId);
   const rejectDoc = useRejectVendorDocument(vendorId);
@@ -119,7 +122,7 @@ export function VendorDocumentApprovalRow({
         </div>
       </div>
 
-      {document && (
+      {document && canReview && (
         // จอเล็กกว่า sm: ปุ่ม (มีครั้งละ 2 ปุ่มเสมอ) แบ่งครึ่งเต็มแถว
         <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0 sm:items-center sm:justify-end">
           {document.status !== "pending" && (

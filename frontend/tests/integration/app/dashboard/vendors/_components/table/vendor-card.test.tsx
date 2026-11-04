@@ -14,8 +14,8 @@ import { renderWithQueryClient } from "@/tests/helpers/query-client";
 import { router } from "@/tests/mocks/next-navigation";
 import { apiUrl, server } from "@/tests/msw/server";
 
-function renderCard(vendor: VendorProfile) {
-  renderWithQueryClient(<VendorCard vendor={vendor} />);
+function renderCard(vendor: VendorProfile, { canDelete = true } = {}) {
+  renderWithQueryClient(<VendorCard vendor={vendor} canDelete={canDelete} />);
   return userEvent.setup();
 }
 
@@ -115,6 +115,16 @@ describe("VendorCard — options menu", () => {
 
     const items = await screen.findAllByRole("menuitem");
     expect(items.map((i) => i.textContent)).toEqual(["ดูรายละเอียด", "ลบ"]);
+  });
+
+  it("offers only view details without vendors.delete", async () => {
+    const user = renderCard(vendor, { canDelete: false });
+
+    await user.click(screen.getByRole("button", { name: "ตัวเลือกของ บริษัท ตัวอย่าง จำกัด" }));
+
+    const items = await screen.findAllByRole("menuitem");
+    expect(items.map((i) => i.textContent)).toEqual(["ดูรายละเอียด"]);
+    expect(screen.queryByRole("menuitem", { name: "ลบ" })).not.toBeInTheDocument();
   });
 
   it("navigates to the detail page from ดูรายละเอียด", async () => {

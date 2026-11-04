@@ -65,7 +65,10 @@ function serveTabs() {
   );
 }
 
-async function renderPage(detail: UserDetail = INTERNAL, permissions: string[] = ["users.viewAny"]) {
+// ค่าเริ่มต้นเห็นครบ: ดูรายการ + แก้ไข (แท็บ Sessions และปุ่มแก้ไขต้องมี users.update) — เคสที่เช็คการปฏิเสธส่ง permissions ที่จำกัดเอง
+const FULL_ACCESS = ["users.viewAny", "users.update"];
+
+async function renderPage(detail: UserDetail = INTERNAL, permissions: string[] = FULL_ACCESS) {
   signInAs({ id: 1000, permissions });
   serveTabs();
   const ids = serveDetail(detail);
@@ -213,6 +216,33 @@ describe("UserDetailPage — header and tabs", () => {
   });
 });
 
+describe("UserDetailPage — sessions and edit by users.update", () => {
+  it("shows the Sessions tab and the Edit button with users.update", async () => {
+    await renderPage(INTERNAL, ["users.viewAny", "users.update"]);
+
+    expect(screen.getByRole("tab", { name: "Sessions" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "แก้ไข" })).toHaveAttribute("href", "/dashboard/users/edit?id=7");
+  });
+
+  it("hides the Sessions tab, the Edit button and the sessions request without users.update", async () => {
+    const sessionRequests: unknown[] = [];
+    const { queryClient } = await renderPage(INTERNAL, ["users.viewAny"]);
+    server.use(
+      http.get(SESSIONS_URL, ({ params }) => {
+        sessionRequests.push(params.id);
+        return HttpResponse.json({ data: [] });
+      }),
+    );
+
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    expect(screen.getByRole("tab", { name: "Overview" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Permissions" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Sessions" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "แก้ไข" })).not.toBeInTheDocument();
+    expect(sessionRequests).toEqual([]);
+  });
+});
+
 describe("UserDetailPage — actions by permission", () => {
   it("shows the delete action with users.delete", async () => {
     await renderPage(INTERNAL, ["users.viewAny", "users.delete"]);
@@ -240,7 +270,7 @@ describe("UserDetailPage — actions by permission", () => {
 });
 
 describe("UserDetailPage — permission gate", () => {
-  it.skip("BUG: app/dashboard/users/detail/page.tsx:80 page has no users.viewAny gate (no RequirePermission) — the backend 403s the detail request, so the user sees 'not found' instead of 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้'; it should show the no-access message and send no detail request", async () => {
+  it("shows Forbidden and sends no detail request without users.viewAny", async () => {
     signInAs({ permissions: [] });
     const ids = serveDetail(INTERNAL);
     setUrl("/dashboard/users/detail?id=7");

@@ -4,6 +4,8 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
+import { useAuthPermissions } from "@/lib/auth/permissions";
 import { useBreadcrumb } from "@/lib/breadcrumb/useBreadcrumb";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
 import { routes } from "@/lib/routes";
@@ -24,6 +26,9 @@ function UserDetailContent() {
   const notFound = !isValidId || (isError && !user) || (!isPending && !user);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
+  // backend: ดู/เพิกถอน session ต้องมี users.update
+  const { hasPermission } = useAuthPermissions();
+  const canManageSessions = hasPermission("users.update");
 
   useBreadcrumb([
     { label: "จัดการผู้ใช้", href: routes.dashboards.user.index },
@@ -60,7 +65,7 @@ function UserDetailContent() {
         >
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
+          {canManageSessions && <TabsTrigger value="sessions">Sessions</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview" className="pt-4">
@@ -69,9 +74,11 @@ function UserDetailContent() {
         <TabsContent value="permissions" className="pt-4">
           <PermissionsTab user={user} />
         </TabsContent>
-        <TabsContent value="sessions" className="pt-4">
-          <SessionsTab userId={user.id} />
-        </TabsContent>
+        {canManageSessions && (
+          <TabsContent value="sessions" className="pt-4">
+            <SessionsTab userId={user.id} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
@@ -80,7 +87,9 @@ function UserDetailContent() {
 export default function UserDetailPage() {
   return (
     <Suspense fallback={null}>
-      <UserDetailContent />
+      <RequirePermission permission="users.viewAny">
+        <UserDetailContent />
+      </RequirePermission>
     </Suspense>
   );
 }

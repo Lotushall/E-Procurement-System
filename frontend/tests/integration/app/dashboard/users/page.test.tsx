@@ -40,10 +40,14 @@ function serveList(users: UserListItem[], meta: Record<string, unknown> = {}) {
   return queries;
 }
 
+// หน้านี้ครอบด้วย RequirePermission(users.viewAny) — ผู้ใช้ที่เรียกผ่านฟังก์ชันนี้มี viewAny เสมอ (บวกสิทธิ์ที่ส่งมา)
+// เคสที่ทดสอบการปฏิเสธต้อง signInAs เองโดยไม่มี viewAny
 async function renderPage(url = BASE, auth: Partial<CurrentUser> = { id: 1000 }) {
   setUrl(url);
-  signInAs(auth);
+  signInAs({ ...auth, permissions: ["users.viewAny", ...(auth.permissions ?? [])] });
   const rendered = renderWithQueryClient(<UsersPage />);
+  // รอให้ gate ผ่าน (โหลด /auth/user เสร็จ) ก่อนเช็คเนื้อหาหน้า
+  await screen.findByRole("heading", { name: HEADING });
   return { ...rendered, user: userEvent.setup() };
 }
 
@@ -554,13 +558,14 @@ describe("UsersPage — actions by permission", () => {
 });
 
 describe("UsersPage — permissions", () => {
-  it.skip("BUG: app/dashboard/users/page.tsx:130 the list page has no users.viewAny gate (GET /dashboard/users is can:users.viewAny); a user without it sees the page, an unexplained load-error message and the filter bar instead of คุณไม่มีสิทธิ์เข้าถึงหน้านี้ — wrap the page in RequirePermission permission=users.viewAny like create/edit do", async () => {
-    server.use(http.get(LIST_URL, () => HttpResponse.json({ message: "forbidden" }, { status: 403 })));
+  it("shows Forbidden and sends no list request without users.viewAny", async () => {
+    const queries = serveList([SOMCHAI]);
     setUrl(BASE);
     signInAs({ id: 1000, roles: [], permissions: [] });
     renderWithQueryClient(<UsersPage />);
 
     expect(await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้")).toBeInTheDocument();
     expect(screen.queryByPlaceholderText(PLACEHOLDER)).not.toBeInTheDocument();
+    expect(queries).toHaveLength(0);
   });
 });

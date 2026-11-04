@@ -20,6 +20,7 @@ export function UserDetailHeader({
 }) {
   const router = useRouter();
   const { user: currentUser, hasPermission } = useAuthPermissions();
+  const canUpdateUser = hasPermission("users.update");
   const canDeleteUser = hasPermission("users.delete");
 
   return (
@@ -76,15 +77,17 @@ export function UserDetailHeader({
             </Button>
           ) : null}
 
-          <Button
-            variant="outline"
-            render={<Link href={routes.dashboards.user.edit(user.id)} />}
-            nativeButton={false}
-            className="bg-white"
-          >
-            <Pencil />
-            แก้ไข
-          </Button>
+          {canUpdateUser && (
+            <Button
+              variant="outline"
+              render={<Link href={routes.dashboards.user.edit(user.id)} />}
+              nativeButton={false}
+              className="bg-white"
+            >
+              <Pencil />
+              แก้ไข
+            </Button>
+          )}
 
           {canDeleteUser && (
             <DeleteUserDialog

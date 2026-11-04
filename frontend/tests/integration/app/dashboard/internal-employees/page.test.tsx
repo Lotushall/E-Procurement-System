@@ -56,6 +56,8 @@ async function renderPage(url = "/dashboard/internal-employees") {
   signInAs({ roles: ["admin"] });
   serveOptions();
   const rendered = renderWithQueryClient(<InternalProfilesPage />);
+  // รอให้ gate ผ่าน (โหลด /auth/user เสร็จ) ก่อนเช็คเนื้อหาหน้า
+  await screen.findByRole("heading", { name: HEADING });
   return { ...rendered, user: userEvent.setup() };
 }
 
@@ -433,8 +435,8 @@ describe("InternalProfilesPage — add and manage menu", () => {
 });
 
 describe("InternalProfilesPage — permissions", () => {
-  it.skip("BUG: app/dashboard/internal-employees/page.tsx:127 the page and its add/manage menu are shown to every internal user, but every /dashboard/internal-profiles, departments and positions endpoint (except select) is role:admin only — a non-admin should be blocked or at least not offered the add button", async () => {
-    serveList([]);
+  it("shows Forbidden, no add/manage menu and no list request to a non-admin", async () => {
+    const queries = serveList([]);
     setUrl("/dashboard/internal-employees");
     signInAs({ roles: [], permissions: [] });
     serveOptions();
@@ -442,5 +444,6 @@ describe("InternalProfilesPage — permissions", () => {
 
     await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้");
     expect(screen.queryByRole("button", { name: "เพิ่มพนักงาน / จัดการแผนกและตำแหน่ง" })).not.toBeInTheDocument();
+    expect(queries).toHaveLength(0);
   });
 });

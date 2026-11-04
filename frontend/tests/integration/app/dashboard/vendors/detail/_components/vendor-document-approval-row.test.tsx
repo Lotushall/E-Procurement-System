@@ -13,9 +13,15 @@ const LABEL = "หนังสือรับรองบริษัท";
 const FALLBACK = "ดำเนินการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
 const ACTION_URL = apiUrl("/api/v1/vendors/:vendorId/documents/:documentId/:action");
 
-function renderRow(document?: VendorDocument, props: { required?: boolean } = {}) {
+function renderRow(document?: VendorDocument, props: { required?: boolean; canReview?: boolean } = {}) {
   renderWithQueryClient(
-    <VendorDocumentApprovalRow vendorId={5} label={LABEL} required={props.required ?? true} document={document} />,
+    <VendorDocumentApprovalRow
+      vendorId={5}
+      label={LABEL}
+      required={props.required ?? true}
+      document={document}
+      canReview={props.canReview ?? true}
+    />,
   );
   return userEvent.setup();
 }
@@ -115,6 +121,26 @@ describe("VendorDocumentApprovalRow — display", () => {
 
     expect(screen.queryByText(/เหตุผล:/)).not.toBeInTheDocument();
   });
+});
+
+describe("VendorDocumentApprovalRow — without vendors.review", () => {
+  it.each(["pending", "approved", "rejected"] as const)(
+    "shows no action buttons for a %s document but keeps the view link and status",
+    (status) => {
+      renderRow(makeVendorDocument({ id: 42, status }), { canReview: false });
+
+      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: LABEL })).toHaveAttribute(
+        "href",
+        "http://localhost:3000/api/v1/vendor/document/42/view",
+      );
+      expect(screen.getByRole("link", { name: `ดูไฟล์ ${LABEL}` })).toBeInTheDocument();
+      const badges = Array.from(document.querySelectorAll('[data-slot="badge"]'));
+      expect(badges.map((el) => el.textContent)).toEqual([
+        { pending: "รอตรวจสอบ", approved: "อนุมัติแล้ว", rejected: "ถูกปฏิเสธ" }[status],
+      ]);
+    },
+  );
 });
 
 describe("VendorDocumentApprovalRow — available actions per status", () => {

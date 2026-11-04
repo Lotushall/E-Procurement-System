@@ -62,10 +62,14 @@ function serveList(projects: TenderProjects[], meta: Record<string, unknown> = {
 // สิทธิ์ที่หน้านี้ต้องใช้ครบ (ตรงกับ policy ฝั่ง backend) — เคสที่ทดสอบการปฏิเสธส่ง permissions ที่จำกัดเองทุกครั้ง
 const FULL_ACCESS = ["tender_projects.viewAny", "tender_projects.create", "tender_projects.update", "tender_projects.delete"];
 
+// หน้านี้ครอบด้วย RequirePermission(tender_projects.viewAny) — ผู้ใช้ที่เรียกผ่านฟังก์ชันนี้มี viewAny เสมอ (บวกสิทธิ์ที่ส่งมา)
+// เคสที่ทดสอบการปฏิเสธ viewAny ต้อง signInAs เอง
 async function renderPage(url = BASE, auth: Partial<CurrentUser> = { id: 1000, permissions: FULL_ACCESS }) {
   setUrl(url);
-  signInAs(auth);
+  signInAs({ ...auth, permissions: ["tender_projects.viewAny", ...(auth.permissions ?? [])] });
   const rendered = renderWithQueryClient(<TenderProjectsPage />);
+  // รอให้ gate ผ่าน (โหลด /auth/user เสร็จ) ก่อนเช็คเนื้อหาหน้า
+  await screen.findByRole("heading", { name: HEADING });
   return { ...rendered, user: userEvent.setup() };
 }
 
@@ -627,17 +631,17 @@ describe("TenderProjectsPage — permissions", () => {
     expect(await screen.findAllByText("จัดซื้อคอมพิวเตอร์")).toHaveLength(2);
   });
 
-  // เทียบกับ tors/page.tsx ที่ครอบด้วย RequirePermission และ backend (`can:tender-projects.index` → tender_projects.viewAny)
-  it.skip("BUG: app/dashboard/tender-projects/page.tsx:140 page has no RequirePermission(tender_projects.viewAny) gate — it should show Forbidden and send no list request", async () => {
+  it("shows Forbidden and sends no list request without tender_projects.viewAny", async () => {
     const queries = serveList([COMPUTERS]);
-
-    await renderPage(BASE, { id: 1000, permissions: [] });
+    setUrl(BASE);
+    signInAs({ id: 1000, permissions: [] });
+    renderWithQueryClient(<TenderProjectsPage />);
 
     expect(await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้")).toBeInTheDocument();
     expect(queries).toHaveLength(0);
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/page.tsx:77 create button is always shown — it should only appear with tender_projects.create (users/page.tsx gates users.create)", async () => {
+  it("hides the create button without tender_projects.create", async () => {
     serveList([COMPUTERS]);
 
     const { queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny"] });
@@ -646,7 +650,7 @@ describe("TenderProjectsPage — permissions", () => {
     expect(screen.queryByRole("button", { name: "สร้างโครงการใหม่" })).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/_components/table/columns.tsx:138 edit/delete actions are always shown — with only viewAny both should be hidden (users/page.tsx gates users.update / users.delete)", async () => {
+  it("hides the table edit and delete buttons with only tender_projects.viewAny", async () => {
     serveList([COMPUTERS]);
 
     const { queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny"] });
@@ -657,7 +661,7 @@ describe("TenderProjectsPage — permissions", () => {
     expect(within(table).queryByRole("button", { name: "ลบโครงการ" })).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/_components/table/columns.tsx:143 delete button is shown with only tender_projects.update — it should be hidden", async () => {
+  it("shows only the table edit button with tender_projects.update", async () => {
     serveList([COMPUTERS]);
 
     const { queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny", "tender_projects.update"] });
@@ -668,7 +672,7 @@ describe("TenderProjectsPage — permissions", () => {
     expect(within(table).queryByRole("button", { name: "ลบโครงการ" })).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/_components/table/columns.tsx:156 edit button is shown with only tender_projects.delete — it should be hidden", async () => {
+  it("shows only the table delete button with tender_projects.delete", async () => {
     serveList([COMPUTERS]);
 
     const { queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny", "tender_projects.delete"] });
@@ -679,7 +683,7 @@ describe("TenderProjectsPage — permissions", () => {
     expect(within(table).getByRole("button", { name: "ลบโครงการ" })).toBeInTheDocument();
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/_components/table/tender-project-card.tsx:60 the card menu is shown with only viewAny — it should be hidden without update and delete", async () => {
+  it("hides the card menu with only tender_projects.viewAny", async () => {
     serveList([COMPUTERS]);
 
     const { queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny"] });
@@ -688,7 +692,7 @@ describe("TenderProjectsPage — permissions", () => {
     expect(screen.queryByRole("button", { name: "ตัวเลือกของโครงการ" })).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/_components/table/tender-project-card.tsx:76 the card menu offers delete with only tender_projects.update — it should offer edit only", async () => {
+  it("offers only edit in the card menu with tender_projects.update", async () => {
     serveList([COMPUTERS]);
     const { user, queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny", "tender_projects.update"] });
     await settled(queryClient);
@@ -699,7 +703,7 @@ describe("TenderProjectsPage — permissions", () => {
     expect(screen.queryByRole("menuitem", { name: "ลบ" })).not.toBeInTheDocument();
   });
 
-  it.skip("BUG: app/dashboard/tender-projects/_components/table/tender-project-card.tsx:67 the card menu offers edit with only tender_projects.delete — it should offer delete only", async () => {
+  it("offers only delete in the card menu with tender_projects.delete", async () => {
     serveList([COMPUTERS]);
     const { user, queryClient } = await renderPage(BASE, { id: 1000, permissions: ["tender_projects.viewAny", "tender_projects.delete"] });
     await settled(queryClient);

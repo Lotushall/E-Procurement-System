@@ -13,13 +13,19 @@ import { apiUrl, server } from "@/tests/msw/server";
 
 function renderTable(
   data: TenderProjects[],
-  { canUpdateStatus = false, sorting = [] as SortingState, onSortingChange = vi.fn() } = {},
+  {
+    canUpdateStatus = false,
+    canUpdate = true,
+    canDelete = true,
+    sorting = [] as SortingState,
+    onSortingChange = vi.fn(),
+  } = {},
 ) {
   // แต่ละแถวมี EditTenderProjectDialog ที่ดึงตัวเลือกแผนกตั้งแต่ mount
   server.use(http.get(apiUrl("/api/v1/dashboard/departments/select"), () => HttpResponse.json({ data: [makeDepartment()] })));
   renderWithQueryClient(
     <DataTable
-      columns={createColumns(canUpdateStatus)}
+      columns={createColumns(canUpdateStatus, canUpdate, canDelete)}
       data={data}
       pageCount={1}
       total={data.length}
@@ -276,6 +282,24 @@ describe("createColumns — actions", () => {
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText("แก้ไขโครงการจัดซื้อจัดจ้าง")).toBeInTheDocument();
     expect(within(dialog).getByDisplayValue("จัดซื้อเก้าอี้")).toBeInTheDocument();
+  });
+});
+
+describe("createColumns — action permissions", () => {
+  it("hides the edit button when the user cannot update", () => {
+    renderTable([makeTenderProject()], { canUpdate: false });
+
+    const actions = cell(dataRow(), 8);
+    expect(within(actions).queryByRole("button", { name: "แก้ไขโครงการ" })).not.toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: "ลบโครงการ" })).toBeInTheDocument();
+  });
+
+  it("hides the delete button when the user cannot delete", () => {
+    renderTable([makeTenderProject()], { canDelete: false });
+
+    const actions = cell(dataRow(), 8);
+    expect(within(actions).queryByRole("button", { name: "ลบโครงการ" })).not.toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: "แก้ไขโครงการ" })).toBeInTheDocument();
   });
 });
 
