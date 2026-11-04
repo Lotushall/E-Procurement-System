@@ -8,7 +8,8 @@ export function useUser() {
     queryKey: AUTH_USER_QUERY_KEY,
     queryFn: fetchCurrentUser,
     retry: false,
-    staleTime: 5 * 60 * 1000,
+    // เท่ากับรอบ poll — กลับมาที่แท็บหลังเกิน 30 วินาทีจะดึงสิทธิ์ล่าสุดทันที (poll หยุดตอนแท็บอยู่เบื้องหลัง)
+    staleTime: 30 * 1000,
     refetchInterval: 30 * 1000,
   });
 }

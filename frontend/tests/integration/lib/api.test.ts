@@ -1,11 +1,39 @@
 import { http, HttpResponse } from "msw/http";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api, setUnauthorizedHandler } from "@/lib/api";
+import { api, setForbiddenHandler, setUnauthorizedHandler } from "@/lib/api";
 import { apiUrl, server } from "@/tests/msw/server";
 
 describe("api client", () => {
   afterEach(() => {
     setUnauthorizedHandler(null);
+    setForbiddenHandler(null);
+  });
+
+  it("calls the forbidden handler on 403 and still rejects", async () => {
+    const onForbidden = vi.fn();
+    setForbiddenHandler(onForbidden);
+    server.use(http.post(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 403 })));
+
+    await expect(api.post("/api/v1/tors", {})).rejects.toMatchObject({ response: { status: 403 } });
+    expect(onForbidden).toHaveBeenCalledOnce();
+  });
+
+  it("does not call the forbidden handler for the current-user check", async () => {
+    const onForbidden = vi.fn();
+    setForbiddenHandler(onForbidden);
+    server.use(http.get(apiUrl("/api/v1/auth/user"), () => new HttpResponse(null, { status: 403 })));
+
+    await expect(api.get("/api/v1/auth/user")).rejects.toMatchObject({ response: { status: 403 } });
+    expect(onForbidden).not.toHaveBeenCalled();
+  });
+
+  it("does not call the unauthorized handler on 403", async () => {
+    const onUnauthorized = vi.fn();
+    setUnauthorizedHandler(onUnauthorized);
+    server.use(http.post(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 403 })));
+
+    await expect(api.post("/api/v1/tors", {})).rejects.toMatchObject({ response: { status: 403 } });
+    expect(onUnauthorized).not.toHaveBeenCalled();
   });
 
   it("calls the unauthorized handler on 401", async () => {

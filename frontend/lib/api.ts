@@ -23,6 +23,12 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
 }
 
+let onForbidden: (() => void) | null = null;
+
+export function setForbiddenHandler(handler: (() => void) | null): void {
+  onForbidden = handler;
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error: unknown) => {
@@ -35,6 +41,11 @@ api.interceptors.response.use(
 
     if (status === 401 && config.url !== CURRENT_USER_PATH) {
       onUnauthorized?.();
+      return Promise.reject(error);
+    }
+
+    if (status === 403 && config.url !== CURRENT_USER_PATH) {
+      onForbidden?.();
       return Promise.reject(error);
     }
 

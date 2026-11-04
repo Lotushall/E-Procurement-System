@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 import { Providers } from "@/app/providers";
 import { api } from "@/lib/api";
+import { RequirePermission } from "@/lib/auth/guards/RequirePermission";
 import { useRequireAuth } from "@/lib/auth/guards/useRequireAuth";
 import { AUTH_USER_QUERY_KEY } from "@/lib/auth/queries/useUser";
 import { makeCurrentUser } from "@/tests/fixtures/users";
@@ -162,6 +163,43 @@ describe("Providers", () => {
     await expect(api.get("/api/v1/tors")).rejects.toMatchObject({ response: { status: 401 } });
 
     expect(client.getQueryData(AUTH_USER_QUERY_KEY)).toEqual(user);
+  });
+
+  it("re-checks the current user's permissions as soon as any API call answers 403 (permission revoked)", async () => {
+    signInAs({ permissions: ["tors.viewAny"] });
+    render(
+      <Providers>
+        <RequirePermission permission="tors.viewAny">
+          <p>หน้า TOR</p>
+        </RequirePermission>
+      </Providers>,
+    );
+    expect(await screen.findByText("หน้า TOR")).toBeInTheDocument();
+
+    // admin ถอดสิทธิ์ออกจาก role ระหว่างที่หน้านี้เปิดค้างอยู่
+    signInAs({ permissions: [] });
+    server.use(http.post(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 403 })));
+
+    await expect(api.post("/api/v1/tors", {})).rejects.toMatchObject({ response: { status: 403 } });
+
+    expect(await screen.findByText("คุณไม่มีสิทธิ์เข้าถึงหน้านี้")).toBeInTheDocument();
+    expect(screen.queryByText("หน้า TOR")).not.toBeInTheDocument();
+  });
+
+  it("stops handling 403s after it unmounts", async () => {
+    server.use(http.post(apiUrl("/api/v1/tors"), () => new HttpResponse(null, { status: 403 })));
+    let client!: QueryClient;
+    const { unmount } = render(
+      <Providers>
+        <CaptureClient onClient={(c) => (client = c)} />
+      </Providers>,
+    );
+    client.setQueryData(AUTH_USER_QUERY_KEY, makeCurrentUser());
+    unmount();
+
+    await expect(api.post("/api/v1/tors", {})).rejects.toMatchObject({ response: { status: 403 } });
+
+    expect(client.getQueryState(AUTH_USER_QUERY_KEY)?.isInvalidated).toBe(false);
   });
 
   it("mounts the React Query devtools closed, in the bottom-left corner", () => {
