@@ -100,3 +100,10 @@ export interface TenderProjectOption {
   projectCode: string;
   name: string;
 }
+
+// GET /tender-projects/select — ไม่ส่งอะไรเลย = ทุกโครงการ (ช่องกรองหน้ารายการ TOR)
+export interface TenderProjectOptionsParams {
+  department_id?: number;
+  // เฉพาะโครงการที่ยังรับ TOR ใหม่ได้ — backend เป็นคนตัดสินว่าสถานะไหนนับ
+  open_for_tor?: boolean;
+}

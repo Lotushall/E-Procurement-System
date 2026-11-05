@@ -204,4 +204,33 @@ describe("fetchTenderProjectOptions", () => {
 
     await expect(fetchTenderProjectOptions()).resolves.toEqual(options);
   });
+
+  it("sends no filter when called without params", async () => {
+    let search = "";
+    server.use(
+      http.get(apiUrl(`${BASE}/select`), ({ request }) => {
+        search = new URL(request.url).search;
+        return HttpResponse.json({ data: [] });
+      }),
+    );
+
+    await fetchTenderProjectOptions();
+
+    expect(search).toBe("");
+  });
+
+  it("sends department_id and open_for_tor as 1 when asked", async () => {
+    let query: URLSearchParams | undefined;
+    server.use(
+      http.get(apiUrl(`${BASE}/select`), ({ request }) => {
+        query = new URL(request.url).searchParams;
+        return HttpResponse.json({ data: [] });
+      }),
+    );
+
+    await fetchTenderProjectOptions({ department_id: 3, open_for_tor: true });
+
+    expect(query?.get("department_id")).toBe("3");
+    expect(query?.get("open_for_tor")).toBe("1");
+  });
 });

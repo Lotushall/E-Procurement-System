@@ -4,6 +4,7 @@ import {
   PaginatedTenderProjectsList,
   TenderProjectListParams,
   TenderProjectOption,
+  TenderProjectOptionsParams,
   TenderProjects,
   TenderProjectStatus,
   UpdateTenderProjectPayload,
@@ -73,9 +74,13 @@ export async function deleteTenderProject(id: number): Promise<void> {
   await api.delete(`/api/v1/dashboard/tender-projects/${id}`);
 }
 
-export async function fetchTenderProjectOptions(): Promise<TenderProjectOption[]> {
+export async function fetchTenderProjectOptions(
+  params: TenderProjectOptionsParams = {},
+): Promise<TenderProjectOption[]> {
   const { data } = await api.get<{ data: TenderProjectOption[] }>(
     "/api/v1/dashboard/tender-projects/select",
+    // Laravel's boolean rule takes 1/0, not "true"/"false"
+    { params: { ...params, open_for_tor: params.open_for_tor ? 1 : undefined } },
   );
   return data.data;
 }

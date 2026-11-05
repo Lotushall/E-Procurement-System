@@ -14,6 +14,7 @@ use App\Modules\Tender\Application\Project\UseCases\DeleteTenderProjectUseCase;
 use App\Modules\Tender\Application\Project\UseCases\UpdateTenderProjectStatusUseCase;
 use App\Modules\Tender\Application\Project\UseCases\UpdateTenderProjectUseCase;
 use App\Modules\Tender\Presentation\Http\Requests\Project\ListTenderProjectsRequest;
+use App\Modules\Tender\Presentation\Http\Requests\Project\SelectTenderProjectOptionsRequest;
 use App\Modules\Tender\Presentation\Http\Requests\Project\StoreTenderProjectRequest;
 use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectRequest;
 use App\Modules\Tender\Presentation\Http\Requests\Project\UpdateTenderProjectStatusRequest;
@@ -63,10 +64,13 @@ class TenderProjectController extends Controller
         ]);
     }
 
-    public function select(): JsonResponse
+    public function select(SelectTenderProjectOptionsRequest $request): JsonResponse
     {
         return response()->json([
-            'data' => $this->listTenderProjectOptions->execute(),
+            'data' => $this->listTenderProjectOptions->execute(
+                departmentId: $request->filled('department_id') ? $request->integer('department_id') : null,
+                openForTor: $request->boolean('open_for_tor'),
+            ),
         ]);
     }
 

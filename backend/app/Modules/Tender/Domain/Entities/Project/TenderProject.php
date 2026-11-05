@@ -21,6 +21,13 @@ final class TenderProject
         'archived' => [],
     ];
 
+    /**
+     * Statuses of a project that still takes new TORs.
+     *
+     * @var list<string>
+     */
+    public const OPEN_FOR_TOR_STATUSES = ['draft', 'published'];
+
     private function __construct(
         private readonly ?int $id,
         private ProjectCode $projectCode,

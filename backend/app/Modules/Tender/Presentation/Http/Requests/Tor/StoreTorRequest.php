@@ -2,6 +2,7 @@
 
 namespace App\Modules\Tender\Presentation\Http\Requests\Tor;
 
+use App\Modules\Tender\Domain\Entities\Project\TenderProject;
 use App\Modules\Tender\Infrastructure\Models\Project\TenderProjects;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,17 +29,10 @@ class StoreTorRequest extends FormRequest
     }
 
     /**
-     * Project statuses that still take TORs. A TOR already in a project that
-     * has since moved on keeps it; only joining such a project is refused.
-     *
-     * @var list<string>
-     */
-    private const array OPEN_PROJECT_STATUSES = ['draft', 'published'];
-
-    /**
      * A tender project groups TORs of one owning department (CONTEXT.md), so
      * a TOR placed in a project must belong to that project's department, and
-     * only a project still open may receive a TOR.
+     * only a project still open may receive a TOR. A TOR already in a project
+     * that has since moved on keeps it; only joining such a project is refused.
      *
      * @return array<int, callable(Validator): void>
      */
@@ -65,7 +59,7 @@ class StoreTorRequest extends FormRequest
                 }
 
                 if ((int) $tenderProjectId !== $this->currentTenderProjectId()
-                    && ! in_array($project->status, self::OPEN_PROJECT_STATUSES, true)) {
+                    && ! in_array($project->status, TenderProject::OPEN_FOR_TOR_STATUSES, true)) {
                     $validator->errors()->add('tenderProjectId', 'โครงการที่เลือกปิดหรือยกเลิกแล้ว ไม่สามารถเพิ่ม TOR ได้');
                 }
             },

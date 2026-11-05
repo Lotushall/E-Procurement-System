@@ -17,7 +17,34 @@ describe("useTenderProjectOptions", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(options);
-    expect(queryClient.getQueryData(["tenders_projects", "select"])).toEqual(options);
+    expect(queryClient.getQueryData(["tenders_projects", "select", {}])).toEqual(options);
+  });
+
+  it("caches each filter under its own key", async () => {
+    const options = [makeTenderProjectOption({ id: 5 })];
+    server.use(http.get(URL_, () => HttpResponse.json({ data: options })));
+    const params = { department_id: 3, open_for_tor: true };
+
+    const { result, queryClient } = renderHookWithQueryClient(() => useTenderProjectOptions(params));
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(queryClient.getQueryData(["tenders_projects", "select", params])).toEqual(options);
+  });
+
+  it("does not fetch while disabled", async () => {
+    let calls = 0;
+    server.use(
+      http.get(URL_, () => {
+        calls += 1;
+        return HttpResponse.json({ data: [] });
+      }),
+    );
+
+    const { result } = renderHookWithQueryClient(() => useTenderProjectOptions({}, { enabled: false }));
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(result.current.fetchStatus).toBe("idle");
+    expect(calls).toBe(0);
   });
 
   it("is refetched when the tenders_projects family is invalidated", async () => {

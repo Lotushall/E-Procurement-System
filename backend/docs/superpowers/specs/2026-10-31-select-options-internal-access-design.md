@@ -72,18 +72,24 @@ shaped like `ListDepartmentOptionsQuery`:
 
 ```php
 /** @return array<int, array{id: int, projectCode: string, name: string}> */
-public function execute(): array
+public function execute(?int $departmentId = null, bool $openForTor = false): array
 ```
 
 - Reads `TenderProjects` directly, selecting only `id`, `project_code`, `name`,
   ordered by `project_code`.
+- **Amended 2026-11-05: optional filters** for the TOR create form, which must offer
+  only the projects a TOR may join. They are validated by `SelectTenderProjectOptionsRequest`:
+  - `department_id` (integer, must exist) keeps that department's projects.
+  - `open_for_tor` (boolean) keeps statuses in `TenderProject::OPEN_FOR_TOR_STATUSES`
+    (`draft`, `published`), the same constant `StoreTorRequest::after()` checks.
+  - With neither filter the endpoint behaves as before. The TOR list filter relies on this.
 - Returns every project regardless of status. Filtering TORs by an archived or
   cancelled project is still a valid question.
 - **Not cached.** Department options are cached because departments rarely change;
   projects are created and edited often, and caching would need invalidation in the
   store/update/destroy use cases. The query is one indexed `SELECT` of three columns.
 
-`TenderProjectController::select(): JsonResponse` returns
+`TenderProjectController::select(SelectTenderProjectOptionsRequest): JsonResponse` returns
 `{ "data": [{ "id": 1, "projectCode": "...", "name": "..." }, ...] }`.
 
 ### Error handling
@@ -105,4 +111,5 @@ Pest, `RefreshDatabase`.
   and 401 when logged out.
 - New `TenderProjectsSelectTest` (HTTP): the same three access cases; the exact JSON
   shape (`id`, `projectCode`, `name` only); ordered by `projectCode`; includes projects
-  of every status.
+  of every status when unfiltered; `department_id`, `open_for_tor` and both together
+  filter correctly; an unknown `department_id` or a non-boolean `open_for_tor` is 422.
