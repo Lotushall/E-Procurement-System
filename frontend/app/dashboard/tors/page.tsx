@@ -12,9 +12,16 @@ import { TorListSkeleton, TorTableSkeleton } from "./_components/tor-list-skelet
 import { TorFilterBar } from "./_components/filters/tor-filter-bar";
 import { torColumns } from "./_components/table/columns";
 import { TorCard } from "./_components/table/tor-card";
+import { useAuthPermissions } from "@/lib/auth/permissions";
+import { FloatingActionButton } from "@/components/floating-action-button";
+import { Plus } from "lucide-react";
+import { routes } from "@/lib/routes";
 
 function TorsPageContent() {
     useBreadcrumb([{ label: "การจัดการ TOR" }]);
+
+    const { hasPermission } = useAuthPermissions();
+    const canCreate = hasPermission("tors.create");
 
     // โหลดไม่ได้ = dropdown เหลือแค่ตัวเลือกคงที่ ("ทุกหน่วยงาน" / "ทุกโครงการ", "ไม่สังกัดโครงการ")
     const { data: departmentOptions } = useDepartmentOptions();
@@ -59,6 +66,12 @@ function TorsPageContent() {
                     ภาพรวมทั้งหมดและ TOR ที่เกี่ยวข้อง
                 </p>
             </div>
+
+            {canCreate && (
+                <FloatingActionButton
+                    actions={[{ label: "สร้าง TOR", icon: Plus, href: routes.dashboards.tors.create }]}
+                />
+            )}
 
             <TorFilterBar
                 departments={departmentOptions ?? []}

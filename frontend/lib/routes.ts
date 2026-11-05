@@ -19,10 +19,13 @@ export const routes = {
     tors: {
       index: "/dashboard/tors",
       detail: (id: number | string) => `/dashboard/tors/detail?id=${id}`,
+      create: "/dashboard/tors/create",
+      edit: (id: number | string) => `/dashboard/tors/edit?id=${id}`,
     },
     tender_project: {
       index: "/dashboard/tender-projects",
-      detail: (id: number | string) => `/dashboard/tender-projects/detail?id=${id}`,
+      detail: (id: number | string) =>
+        `/dashboard/tender-projects/detail?id=${id}`,
       edit: (id: number | string) => `/dashboard/tender-projects/edit?id=${id}`,
     },
     vendors: {
