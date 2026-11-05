@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { ProcurementMethodCombobox } from "@/app/dashboard/tender-projects/_components/dialogs/procurement-method-combobox";
+import { ProcurementMethodCombobox } from "@/components/procurement-method-combobox";
 import { PROCUREMENT_METHODS } from "@/lib/tender/procurement-methods";
 
 function Harness({ initial = "", onChange = vi.fn() }: { initial?: string; onChange?: (next: string) => void }) {

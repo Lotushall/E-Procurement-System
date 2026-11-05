@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent, type ReactElement, type ReactNode } from "react";
+import { useState, type ReactElement, type ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { format, parse } from "date-fns";
 import { th } from "date-fns/locale";
@@ -21,62 +21,16 @@ import { Calendar } from "@/components/ui/calendar";
 import { DepartmentSelect } from "@/components/department-select";
 import { InternalProfileCombobox } from "@/components/internal-profile-combobox";
 import { useDepartmentOptions } from "@/lib/internal-profiles/queries/useDepartmentOptions";
+import { ProcurementMethodCombobox } from "@/components/procurement-method-combobox";
+import { formatBudgetDisplay, handleBudgetChange } from "@/lib/form/budget-input";
 import { FISCAL_YEAR_CHOICES } from "@/lib/tender/fiscal-year-options";
 import type { TenderProjects } from "@/lib/tender/tender-projects/types";
 import { toFormValues, useEditTenderProjectForm } from "../../_hooks/use-edit-tender-project-form";
-import { ProcurementMethodCombobox } from "./procurement-method-combobox";
 
 const DATE_PARAM_FORMAT = "yyyy-MM-dd";
 
 function parseDateParam(value: string | undefined): Date | undefined {
     return value ? parse(value, DATE_PARAM_FORMAT, new Date()) : undefined;
-}
-
-// Keeps at most one "." and caps the decimal part at 2 digits (matches the budget schema's precision).
-function sanitizeBudgetInput(input: string): string {
-    const cleaned = input.replace(/[^\d.]/g, "");
-    const dotIndex = cleaned.indexOf(".");
-    if (dotIndex === -1) return cleaned;
-
-    const intPart = cleaned.slice(0, dotIndex);
-    const decPart = cleaned.slice(dotIndex + 1).replace(/\./g, "").slice(0, 2);
-    return `${intPart}.${decPart}`;
-}
-
-function formatBudgetDisplay(raw: string): string {
-    if (raw === "") return "";
-    const [intPart, decPart] = raw.split(".");
-    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return decPart !== undefined ? `${grouped}.${decPart}` : grouped;
-}
-
-// Reformatting on every keystroke shifts the comma positions, which would
-// otherwise throw a mid-edit cursor to the end of the input — this keeps it
-// pinned to the same digit by counting digits (not raw characters) to its left.
-function handleBudgetChange(onChange: (value: string) => void) {
-    return (e: ChangeEvent<HTMLInputElement>) => {
-        const input = e.target;
-        const cursorPos = input.selectionStart ?? input.value.length;
-        const digitsBeforeCursor = input.value.slice(0, cursorPos).replace(/[^\d.]/g, "").length;
-
-        const raw = sanitizeBudgetInput(input.value);
-        onChange(raw);
-
-        requestAnimationFrame(() => {
-            const formatted = formatBudgetDisplay(raw);
-            let count = 0;
-            let pos = formatted.length;
-            for (let i = 0; i < formatted.length; i++) {
-                if (/[\d.]/.test(formatted[i])) count++;
-                if (count === digitsBeforeCursor) {
-                    pos = i + 1;
-                    break;
-                }
-            }
-            if (digitsBeforeCursor === 0) pos = 0;
-            input.setSelectionRange(pos, pos);
-        });
-    };
 }
 
 export function EditTenderProjectDialog({
