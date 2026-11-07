@@ -10,6 +10,10 @@ use Spatie\Permission\Models\Permission;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function () {
+    $this->travelTo('2026-11-05 10:00:00');
+});
+
 /**
  * @param  list<string>  $permissions
  */
@@ -84,15 +88,27 @@ test('an internal user with tors.create creates a draft TOR with a generated cod
     ]);
 });
 
-test('the TOR code sequence increments within a fiscal year and restarts for a new one', function () {
+test('the TOR code sequence increments within the year of creation and restarts for a new one', function () {
     $this->actingAs(storeTorUser(), 'web');
 
     $this->postJson('/api/v1/dashboard/tors', validTorPayload());
 
     $this->postJson('/api/v1/dashboard/tors', validTorPayload())
         ->assertJsonPath('data.torCode', 'TOR-2026-0002');
-    $this->postJson('/api/v1/dashboard/tors', validTorPayload(['fiscalYear' => 2027]))
+
+    $this->travelTo('2027-01-01 00:00:00');
+
+    $this->postJson('/api/v1/dashboard/tors', validTorPayload(['biddingStartAt' => '2027-02-01 09:00:00', 'biddingEndAt' => '2027-02-15 16:30:00']))
         ->assertJsonPath('data.torCode', 'TOR-2027-0001');
+});
+
+test('the TOR code follows the year of creation, not the fiscal year', function () {
+    $this->actingAs(storeTorUser(), 'web');
+
+    $this->postJson('/api/v1/dashboard/tors', validTorPayload(['fiscalYear' => 2027]))
+        ->assertCreated()
+        ->assertJsonPath('data.torCode', 'TOR-2026-0001')
+        ->assertJsonPath('data.fiscalYear', 2027);
 });
 
 test('a deleted TOR code is never issued again', function () {

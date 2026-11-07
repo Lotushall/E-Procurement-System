@@ -302,15 +302,16 @@ test('a department viewer may still update a TOR they created after moving it to
         ->assertJsonPath('data.title', 'ชื่อใหม่');
 });
 
-test('moving a TOR to another fiscal year issues the next code of that year', function () {
+test('moving a TOR to another fiscal year keeps its code', function () {
     $this->actingAs(updateTorUser(), 'web');
-    Tors::factory()->status('draft')->create(['tor_code' => 'TOR-2027-0003', 'fiscal_year' => 2027, 'tender_project_id' => null]);
     $tor = updatableTor('draft');
 
     $this->putJson('/api/v1/dashboard/tors/'.$tor->id, updateTorPayload(['fiscalYear' => 2027]))
         ->assertOk()
-        ->assertJsonPath('data.torCode', 'TOR-2027-0004')
+        ->assertJsonPath('data.torCode', 'TOR-2026-0005')
         ->assertJsonPath('data.fiscalYear', 2027);
+
+    $this->assertDatabaseMissing('tor_code_sequences', ['year' => 2027]);
 });
 
 test('updating a TOR validates the payload like creating one', function () {

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-reason-dialog";
+import { RejectReasonDialog } from "@/app/dashboard/vendors/detail/_components/reject-reason-dialog";
 
 function renderDialog(props: { isPending?: boolean; onConfirm?: (remark: string) => void } = {}) {
   const onConfirm = props.onConfirm ?? vi.fn();

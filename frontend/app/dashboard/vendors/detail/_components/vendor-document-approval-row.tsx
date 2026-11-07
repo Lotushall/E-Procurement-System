@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorStatusBadge } from "@/components/vendor-status-badge";
-import { RejectReasonDialog } from "@/app/dashboard/vendors/_components/reject-reason-dialog";
+import { RejectReasonDialog } from "@/app/dashboard/vendors/detail/_components/reject-reason-dialog";
 import { getVendorDocumentViewUrl } from "@/lib/vendor/profile/api";
 import type { VendorDocument } from "@/lib/vendor/profile/types";
 import { useApproveVendorDocument } from "@/lib/vendor/approval/mutations/useApproveVendorDocument";

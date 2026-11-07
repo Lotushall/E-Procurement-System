@@ -17,32 +17,41 @@ class TorRepository implements TorRepositoryInterface
      * concurrent callers each get a distinct number, and a number stays
      * issued even if the TOR it was drawn for is never saved or later deleted.
      */
-    public function nextSequenceForFiscalYear(int $fiscalYear): int
+    public function nextSequenceForYear(int $year): int
     {
-        return DB::transaction(function () use ($fiscalYear) {
-            $counter = $this->lockedCounter($fiscalYear);
+        return DB::transaction(function () use ($year) {
+            $counter = $this->lockedCounter($year);
 
             if ($counter === null) {
                 // Seeding the counter only fills a missing row; a concurrent
                 // seed is ignored and both callers then queue on the row lock.
                 DB::table('tor_code_sequences')->insertOrIgnore([
-                    'fiscal_year' => $fiscalYear,
-                    'last_sequence' => $this->highestExistingSequence($fiscalYear),
+                    'year' => $year,
+                    'last_sequence' => $this->highestExistingSequence($year),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
 
-                $counter = $this->lockedCounter($fiscalYear);
+                $counter = $this->lockedCounter($year);
             }
 
             $next = $counter->last_sequence + 1;
 
             DB::table('tor_code_sequences')
-                ->where('fiscal_year', $fiscalYear)
+                ->where('year', $year)
                 ->update(['last_sequence' => $next, 'updated_at' => now()]);
 
             return $next;
         });
+    }
+
+    public function peekNextSequenceForYear(int $year): int
+    {
+        $lastSequence = DB::table('tor_code_sequences')
+            ->where('year', $year)
+            ->value('last_sequence');
+
+        return ($lastSequence ?? $this->highestExistingSequence($year)) + 1;
     }
 
     public function findById(int $id): Tor
@@ -81,10 +90,10 @@ class TorRepository implements TorRepositoryInterface
         Tors::findOrFail($id)->delete();
     }
 
-    private function lockedCounter(int $fiscalYear): ?object
+    private function lockedCounter(int $year): ?object
     {
         return DB::table('tor_code_sequences')
-            ->where('fiscal_year', $fiscalYear)
+            ->where('year', $year)
             ->lockForUpdate()
             ->first();
     }
@@ -93,9 +102,9 @@ class TorRepository implements TorRepositoryInterface
      * The highest sequence among TOR codes of the year that predate the
      * counter, compared as numbers so TOR-2027-10000 outranks TOR-2027-9999.
      */
-    private function highestExistingSequence(int $fiscalYear): int
+    private function highestExistingSequence(int $year): int
     {
-        $prefix = "TOR-{$fiscalYear}-";
+        $prefix = "TOR-{$year}-";
 
         return (int) Tors::where('tor_code', 'like', "{$prefix}%")
             ->pluck('tor_code')

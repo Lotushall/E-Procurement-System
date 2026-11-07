@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -60,27 +61,33 @@ return new class extends Migration
             });
     }
 
+    /**
+     * The counter's year column is renamed from fiscal_year to year by a later
+     * migration, so the column is looked up rather than assumed.
+     */
     private function convertTorCodeSequences(int $shift): void
     {
+        $column = Schema::hasColumn('tor_code_sequences', 'year') ? 'year' : 'fiscal_year';
+
         $rows = DB::table('tor_code_sequences')
-            ->where('fiscal_year', $shift < 0 ? '>=' : '<', self::FIRST_BUDDHIST_YEAR)
+            ->where($column, $shift < 0 ? '>=' : '<', self::FIRST_BUDDHIST_YEAR)
             ->get();
 
         foreach ($rows as $row) {
-            $year = $row->fiscal_year + $shift;
-            $existing = DB::table('tor_code_sequences')->where('fiscal_year', $year)->value('last_sequence');
+            $year = $row->{$column} + $shift;
+            $existing = DB::table('tor_code_sequences')->where($column, $year)->value('last_sequence');
 
-            // fiscal_year is the primary key: write the converted row, keeping the higher
+            // The year is the primary key: write the converted row, keeping the higher
             // counter if that year already has one, so no issued code is handed out again.
             DB::table('tor_code_sequences')->updateOrInsert(
-                ['fiscal_year' => $year],
+                [$column => $year],
                 [
                     'last_sequence' => max($row->last_sequence, (int) $existing),
                     'created_at' => $row->created_at,
                     'updated_at' => now(),
                 ],
             );
-            DB::table('tor_code_sequences')->where('fiscal_year', $row->fiscal_year)->delete();
+            DB::table('tor_code_sequences')->where($column, $row->{$column})->delete();
         }
     }
 };

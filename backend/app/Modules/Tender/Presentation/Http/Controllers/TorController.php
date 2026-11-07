@@ -7,6 +7,7 @@ use App\Modules\Tender\Application\Tor\DTOs\CreateTorData;
 use App\Modules\Tender\Application\Tor\DTOs\UpdateTorData;
 use App\Modules\Tender\Application\Tor\Queries\GetTorByIdQuery;
 use App\Modules\Tender\Application\Tor\Queries\ListTorsQuery;
+use App\Modules\Tender\Application\Tor\Queries\PreviewNextTorCodeQuery;
 use App\Modules\Tender\Application\Tor\UseCases\CreateTorUseCase;
 use App\Modules\Tender\Application\Tor\UseCases\DeleteTorUseCase;
 use App\Modules\Tender\Application\Tor\UseCases\UpdateTorUseCase;
@@ -24,6 +25,7 @@ class TorController extends Controller
     public function __construct(
         private readonly ListTorsQuery $listTors,
         private readonly GetTorByIdQuery $getTorById,
+        private readonly PreviewNextTorCodeQuery $previewNextTorCode,
         private readonly CreateTorUseCase $createTor,
         private readonly UpdateTorUseCase $updateTor,
         private readonly DeleteTorUseCase $deleteTor,
@@ -60,6 +62,19 @@ class TorController extends Controller
     {
         return response()->json([
             'data' => new TorResource($this->getTorById->execute($id, $request->user())),
+        ]);
+    }
+
+    /**
+     * The TOR code shown on the create form; it is a preview, the code is
+     * issued only when the TOR is stored.
+     */
+    public function nextCode(): JsonResponse
+    {
+        return response()->json([
+            'data' => [
+                'torCode' => (string) $this->previewNextTorCode->execute(),
+            ],
         ]);
     }
 

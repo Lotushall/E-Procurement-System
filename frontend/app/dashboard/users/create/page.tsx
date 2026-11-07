@@ -11,8 +11,8 @@ import { useRoles } from "@/lib/user/management/queries/useRoles";
 import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { useAvailableInternalProfiles } from "@/lib/internal-profiles/queries/useAvailableInternalProfiles";
 import { routes } from "@/lib/routes";
-import { useCreateUserForm } from "../_hooks/use-create-user-form";
-import { CreateInternalUserFields } from "../_components/create-internal-user-fields";
+import { useCreateUserForm } from "./_hooks/use-create-user-form";
+import { CreateInternalUserFields } from "./_components/create-internal-user-fields";
 
 function CreateUserPageContent() {
   const router = useRouter();

@@ -69,4 +69,20 @@ export interface PaginatedTorsList {
 }
 
 // มีสิทธิ์ตัวใดตัวหนึ่งก็ดูหน้า TOR ได้ — ชุดเดียวกับที่ backend เช็คใน TorPolicy::viewAny
-export const TOR_VIEW_PERMISSIONS = ["tors.viewAny", "tors.viewDepartment", "tors.viewOwn"];
+export const TOR_VIEW_PERMISSIONS = [
+  "tors.viewAny",
+  "tors.viewDepartment",
+  "tors.viewOwn",
+];
+
+export interface CreateTorPayload {
+  title: string;
+  scopeOfWork: string;
+  departmentId: number;
+  tenderProjectId?: number | null;
+  budgetEstimate: number;
+  procurementMethod: string;
+  fiscalYear: number;
+  biddingStartAt?: string | null;
+  biddingEndAt?: string | null;
+}

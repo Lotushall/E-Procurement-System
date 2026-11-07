@@ -10,6 +10,10 @@ Route::prefix('dashboard')->group(function () {
             ->middleware('can:tors.index')
             ->name('dashboard.tors.index');
 
+        Route::get('/next-code', [TorController::class, 'nextCode'])
+            ->middleware('can:tors.store')
+            ->name('dashboard.tors.next-code');
+
         Route::get('/{id}', [TorController::class, 'show'])
             ->middleware('can:tors.index')
             ->where('id', '[0-9]{1,18}')

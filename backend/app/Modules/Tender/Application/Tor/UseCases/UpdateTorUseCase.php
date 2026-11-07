@@ -6,7 +6,6 @@ use App\Modules\Shared\Domain\ValueObjects\Money;
 use App\Modules\Tender\Application\Tor\DTOs\UpdateTorData;
 use App\Modules\Tender\Domain\Entities\Tor\Tor;
 use App\Modules\Tender\Domain\Repositories\Tor\TorRepositoryInterface;
-use App\Modules\Tender\Domain\ValueObjects\Tor\TorCode;
 use Carbon\CarbonImmutable;
 
 final class UpdateTorUseCase
@@ -16,9 +15,9 @@ final class UpdateTorUseCase
     ) {}
 
     /**
-     * Replace every editable field of the TOR. The TOR code is kept as long
-     * as the fiscal year stays the same; moving the TOR to another fiscal
-     * year issues the next code in that year's sequence.
+     * Replace every editable field of the TOR. The TOR code is fixed by the
+     * year the TOR was created in, so it is kept even when the fiscal year
+     * changes.
      *
      * Without $ignoresStatusLock only an editable TOR (Tor::isEditable()) may
      * change; with it, a TOR at any step may. Either way, changing an
@@ -39,7 +38,7 @@ final class UpdateTorUseCase
         $previousStatus = $tor->status()->getValue();
 
         $changed = $tor->update(
-            torCode: $this->resolveTorCode($tor, $data->fiscalYear),
+            torCode: $tor->torCode(),
             title: $data->title,
             scopeOfWork: $data->scopeOfWork,
             departmentId: $data->departmentId,
@@ -72,16 +71,5 @@ final class UpdateTorUseCase
         ], 'info', 'tender');
 
         return $saved;
-    }
-
-    private function resolveTorCode(Tor $tor, int $fiscalYear): TorCode
-    {
-        if ($tor->fiscalYear() === $fiscalYear) {
-            return $tor->torCode();
-        }
-
-        $sequence = $this->tors->nextSequenceForFiscalYear($fiscalYear);
-
-        return TorCode::fromString(sprintf('TOR-%d-%04d', $fiscalYear, $sequence));
     }
 }

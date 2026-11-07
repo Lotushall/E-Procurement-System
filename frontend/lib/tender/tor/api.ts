@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { PaginatedTorsList, Tor, TorListParams } from "./types";
+import { CreateTorPayload, PaginatedTorsList, Tor, TorListParams } from "./types";
 
 export async function fetchTorsList(
   params: TorListParams = {},
@@ -25,3 +25,17 @@ export async function fetchTorDetail(id: number): Promise<Tor> {
   const { data } = await api.get<{ data: Tor }>(`/api/v1/dashboard/tors/${id}`);
   return data.data;
 }
+
+export async function fetchTorNextCode(): Promise<string> {
+  const { data } = await api.get<{ data: { torCode: string } }>(
+    `/api/v1/dashboard/tors/next-code`,
+  );
+
+  return data.data.torCode;
+}
+
+export async function createTor(payload: CreateTorPayload): Promise<Tor> {
+  const { data } = await api.post<{ data: Tor }>("/api/v1/dashboard/tors", payload);
+  return data.data;
+}
+

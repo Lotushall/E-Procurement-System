@@ -19,8 +19,8 @@ import { usePermissions } from "@/lib/user/management/queries/usePermissions";
 import { useUserDetail } from "@/lib/user/management/queries/useUserDetail";
 import type { UserDetail } from "@/lib/user/management/types";
 import { routes } from "@/lib/routes";
-import { useUpdateAccountForm } from "../_hooks/use-update-account-form";
-import { useUpdateInternalUserForm } from "../_hooks/use-update-internal-user-form";
+import { useUpdateAccountForm } from "./_hooks/use-update-account-form";
+import { useUpdateInternalUserForm } from "./_hooks/use-update-internal-user-form";
 
 function EditUserPageContent() {
   const searchParams = useSearchParams();

@@ -15,10 +15,14 @@ final class CreateTorUseCase
         private readonly TorRepositoryInterface $tors,
     ) {}
 
+    /**
+     * The TOR code numbers by the calendar year the TOR is created in, not by
+     * its fiscal year.
+     */
     public function execute(CreateTorData $data, int $createdBy): Tor
     {
-        $sequence = $this->tors->nextSequenceForFiscalYear($data->fiscalYear);
-        $torCode = TorCode::fromString(sprintf('TOR-%d-%04d', $data->fiscalYear, $sequence));
+        $year = CarbonImmutable::now()->year;
+        $torCode = TorCode::forSequence($year, $this->tors->nextSequenceForYear($year));
 
         $tor = Tor::create(
             torCode: $torCode,

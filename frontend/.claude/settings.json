@@ -324,7 +324,17 @@
       "Bash(sed -i 's#^import { isTenderProjectLocked } from \"@/lib/tender/tender-projects/status-rules\";#import { isTenderProjectLocked, MANAGE_ANY_STATUS_PERMISSION } from \"@/lib/tender/tender-projects/status-rules\";#' app/dashboard/tender-projects/detail/page.tsx)",
       "Bash(sed -i 's#^import { allowedNextStatuses } from \"@/lib/tender/tender-projects/status-rules\";#import { allowedNextStatuses, MANAGE_ANY_STATUS_PERMISSION } from \"@/lib/tender/tender-projects/status-rules\";#; s#\\(archived สำหรับผู้ที่ไม่ใช่ admin\\)#\\(archived เมื่อไม่มีสิทธิ์ manageAnyStatus\\)#' components/tender-project-status-select.tsx)",
       "Bash(sed -i 's#^import { useAuthPermissions } from \"@/lib/auth/permissions\";#&\\\\nimport { MANAGE_ANY_STATUS_PERMISSION } from \"@/lib/tender/tender-projects/status-rules\";#' app/dashboard/tender-projects/page.tsx)",
-      "Bash(sed -i 's#// โครงการที่จบแล้ว ผู้ที่ไม่ใช่ admin แก้ไข/ลบไม่ได้ \\(เหมือนในหน้ารายการ\\)#// โครงการที่จบแล้ว แก้ไข/ลบได้เฉพาะผู้ที่มี tender_projects.manageAnyStatus \\(เหมือนในหน้ารายการ\\)#' app/dashboard/tender-projects/detail/page.tsx)"
+      "Bash(sed -i 's#// โครงการที่จบแล้ว ผู้ที่ไม่ใช่ admin แก้ไข/ลบไม่ได้ \\(เหมือนในหน้ารายการ\\)#// โครงการที่จบแล้ว แก้ไข/ลบได้เฉพาะผู้ที่มี tender_projects.manageAnyStatus \\(เหมือนในหน้ารายการ\\)#' app/dashboard/tender-projects/detail/page.tsx)",
+      "PowerShell(git -C .. status --short)",
+      "PowerShell(git -C .. log --oneline -5)",
+      "PowerShell(git -C .. diff -- frontend/lib/tender/tor frontend/lib/routes.ts)",
+      "PowerShell(git mv app/dashboard/tender-projects/_components/dialogs/procurement-method-combobox.tsx components/procurement-method-combobox.tsx)",
+      "PowerShell(git mv tests/integration/app/dashboard/tender-projects/_components/dialogs/procurement-method-combobox.test.tsx tests/integration/components/procurement-method-combobox.test.tsx)",
+      "PowerShell(npx tsc --noEmit -p . 2>&1)",
+      "PowerShell(npx eslint components/procurement-method-combobox.tsx lib/form/budget-input.ts lib/tender/tender-projects app/dashboard/tender-projects/_components/dialogs tests/unit/lib/tender/status-rules.test.ts tests/integration/components/procurement-method-combobox.test.tsx tests/fixtures/tender-projects.ts)",
+      "PowerShell(npx vitest run tests/unit/lib/tender/status-rules.test.ts tests/integration/components/procurement-method-combobox.test.tsx tests/integration/app/dashboard/tender-projects tests/integration/app/dashboard/tors tests/integration/lib/tender/tender-projects 2>&1)",
+      "PowerShell(php artisan test tests/Feature/Modules/Tender/TenderProjectsSelectTest.php 2>&1)",
+      "Bash(node \"C:/Users/JR/AppData/Local/Temp/claude/8e4cae8352a13bf6/9b5c3804-d234-4daa-8ef1-30151f7bf030/scratchpad/find-misplaced.mjs\" .)"
     ],
     "additionalDirectories": [
       "d:\\E-Procurement-System\\backend\\app\\Modules\\Auth\\Providers",

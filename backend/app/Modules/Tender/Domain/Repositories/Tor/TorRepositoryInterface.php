@@ -8,11 +8,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 interface TorRepositoryInterface
 {
     /**
-     * Issue the next sequence number for the given fiscal year, starting at 1
-     * for a year without TORs. A number is issued once and never again, even
+     * Issue the next sequence number for the given calendar year, starting at
+     * 1 for a year without TORs. A number is issued once and never again, even
      * after the TOR carrying it is deleted.
      */
-    public function nextSequenceForFiscalYear(int $fiscalYear): int;
+    public function nextSequenceForYear(int $year): int;
+
+    /**
+     * The number nextSequenceForYear() would issue right now, without issuing
+     * it. A concurrent issue may take it first, so it is a preview only.
+     */
+    public function peekNextSequenceForYear(int $year): int;
 
     /**
      * @throws ModelNotFoundException when no TOR has the given id
